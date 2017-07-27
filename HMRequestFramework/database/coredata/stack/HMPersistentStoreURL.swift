@@ -1,0 +1,160 @@
+//
+//  HMPersistentStoreURL.swift
+//  HMRequestFramework
+//
+//  Created by Hai Pham on 7/24/17.
+//  Copyright © 2017 Holmusk. All rights reserved.
+//
+
+import CoreData
+import SwiftUtilities
+
+/// Use this class to represent components to build a persistent store URL.
+public struct HMPersistentStoreURL {
+    fileprivate var fileManager: FileManager?
+    fileprivate var searchPath: FileManager.SearchPathDirectory?
+    fileprivate var domainMask: FileManager.SearchPathDomainMask?
+    fileprivate var fileName: String?
+    fileprivate var fileExtension: String?
+    
+    /// Get the associated store URL.
+    ///
+    /// - Returns: A URL instance.
+    /// - Throws: Exception if the URL cannot be created.
+    public func storeURL() throws -> URL {
+        guard
+            let fileManager = self.fileManager,
+            let fileName = self.fileName,
+            let fileExtension = self.fileExtension,
+            let searchPath = self.searchPath,
+            let domainMask = self.domainMask,
+            let directoryURL = fileManager.urls(for: searchPath , in: domainMask).first
+        else {
+            throw Exception("One or more data fields are nil")
+        }
+        
+        let storeName = "\(fileName).\(fileExtension)"
+        return directoryURL.appendingPathComponent(storeName)
+    }
+}
+
+public extension HMPersistentStoreURL {
+    public static func builder() -> Builder {
+        return Builder()
+    }
+    
+    public final class Builder {
+        private var storeURL: HMPersistentStoreURL
+        
+        fileprivate init() {
+            storeURL = HMPersistentStoreURL()
+        }
+        
+        /// Set the fileManager instance.
+        ///
+        /// - Parameter fileManager: A FileManager instance.
+        /// - Returns: The current Builder instance.
+        @discardableResult
+        public func with(fileManager: FileManager) -> Builder {
+            storeURL.fileManager = fileManager
+            return self
+        }
+        
+        /// Set the default fileManager instance.
+        ///
+        /// - Returns: The current Builder instance.
+        @discardableResult
+        public func withDefaultFileManager() -> Builder {
+            return with(fileManager: .default)
+        }
+        
+        /// Set the searchPath instance.
+        ///
+        /// - Parameter searchPath: A SearchPathDirectory instance.
+        /// - Returns: The current Builder instance.
+        @discardableResult
+        public func with(searchPath: FileManager.SearchPathDirectory) -> Builder {
+            storeURL.searchPath = searchPath
+            return self
+        }
+        
+        /// Set the document directory.
+        ///
+        /// - Returns: The current Builder instance.
+        @discardableResult
+        public func withDocumentDirectory() -> Builder {
+            return with(searchPath: .documentDirectory)
+        }
+        
+        /// Set the domainMask instance.
+        ///
+        /// - Parameter domainMask: A SearchPathDomainMask instance.
+        /// - Returns: The current Builder instance.
+        @discardableResult
+        public func with(domainMask: FileManager.SearchPathDomainMask) -> Builder {
+            storeURL.domainMask = domainMask
+            return self
+        }
+        
+        /// Set the userDomainMask.
+        ///
+        /// - Returns: The current Builder instance.
+        @discardableResult
+        public func withUserDomainMask() -> Builder {
+            return with(domainMask: .userDomainMask)
+        }
+        
+        /// Set the file name.
+        ///
+        /// - Parameter fileName: A String value.
+        /// - Returns: The current Builder instance.
+        @discardableResult
+        public func with(fileName: String) -> Builder {
+            storeURL.fileName = fileName
+            return self
+        }
+        
+        /// Set the file extension.
+        ///
+        /// - Parameter fileExtension: A String value.
+        /// - Returns: The current Builder instance.
+        @discardableResult
+        public func with(fileExtension: String) -> Builder {
+            storeURL.fileExtension = fileExtension
+            return self
+        }
+        
+        /// Set the file extension using a StoreType
+        ///
+        /// - Parameter storeType: A StoreType instance.
+        /// - Returns: The current Builder instance.
+        @discardableResult
+        public func with(storeType: HMPersistentStoreSettings.StoreType) -> Builder {
+            if let fileExtension = storeType.fileExtension() {
+                return with(fileExtension: fileExtension)
+            } else {
+                return self
+            }
+        }
+        
+        public func build() -> HMPersistentStoreURL {
+            return storeURL
+        }
+    }
+}
+
+public extension HMPersistentStoreSettings.StoreType {
+    
+    /// Get the associated file extension.
+    ///
+    /// - Returns: A String value.
+    public func fileExtension() -> String? {
+        switch self {
+        case .SQLite:
+            return "sqlite"
+            
+        default:
+            return nil
+        }
+    }
+}
