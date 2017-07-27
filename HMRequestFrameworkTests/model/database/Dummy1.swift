@@ -43,7 +43,7 @@ public extension Dummy1 {
 }
 
 extension Dummy1: HMCDConvertibleType {
-    public static func cdAttributes() -> [NSAttributeDescription] {
+    public static func cdAttributes() throws -> [NSAttributeDescription]? {
         return [
             {(_) -> NSAttributeDescription in
                 let attribute = NSAttributeDescription()

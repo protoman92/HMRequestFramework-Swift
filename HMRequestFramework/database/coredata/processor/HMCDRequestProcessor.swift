@@ -23,6 +23,19 @@ extension HMCDRequestProcessor: HMCDRequestProcessorType {
     
     /// Override this method to provide default implementation.
     ///
+    /// - Parameter cls: A HMCDType class type.
+    /// - Returns: A HMCD object.
+    /// - Throws: Exception if the construction fails.
+    public func construct<CD>(_ cls: CD.Type) throws -> CD where CD: HMCDType {
+        if let manager = self.manager {
+            return try cls.init(manager.mainObjectContext())
+        } else {
+            throw Exception("CoreData manager cannot be nil")
+        }
+    }
+    
+    /// Override this method to provide default implementation.
+    ///
     /// - Parameter request: A HMCoreDataRequestType instance.
     /// - Returns: An Observable instance.
     /// - Throws: Exception if no context is available.

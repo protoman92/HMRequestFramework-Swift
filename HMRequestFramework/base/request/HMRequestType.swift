@@ -8,7 +8,7 @@
 
 /// Base request type that can be used for HMRequestHandler.
 public protocol HMRequestType {
-    
+
     /// Specify how many times a request should be retries.
     ///
     /// - Returns: An Int value.

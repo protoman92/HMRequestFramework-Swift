@@ -16,7 +16,7 @@ public protocol HMCDConvertibleType: class {
     /// Get the associated attributes.
     ///
     /// - Returns: An Array of NSAttributeDescription.
-    static func cdAttributes() -> [NSAttributeDescription]
+    static func cdAttributes() throws -> [NSAttributeDescription]?
     
     /// Get the associated entity name.
     ///
@@ -35,7 +35,7 @@ public extension HMCDConvertibleType {
         let description = NSEntityDescription()
         description.name = try self.entityName()
         description.managedObjectClassName = NSStringFromClass(Self.self)
-        description.properties = self.cdAttributes()
+        description.properties = try self.cdAttributes() ?? []
         return description
     }
     

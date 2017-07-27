@@ -13,6 +13,9 @@ import SwiftUtilities
 /// processing to an external function. This would decouple responsibilities.
 public typealias HMResultProcessor<Val,Res> = (Val) throws -> Observable<Try<Res>>
 
+public typealias HMProtocolResultProcessor<Val: HMProtocolConvertibleType> =
+    HMResultProcessor<Val,Val.PTCType>
+
 /// Common result processors.
 
 public final class HMResultProcessors {

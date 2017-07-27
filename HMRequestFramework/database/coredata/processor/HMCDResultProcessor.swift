@@ -11,6 +11,3 @@
 
 public typealias HMCDTypedResultProcessor<Res: HMCDParsableType> =
     HMResultProcessor<Res.CDClass,Res>
-
-public typealias HMCDProtocolResultProcessor<Val: HMProtocolConvertibleType> =
-    HMResultProcessor<Val,Val.PTCType>

@@ -239,7 +239,7 @@ extension CoreDataRequestTest {
         })
     }
     
-    func dummy1FetchRps() -> HMCDProtocolResultProcessor<Dummy1> {
+    func dummy1FetchRps() -> HMProtocolResultProcessor<Dummy1> {
         return {Observable.just(Try.success($0))}
     }
     
@@ -257,7 +257,7 @@ extension CoreDataRequestTest {
         })
     }
     
-    func dummy2FetchRps() -> HMCDProtocolResultProcessor<Dummy2> {
+    func dummy2FetchRps() -> HMProtocolResultProcessor<Dummy2> {
         return {Observable.just(Try.success($0))}
     }
     

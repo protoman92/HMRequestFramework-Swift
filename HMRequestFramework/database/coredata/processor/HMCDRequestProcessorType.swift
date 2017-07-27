@@ -31,6 +31,14 @@ public protocol HMCDRequestProcessorType: HMRequestHandlerType {
     /// - Parameter request: A HMCoreDataRequestType instance.
     /// - Returns: An Observable instance.
     func execute(_ request: Req) throws -> Observable<Try<Void>>
+    
+    /// Construct a CoreData model object - this is because the context object
+    /// is hidden.
+    ///
+    /// - Parameter cls: A HMCDType class type.
+    /// - Returns: A HMCD object.
+    /// - Throws: Exception if the construction fails.
+    func construct<CD>(_ cls: CD.Type) throws -> CD where CD: HMCDType
 }
 
 public extension HMCDRequestProcessorType {
