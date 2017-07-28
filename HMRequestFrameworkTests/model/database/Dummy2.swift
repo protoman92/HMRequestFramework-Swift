@@ -46,7 +46,7 @@ public final class Dummy2: NSManagedObject {
 
 extension Dummy2: DummyType {}
 
-extension Dummy2: HMCDConvertibleType {
+extension Dummy2: HMCDRepresentableType {
     public static func cdAttributes() throws -> [NSAttributeDescription]? {
         return (1...10).map({index in
             {(_) -> NSAttributeDescription in
@@ -60,7 +60,7 @@ extension Dummy2: HMCDConvertibleType {
     }
 }
 
-extension Dummy2: HMCDParsableType {
+extension Dummy2: HMCDPureObjectType {
     public typealias CDClass = Dummy2
 }
 

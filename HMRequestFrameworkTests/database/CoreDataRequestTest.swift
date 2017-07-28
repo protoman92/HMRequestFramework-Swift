@@ -74,9 +74,11 @@ public final class CoreDataRequestTest: XCTestCase {
         
         /// When
         let cdDummy = try! dbProcessor.construct(dummy)
+        let reconstructed = cdDummy.asPureObject()
         
         /// Then
         XCTAssertEqual(dummy.id, cdDummy.id)
+        XCTAssertEqual(dummy.id, reconstructed.id)
     }
     
     public func test_saveAndFetchBuildable_shouldWork() {
@@ -260,7 +262,7 @@ extension CoreDataRequestTest {
     
     func dummy1FetchRequest() -> HMCDRequestType {
         return HMCDRequest.builder()
-            .with(convertible: Dummy1.self)
+            .with(representable: Dummy1.self)
             .with(operation: .fetch)
             .with(predicate: NSPredicate(value: true))
             .with(sortDescriptors: NSSortDescriptor(key: "id", ascending: true))
@@ -279,7 +281,7 @@ extension CoreDataRequestTest {
     
     func dummy2FetchRequest() -> HMCDRequestType {
         return HMCDRequest.builder()
-            .with(convertible: Dummy2.self)
+            .with(representable: Dummy2.self)
             .with(operation: .fetch)
             .with(predicate: NSPredicate(value: true))
             .build()
@@ -297,7 +299,7 @@ extension CoreDataRequestTest {
     
     func dummy3FetchRequest() -> HMCDRequestType {
         return HMCDRequest.builder()
-            .with(convertible: HMCDDummy3.self)
+            .with(representable: HMCDDummy3.self)
             .with(operation: .fetch)
             .with(predicate: NSPredicate(value: true))
             .with(sortDescriptors: NSSortDescriptor(key: "id", ascending: true))

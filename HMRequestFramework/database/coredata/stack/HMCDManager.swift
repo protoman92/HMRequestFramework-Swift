@@ -91,20 +91,20 @@ extension HMCDManager: HMCDManagerType {
     /// - Parameter cls: A HMCDType class type.
     /// - Returns: A HMCD object.
     /// - Throws: Exception if the construction fails.
-    public func construct<CD>(_ cls: CD.Type) throws -> CD where CD: HMCDConvertibleType {
+    public func construct<CD>(_ cls: CD.Type) throws -> CD where CD: HMCDRepresentableType {
         return try cls.init(mainContext)
     }
     
     /// Override this method to provide default implementation.
     ///
-    /// - Parameter parsable: A HMCDParsableType instance.
+    /// - Parameter pureObj: A HMCDPureObjectType instance.
     /// - Returns: A HMCDBuildable object.
     /// - Throws: Exception if the construction fails.
-    public func construct<PS>(_ parsable: PS) throws -> PS.CDClass where
-        PS: HMCDParsableType,
-        PS.CDClass: HMCDBuildable,
-        PS.CDClass.Builder.Base == PS
+    public func construct<PO>(_ pureObj: PO) throws -> PO.CDClass where
+        PO: HMCDPureObjectType,
+        PO.CDClass: HMCDBuildable,
+        PO.CDClass.Builder.Base == PO
     {
-        return try PS.CDClass.builder(mainContext).with(base: parsable).build()
+        return try PO.CDClass.builder(mainContext).with(base: pureObj).build()
     }
 }

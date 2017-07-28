@@ -108,31 +108,31 @@ public extension HMCDConstructor {
             }
         }
         
-        /// Set the objectModel using a Sequence of HMCDConvertibleType
+        /// Set the objectModel using a Sequence of HMCDRepresentableType
         /// classes.
         ///
-        /// - Parameter convertibles: An Array of HMCDConvertibleType subtype.
+        /// - Parameter representables: An Sequence of HMCDRepresentableType subtype.
         /// - Returns: The current Builder instance.
         @discardableResult
-        public func with<S>(convertibles: S) -> Builder where
-            S: Sequence, S.Iterator.Element == HMCDConvertibleType.Type
+        public func with<S>(representables: S) -> Builder where
+            S: Sequence, S.Iterator.Element == HMCDRepresentableType.Type
         {
             do {
                 let model = NSManagedObjectModel()
-                model.entities = try convertibles.map({try $0.entityDescription()})
+                model.entities = try representables.map({try $0.entityDescription()})
                 return with(objectModel: model)
             } catch {
                 return self
             }
         }
         
-        /// Set the objectModel using a varargs of HMCDConvertibleType classes.
+        /// Set the objectModel using a varargs of HMCDRepresentableType classes.
         ///
-        /// - Parameter convertibles: A varargs of HMCDConvertibleType subtype.
+        /// - Parameter representables: A varargs of HMCDRepresentableType subtype.
         /// - Returns: The current Builder instance.
         @discardableResult
-        public func with(convertibles: HMCDConvertibleType.Type...) -> Builder {
-            return with(convertibles: convertibles.map(eq))
+        public func with(representables: HMCDRepresentableType.Type...) -> Builder {
+            return with(representables: representables.map(eq))
         }
         
         /// Set the store settings using a Sequence of HMPersistentStoreSettings.

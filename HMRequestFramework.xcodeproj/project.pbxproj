@@ -24,7 +24,7 @@
 		D37D0BA71F25E3A00032C6AB /* HMCDRequestProcessorType.swift in Sources */ = {isa = PBXBuildFile; fileRef = D37D0B6D1F25E1BE0032C6AB /* HMCDRequestProcessorType.swift */; };
 		D37D0BA81F25E3A00032C6AB /* HMCDResultProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = D37D0B6E1F25E1BE0032C6AB /* HMCDResultProcessor.swift */; };
 		D37D0BA91F25E3A00032C6AB /* CoreDataOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = D37D0B701F25E1BE0032C6AB /* CoreDataOperation.swift */; };
-		D37D0BAA1F25E3A00032C6AB /* HMCDParsableType.swift in Sources */ = {isa = PBXBuildFile; fileRef = D37D0B711F25E1BE0032C6AB /* HMCDParsableType.swift */; };
+		D37D0BAA1F25E3A00032C6AB /* HMCDPureObjectType.swift in Sources */ = {isa = PBXBuildFile; fileRef = D37D0B711F25E1BE0032C6AB /* HMCDPureObjectType.swift */; };
 		D37D0BAB1F25E3A00032C6AB /* HMCDRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = D37D0B721F25E1BE0032C6AB /* HMCDRequest.swift */; };
 		D37D0BAC1F25E3A00032C6AB /* HMCDRequestType.swift in Sources */ = {isa = PBXBuildFile; fileRef = D37D0B731F25E1BE0032C6AB /* HMCDRequestType.swift */; };
 		D37D0BAF1F25E3A00032C6AB /* HMDatabaseRequestType.swift in Sources */ = {isa = PBXBuildFile; fileRef = D37D0B771F25E1BE0032C6AB /* HMDatabaseRequestType.swift */; };
@@ -42,10 +42,9 @@
 		D3922E081F262B41004A49B9 /* HMPersistentStoreSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3922E071F262B41004A49B9 /* HMPersistentStoreSettings.swift */; };
 		D3922E0A1F26334A004A49B9 /* HMPersistentStoreURL.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3922E091F26334A004A49B9 /* HMPersistentStoreURL.swift */; };
 		D3922E0C1F2644AC004A49B9 /* HMCDManagers.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3922E0B1F2644AC004A49B9 /* HMCDManagers.swift */; };
-		D398B7951F265CAC00DCE4D8 /* HMCDConvertibleType.swift in Sources */ = {isa = PBXBuildFile; fileRef = D398B7941F265CAC00DCE4D8 /* HMCDConvertibleType.swift */; };
+		D398B7951F265CAC00DCE4D8 /* HMCDRepresentableType.swift in Sources */ = {isa = PBXBuildFile; fileRef = D398B7941F265CAC00DCE4D8 /* HMCDRepresentableType.swift */; };
 		D3B54E071F283BAE006A46E9 /* HMRequestFramework.podspec in Resources */ = {isa = PBXBuildFile; fileRef = D3B54E061F283BAE006A46E9 /* HMRequestFramework.podspec */; };
 		D3C522BC1F26F96600B294EF /* HMCDRxManagerType.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3C522BB1F26F96600B294EF /* HMCDRxManagerType.swift */; };
-		D3FBDC131F2AF1A90052A94A /* HMCDBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3FBDC121F2AF1A90052A94A /* HMCDBuilder.swift */; };
 		D3FBDC151F2AF4D50052A94A /* Dummy3.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3FBDC141F2AF4D50052A94A /* Dummy3.swift */; };
 		D3FBDC171F2AFA080052A94A /* HMCDObjectConstructorType.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3FBDC161F2AFA080052A94A /* HMCDObjectConstructorType.swift */; };
 		D3FF536C1F29E3A000F78806 /* RequestTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3FF536B1F29E2FE00F78806 /* RequestTest.swift */; };
@@ -98,7 +97,7 @@
 		D37D0B6D1F25E1BE0032C6AB /* HMCDRequestProcessorType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMCDRequestProcessorType.swift; sourceTree = "<group>"; };
 		D37D0B6E1F25E1BE0032C6AB /* HMCDResultProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMCDResultProcessor.swift; sourceTree = "<group>"; };
 		D37D0B701F25E1BE0032C6AB /* CoreDataOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataOperation.swift; sourceTree = "<group>"; };
-		D37D0B711F25E1BE0032C6AB /* HMCDParsableType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMCDParsableType.swift; sourceTree = "<group>"; };
+		D37D0B711F25E1BE0032C6AB /* HMCDPureObjectType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMCDPureObjectType.swift; sourceTree = "<group>"; };
 		D37D0B721F25E1BE0032C6AB /* HMCDRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMCDRequest.swift; sourceTree = "<group>"; };
 		D37D0B731F25E1BE0032C6AB /* HMCDRequestType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMCDRequestType.swift; sourceTree = "<group>"; };
 		D37D0B771F25E1BE0032C6AB /* HMDatabaseRequestType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMDatabaseRequestType.swift; sourceTree = "<group>"; };
@@ -109,10 +108,9 @@
 		D3922E071F262B41004A49B9 /* HMPersistentStoreSettings.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HMPersistentStoreSettings.swift; sourceTree = "<group>"; };
 		D3922E091F26334A004A49B9 /* HMPersistentStoreURL.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HMPersistentStoreURL.swift; sourceTree = "<group>"; };
 		D3922E0B1F2644AC004A49B9 /* HMCDManagers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HMCDManagers.swift; sourceTree = "<group>"; };
-		D398B7941F265CAC00DCE4D8 /* HMCDConvertibleType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HMCDConvertibleType.swift; sourceTree = "<group>"; };
+		D398B7941F265CAC00DCE4D8 /* HMCDRepresentableType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HMCDRepresentableType.swift; sourceTree = "<group>"; };
 		D3B54E061F283BAE006A46E9 /* HMRequestFramework.podspec */ = {isa = PBXFileReference; lastKnownFileType = text; path = HMRequestFramework.podspec; sourceTree = "<group>"; };
 		D3C522BB1F26F96600B294EF /* HMCDRxManagerType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMCDRxManagerType.swift; sourceTree = "<group>"; };
-		D3FBDC121F2AF1A90052A94A /* HMCDBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMCDBuilder.swift; sourceTree = "<group>"; };
 		D3FBDC141F2AF4D50052A94A /* Dummy3.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Dummy3.swift; sourceTree = "<group>"; };
 		D3FBDC161F2AFA080052A94A /* HMCDObjectConstructorType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMCDObjectConstructorType.swift; sourceTree = "<group>"; };
 		D3FF53621F29E2FE00F78806 /* Dummy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Dummy.swift; sourceTree = "<group>"; };
@@ -346,11 +344,10 @@
 			isa = PBXGroup;
 			children = (
 				D37D0B701F25E1BE0032C6AB /* CoreDataOperation.swift */,
-				D398B7941F265CAC00DCE4D8 /* HMCDConvertibleType.swift */,
-				D37D0B711F25E1BE0032C6AB /* HMCDParsableType.swift */,
+				D37D0B711F25E1BE0032C6AB /* HMCDPureObjectType.swift */,
+				D398B7941F265CAC00DCE4D8 /* HMCDRepresentableType.swift */,
 				D37D0B721F25E1BE0032C6AB /* HMCDRequest.swift */,
 				D37D0B731F25E1BE0032C6AB /* HMCDRequestType.swift */,
-				D3FBDC121F2AF1A90052A94A /* HMCDBuilder.swift */,
 			);
 			path = request;
 			sourceTree = "<group>";
@@ -644,10 +641,10 @@
 				D37D0BA81F25E3A00032C6AB /* HMCDResultProcessor.swift in Sources */,
 				D37D0BA91F25E3A00032C6AB /* CoreDataOperation.swift in Sources */,
 				D37D0BCB1F25F5A90032C6AB /* HMCDConstructor.swift in Sources */,
-				D37D0BAA1F25E3A00032C6AB /* HMCDParsableType.swift in Sources */,
+				D37D0BAA1F25E3A00032C6AB /* HMCDPureObjectType.swift in Sources */,
 				D31C58761F278A8A00C8D8CC /* HMProtocolConvertibleType.swift in Sources */,
 				D37D0BAB1F25E3A00032C6AB /* HMCDRequest.swift in Sources */,
-				D398B7951F265CAC00DCE4D8 /* HMCDConvertibleType.swift in Sources */,
+				D398B7951F265CAC00DCE4D8 /* HMCDRepresentableType.swift in Sources */,
 				D3922E0A1F26334A004A49B9 /* HMPersistentStoreURL.swift in Sources */,
 				D37D0BCD1F25F7220032C6AB /* HMCDManagerType.swift in Sources */,
 				D37D0BAC1F25E3A00032C6AB /* HMCDRequestType.swift in Sources */,
@@ -661,7 +658,6 @@
 				D37D0BB41F25E3A00032C6AB /* HMNetworkRequestType.swift in Sources */,
 				D37D0BCF1F25F7600032C6AB /* HMCDManager.swift in Sources */,
 				D37D0BB51F25E3A00032C6AB /* HMNetworkResourceType.swift in Sources */,
-				D3FBDC131F2AF1A90052A94A /* HMCDBuilder.swift in Sources */,
 				D37D0BB61F25E3A00032C6AB /* HttpMethod.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

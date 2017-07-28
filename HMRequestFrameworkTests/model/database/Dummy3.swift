@@ -27,12 +27,6 @@ extension HMCDDummy3: HMCDBuildable {
         return try Builder(HMCDDummy3(context))
     }
     
-    public func asBase() -> Dummy3 {
-        let dummy = Dummy3()
-        dummy.id = self.id
-        return dummy
-    }
-    
     public final class Builder: HMCDBuilder {
         public typealias Base = Dummy3
         
@@ -53,15 +47,7 @@ extension HMCDDummy3: HMCDBuildable {
     }
 }
 
-public class Dummy3 {
-    public var id: String
-    
-    init() {
-        id = String.random(withLength: 100)
-    }
-}
-
-extension HMCDDummy3: HMCDConvertibleType {
+extension HMCDDummy3: HMCDRepresentableType {
     public static func cdAttributes() throws -> [NSAttributeDescription]? {
         return [
             NSAttributeDescription.builder()
@@ -73,6 +59,43 @@ extension HMCDDummy3: HMCDConvertibleType {
     }
 }
 
-extension Dummy3: HMCDParsableType {
+extension HMCDDummy3: HMCDPureObjectConvertibleType {
+    public typealias PureObject = Dummy3
+}
+
+public class Dummy3 {
+    public var id: String
+    
+    init() {
+        id = String.random(withLength: 100)
+    }
+}
+
+extension Dummy3: HMCDPureObjectType {
     public typealias CDClass = HMCDDummy3
+}
+
+extension Dummy3: HMCDPureObjectBuildableType {
+    public static func builder() -> Builder {
+        return Builder()
+    }
+    
+    public func builder() -> Dummy3.Builder {
+        return Dummy3.builder()
+    }
+    
+    public final class Builder: HMCDPureObjectBuilderType {
+        public typealias Buildable = Dummy3
+        
+        private let dummy = Dummy3()
+        
+        public func with(representable: HMCDDummy3) -> Builder {
+            dummy.id = representable.id
+            return self
+        }
+        
+        public func build() -> Dummy3 {
+            return dummy
+        }
+    }
 }

@@ -9,5 +9,5 @@
 /// The result processors below provide coupling between NSManagedObject subtype
 /// and the specific data type we are trying to get.
 
-public typealias HMCDTypedResultProcessor<Res: HMCDParsableType> =
+public typealias HMCDTypedResultProcessor<Res: HMCDPureObjectType> =
     HMResultProcessor<Res.CDClass,Res>

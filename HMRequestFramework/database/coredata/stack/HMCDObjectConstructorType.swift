@@ -18,7 +18,7 @@ public protocol HMCDObjectConstructorType {
     /// - Parameter cls: A HMCDType class type.
     /// - Returns: A HMCD object.
     /// - Throws: Exception if the construction fails.
-    func construct<CD>(_ cls: CD.Type) throws -> CD where CD: HMCDConvertibleType
+    func construct<CD>(_ cls: CD.Type) throws -> CD where CD: HMCDRepresentableType
     
     /// Construct a CoreData object from a data object. With this method, we
     /// do not need to expose the internal NSManagedObjectContext.
@@ -32,13 +32,13 @@ public protocol HMCDObjectConstructorType {
     /// us a NSManagedObject instance with the same properties. We can then
     /// save this to the local DB.
     ///
-    /// - Parameter parsable: A HMCDParsableType instance.
+    /// - Parameter pureObj: A HMCDPureObjectType instance.
     /// - Returns: A HMCDBuildable object.
     /// - Throws: Exception if the construction fails.
-    func construct<PS>(_ parsable: PS) throws -> PS.CDClass where
-        PS: HMCDParsableType,
-        PS.CDClass: HMCDBuildable,
-        PS.CDClass.Builder.Base == PS
+    func construct<PO>(_ pureObj: PO) throws -> PO.CDClass where
+        PO: HMCDPureObjectType,
+        PO.CDClass: HMCDBuildable,
+        PO.CDClass.Builder.Base == PO
 }
 
 public extension HMCDObjectConstructorType {
@@ -46,10 +46,10 @@ public extension HMCDObjectConstructorType {
     /// Convenient method to construct a CoreData model object from a data
     /// class.
     ///
-    /// - Parameter cls: A HMCDParsableType class.
+    /// - Parameter cls: A HMCDPureObjectType class.
     /// - Returns: A HMCD object.
     /// - Throws: Exception if the construction fails.
-    public func construct<PS>(_ cls: PS.Type) throws -> PS.CDClass where PS: HMCDParsableType {
+    public func construct<PO>(_ cls: PO.Type) throws -> PO.CDClass where PO: HMCDPureObjectType {
         return try construct(cls.CDClass.self)
     }
 }

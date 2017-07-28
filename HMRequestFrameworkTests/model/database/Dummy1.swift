@@ -42,7 +42,7 @@ public extension Dummy1 {
     fileprivate static var counter = 0
 }
 
-extension Dummy1: HMCDConvertibleType {
+extension Dummy1: HMCDRepresentableType {
     public static func cdAttributes() throws -> [NSAttributeDescription]? {
         return [
             {(_) -> NSAttributeDescription in
@@ -79,7 +79,7 @@ extension Dummy1: HMCDConvertibleType {
 
 extension Dummy1: DummyType {}
 
-extension Dummy1: HMCDParsableType {
+extension Dummy1: HMCDPureObjectType {
     public typealias CDClass = Dummy1
 }
 

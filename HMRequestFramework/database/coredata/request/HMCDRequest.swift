@@ -47,13 +47,13 @@ public extension HMCDRequest {
             return self
         }
         
-        /// Set the entityName using a HMCDConvertibleType subtype.
+        /// Set the entityName using a HMCDRepresentableType subtype.
         ///
-        /// - Parameter convertible: A HMCDConvertibleType class.
+        /// - Parameter representable: A HMCDRepresentableType class.
         /// - Returns: The current Builder instance.
         @discardableResult
-        public func with<CDP>(convertible: CDP.Type) -> Builder where CDP: HMCDConvertibleType {
-            return (try? with(entityName: convertible.entityName())) ?? self
+        public func with<CDR>(representable: CDR.Type) -> Builder where CDR: HMCDRepresentableType {
+            return (try? with(entityName: representable.entityName())) ?? self
         }
         
         /// Set the predicate.

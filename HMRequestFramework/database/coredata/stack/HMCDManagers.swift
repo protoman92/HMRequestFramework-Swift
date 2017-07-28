@@ -141,10 +141,10 @@ public extension Reactive where Base: HMCDRxManagerType {
     /// Construct a Sequence of CoreData from data objects and save it to the
     /// database.
     ///
-    /// - Parameters data: A Sequence of HMCDParsableType.
+    /// - Parameters data: A Sequence of HMCDPureObjectType.
     /// - Throws: Exception if the save fails.
     public func saveToFile<S,PS>(_ data: S) -> Observable<Void> where
-        PS: HMCDParsableType,
+        PS: HMCDPureObjectType,
         PS.CDClass: HMCDBuildable,
         PS.CDClass.Builder.Base == PS,
         S: Sequence,

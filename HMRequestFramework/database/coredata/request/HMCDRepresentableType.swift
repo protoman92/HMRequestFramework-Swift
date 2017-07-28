@@ -1,5 +1,5 @@
 //
-//  HMCDConvertibleType.swift
+//  HMCDRepresentableType.swift
 //  HMRequestFramework
 //
 //  Created by Hai Pham on 7/25/17.
@@ -11,7 +11,7 @@ import SwiftUtilities
 
 /// Classes that implement this protocol should be able to construct the
 /// data needed to create a CoreData model description.
-public protocol HMCDConvertibleType: class {
+public protocol HMCDRepresentableType: class {
     
     /// Get the associated attributes.
     ///
@@ -27,7 +27,7 @@ public protocol HMCDConvertibleType: class {
     init(_ context: NSManagedObjectContext) throws
 }
 
-public extension HMCDConvertibleType {
+public extension HMCDRepresentableType {
     
     /// Get the associated entity description.
     ///
@@ -59,7 +59,7 @@ public extension HMCDConvertibleType {
     }
 }
 
-public extension HMCDConvertibleType where Self: NSManagedObject {
+public extension HMCDRepresentableType where Self: NSManagedObject {
     
     /// Get the associated entity name.
     ///
@@ -74,4 +74,32 @@ public extension HMCDConvertibleType where Self: NSManagedObject {
             throw Exception("Entity name cannot be nil")
         }
     }
+}
+
+/// Classes that implement this protocol must be able to construct a CoreData
+/// NSManagedObject.
+///
+/// This protocol is useful when we have 2 parallel classes, one of which
+/// inherits from NSManagedObject and the other simply copies the former's
+/// properties. The upper layers should only be aware of the latter, so when
+/// we wish to save it to CoreData, we will have methods to implicitly convert
+/// the pure data class into a CoreData-compatible object.
+///
+/// The with(base:) method will copy all attributes from the pure data object
+/// into the newly constructor CoreData object.
+public protocol HMCDBuilder {
+    associatedtype Base: HMCDPureObjectType
+    
+    func with(base: Base) -> Self
+    
+    func build() -> Base.CDClass
+}
+
+/// Classes that implement this protocol are usually NSManagedObject that
+/// has in-built Builders that implement HMCDBuilder. It should also be
+/// convertible to a pure data object.
+public protocol HMCDBuildable {
+    associatedtype Builder: HMCDBuilder
+    
+    static func builder(_ context: NSManagedObjectContext) throws -> Builder
 }

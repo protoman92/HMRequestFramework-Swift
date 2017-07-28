@@ -109,13 +109,13 @@ public extension HMCDRxManagerType {
     /// database and observe the process.
     ///
     /// - Parameters:
-    ///   - data: A Sequence of HMCDParsableType.
+    ///   - data: A Sequence of HMCDPureObjectType.
     ///   - obs: An ObserverType instance.
     /// - Throws: Exception if the save fails.
     public func saveToFile<S,PS,O>(_ data: S, _ obs: O) where
         O: ObserverType,
         O.E == Void,
-        PS: HMCDParsableType,
+        PS: HMCDPureObjectType,
         PS.CDClass: HMCDBuildable,
         PS.CDClass.Builder.Base == PS,
         S: Sequence,

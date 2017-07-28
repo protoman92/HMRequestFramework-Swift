@@ -22,16 +22,16 @@ public struct HMDatabaseRequestProcessor {
 extension HMDatabaseRequestProcessor: HMCDRequestProcessorType {
     public typealias Req = HMCDRequestType
     
-    public func construct<CD>(_ cls: CD.Type) throws -> CD where CD: HMCDConvertibleType {
+    public func construct<CD>(_ cls: CD.Type) throws -> CD where CD: HMCDRepresentableType {
         return try processor.construct(cls)
     }
     
-    public func construct<PS>(_ parsable: PS) throws -> PS.CDClass where
-        PS: HMCDParsableType,
-        PS == PS.CDClass.Builder.Base,
-        PS.CDClass: HMCDBuildable
+    public func construct<PO>(_ pureObj: PO) throws -> PO.CDClass where
+        PO: HMCDPureObjectType,
+        PO == PO.CDClass.Builder.Base,
+        PO.CDClass: HMCDBuildable
     {
-        return try processor.construct(parsable)
+        return try processor.construct(pureObj)
     }
     
     public func executeTyped<Val>(_ request: Req) throws -> Observable<Try<Val>>
