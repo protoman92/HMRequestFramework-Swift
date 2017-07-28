@@ -11,13 +11,6 @@ import RxSwift
 import SwiftUtilities
 @testable import HMRequestFramework
 
-/// This class is used to hide specific database implementation. It decorates
-/// over a HMRequestHandler instance to perform database requests.
-///
-/// The default database used here is CoreData. If we were to change the database
-/// to something else, it would not leak to the upper layers.
-///
-/// Due to design limitations, this type shall not implement HMRequestProcessorType.
 public struct HMDatabaseRequestProcessor {
     public let processor: HMCDRequestProcessor
     

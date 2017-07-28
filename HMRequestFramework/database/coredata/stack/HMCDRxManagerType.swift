@@ -105,6 +105,31 @@ public extension HMCDRxManagerType {
         }
     }
     
+    /// Construct a Sequence of CoreData from data objects, save it to the
+    /// database and observe the process.
+    ///
+    /// - Parameters:
+    ///   - data: A Sequence of HMCDParsableType.
+    ///   - obs: An ObserverType instance.
+    /// - Throws: Exception if the save fails.
+    public func saveToFile<S,PS,O>(_ data: S, _ obs: O) where
+        O: ObserverType,
+        O.E == Void,
+        PS: HMCDParsableType,
+        PS.CDClass: HMCDBuildable,
+        PS.CDClass.Builder.Base == PS,
+        S: Sequence,
+        S.Iterator.Element == PS
+    {
+        do {
+            try saveToFileUnsafely(data)
+            obs.onNext()
+            obs.onCompleted()
+        } catch let e {
+            obs.onError(e)
+        }
+    }
+    
     /// Save changes in the main context.
     ///
     /// - Parameter obs: An ObserverType instance.

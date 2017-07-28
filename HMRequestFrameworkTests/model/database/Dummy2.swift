@@ -28,8 +28,8 @@ public final class Dummy2: NSManagedObject {
     @NSManaged public var string10: String
     
     public convenience init(_ context: NSManagedObjectContext) throws {
-        let entityDescription = try Dummy2.self.entityDescription(in: context)
-        self.init(entity: entityDescription, insertInto: nil)
+        let entity = try Dummy2.entityDescription(in: context)
+        self.init(entity: entity, insertInto: nil)
         let length = 1000
         string1 = String.random(withLength: length)
         string2 = String.random(withLength: length)

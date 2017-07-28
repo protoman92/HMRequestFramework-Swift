@@ -68,7 +68,7 @@ public final class CoreDataRequestTest: XCTestCase {
         XCTAssertEqual(first.error!.localizedDescription, generatorError)
     }
     
-    public func test_buildable_shouldWork() {
+    public func test_constructBuildable_shouldWork() {
         /// Setup
         let dummy = Dummy3()
         
@@ -77,6 +77,29 @@ public final class CoreDataRequestTest: XCTestCase {
         
         /// Then
         XCTAssertEqual(dummy.id, cdDummy.id)
+    }
+    
+    public func test_saveAndFetchBuildable_shouldWork() {
+        /// Setup
+        let dummyCount = 1000
+        let manager = self.manager!
+        let dummies = (0..<dummyCount).map({_ in Dummy3()})
+        let fetchRq: NSFetchRequest<HMCDDummy3> = try! dummy3FetchRequest().fetchRequest()
+        let observer = scheduler.createObserver(HMCDDummy3.self)
+        let expect = expectation(description: ("Should have completed"))
+        
+        /// When
+        manager.rx.saveToFile(dummies)
+            .flatMap({manager.rx.fetch(fetchRq)})
+            .doOnDispose(expect.fulfill)
+            .subscribe(observer)
+            .disposed(by: disposeBag)
+        
+        waitForExpectations(timeout: timeout, handler: nil)
+        
+        /// Then
+        let nextElements = observer.nextElements()
+        XCTAssertEqual(nextElements.count, dummyCount)
     }
     
     public func test_insertRandomDummies_shouldWork() {
@@ -270,6 +293,15 @@ extension CoreDataRequestTest {
     
     func dummy2FetchRps() -> HMProtocolResultProcessor<Dummy2> {
         return {Observable.just(Try.success($0))}
+    }
+    
+    func dummy3FetchRequest() -> HMCDRequestType {
+        return HMCDRequest.builder()
+            .with(convertible: HMCDDummy3.self)
+            .with(operation: .fetch)
+            .with(predicate: NSPredicate(value: true))
+            .with(sortDescriptors: NSSortDescriptor(key: "id", ascending: true))
+            .build()
     }
     
     func dummyPersistRequest(_ data: [NSManagedObject]) -> HMCDRequestType {

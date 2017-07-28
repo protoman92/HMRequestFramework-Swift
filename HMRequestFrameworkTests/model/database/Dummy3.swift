@@ -17,9 +17,8 @@ public class HMCDDummy3: NSManagedObject {
     @NSManaged var id: String
     
     public convenience required init(_ context: NSManagedObjectContext) throws {
-        let entity = try HMCDDummy3.entityDescription()
+        let entity = try HMCDDummy3.entityDescription(in: context)
         self.init(entity: entity, insertInto: nil)
-        id = ""
     }
 }
 
@@ -52,7 +51,7 @@ public class Dummy3 {
     public var id: String
     
     init() {
-        id = ""
+        id = String.random(withLength: 100)
     }
 }
 
@@ -63,7 +62,7 @@ extension HMCDDummy3: HMCDConvertibleType {
         return [
             NSAttributeDescription.builder()
                 .with(name: "id")
-                .shouldBeOptional()
+                .shouldNotBeOptional()
                 .with(type: .stringAttributeType)
                 .build()
         ]

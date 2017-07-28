@@ -27,8 +27,8 @@ public final class Dummy1: NSManagedObject {
     @NSManaged public var float: Float
     
     public convenience init(_ context: NSManagedObjectContext) throws {
-        let description = try Dummy1.entityDescription(in: context)
-        self.init(entity: description, insertInto: nil)
+        let entity = try Dummy1.entityDescription(in: context)
+        self.init(entity: entity, insertInto: nil)
         Dummy1.counter += 1
         let counter = Dummy1.counter
         id = "id-\(counter)"

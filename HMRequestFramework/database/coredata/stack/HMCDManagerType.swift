@@ -92,7 +92,7 @@ public extension HMCDManagerType {
     /// Construct a Sequence of CoreData from data objects and save it to
     /// the database unsafely.
     ///
-    /// - Parameter data: A Sequence
+    /// - Parameter data: A Sequence of HMCDParsableType.
     /// - Throws: Exception if the save fails.
     public func saveToFileUnsafely<S,PS>(_ data: S) throws where
         PS: HMCDParsableType,
@@ -103,16 +103,6 @@ public extension HMCDManagerType {
     {
         let data = try data.map({try self.construct($0)})
         try saveToFileUnsafely(data)
-    }
-    
-    public func saveToFileUnsafely<S,PS>(_ dataFn: () throws -> S) throws where
-        PS: HMCDParsableType,
-        PS.CDClass: HMCDBuildable,
-        PS.CDClass.Builder.Base == PS,
-        S: Sequence,
-        S.Iterator.Element == PS
-    {
-        
     }
     
     /// Save changes in the main object context.

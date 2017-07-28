@@ -138,6 +138,26 @@ public extension Reactive where Base: HMCDRxManagerType {
         }))
     }
     
+    /// Construct a Sequence of CoreData from data objects and save it to the
+    /// database.
+    ///
+    /// - Parameters data: A Sequence of HMCDParsableType.
+    /// - Throws: Exception if the save fails.
+    public func saveToFile<S,PS>(_ data: S) -> Observable<Void> where
+        PS: HMCDParsableType,
+        PS.CDClass: HMCDBuildable,
+        PS.CDClass.Builder.Base == PS,
+        S: Sequence,
+        S.Iterator.Element == PS
+    {
+        let base = self.base
+        
+        return Observable.create(({(obs: AnyObserver<Void>) in
+            base.saveToFile(data, obs)
+            return Disposables.create()
+        }))
+    }
+    
     /// Save all changes in the main and private contexts. When the main context
     /// is saved, the changes will be reflected in the private context, so we
     /// need to save the former first.
