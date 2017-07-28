@@ -78,7 +78,6 @@ extension Dummy1: HMCDConvertibleType {
 }
 
 extension Dummy1: DummyType {}
-extension Dummy1: HMCDType {}
 
 extension Dummy1: HMCDParsableType {
     public typealias CDClass = Dummy1

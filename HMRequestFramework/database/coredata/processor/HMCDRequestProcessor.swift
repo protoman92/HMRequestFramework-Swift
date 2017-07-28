@@ -26,7 +26,7 @@ extension HMCDRequestProcessor: HMCDRequestProcessorType {
     /// - Parameter cls: A HMCDType class type.
     /// - Returns: A HMCD object.
     /// - Throws: Exception if the construction fails.
-    public func construct<CD>(_ cls: CD.Type) throws -> CD where CD: HMCDType {
+    public func construct<CD>(_ cls: CD.Type) throws -> CD where CD: HMCDConvertibleType {
         if let manager = self.manager {
             return try manager.construct(cls)
         } else {

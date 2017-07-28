@@ -45,7 +45,6 @@ public final class Dummy2: NSManagedObject {
 }
 
 extension Dummy2: DummyType {}
-extension Dummy2: HMCDType {}
 
 extension Dummy2: HMCDConvertibleType {
     public static func cdAttributes() throws -> [NSAttributeDescription]? {

@@ -22,7 +22,7 @@ public struct HMDatabaseRequestProcessor {
 extension HMDatabaseRequestProcessor: HMCDRequestProcessorType {
     public typealias Req = HMCDRequestType
     
-    public func construct<CD>(_ cls: CD.Type) throws -> CD where CD: HMCDType {
+    public func construct<CD>(_ cls: CD.Type) throws -> CD where CD: HMCDConvertibleType {
         return try processor.construct(cls)
     }
     

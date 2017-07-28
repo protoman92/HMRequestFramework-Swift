@@ -91,7 +91,7 @@ extension HMCDManager: HMCDManagerType {
     /// - Parameter cls: A HMCDType class type.
     /// - Returns: A HMCD object.
     /// - Throws: Exception if the construction fails.
-    public func construct<CD>(_ cls: CD.Type) throws -> CD where CD: HMCDType {
+    public func construct<CD>(_ cls: CD.Type) throws -> CD where CD: HMCDConvertibleType {
         return try cls.init(mainContext)
     }
     

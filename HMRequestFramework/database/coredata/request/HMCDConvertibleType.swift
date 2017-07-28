@@ -23,6 +23,8 @@ public protocol HMCDConvertibleType: class {
     /// - Returns: A String value.
     /// - Throws: Exception if entity name is not available.
     static func entityName() throws -> String
+    
+    init(_ context: NSManagedObjectContext) throws
 }
 
 public extension HMCDConvertibleType {

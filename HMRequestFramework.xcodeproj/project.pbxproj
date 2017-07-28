@@ -55,7 +55,6 @@
 		D3FF53701F29E3A000F78806 /* Dummy1.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3FF53631F29E2FE00F78806 /* Dummy1.swift */; };
 		D3FF53711F29E3A000F78806 /* Dummy2.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3FF53641F29E2FE00F78806 /* Dummy2.swift */; };
 		D3FF53721F29E3A000F78806 /* NetworkingTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3FF53691F29E2FE00F78806 /* NetworkingTest.swift */; };
-		D3FF53911F29F01600F78806 /* HMCDType.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3FF53901F29F01600F78806 /* HMCDType.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -123,7 +122,6 @@
 		D3FF53671F29E2FE00F78806 /* ErrorCDManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorCDManager.swift; sourceTree = "<group>"; };
 		D3FF53691F29E2FE00F78806 /* NetworkingTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkingTest.swift; sourceTree = "<group>"; };
 		D3FF536B1F29E2FE00F78806 /* RequestTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RequestTest.swift; sourceTree = "<group>"; };
-		D3FF53901F29F01600F78806 /* HMCDType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMCDType.swift; sourceTree = "<group>"; };
 		FC726CF994EA0A543CC7E354 /* Pods-HMRequestFramework.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-HMRequestFramework.debug.xcconfig"; path = "Pods/Target Support Files/Pods-HMRequestFramework/Pods-HMRequestFramework.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -352,7 +350,6 @@
 				D37D0B711F25E1BE0032C6AB /* HMCDParsableType.swift */,
 				D37D0B721F25E1BE0032C6AB /* HMCDRequest.swift */,
 				D37D0B731F25E1BE0032C6AB /* HMCDRequestType.swift */,
-				D3FF53901F29F01600F78806 /* HMCDType.swift */,
 				D3FBDC121F2AF1A90052A94A /* HMCDBuilder.swift */,
 			);
 			path = request;
@@ -640,7 +637,6 @@
 				D3922E0C1F2644AC004A49B9 /* HMCDManagers.swift in Sources */,
 				D37D0BA41F25E3A00032C6AB /* HMResultProcessor.swift in Sources */,
 				D32649721F288EDC000226FA /* HMCDAttributeDescription.swift in Sources */,
-				D3FF53911F29F01600F78806 /* HMCDType.swift in Sources */,
 				D37D0BA51F25E3A00032C6AB /* HMRequestType.swift in Sources */,
 				D3C522BC1F26F96600B294EF /* HMCDRxManagerType.swift in Sources */,
 				D37D0BA61F25E3A00032C6AB /* HMCDRequestProcessor.swift in Sources */,

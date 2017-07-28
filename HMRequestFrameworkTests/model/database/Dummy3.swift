@@ -55,8 +55,6 @@ public class Dummy3 {
     }
 }
 
-extension HMCDDummy3: HMCDType {}
-
 extension HMCDDummy3: HMCDConvertibleType {
     public static func cdAttributes() throws -> [NSAttributeDescription]? {
         return [
