@@ -344,8 +344,6 @@
 			isa = PBXGroup;
 			children = (
 				D37D0B701F25E1BE0032C6AB /* CoreDataOperation.swift */,
-				D37D0B711F25E1BE0032C6AB /* HMCDPureObjectType.swift */,
-				D398B7941F265CAC00DCE4D8 /* HMCDRepresentableType.swift */,
 				D37D0B721F25E1BE0032C6AB /* HMCDRequest.swift */,
 				D37D0B731F25E1BE0032C6AB /* HMCDRequestType.swift */,
 			);
@@ -355,6 +353,8 @@
 		D37D0B741F25E1BE0032C6AB /* stack */ = {
 			isa = PBXGroup;
 			children = (
+				D398B7941F265CAC00DCE4D8 /* HMCDRepresentableType.swift */,
+				D37D0B711F25E1BE0032C6AB /* HMCDPureObjectType.swift */,
 				D37D0BCA1F25F5A90032C6AB /* HMCDConstructor.swift */,
 				D37D0BC81F25F2EE0032C6AB /* HMCDConstructorType.swift */,
 				D37D0BCE1F25F7600032C6AB /* HMCDManager.swift */,
