@@ -112,14 +112,14 @@ public extension HMCDRxManagerType {
     ///   - data: A Sequence of HMCDPureObjectType.
     ///   - obs: An ObserverType instance.
     /// - Throws: Exception if the save fails.
-    public func saveToFile<S,PS,O>(_ data: S, _ obs: O) where
+    public func saveToFile<S,PO,O>(_ data: S, _ obs: O) where
         O: ObserverType,
         O.E == Void,
-        PS: HMCDPureObjectType,
-        PS.CDClass: HMCDBuildable,
-        PS.CDClass.Builder.Base == PS,
+        PO: HMCDPureObjectType,
+        PO.CDClass: HMCDBuildable,
+        PO.CDClass.Builder.Base == PO,
         S: Sequence,
-        S.Iterator.Element == PS
+        S.Iterator.Element == PO
     {
         do {
             try saveToFileUnsafely(data)
