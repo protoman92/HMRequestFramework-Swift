@@ -27,6 +27,12 @@ extension HMCDDummy3: HMCDBuildable {
         return try Builder(HMCDDummy3(context))
     }
     
+    public func asBase() -> Dummy3 {
+        let dummy = Dummy3()
+        dummy.id = self.id
+        return dummy
+    }
+    
     public final class Builder: HMCDBuilder {
         public typealias Base = Dummy3
         
