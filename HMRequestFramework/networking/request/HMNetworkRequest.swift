@@ -185,7 +185,7 @@ extension HMNetworkRequest: HMNetworkRequestType {
         var request = try baseUrlRequest()
         
         switch method {
-        case .post:
+        case .post, .put:
             if let body = try self.body() {
                 request.httpBody = try? JSONSerialization.data(
                     withJSONObject: body,

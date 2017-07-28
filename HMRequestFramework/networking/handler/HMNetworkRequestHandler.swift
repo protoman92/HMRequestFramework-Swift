@@ -29,7 +29,6 @@ public struct HMNetworkRequestHandler {
                 .retry(request.retries())
                 .map(Try.success)
                 .catchErrorJustReturn(Try.failure)
-                .ifEmpty(default: Try.failure(Exception("Empty response")))
         } else {
             throw Exception("URLSession cannot be nil")
         }
