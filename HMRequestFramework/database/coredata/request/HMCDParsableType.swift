@@ -13,5 +13,5 @@ import CoreData
 /// allows us to hide the assocated CD classes, making DB swapping easier in the
 /// future.
 public protocol HMCDParsableType {
-    associatedtype CDClass: NSManagedObject
+    associatedtype CDClass: NSManagedObject, HMCDType
 }

@@ -21,7 +21,7 @@ public final class Singleton {
     
     public static func dummyCDConstructor() -> HMCDConstructor {
         return HMCDConstructor.builder()
-            .with(convertibles: Dummy1.self, Dummy2.self)
+            .with(convertibles: Dummy1.self, Dummy2.self, HMCDDummy3.self)
             .with(settings: dummyCDSettings())
             .build()
     }

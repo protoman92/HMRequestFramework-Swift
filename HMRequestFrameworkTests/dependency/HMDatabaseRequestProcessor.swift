@@ -29,22 +29,24 @@ public struct HMDatabaseRequestProcessor {
 extension HMDatabaseRequestProcessor: HMCDRequestProcessorType {
     public typealias Req = HMCDRequestType
     
-    /// Override this method to provide default implementation.
-    ///
-    /// - Parameter request: A HMCoreDataRequestType instance.
-    /// - Returns: An Observable instance.
-    /// - Throws: Exception if processor fails to perform request.
+    public func construct<CD>(_ cls: CD.Type) throws -> CD where CD: HMCDType {
+        return try processor.construct(cls)
+    }
+    
+    public func construct<PS>(_ parsable: PS) throws -> PS.CDClass where
+        PS: HMCDParsableType,
+        PS == PS.CDClass.Builder.Base,
+        PS.CDClass: HMCDBuildable
+    {
+        return try processor.construct(parsable)
+    }
+    
     public func executeTyped<Val>(_ request: Req) throws -> Observable<Try<Val>>
         where Val : NSFetchRequestResult
     {
         return try processor.executeTyped(request)
     }
     
-    /// Override this method to provide default implementation.
-    ///
-    /// - Parameter request: A HMCoreDataRequestType instance.
-    /// - Returns: An Observable instance.
-    /// - Throws: Exception if processor fails to perform request.
     public func execute(_ request: Req) throws -> Observable<Try<Void>> {
         return try processor.execute(request)
     }

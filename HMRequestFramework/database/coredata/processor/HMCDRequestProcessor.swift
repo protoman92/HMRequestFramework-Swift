@@ -28,7 +28,24 @@ extension HMCDRequestProcessor: HMCDRequestProcessorType {
     /// - Throws: Exception if the construction fails.
     public func construct<CD>(_ cls: CD.Type) throws -> CD where CD: HMCDType {
         if let manager = self.manager {
-            return try cls.init(manager.mainObjectContext())
+            return try manager.construct(cls)
+        } else {
+            throw Exception("CoreData manager cannot be nil")
+        }
+    }
+    
+    /// Override this method to provide default implementation.
+    ///
+    /// - Parameter parsable: A HMCDParsableType instance.
+    /// - Returns: A HMCDBuildable object.
+    /// - Throws: Exception if the construction fails.
+    public func construct<PS>(_ parsable: PS) throws -> PS.CDClass where
+        PS: HMCDParsableType,
+        PS.CDClass: HMCDBuildable,
+        PS.CDClass.Builder.Base == PS
+    {
+        if let manager = self.manager {
+            return try manager.construct(parsable)
         } else {
             throw Exception("CoreData manager cannot be nil")
         }

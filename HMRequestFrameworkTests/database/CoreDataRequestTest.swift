@@ -68,6 +68,17 @@ public final class CoreDataRequestTest: XCTestCase {
         XCTAssertEqual(first.error!.localizedDescription, generatorError)
     }
     
+    public func test_buildable_shouldWork() {
+        /// Setup
+        let dummy = Dummy3()
+        
+        /// When
+        let cdDummy = try! dbProcessor.construct(dummy)
+        
+        /// Then
+        XCTAssertEqual(dummy.id, cdDummy.id)
+    }
+    
     public func test_insertRandomDummies_shouldWork() {
         /// Setup
         let dummyCount = 1000

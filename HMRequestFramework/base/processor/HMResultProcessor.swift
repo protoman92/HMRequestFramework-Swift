@@ -19,6 +19,7 @@ public typealias HMProtocolResultProcessor<Val: HMProtocolConvertibleType> =
 /// Common result processors.
 
 public final class HMResultProcessors {
+    
     /// Convenience method to process the result from some request into a
     /// specified type.
     ///

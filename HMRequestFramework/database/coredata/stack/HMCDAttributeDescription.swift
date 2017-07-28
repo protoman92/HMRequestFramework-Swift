@@ -8,7 +8,7 @@
 
 import CoreData
 
-public extension NSEntityDescription {
+public extension NSAttributeDescription {
     public static func builder() -> Builder {
         return Builder()
     }

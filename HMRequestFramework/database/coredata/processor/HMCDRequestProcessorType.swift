@@ -12,7 +12,7 @@ import SwiftUtilities
 
 /// Classes that implement this protocol must be able to perform CoreData
 /// requests and process the result.
-public protocol HMCDRequestProcessorType: HMRequestHandlerType {
+public protocol HMCDRequestProcessorType: HMRequestHandlerType, HMCDObjectConstructorType {
     
     /// Perform a CoreData get request with required dependencies. This method
     /// should be used for CoreData operations whose results are constrained
@@ -31,14 +31,6 @@ public protocol HMCDRequestProcessorType: HMRequestHandlerType {
     /// - Parameter request: A HMCoreDataRequestType instance.
     /// - Returns: An Observable instance.
     func execute(_ request: Req) throws -> Observable<Try<Void>>
-    
-    /// Construct a CoreData model object - this is because the context object
-    /// is hidden.
-    ///
-    /// - Parameter cls: A HMCDType class type.
-    /// - Returns: A HMCD object.
-    /// - Throws: Exception if the construction fails.
-    func construct<CD>(_ cls: CD.Type) throws -> CD where CD: HMCDType
 }
 
 public extension HMCDRequestProcessorType {
