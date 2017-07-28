@@ -16,8 +16,12 @@ public struct HMNetworkRequestProcessor {
     public init(handler: HMNetworkRequestHandler) {
         self.handler = handler
     }
+}
 
-    /// Perform a network request and process the result.
+extension HMNetworkRequestProcessor: HMNetworkRequestProcessorType {
+    
+    /// Override this method to provide default implementation.
+    ///
     /// - Parameters:
     ///   - previous: The result of the upstream request.
     ///   - generator: Generator function to create the current request.
