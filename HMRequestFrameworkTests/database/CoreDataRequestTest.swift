@@ -38,7 +38,7 @@ public final class CoreDataRequestTest: XCTestCase {
         
         cdProcessor = HMCDRequestProcessor.builder()
             .with(manager: manager)
-            .with(requestMiddlewareManager: rqMiddlewareManager)
+            .with(rqMiddlewareManager: rqMiddlewareManager)
             .build()
         
         dbProcessor = DatabaseRequestProcessor(processor: cdProcessor)

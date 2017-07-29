@@ -16,7 +16,7 @@ public protocol HMRequestHandlerType {
     /// Get the associated middleware manager for requests.
     ///
     /// - Returns: A HMMiddlewareManager instance.
-    func requestMiddlewareManager() -> HMMiddlewareManager<Req>
+    func requestMiddlewareManager() -> HMMiddlewareManager<Req>?
 }
 
 public extension HMRequestHandlerType {
@@ -66,9 +66,7 @@ public extension HMRequestHandlerType {
     /// - Parameter request: A HMRequestType instance.
     /// - Returns: An Observable instance.
     func applyRequestMiddlewares(_ request: Req) -> Observable<Req> {
-        let manager = requestMiddlewareManager()
-        
-        if request.applyMiddlewares() {
+        if let manager = requestMiddlewareManager(), request.applyMiddlewares() {
             return manager.applyTransformMiddlewares(request)
                 .doOnNext(manager.applySideEffectMiddlewares)
         } else {

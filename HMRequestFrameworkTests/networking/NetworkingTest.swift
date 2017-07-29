@@ -29,7 +29,7 @@ public final class NetworkingTest: XCTestCase {
         
         handler = HMNetworkRequestHandler.builder()
             .with(urlSession: .shared)
-            .with(requestMiddlewareManager: rqMiddlewareManager)
+            .with(rqMiddlewareManager: rqMiddlewareManager)
             .build()
         
         processor = HMNetworkRequestProcessor(handler: handler)

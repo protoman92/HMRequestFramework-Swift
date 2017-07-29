@@ -33,12 +33,8 @@ extension HMCDRequestProcessor: HMCDRequestProcessorType {
     /// Override this method to provide default implementation.
     ///
     /// - Returns: A HMMiddlewareManager instance.
-    public func requestMiddlewareManager() -> HMMiddlewareManager<Req> {
-        if let rqMiddlewareManager = self.rqMiddlewareManager {
-            return rqMiddlewareManager
-        } else {
-            fatalError("Request middleware manager cannot be nil")
-        }
+    public func requestMiddlewareManager() -> HMMiddlewareManager<Req>? {
+        return rqMiddlewareManager
     }
     
     /// Override this method to provide default implementation.
@@ -165,11 +161,11 @@ public extension HMCDRequestProcessor {
         
         /// Set the request middleware manager.
         ///
-        /// - Parameter requestMiddlewareManager: A HMMiddlewareManager instance.
+        /// - Parameter rqMiddlewareManager: A HMMiddlewareManager instance.
         /// - Returns: The current Builder instance.
         @discardableResult
-        public func with(requestMiddlewareManager: HMMiddlewareManager<Req>) -> Builder {
-            processor.rqMiddlewareManager = requestMiddlewareManager
+        public func with(rqMiddlewareManager: HMMiddlewareManager<Req>?) -> Builder {
+            processor.rqMiddlewareManager = rqMiddlewareManager
             return self
         }
         
@@ -181,7 +177,7 @@ public extension HMCDRequestProcessor {
         public func with(processor: HMCDRequestProcessor) -> Builder {
             return self
                 .with(manager: processor.coreDataManager())
-                .with(requestMiddlewareManager: processor.requestMiddlewareManager())
+                .with(rqMiddlewareManager: processor.requestMiddlewareManager())
         }
         
         public func build() -> HMCDRequestProcessor {

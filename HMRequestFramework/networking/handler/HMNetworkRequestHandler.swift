@@ -61,12 +61,8 @@ extension HMNetworkRequestHandler: HMNetworkRequestHandlerType {
     /// Override this method to provide default implementation.
     ///
     /// - Returns: A HMMiddlewareManager instance.
-    public func requestMiddlewareManager() -> HMMiddlewareManager<Req> {
-        if let rqMiddlewareManager = self.rqMiddlewareManager {
-            return rqMiddlewareManager
-        } else {
-            fatalError("Request middleware manager cannot be nil")
-        }
+    public func requestMiddlewareManager() -> HMMiddlewareManager<Req>? {
+        return rqMiddlewareManager
     }
 }
 
@@ -102,11 +98,11 @@ public extension HMNetworkRequestHandler {
         
         /// Set the request middleware manager instance.
         ///
-        /// - Parameter requestMiddlewareManager: A HMMiddlewareManager instance.
+        /// - Parameter rqMiddlewareManager: A HMMiddlewareManager instance.
         /// - Returns: The current Builder instance.
         @discardableResult
-        public func with(requestMiddlewareManager: HMMiddlewareManager<Req>) -> Builder {
-            handler.rqMiddlewareManager = requestMiddlewareManager
+        public func with(rqMiddlewareManager: HMMiddlewareManager<Req>?) -> Builder {
+            handler.rqMiddlewareManager = rqMiddlewareManager
             return self
         }
         
@@ -117,7 +113,7 @@ public extension HMNetworkRequestHandler {
         public func with(handler: HMNetworkRequestHandler) -> Builder {
             return self
                 .with(urlSession: handler.urlSessionInstance())
-                .with(requestMiddlewareManager: handler.requestMiddlewareManager())
+                .with(rqMiddlewareManager: handler.requestMiddlewareManager())
         }
         
         public func build() -> HMNetworkRequestHandler {

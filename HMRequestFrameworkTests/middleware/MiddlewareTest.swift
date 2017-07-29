@@ -167,7 +167,7 @@ public final class MiddlewareTest: XCTestCase {
         
         let handler = HMNetworkRequestHandler.builder()
             .with(urlSession: URLSession.shared)
-            .with(requestMiddlewareManager: rqMiddlewareManager)
+            .with(rqMiddlewareManager: rqMiddlewareManager)
             .build()
 
         let nwProcessor = HMNetworkRequestProcessor(handler: handler)

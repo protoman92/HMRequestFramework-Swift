@@ -19,7 +19,7 @@ public struct RequestHandler {
 extension RequestHandler: HMRequestHandlerType {
     public typealias Req = MockRequest
     
-    public func requestMiddlewareManager() -> HMMiddlewareManager<Req> {
+    public func requestMiddlewareManager() -> HMMiddlewareManager<Req>? {
         return rqMiddlewareManager
     }
 }

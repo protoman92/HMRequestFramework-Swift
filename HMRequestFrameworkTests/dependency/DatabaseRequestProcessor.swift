@@ -22,7 +22,7 @@ public struct DatabaseRequestProcessor {
 extension DatabaseRequestProcessor: HMCDRequestProcessorType {
     public typealias Req = HMCDRequestProcessor.Req
     
-    public func requestMiddlewareManager() -> HMMiddlewareManager<Req> {
+    public func requestMiddlewareManager() -> HMMiddlewareManager<Req>? {
         return processor.requestMiddlewareManager()
     }
     
