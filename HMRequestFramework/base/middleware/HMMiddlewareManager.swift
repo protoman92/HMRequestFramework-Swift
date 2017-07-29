@@ -11,48 +11,20 @@ import SwiftUtilities
 
 /// Utility class to handle request middlewares.
 public struct HMMiddlewareManager<A> {
-    fileprivate var middlewares: [HMRequestMiddleware<A>]
+    fileprivate var rqMiddlewares: [HMRequestMiddleware<A>]
     
     fileprivate init() {
-        middlewares = []
+        rqMiddlewares = []
     }
+}
+
+extension HMMiddlewareManager: HMMiddlewareManagerType {
     
-    /// Sequentially apply a Sequence of middlewares.
+    /// Override this method to provide default implementation.
     ///
-    /// - Parameters:
-    ///   - original: The original object to be applied on.
-    ///   - middlewares: A Sequence of middlewares.
-    /// - Returns: An Observable instance.
-    /// - Throws: Exception if the application fails.
-    func applyMiddlewares<S>(_ original: Try<A>, _ middlewares: S) throws
-        -> Observable<Try<A>> where
-        S: Sequence, S.Iterator.Element == HMRequestMiddleware<A>
-    {
-        let middlewares = middlewares.map(eq)
-        
-        if let first = middlewares.first {
-            var chain = try first(original)
-            
-            for (index, middleware) in middlewares.enumerated() {
-                if (index > 0) {
-                    chain = chain.flatMap(middleware)
-                }
-            }
-            
-            return chain
-        } else {
-            return Observable.empty()
-        }
-    }
-    
-    /// Apply registered middlewares.
-    ///
-    /// - Parameter original: The original object to be applied on.
-    /// - Returns: An Observable instance.
-    /// - Throws: Exception if the application fails.
-    func applyMiddlewares(_ original: Try<A>) throws -> Observable<Try<A>> {
-        let middlewares = self.middlewares
-        return try applyMiddlewares(original, middlewares)
+    /// - Returns: A Sequence of HMRequestMiddleware.
+    public func middlewares() -> [HMRequestMiddleware<A>] {
+        return rqMiddlewares
     }
 }
 
@@ -70,7 +42,7 @@ public extension HMMiddlewareManager {
         /// - Returns: The current Builder instance.
         @discardableResult
         public func add(middleware: @escaping HMRequestMiddleware<A>) -> Builder<A> {
-            manager.middlewares.append(middleware)
+            manager.rqMiddlewares.append(middleware)
             return self
         }
         
@@ -81,7 +53,7 @@ public extension HMMiddlewareManager {
         public func add<S>(middlewares: S) -> Builder<A> where
             S: Sequence, S.Iterator.Element == HMRequestMiddleware<A>
         {
-            manager.middlewares.append(contentsOf: middlewares)
+            manager.rqMiddlewares.append(contentsOf: middlewares)
             return self
         }
         
@@ -100,7 +72,7 @@ public extension HMMiddlewareManager {
         public func with<S>(middlewares: S) -> Builder<A> where
             S: Sequence, S.Iterator.Element == HMRequestMiddleware<A>
         {
-            manager.middlewares.removeAll()
+            manager.rqMiddlewares.removeAll()
             return add(middlewares: middlewares)
         }
         

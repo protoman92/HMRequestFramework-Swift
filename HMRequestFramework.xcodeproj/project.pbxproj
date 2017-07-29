@@ -16,6 +16,7 @@
 		D34DF2921F2C2D740076D6B1 /* HMRequestMiddleware.swift in Sources */ = {isa = PBXBuildFile; fileRef = D34DF2911F2C2D740076D6B1 /* HMRequestMiddleware.swift */; };
 		D34DF2941F2C323A0076D6B1 /* HMMiddlewareManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D34DF2931F2C323A0076D6B1 /* HMMiddlewareManager.swift */; };
 		D34DF2971F2C52740076D6B1 /* MiddlewareTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = D34DF2961F2C52740076D6B1 /* MiddlewareTest.swift */; };
+		D34DF2991F2C530F0076D6B1 /* HMMiddlewareManagerType.swift in Sources */ = {isa = PBXBuildFile; fileRef = D34DF2981F2C530F0076D6B1 /* HMMiddlewareManagerType.swift */; };
 		D378D6DE1F25E088009B89B2 /* HMRequestFramework.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D378D6D41F25E088009B89B2 /* HMRequestFramework.framework */; };
 		D378D6E51F25E088009B89B2 /* HMRequestFramework.h in Headers */ = {isa = PBXBuildFile; fileRef = D378D6D71F25E088009B89B2 /* HMRequestFramework.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D37D0BA11F25E3A00032C6AB /* HMRequestGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = D37D0B611F25E1BE0032C6AB /* HMRequestGenerator.swift */; };
@@ -83,6 +84,7 @@
 		D34DF2911F2C2D740076D6B1 /* HMRequestMiddleware.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMRequestMiddleware.swift; sourceTree = "<group>"; };
 		D34DF2931F2C323A0076D6B1 /* HMMiddlewareManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMMiddlewareManager.swift; sourceTree = "<group>"; };
 		D34DF2961F2C52740076D6B1 /* MiddlewareTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MiddlewareTest.swift; sourceTree = "<group>"; };
+		D34DF2981F2C530F0076D6B1 /* HMMiddlewareManagerType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMMiddlewareManagerType.swift; sourceTree = "<group>"; };
 		D378D6D41F25E088009B89B2 /* HMRequestFramework.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = HMRequestFramework.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D378D6D71F25E088009B89B2 /* HMRequestFramework.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HMRequestFramework.h; sourceTree = "<group>"; };
 		D378D6D81F25E088009B89B2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -195,6 +197,7 @@
 			children = (
 				D34DF2911F2C2D740076D6B1 /* HMRequestMiddleware.swift */,
 				D34DF2931F2C323A0076D6B1 /* HMMiddlewareManager.swift */,
+				D34DF2981F2C530F0076D6B1 /* HMMiddlewareManagerType.swift */,
 			);
 			path = middleware;
 			sourceTree = "<group>";
@@ -663,6 +666,7 @@
 				D37D0BA41F25E3A00032C6AB /* HMResultProcessor.swift in Sources */,
 				D32649721F288EDC000226FA /* HMCDAttributeDescription.swift in Sources */,
 				D37D0BA51F25E3A00032C6AB /* HMRequestType.swift in Sources */,
+				D34DF2991F2C530F0076D6B1 /* HMMiddlewareManagerType.swift in Sources */,
 				D3C522BC1F26F96600B294EF /* HMCDRxManagerType.swift in Sources */,
 				D37D0BA61F25E3A00032C6AB /* HMCDRequestProcessor.swift in Sources */,
 				D37D0BA71F25E3A00032C6AB /* HMCDRequestProcessorType.swift in Sources */,
