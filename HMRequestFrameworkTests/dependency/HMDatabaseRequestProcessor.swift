@@ -20,7 +20,11 @@ public struct HMDatabaseRequestProcessor {
 }
 
 extension HMDatabaseRequestProcessor: HMCDRequestProcessorType {
-    public typealias Req = HMCDRequestType
+    public typealias Req = HMCDRequestProcessor.Req
+    
+    public func requestMiddlewareManager() -> HMMiddlewareManager<Req> {
+        return processor.requestMiddlewareManager()
+    }
     
     public func construct<CD>(_ cls: CD.Type) throws -> CD where CD: HMCDRepresentableType {
         return try processor.construct(cls)

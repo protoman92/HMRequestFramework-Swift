@@ -16,12 +16,14 @@ import XCTest
 public final class RequestTest: XCTestCase {
     fileprivate let dummy: Try<Any> = Try.success(())
     fileprivate let timeout: TimeInterval = 100
+    fileprivate var rqMiddlewareManager: HMMiddlewareManager<Req>!
     fileprivate var disposeBag: DisposeBag!
     fileprivate var handler: RequestTest!
     fileprivate var scheduler: TestScheduler!
     
     override public func setUp() {
         super.setUp()
+        rqMiddlewareManager = HMMiddlewareManager<Req>.builder().build()
         disposeBag = DisposeBag()
         scheduler = TestScheduler(initialClock: 0)
         handler = self
@@ -155,6 +157,10 @@ public final class RequestTest: XCTestCase {
 
 extension RequestTest: HMRequestHandlerType {
     public typealias Req = MockRequest
+    
+    public func requestMiddlewareManager() -> HMMiddlewareManager<Req> {
+        return rqMiddlewareManager
+    }
 }
 
 public struct MockRequest {

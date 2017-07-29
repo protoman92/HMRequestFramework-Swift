@@ -11,7 +11,9 @@ import SwiftUtilities
 
 /// This class offer decorated processing over a HMNetworkRequestHandler.
 public struct HMNetworkRequestProcessor {
-    public let handler: HMNetworkRequestHandler
+    
+    /// This variable has internal access just for testing purposes.
+    let handler: HMNetworkRequestHandler
     
     public init(handler: HMNetworkRequestHandler) {
         self.handler = handler
@@ -29,7 +31,7 @@ extension HMNetworkRequestProcessor: HMNetworkRequestProcessorType {
     /// - Returns: An Observable instance.
     public func process<Prev,Res>(
         _ previous: Try<Prev>,
-        _ generator: @escaping HMRequestGenerator<Prev,HMNetworkRequestType>,
+        _ generator: @escaping HMRequestGenerator<Prev,HMNetworkRequest>,
         _ processor: @escaping HMResultProcessor<Data,Res>)
         -> Observable<Try<Res>>
     {
@@ -39,7 +41,14 @@ extension HMNetworkRequestProcessor: HMNetworkRequestProcessorType {
 }
 
 extension HMNetworkRequestProcessor: HMNetworkRequestHandlerType {
-    public typealias Req = HMNetworkRequestType
+    public typealias Req = HMNetworkRequestHandler.Req
+    
+    /// Override this method to provide default implementation.
+    ///
+    /// - Returns: A HMMiddlewareManager instance.
+    public func requestMiddlewareManager() -> HMMiddlewareManager<Req> {
+        return handler.requestMiddlewareManager()
+    }
     
     /// Override this method to provide default implementation.
     ///

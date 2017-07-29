@@ -16,14 +16,16 @@ import XCTest
 @testable import HMRequestFramework
 
 public final class CoreDataRequestTest: XCTestCase {
+    fileprivate typealias Req = HMCDRequestProcessor.Req
     fileprivate let timeout: TimeInterval = 1000
-    fileprivate let iterationCount = 1000
-    fileprivate let dummyCount = 1000
+    fileprivate let iterationCount = 10
+    fileprivate let dummyCount = 10
     fileprivate let dummyTypeCount = 2
     fileprivate let generatorError = "Generator error!"
     fileprivate let processorError = "Processor error!"
     fileprivate let dummy: Try<Any> = Try.success(1)
     fileprivate var manager: ErrorCDManager!
+    fileprivate var rqMiddlewareManager: HMMiddlewareManager<Req>!
     fileprivate var cdProcessor: HMCDRequestProcessor!
     fileprivate var dbProcessor: HMDatabaseRequestProcessor!
     fileprivate var disposeBag: DisposeBag!
@@ -32,7 +34,13 @@ public final class CoreDataRequestTest: XCTestCase {
     override public func setUp() {
         super.setUp()
         manager = Singleton.dummyCDManager()
-        cdProcessor = HMCDRequestProcessor.builder().with(manager: manager).build()
+        rqMiddlewareManager = HMMiddlewareManager<Req>.builder().build()
+        
+        cdProcessor = HMCDRequestProcessor.builder()
+            .with(manager: manager)
+            .with(requestMiddlewareManager: rqMiddlewareManager)
+            .build()
+        
         dbProcessor = HMDatabaseRequestProcessor(processor: cdProcessor)
         disposeBag = DisposeBag()
         scheduler = TestScheduler(initialClock: 0)

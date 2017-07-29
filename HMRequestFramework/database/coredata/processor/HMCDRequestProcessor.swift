@@ -14,8 +14,17 @@ import SwiftUtilities
 /// design limitations. This way, casting is done at the database level.
 public struct HMCDRequestProcessor {
     fileprivate var manager: HMCDManager?
+    fileprivate var rqMiddlewareManager: HMMiddlewareManager<Req>?
     
     fileprivate init() {}
+    
+    fileprivate func coreDataManager() -> HMCDManager {
+        if let manager = self.manager {
+            return manager
+        } else {
+            fatalError("CoreData manager cannot be nil")
+        }
+    }
 }
 
 extension HMCDRequestProcessor: HMCDRequestProcessorType {
@@ -23,15 +32,22 @@ extension HMCDRequestProcessor: HMCDRequestProcessorType {
     
     /// Override this method to provide default implementation.
     ///
+    /// - Returns: A HMMiddlewareManager instance.
+    public func requestMiddlewareManager() -> HMMiddlewareManager<Req> {
+        if let rqMiddlewareManager = self.rqMiddlewareManager {
+            return rqMiddlewareManager
+        } else {
+            fatalError("Request middleware manager cannot be nil")
+        }
+    }
+    
+    /// Override this method to provide default implementation.
+    ///
     /// - Parameter cls: A HMCDType class type.
     /// - Returns: A HMCD object.
     /// - Throws: Exception if the construction fails.
     public func construct<CD>(_ cls: CD.Type) throws -> CD where CD: HMCDRepresentableType {
-        if let manager = self.manager {
-            return try manager.construct(cls)
-        } else {
-            throw Exception("CoreData manager cannot be nil")
-        }
+        return try coreDataManager().construct(cls)
     }
     
     /// Override this method to provide default implementation.
@@ -44,11 +60,7 @@ extension HMCDRequestProcessor: HMCDRequestProcessorType {
         PO.CDClass: HMCDBuildable,
         PO.CDClass.Builder.Base == PO
     {
-        if let manager = self.manager {
-            return try manager.construct(pureObj)
-        } else {
-            throw Exception("CoreData manager cannot be nil")
-        }
+        return try coreDataManager().construct(pureObj)
     }
     
     /// Override this method to provide default implementation.
@@ -78,17 +90,14 @@ extension HMCDRequestProcessor: HMCDRequestProcessorType {
     private func executeFetch<Val>(_ request: Req) throws -> Observable<Try<Val>>
         where Val: NSFetchRequestResult
     {
-        if let manager = self.manager {
-            let cdRequest: NSFetchRequest<Val> = try request.fetchRequest()
+        let manager = coreDataManager()
+        let cdRequest: NSFetchRequest<Val> = try request.fetchRequest()
     
-            return Observable.just(cdRequest)
-                .flatMap(manager.rx.fetch)
-                .retry(request.retries())
-                .map(Try<Val>.success)
-                .catchErrorJustReturn(Try<Val>.failure)
-        } else {
-            throw Exception("CoreData manager cannot be nil")
-        }
+        return Observable.just(cdRequest)
+            .flatMap(manager.rx.fetch)
+            .retry(request.retries())
+            .map(Try<Val>.success)
+            .catchErrorJustReturn(Try<Val>.failure)
     }
     
     /// Override this method to provide default implementation.
@@ -117,14 +126,12 @@ extension HMCDRequestProcessor: HMCDRequestProcessorType {
     /// - Returns: An Observable instance.
     /// - Throws: Exception if the execution fails.
     private func executePersist(_ request: Req) throws -> Observable<Try<Void>> {
-        if let manager = self.manager {
-            return manager.rx.persistAll()
-                .retry(request.retries())
-                .map(Try.success)
-                .catchErrorJustReturn(Try.failure)
-        } else {
-            throw Exception("CoreData manager cannot be nil")
-        }
+        let manager = coreDataManager()
+        
+        return manager.rx.persistAll()
+            .retry(request.retries())
+            .map(Try.success)
+            .catchErrorJustReturn(Try.failure)
     }
     
     /// Perform a CoreData data persistence operation.
@@ -133,16 +140,13 @@ extension HMCDRequestProcessor: HMCDRequestProcessorType {
     /// - Returns: An Observable instance.
     /// - Throws: Exception if the execution fails.
     private func executePersistData(_ request: Req) throws -> Observable<Try<Void>> {
-        if let manager = self.manager {
-            let data = try request.dataToSave()
+        let manager = coreDataManager()
+        let data = try request.dataToSave()
             
-            return manager.rx.saveToFile(data)
-                .retry(request.retries())
-                .map(Try.success)
-                .catchErrorJustReturn(Try.failure)
-        } else {
-            throw Exception("CoreData manager, or data cannot be nil")
-        }
+        return manager.rx.saveToFile(data)
+            .retry(request.retries())
+            .map(Try.success)
+            .catchErrorJustReturn(Try.failure)
     }
 }
 
@@ -152,6 +156,7 @@ public extension HMCDRequestProcessor {
     }
     
     public final class Builder {
+        public typealias Req = HMCDRequestProcessor.Req
         private var processor: HMCDRequestProcessor
         
         fileprivate init() {
@@ -165,6 +170,16 @@ public extension HMCDRequestProcessor {
         @discardableResult
         public func with(manager: HMCDManager) -> Builder {
             processor.manager = manager
+            return self
+        }
+        
+        /// Set the request middleware manager.
+        ///
+        /// - Parameter requestMiddlewareManager: A HMMiddlewareManager instance.
+        /// - Returns: The current Builder instance.
+        @discardableResult
+        public func with(requestMiddlewareManager: HMMiddlewareManager<Req>) -> Builder {
+            processor.rqMiddlewareManager = requestMiddlewareManager
             return self
         }
         

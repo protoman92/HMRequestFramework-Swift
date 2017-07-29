@@ -20,6 +20,6 @@ public protocol HMNetworkRequestHandlerType: HMRequestHandlerType {
     /// - Returns: An Observable instance.
     func execute<Prev>(
         _ previous: Try<Prev>,
-        _ generator: @escaping HMRequestGenerator<Prev,HMNetworkRequestType>)
+        _ generator: @escaping HMRequestGenerator<Prev,HMNetworkRequest>)
         -> Observable<Try<Data>>
 }

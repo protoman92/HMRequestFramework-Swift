@@ -14,30 +14,30 @@ import XCTest
 
 public final class MiddlewareTest: XCTestCase {
     fileprivate let timeout: TimeInterval = 1000
-    fileprivate var rqMiddlewares: [HMRequestMiddleware<Int>]!
+    fileprivate var manager: HMMiddlewareManager<Int>!
     fileprivate var scheduler: TestScheduler!
     fileprivate var disposeBag: DisposeBag!
     
     override public func setUp() {
         super.setUp()
-        rqMiddlewares = []
+        manager = HMMiddlewareManager<Int>.builder().build()
         scheduler = TestScheduler(initialClock: 0)
         disposeBag = DisposeBag()
     }
     
-    public func test_applyValidMiddlewares_shouldWork() {
+    public func test_applyValidTransformMiddlewares_shouldWork() {
         /// Setup
         let times = 1000
         
-        let times2: HMRequestMiddleware<Int> = {
+        let times2: HMTransformMiddleware<Int> = {
             Observable.just($0.map({$0 * 2}))
         }
         
-        let times3: HMRequestMiddleware<Int> = {
+        let times3: HMTransformMiddleware<Int> = {
             Observable.just($0.map({$0 * 3}))
         }
         
-        let times4: HMRequestMiddleware<Int> = {
+        let times4: HMTransformMiddleware<Int> = {
             Observable.just($0.map({$0 * 4}))
         }
 
@@ -47,8 +47,8 @@ public final class MiddlewareTest: XCTestCase {
         
         /// When
         Observable.range(start: 0, count: times)
-            .flatMap({i in self
-                .applyMiddlewares(Try.success(i), middlewares)
+            .flatMap({i in self.manager
+                .applyTransformMiddlewares(Try.success(i), middlewares)
                 .map({try $0.getOrThrow()})
                 .doOnNext({XCTAssertEqual($0, i * 2 * 3 * 4)})
             })
@@ -64,14 +64,14 @@ public final class MiddlewareTest: XCTestCase {
         XCTAssertEqual(nextElements.count, times)
     }
     
-    public func test_applyEmptyMiddlewares_shouldReturnOriginal() {
+    public func test_applyEmptyTransformMiddlewares_shouldReturnOriginal() {
         /// Setup
         let original = Try.success(1)
         let expect = expectation(description: "Should have completed")
         let observer = scheduler.createObserver(Try<Int>.self)
         
         /// When
-        applyMiddlewares(original, [])
+        manager.applyTransformMiddlewares(original, [])
             .doOnDispose(expect.fulfill)
             .subscribe(observer)
             .disposed(by: disposeBag)
@@ -87,19 +87,19 @@ public final class MiddlewareTest: XCTestCase {
         XCTAssertEqual(original.value, first.value)
     }
     
-    public func test_applyErrorMiddlewares_shouldNotThrowError() {
+    public func test_applyErrorTransformMiddlewares_shouldNotThrowError() {
         /// Setup
         let original = Try.success(1)
         
-        let error1: HMRequestMiddleware<Int> = {_ in
+        let error1: HMTransformMiddleware<Int> = {_ in
             throw Exception("Error1")
         }
         
-        let error2: HMRequestMiddleware<Int> = {_ in
+        let error2: HMTransformMiddleware<Int> = {_ in
             throw Exception("Error2")
         }
         
-        let error3: HMRequestMiddleware<Int> = {_ in
+        let error3: HMTransformMiddleware<Int> = {_ in
             Observable.error("Error3")
         }
         
@@ -107,7 +107,7 @@ public final class MiddlewareTest: XCTestCase {
         let observer = scheduler.createObserver(Try<Int>.self)
         
         /// When
-        applyMiddlewares(original, [error1, error2, error3])
+        manager.applyTransformMiddlewares(original, [error1, error2, error3])
             .doOnDispose(expect.fulfill)
             .subscribe(observer)
             .disposed(by: disposeBag)
@@ -116,12 +116,8 @@ public final class MiddlewareTest: XCTestCase {
         
         /// Then
         let nextElements = observer.nextElements()
+        XCTAssertTrue(nextElements.count > 0)
+        XCTAssertTrue(nextElements.all(satisfying: {$0.isFailure}))
         print(nextElements)
-    }
-}
-
-extension MiddlewareTest: HMMiddlewareManagerType {
-    public func middlewares() -> [HMRequestMiddleware<Int>] {
-        return rqMiddlewares
     }
 }

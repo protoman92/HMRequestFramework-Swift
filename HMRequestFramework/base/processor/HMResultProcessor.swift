@@ -13,6 +13,8 @@ import SwiftUtilities
 /// processing to an external function. This would decouple responsibilities.
 public typealias HMResultProcessor<Val,Res> = (Val) throws -> Observable<Try<Res>>
 
+public typealias HMEQResultProcessor<Val> = HMResultProcessor<Val,Val>
+
 public typealias HMProtocolResultProcessor<Val: HMProtocolConvertibleType> =
     HMResultProcessor<Val,Val.PTCType>
 
@@ -36,6 +38,13 @@ public final class HMResultProcessors {
         return previous.rx.get()
             .flatMap(processor)
             .catchErrorJustReturn(Try.failure)
+    }
+    
+    /// Get a result processor that does no transformation on the request result.
+    ///
+    /// - Returns: A HMResultProcessor instance.
+    public static func eqResultProcessor<Val>() -> HMEQResultProcessor<Val> {
+        return {Observable.just(Try.success($0))}
     }
     
     private init() {}

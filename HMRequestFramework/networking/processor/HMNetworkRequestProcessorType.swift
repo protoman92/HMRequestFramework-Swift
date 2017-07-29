@@ -21,7 +21,7 @@ public protocol HMNetworkRequestProcessorType {
     /// - Returns: An Observable instance.
     func process<Prev,Res>(
         _ previous: Try<Prev>,
-        _ generator: @escaping HMRequestGenerator<Prev,HMNetworkRequestType>,
+        _ generator: @escaping HMRequestGenerator<Prev,HMNetworkRequest>,
         _ processor: @escaping HMResultProcessor<Data,Res>)
         -> Observable<Try<Res>>
 }
