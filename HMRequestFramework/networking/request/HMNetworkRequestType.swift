@@ -15,8 +15,6 @@ import SwiftUtilities
 public protocol HMNetworkRequestType: HMRequestType, HMNetworkResourceType {
     func method() throws -> HttpMethod
     
-    func timeout() throws -> TimeInterval
-    
     func headers() throws -> [String : String]?
     
     func params() throws -> [String : Any]?
@@ -24,6 +22,8 @@ public protocol HMNetworkRequestType: HMRequestType, HMNetworkResourceType {
     func body() throws -> Any?
     
     func urlRequest() throws -> URLRequest
+    
+    func timeout() -> TimeInterval
 }
 
 public extension HMNetworkRequestType {
@@ -31,8 +31,8 @@ public extension HMNetworkRequestType {
         let url = try self.url()
         var request = URLRequest(url: url)
         request.httpMethod = try method().rawValue
-        request.timeoutInterval = try timeout()
         request.allHTTPHeaderFields = try headers()
+        request.timeoutInterval = timeout()
         return request
     }
 }

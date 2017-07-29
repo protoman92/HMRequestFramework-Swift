@@ -71,74 +71,47 @@ public final class NetworkingTest: XCTestCase {
         XCTAssertTrue(first.isFailure)
     }
     
-    public func test_addRequestMiddlewares_shouldAddHeaders() {
-        /// Setup
-        let observer = scheduler.createObserver(Try<Any>.self)
-        let expect = expectation(description: "Should have completed")
+    public func test_networkRequestObject_shouldThrowErrorsIfNecessary() {
+        var currentCheck = 0
         
-        let request = HMNetworkRequest.builder()
-            .with(resource: MockResource.empty)
-            .with(method: .get)
-            .build()
-        
-        let generator: HMRequestGenerator<Void,HMNetworkRequest> = {_ in
-            Observable.just(Try.success(request))
+        let checkError: (HMNetworkRequest, Bool) -> HMNetworkRequest = {
+            currentCheck += 1
+            print("Checking request \(currentCheck)")
+            
+            let request = $0.0
+            
+            do {
+                _ = try request.urlRequest()
+            } catch let e {
+                print(e)
+                XCTAssertTrue($0.1)
+            }
+            
+            return request
         }
         
-        let processor: HMEQResultProcessor<Any> = HMResultProcessors.eqResultProcessor()
-        let headers = ["Key1" : "Value1"]
+        /// 1
+        let request1 = checkError(HMNetworkRequest.builder().build(), true)
         
-        // We set this as a side effect to verify that the method was called.
-        // In practice, never do this.
-        var requestObject: Req? = nil
+        /// 2
+        let request2 = checkError(request1.builder().with(baseUrl: "http://google.com").build(), true)
         
-        let rqtf1: HMTransformMiddleware<Req> = {
-            Observable.just($0.map({$0.builder().with(headers: headers).build()}))
-        }
+        /// 3
+        let request3 = checkError(request2.builder().with(endPoint: "").build(), true)
         
-        let rqse1: HMSideEffectMiddleware<Req> = {
-            XCTAssertTrue($0.isSuccess)
-            let request = try! $0.getOrThrow()
-            let rqHeaders = try! request.headers()
-            XCTAssertNotNil(headers)
-            XCTAssertEqual(headers, rqHeaders!)
-            requestObject = request
-        }
-
-        // Need to reset properties here because these are all structs
-        rqMiddlewareManager.tfMiddlewares.append(rqtf1)
-        rqMiddlewareManager.seMiddlewares.append(rqse1)
-        handler.rqMiddlewareManager = rqMiddlewareManager
+        /// 4
+        let request4 = checkError(request3.builder().with(method: .get).build(), false)
         
-        // Use a different network processor because handler is a let variable.
-        let nwProcessor = HMNetworkRequestProcessor(handler: handler)
+        /// 5
+        let request5 = checkError(request4.builder().with(method: .post).build(), true)
         
-        /// When
-        nwProcessor.process(dummy, generator, processor)
-            .doOnDispose(expect.fulfill)
-            .subscribe(observer)
-            .disposed(by: disposeBag)
+        /// 6
+        let request6 = checkError(request5.builder().with(method: .put).build(), true)
         
-        waitForExpectations(timeout: timeout, handler: nil)
+        /// 7
+        let request7 = checkError(request6.builder().with(body: ["1" : "2"]).build(), false)
         
-        /// Then
-        XCTAssertNotNil(requestObject)
-    }
-}
-
-fileprivate enum MockResource {
-    case empty
-}
-
-extension MockResource: HMNetworkResourceType {
-    func baseUrl() -> String {
-        return "http://google.com"
-    }
-    
-    func endPoint() -> String {
-        switch self {
-        case .empty:
-            return ""
-        }
+        /// End
+        _ = request7
     }
 }

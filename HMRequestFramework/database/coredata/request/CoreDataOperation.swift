@@ -10,10 +10,8 @@
 /// out.
 ///
 /// - fetch: Fetch operation.
-/// - save: Save operation. This simply saves changes to the inner context.
-/// - saveData: Save operation. This saves some data to the local DB file.
+/// - persist: Save operation. This saves some data to the local DB file.
 public enum CoreDataOperation {
     case fetch
     case persist
-    case persistData
 }

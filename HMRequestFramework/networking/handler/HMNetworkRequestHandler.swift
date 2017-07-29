@@ -12,10 +12,8 @@ import SwiftUtilities
 
 /// Use this class to perform network requests.
 public struct HMNetworkRequestHandler {
-    
-    /// These variables have internal access just for testing purposes.
-    var urlSession: URLSession?
-    var rqMiddlewareManager: HMMiddlewareManager<Req>?
+    fileprivate var urlSession: URLSession?
+    fileprivate var rqMiddlewareManager: HMMiddlewareManager<Req>?
     
     fileprivate init() {}
     

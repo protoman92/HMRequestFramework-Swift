@@ -18,8 +18,8 @@ import XCTest
 public final class CoreDataRequestTest: XCTestCase {
     fileprivate typealias Req = HMCDRequestProcessor.Req
     fileprivate let timeout: TimeInterval = 1000
-    fileprivate let iterationCount = 10
-    fileprivate let dummyCount = 10
+    fileprivate let iterationCount = 1000
+    fileprivate let dummyCount = 1000
     fileprivate let dummyTypeCount = 2
     fileprivate let generatorError = "Generator error!"
     fileprivate let processorError = "Processor error!"
@@ -27,7 +27,7 @@ public final class CoreDataRequestTest: XCTestCase {
     fileprivate var manager: ErrorCDManager!
     fileprivate var rqMiddlewareManager: HMMiddlewareManager<Req>!
     fileprivate var cdProcessor: HMCDRequestProcessor!
-    fileprivate var dbProcessor: HMDatabaseRequestProcessor!
+    fileprivate var dbProcessor: DatabaseRequestProcessor!
     fileprivate var disposeBag: DisposeBag!
     fileprivate var scheduler: TestScheduler!
     
@@ -41,7 +41,7 @@ public final class CoreDataRequestTest: XCTestCase {
             .with(requestMiddlewareManager: rqMiddlewareManager)
             .build()
         
-        dbProcessor = HMDatabaseRequestProcessor(processor: cdProcessor)
+        dbProcessor = DatabaseRequestProcessor(processor: cdProcessor)
         disposeBag = DisposeBag()
         scheduler = TestScheduler(initialClock: 0)
     }
@@ -257,6 +257,43 @@ public final class CoreDataRequestTest: XCTestCase {
         let first = nextElements.first!
         XCTAssertEqual(first.error!.localizedDescription, ErrorCDManager.fetchError)
     }
+    
+    public func test_cdNonTypedRequestObject_shouldThrowErrorsIfNecessary() {
+        var currentCheck = 0
+        let context = manager.mainObjectContext()
+        let processor = cdProcessor!
+        
+        let checkError: (HMCDRequest, Bool) -> HMCDRequest = {
+            currentCheck += 1
+            print("Checking request \(currentCheck)")
+            
+            let request = $0.0
+            
+            do {
+                _ = try processor.execute(request).toBlocking().first()
+            } catch let e {
+                print(e)
+                XCTAssertTrue($0.1)
+            }
+            
+            return request
+        }
+        
+        /// 1
+        let request1 = checkError(HMCDRequest.builder().build(), true)
+        
+        /// 2
+        let request2 = checkError(request1.builder().with(entityName: "E1").build(), true)
+        
+        /// 3
+        let request3 = checkError(request2.builder().with(operation: .persist).build(), true)
+        
+        /// 4
+        let request4 = checkError(request3.builder().with(dataToSave: [try! Dummy1(context)]).build(), false)
+        
+        /// End
+        _ = request4
+    }
 }
 
 extension CoreDataRequestTest {
@@ -268,7 +305,7 @@ extension CoreDataRequestTest {
         return (0..<count).flatMap({_ in try! D.init(context)})
     }
     
-    func dummy1FetchRequest() -> HMCDRequestType {
+    func dummy1FetchRequest() -> HMCDRequest {
         return HMCDRequest.builder()
             .with(representable: Dummy1.self)
             .with(operation: .fetch)
@@ -277,7 +314,7 @@ extension CoreDataRequestTest {
             .build()
     }
     
-    func dummy1FetchRgn() -> HMRequestGenerator<Any,HMCDRequestType> {
+    func dummy1FetchRgn() -> HMRequestGenerator<Any,HMCDRequest> {
         return HMRequestGenerators.forceGenerateFn(generator: {_ in
             Observable.just(self.dummy1FetchRequest())
         })
@@ -287,7 +324,7 @@ extension CoreDataRequestTest {
         return {Observable.just(Try.success($0))}
     }
     
-    func dummy2FetchRequest() -> HMCDRequestType {
+    func dummy2FetchRequest() -> HMCDRequest {
         return HMCDRequest.builder()
             .with(representable: Dummy2.self)
             .with(operation: .fetch)
@@ -295,7 +332,7 @@ extension CoreDataRequestTest {
             .build()
     }
     
-    func dummy2FetchRgn() -> HMRequestGenerator<Any,HMCDRequestType> {
+    func dummy2FetchRgn() -> HMRequestGenerator<Any,HMCDRequest> {
         return HMRequestGenerators.forceGenerateFn(generator: {_ in
             Observable.just(self.dummy2FetchRequest())
         })
@@ -305,7 +342,7 @@ extension CoreDataRequestTest {
         return {Observable.just(Try.success($0))}
     }
     
-    func dummy3FetchRequest() -> HMCDRequestType {
+    func dummy3FetchRequest() -> HMCDRequest {
         return HMCDRequest.builder()
             .with(representable: HMCDDummy3.self)
             .with(operation: .fetch)
@@ -314,14 +351,14 @@ extension CoreDataRequestTest {
             .build()
     }
     
-    func dummyPersistRequest(_ data: [NSManagedObject]) -> HMCDRequestType {
+    func dummyPersistRequest(_ data: [NSManagedObject]) -> HMCDRequest {
         return HMCDRequest.builder()
-            .with(operation: .persistData)
+            .with(operation: .persist)
             .with(dataToSave: data)
             .build()
     }
     
-    func dummyPersistRgn(_ data: [NSManagedObject]) -> HMRequestGenerator<Any,HMCDRequestType> {
+    func dummyPersistRgn(_ data: [NSManagedObject]) -> HMRequestGenerator<Any,HMCDRequest> {
         return HMRequestGenerators.forceGenerateFn(generator: {_ in
             Observable.just(self.dummyPersistRequest(data))
         })
@@ -331,7 +368,7 @@ extension CoreDataRequestTest {
         return {_ in Observable.just(Try.success())}
     }
     
-    func errorDBRgn() -> HMRequestGenerator<Any,HMCDRequestType> {
+    func errorDBRgn() -> HMRequestGenerator<Any,HMCDRequest> {
         return {_ in throw Exception(self.generatorError)}
     }
     

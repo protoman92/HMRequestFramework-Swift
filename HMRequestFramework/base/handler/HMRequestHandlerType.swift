@@ -11,7 +11,7 @@ import SwiftUtilities
 
 /// Classes that implement this protocol must be able to perform some request.
 public protocol HMRequestHandlerType {
-    associatedtype Req
+    associatedtype Req: HMRequestType
     
     /// Get the associated middleware manager for requests.
     ///
@@ -21,8 +21,7 @@ public protocol HMRequestHandlerType {
 
 public extension HMRequestHandlerType {
     
-    /// Create a request based on the result of some upstream request. We also
-    /// apply middlewares to the request object.
+    /// Create a request based on the result of some upstream request.
     ///
     /// - Parameters:
     ///   - previous: The result of the upstream request.
@@ -32,16 +31,13 @@ public extension HMRequestHandlerType {
                  _ generator: @escaping HMRequestGenerator<Prev,Req>)
         -> Observable<Try<Req>>
     {
-        let manager = requestMiddlewareManager()
-        
         return Observable.just(previous)
             .flatMap(generator)
-            .flatMap(manager.applyTransformMiddlewares)
-            .doOnNext(manager.applySideEffectMiddlewares)
             .catchErrorJustReturn(Try<Req>.failure)
     }
     
-    /// Perform a request, based on the result of some previous request.
+    /// Perform a request, based on the result of some previous request. We
+    /// also apply middlewares to the request object.
     ///
     /// - Parameters:
     ///   - previous: The result of the upstream request.
@@ -58,8 +54,25 @@ public extension HMRequestHandlerType {
             /// If we nest the request like this, even if there are multiple
             /// requests generated (each emitting a Try<Req>), the error
             /// catching would still work correctly.
-            .flatMap({$0.rx.get().flatMap(perform)
+            .flatMap({$0.rx.get()
+                .flatMap(self.applyRequestMiddlewares)
+                .flatMap(perform)
                 .catchErrorJustReturn(Try<Val>.failure)
             })
+    }
+    
+    /// Apply request middlewares if necessary.
+    ///
+    /// - Parameter request: A HMRequestType instance.
+    /// - Returns: An Observable instance.
+    func applyRequestMiddlewares(_ request: Req) -> Observable<Req> {
+        let manager = requestMiddlewareManager()
+        
+        if request.applyMiddlewares() {
+            return manager.applyTransformMiddlewares(request)
+                .doOnNext(manager.applySideEffectMiddlewares)
+        } else {
+            return Observable.just(request)
+        }
     }
 }

@@ -1,5 +1,5 @@
 //
-//  HMRequestMiddlewares.swift
+//  HMMiddlewareManager.swift
 //  HMRequestFramework
 //
 //  Created by Hai Pham on 7/29/17.
@@ -9,13 +9,14 @@
 import RxSwift
 import SwiftUtilities
 
-/// Utility class to handle request middlewares.
+/// Utility class to handle request middlewares. This does not handle errors
+/// by default.
+///
+/// If a request handler uses this class, it must catch errors and wrap in
+/// Try itself.
 public struct HMMiddlewareManager<A> {
-    
-    /// These middlewares have internal access for tests. They will not be
-    /// visible for API users.
-    var tfMiddlewares: [HMTransformMiddleware<A>]
-    var seMiddlewares: [HMSideEffectMiddleware<A>]
+    fileprivate var tfMiddlewares: [HMTransformMiddleware<A>]
+    fileprivate var seMiddlewares: [HMSideEffectMiddleware<A>]
     
     fileprivate init() {
         tfMiddlewares = []
@@ -28,16 +29,14 @@ public struct HMMiddlewareManager<A> {
     ///   - original: The result object to be applied on.
     ///   - middlewares: A Sequence of transform middlewares.
     /// - Returns: An Observable instance.
-    func applyTransformMiddlewares<S>(_ result: Try<A>, _ middlewares: S)
-        -> Observable<Try<A>> where
+    func applyTransformMiddlewares<S>(_ result: A, _ middlewares: S)
+        -> Observable<A> where
         S: Sequence, S.Iterator.Element == HMTransformMiddleware<A>
     {
         var chain = Observable.just(result)
                 
         for middleware in middlewares {
-            chain = chain
-                .flatMap({try middleware($0).catchErrorJustReturn(Try.failure)})
-                .catchErrorJustReturn(Try.failure)
+            chain = chain.flatMap({try middleware($0)})
         }
         
         return chain
@@ -48,7 +47,7 @@ public struct HMMiddlewareManager<A> {
     /// - Parameters:
     ///   - original: The result object to be applied on.
     ///   - middlewares: A Sequence of side effect middlewares.
-    func applySideEffectMiddlewares<S>(_ result: Try<A>, _ middlewares: S) where
+    func applySideEffectMiddlewares<S>(_ result: A, _ middlewares: S) where
         S: Sequence, S.Iterator.Element == HMSideEffectMiddleware<A>
     {
         middlewares.forEach({try? $0(result)})
@@ -61,16 +60,14 @@ extension HMMiddlewareManager: HMMiddlewareManagerType {
     ///
     /// - Parameter result: The original object to be applied on.
     /// - Returns: An Observable instance.
-    public func applyTransformMiddlewares(_ result: Try<A>) -> Observable<Try<A>> {
-        return applyTransformMiddlewares(result, tfMiddlewares)
-            .ifEmpty(default: result)
-            .catchErrorJustReturn(Try.failure)
+    public func applyTransformMiddlewares(_ result: A) -> Observable<A> {
+        return applyTransformMiddlewares(result, tfMiddlewares).ifEmpty(default: result)
     }
     
     /// Override this method to provide default implementation.
     ///
     /// - Parameter result: The original object to be applied on.
-    public func applySideEffectMiddlewares(_ result: Try<A>) {
+    public func applySideEffectMiddlewares(_ result: A) {
         return applySideEffectMiddlewares(result, seMiddlewares)
     }
 }
@@ -89,104 +86,104 @@ public extension HMMiddlewareManager {
         
         /// Add a transform middleware.
         ///
-        /// - Parameter middleware: A HMRequestMiddleware instance.
+        /// - Parameter transform: A HMTransformMiddleware instance.
         /// - Returns: The current Builder instance.
         @discardableResult
-        public func add(middleware: @escaping HMTransformMiddleware<A>) -> Builder<A> {
-            manager.tfMiddlewares.append(middleware)
+        public func add(transform: @escaping HMTransformMiddleware<A>) -> Builder<A> {
+            manager.tfMiddlewares.append(transform)
             return self
         }
         
         /// Add multiple transform middlewares.
         ///
-        /// - Parameter middlewares: A Sequence of HMRequestMiddleware.
+        /// - Parameter transforms: A Sequence of HMTransformMiddleware.
         /// - Returns: The current Builder instance.
-        public func add<S>(middlewares: S) -> Builder<A> where
+        public func add<S>(transforms: S) -> Builder<A> where
             S: Sequence, S.Iterator.Element == HMTransformMiddleware<A>
         {
-            manager.tfMiddlewares.append(contentsOf: middlewares)
+            manager.tfMiddlewares.append(contentsOf: transforms)
             return self
         }
         
         /// Add multiple transform middlewares.
         ///
-        /// - Parameter middlewares: Varargs of HMRequestMiddleware.
+        /// - Parameter transforms: Varargs of HMTransformMiddleware.
         /// - Returns: The current Builder instance.
-        public func add(middlewares: HMTransformMiddleware<A>...) -> Builder<A> {
-            return add(middlewares: middlewares)
+        public func add(transforms: HMTransformMiddleware<A>...) -> Builder<A> {
+            return add(transforms: transforms)
         }
         
         /// Replace all transform middlewares.
         ///
-        /// - Parameter middlewares: A Sequence of HMRequestMiddleware.
+        /// - Parameter transforms: A Sequence of HMTransformMiddleware.
         /// - Returns: The current Builder instance.
-        public func with<S>(middlewares: S) -> Builder<A> where
+        public func with<S>(transforms: S) -> Builder<A> where
             S: Sequence, S.Iterator.Element == HMTransformMiddleware<A>
         {
             manager.tfMiddlewares.removeAll()
-            return add(middlewares: middlewares)
+            return add(transforms: transforms)
         }
         
         /// Replace all transform middlewares.
         ///
-        /// - Parameter middlewares: Varargs of HMRequestMiddleware.
+        /// - Parameter transforms: Varargs of HMTransformMiddleware.
         /// - Returns: The current Builder instance.
-        public func with(middlewares: HMTransformMiddleware<A>...) -> Builder<A> {
-            return with(middlewares: middlewares)
+        public func with(transforms: HMTransformMiddleware<A>...) -> Builder<A> {
+            return with(transforms: transforms)
         }
         
         /// Add a side effect middleware.
         ///
-        /// - Parameter middleware: A HMSideEffectMiddleware instance.
+        /// - Parameter sideEffect: A HMSideEffectMiddleware instance.
         /// - Returns: The current Builder instance.
-        public func add(middleware: @escaping HMSideEffectMiddleware<A>) -> Builder<A> {
-            manager.seMiddlewares.append(middleware)
+        public func add(sideEffect: @escaping HMSideEffectMiddleware<A>) -> Builder<A> {
+            manager.seMiddlewares.append(sideEffect)
             return self
         }
         
         /// Add multiple side effect middlewares.
         ///
-        /// - Parameter middlewares: A Sequence of HMSideEffectMiddleware.
+        /// - Parameter sideEffects: A Sequence of HMSideEffectMiddleware.
         /// - Returns: The current Builder instance.
-        public func add<S>(middlewares: S) -> Builder<A> where
+        public func add<S>(sideEffects: S) -> Builder<A> where
             S: Sequence, S.Iterator.Element == HMSideEffectMiddleware<A>
         {
-            manager.seMiddlewares.append(contentsOf: middlewares)
+            manager.seMiddlewares.append(contentsOf: sideEffects)
             return self
         }
         
         /// Add multiple side effect middlewares.
         ///
-        /// - Parameter middlewares: Varargs of HMSideEffectMiddleware.
+        /// - Parameter sideEffects: Varargs of HMSideEffectMiddleware.
         /// - Returns: The current Builder instance.
-        public func add(middlewares: HMSideEffectMiddleware<A>...) -> Builder<A> {
-            return add(middlewares: middlewares)
+        public func add(sideEffects: HMSideEffectMiddleware<A>...) -> Builder<A> {
+            return add(sideEffects: sideEffects)
         }
         
         /// Replace all side effect middlewares.
         ///
-        /// - Parameter middlewares: A Sequence of HMSideEffectMiddleware.
+        /// - Parameter sideEffects: A Sequence of HMSideEffectMiddleware.
         /// - Returns: The current Builder instance.
-        public func with<S>(middlewares: S) -> Builder<A> where
+        public func with<S>(sideEffects: S) -> Builder<A> where
             S: Sequence, S.Iterator.Element == HMSideEffectMiddleware<A>
         {
             manager.seMiddlewares.removeAll()
-            return add(middlewares: middlewares)
+            return add(sideEffects: sideEffects)
         }
         
         /// Replace all side effect middlewares.
         ///
-        /// - Parameter middlewares: Varargs of HMSideEffectMiddleware.
+        /// - Parameter sideEffects: Varargs of HMSideEffectMiddleware.
         /// - Returns: The current Builder instance.
-        public func with(middlewares: HMSideEffectMiddleware<A>...) -> Builder<A> {
-            return with(middlewares: middlewares)
+        public func with(sideEffects: HMSideEffectMiddleware<A>...) -> Builder<A> {
+            return with(sideEffects: sideEffects)
         }
         
         /// Add logging middleware.
         ///
         /// - Returns: The current Builder instance.
         public func addLoggingMiddleware() -> Builder<A> {
-            return add(middleware: HMMiddlewares.loggingMiddleware())
+            return add(sideEffect: HMMiddlewares.loggingMiddleware())
         }
         
         /// Add logging middleware only in debug mode.

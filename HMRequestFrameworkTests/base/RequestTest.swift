@@ -14,19 +14,20 @@ import XCTest
 @testable import HMRequestFramework
 
 public final class RequestTest: XCTestCase {
+    fileprivate typealias Req = RequestHandler.Req
     fileprivate let dummy: Try<Any> = Try.success(())
     fileprivate let timeout: TimeInterval = 100
     fileprivate var rqMiddlewareManager: HMMiddlewareManager<Req>!
     fileprivate var disposeBag: DisposeBag!
-    fileprivate var handler: RequestTest!
+    fileprivate var handler: RequestHandler!
     fileprivate var scheduler: TestScheduler!
     
     override public func setUp() {
         super.setUp()
         rqMiddlewareManager = HMMiddlewareManager<Req>.builder().build()
+        handler = RequestHandler(requestMiddlewareManager: rqMiddlewareManager)
         disposeBag = DisposeBag()
         scheduler = TestScheduler(initialClock: 0)
-        handler = self
     }
     
     public func test_requestGeneratorFailed_shouldNotThrowError() {
@@ -152,51 +153,5 @@ public final class RequestTest: XCTestCase {
         
         /// Then
         XCTAssertEqual(observer.nextElements().count, times)
-    }
-}
-
-extension RequestTest: HMRequestHandlerType {
-    public typealias Req = MockRequest
-    
-    public func requestMiddlewareManager() -> HMMiddlewareManager<Req> {
-        return rqMiddlewareManager
-    }
-}
-
-public struct MockRequest {
-    fileprivate var retryCount: Int
-    
-    fileprivate init() {
-        retryCount = 0
-    }
-}
-
-extension MockRequest: HMRequestType {
-    public func retries() -> Int {
-        return retryCount
-    }
-}
-
-fileprivate extension MockRequest {
-    static func builder() -> Builder {
-        return Builder()
-    }
-    
-    fileprivate class Builder {
-        fileprivate var request: MockRequest
-        
-        init() {
-            request = MockRequest()
-        }
-        
-        @discardableResult
-        func with(retries: Int) -> Builder {
-            request.retryCount = retries
-            return self
-        }
-        
-        func build() -> MockRequest {
-            return request
-        }
     }
 }

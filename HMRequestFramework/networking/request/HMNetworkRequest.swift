@@ -19,9 +19,11 @@ public struct HMNetworkRequest {
     fileprivate var httpBody: Any?
     fileprivate var timeoutInterval: TimeInterval
     fileprivate var retryCount: Int
+    fileprivate var middlewaresEnabled: Bool
     
     fileprivate init() {
         retryCount = 1
+        middlewaresEnabled = false
         timeoutInterval = TimeInterval.infinity
     }
 }
@@ -141,20 +143,50 @@ public extension HMNetworkRequest {
             return self
         }
         
+        /// Enable or disable middlewares.
+        ///
+        /// - Parameter applyMiddlewares: A Bool value.
+        /// - Returns: The current Builder instance.
+        @discardableResult
+        public func with(applyMiddlewares: Bool) -> Builder {
+            request.middlewaresEnabled = applyMiddlewares
+            return self
+        }
+        
+        /// Enable middlewares.
+        ///
+        /// - Returns: The current Builder instance.
+        @discardableResult
+        public func shouldApplyMiddlewares() -> Builder {
+            return with(applyMiddlewares: true)
+        }
+        
+        /// Disable middlewares.
+        ///
+        /// - Returns: The current Builder instance.
+        public func shouldNotApplyMiddlewares() -> Builder {
+            return with(applyMiddlewares: false)
+        }
+        
         /// Copy all properties from one request to this.
         ///
         /// - Parameter request: A HMNetworkRequestType.
         /// - Returns: The current Builder instance.
         public func with(request: HMNetworkRequestType) -> Builder {
-            return (try? self
-                .with(baseUrl: request.baseUrl())
-                .with(endPoint: request.endPoint())
-                .with(headers: request.headers())
-                .with(method: request.method())
-                .with(params: request.params())
-                .with(body: request.body())
-                .with(retries: request.retries())
-                .with(timeout: request.timeout())) ?? self
+            do {
+                return self
+                    .with(baseUrl: try request.baseUrl())
+                    .with(endPoint: try request.endPoint())
+                    .with(method: try request.method())
+                    .with(headers: try request.headers())
+                    .with(params: try request.params())
+                    .with(body: try request.body())
+                    .with(timeout: request.timeout())
+                    .with(retries: request.retries())
+                    .with(applyMiddlewares: request.applyMiddlewares())
+            } catch {
+                return self
+            }
         }
         
         public func build() -> HMNetworkRequest {
@@ -207,10 +239,6 @@ extension HMNetworkRequest: HMNetworkRequestType {
         }
     }
     
-    public func timeout() throws -> TimeInterval {
-        return timeoutInterval
-    }
-    
     public func urlRequest() throws -> URLRequest {
         let method = try self.method()
         var request = try baseUrlRequest()
@@ -231,7 +259,15 @@ extension HMNetworkRequest: HMNetworkRequestType {
         return request
     }
     
+    public func timeout() -> TimeInterval {
+        return timeoutInterval
+    }
+    
     public func retries() -> Int {
         return Swift.max(retryCount, 1)
+    }
+    
+    public func applyMiddlewares() -> Bool {
+        return middlewaresEnabled
     }
 }

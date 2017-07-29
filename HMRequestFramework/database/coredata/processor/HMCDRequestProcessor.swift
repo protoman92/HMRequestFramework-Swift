@@ -28,7 +28,7 @@ public struct HMCDRequestProcessor {
 }
 
 extension HMCDRequestProcessor: HMCDRequestProcessorType {
-    public typealias Req = HMCDRequestType
+    public typealias Req = HMCDRequest
     
     /// Override this method to provide default implementation.
     ///
@@ -112,26 +112,9 @@ extension HMCDRequestProcessor: HMCDRequestProcessorType {
         case .persist:
             return try executePersist(request)
             
-        case .persistData:
-            return try executePersistData(request)
-            
         case .fetch:
             throw Exception("Please use typed execute for typed return values")
         }
-    }
-    
-    /// Perform a CoreData persistence operation.
-    ///
-    /// - Parameter request: A HMCoreDataRequestType instance.
-    /// - Returns: An Observable instance.
-    /// - Throws: Exception if the execution fails.
-    private func executePersist(_ request: Req) throws -> Observable<Try<Void>> {
-        let manager = coreDataManager()
-        
-        return manager.rx.persistAll()
-            .retry(request.retries())
-            .map(Try.success)
-            .catchErrorJustReturn(Try.failure)
     }
     
     /// Perform a CoreData data persistence operation.
@@ -139,7 +122,7 @@ extension HMCDRequestProcessor: HMCDRequestProcessorType {
     /// - Parameter request: A HMCoreDataRequestType instance.
     /// - Returns: An Observable instance.
     /// - Throws: Exception if the execution fails.
-    private func executePersistData(_ request: Req) throws -> Observable<Try<Void>> {
+    private func executePersist(_ request: Req) throws -> Observable<Try<Void>> {
         let manager = coreDataManager()
         let data = try request.dataToSave()
             

@@ -43,7 +43,7 @@ public final class HMResultProcessors {
     /// Get a result processor that does no transformation on the request result.
     ///
     /// - Returns: A HMResultProcessor instance.
-    public static func eqResultProcessor<Val>() -> HMEQResultProcessor<Val> {
+    public static func eqProcessor<Val>() -> HMEQResultProcessor<Val> {
         return {Observable.just(Try.success($0))}
     }
     

@@ -16,10 +16,10 @@ public protocol HMMiddlewareManagerType {
     ///
     /// - Parameter result: The original object to be applied on.
     /// - Returns: An Observable instance.
-    func applyTransformMiddlewares(_ result: Try<Target>) -> Observable<Try<Target>>
+    func applyTransformMiddlewares(_ result: Target) -> Observable<Target>
     
     /// Apply registered side effect middlewares.
     ///
     /// - Parameter result: The original object to be applied on.
-    func applySideEffectMiddlewares(_ result: Try<Target>)
+    func applySideEffectMiddlewares(_ result: Target)
 }

@@ -17,11 +17,13 @@ public struct HMCDRequest {
     fileprivate var cdOperation: CoreDataOperation?
     fileprivate var cdDataToSave: [NSManagedObject]
     fileprivate var retryCount: Int
+    fileprivate var middlewaresEnabled: Bool
     
     fileprivate init() {
         nsSortDescriptors = []
         cdDataToSave = []
         retryCount = 1
+        middlewaresEnabled = false
     }
 }
 
@@ -50,7 +52,7 @@ public extension HMCDRequest {
         /// - Parameter entityName: A String value.
         /// - Returns: The current Builder instance.
         @discardableResult
-        public func with(entityName: String) -> Builder {
+        public func with(entityName: String?) -> Builder {
             request.cdEntityName = entityName
             return self
         }
@@ -61,7 +63,7 @@ public extension HMCDRequest {
         /// - Returns: The current Builder instance.
         @discardableResult
         public func with<CDR>(representable: CDR.Type) -> Builder where CDR: HMCDRepresentableType {
-            return (try? with(entityName: representable.entityName())) ?? self
+            return with(entityName: try? representable.entityName())
         }
         
         /// Set the predicate.
@@ -69,7 +71,7 @@ public extension HMCDRequest {
         /// - Parameter predicate: A NSPredicate instance.
         /// - Returns: The current Builder instance.
         @discardableResult
-        public func with(predicate: NSPredicate) -> Builder {
+        public func with(predicate: NSPredicate?) -> Builder {
             request.nsPredicate = predicate
             return self
         }
@@ -79,10 +81,13 @@ public extension HMCDRequest {
         /// - Parameter sortDescriptors: A Sequence of NSSortDescriptor.
         /// - Returns: The current Builder instance.
         @discardableResult
-        public func with<S>(sortDescriptors: S) -> Builder
+        public func with<S>(sortDescriptors: S?) -> Builder
             where S: Sequence, S.Iterator.Element == NSSortDescriptor
         {
-            request.nsSortDescriptors.append(contentsOf: sortDescriptors)
+            if let descriptors = sortDescriptors {
+                request.nsSortDescriptors.append(contentsOf: descriptors)
+            }
+            
             return self
         }
         
@@ -91,10 +96,10 @@ public extension HMCDRequest {
         /// - Parameter sortDescriptors: A Sequence of NSSortDescriptor.
         /// - Returns: The current Builder instance.
         @discardableResult
-        public func with<S>(sortDescriptors: S) -> Builder
+        public func with<S>(sortDescriptors: S?) -> Builder
             where S: Sequence, S.Iterator.Element: NSSortDescriptor
         {
-            return with(sortDescriptors: sortDescriptors.map(eq))
+            return with(sortDescriptors: sortDescriptors?.map(eq))
         }
         
         /// Set the sort descriptors.
@@ -120,7 +125,7 @@ public extension HMCDRequest {
         /// - Parameter operation: A CoreDataOperation instance.
         /// - Returns: The current Builder instance.
         @discardableResult
-        public func with(operation: CoreDataOperation) -> Builder {
+        public func with(operation: CoreDataOperation?) -> Builder {
             request.cdOperation = operation
             return self
         }
@@ -130,10 +135,13 @@ public extension HMCDRequest {
         /// - Parameter data: A Sequence of NSManagedObject.
         /// - Returns: The current Builder instance.
         @discardableResult
-        public func with<S>(dataToSave data: S) -> Builder where
+        public func with<S>(dataToSave data: S?) -> Builder where
             S: Sequence, S.Iterator.Element == NSManagedObject
         {
-            request.cdDataToSave.append(contentsOf: data)
+            if let data = data {
+                request.cdDataToSave.append(contentsOf: data)
+            }
+            
             return self
         }
         
@@ -142,10 +150,10 @@ public extension HMCDRequest {
         /// - Parameter data: A Sequence of NSManagedObject.
         /// - Returns: The current Builder instance.
         @discardableResult
-        public func with<S>(dataToSave data: S) -> Builder where
+        public func with<S>(dataToSave data: S?) -> Builder where
             S: Sequence, S.Iterator.Element: NSManagedObject
         {
-            return with(dataToSave: data.map({$0 as NSManagedObject}))
+            return with(dataToSave: data?.map({$0 as NSManagedObject}))
         }
         
         /// Set the retry count.
@@ -158,18 +166,44 @@ public extension HMCDRequest {
             return self
         }
         
+        /// Enable or disable middlewares.
+        ///
+        /// - Parameter applyMiddlewares: A Bool value.
+        /// - Returns: The current Builder instance.
+        @discardableResult
+        public func with(applyMiddlewares: Bool) -> Builder {
+            request.middlewaresEnabled = applyMiddlewares
+            return self
+        }
+        
+        /// Enable middlewares.
+        ///
+        /// - Returns: The current Builder instance.
+        @discardableResult
+        public func shouldApplyMiddlewares() -> Builder {
+            return with(applyMiddlewares: true)
+        }
+        
+        /// Disable middlewares.
+        ///
+        /// - Returns: The current Builder instance.
+        public func shouldNotApplyMiddlewares() -> Builder {
+            return with(applyMiddlewares: false)
+        }
+        
         /// Copy all properties from another request to the current one.
         ///
         /// - Parameter request: A HMCDRequestType instance.
         /// - Returns: The current Builder instance.
         public func with(request: HMCDRequestType) -> Builder {
-            return (try? self
-                .with(operation: request.operation())
-                .with(entityName: request.entityName())
-                .with(predicate: request.predicate())
-                .with(sortDescriptors: request.sortDescriptors())
-                .with(dataToSave: request.dataToSave())
-                .with(retries: request.retries())) ?? self
+            return self
+                .with(operation: try? request.operation())
+                .with(entityName: try? request.entityName())
+                .with(predicate: try? request.predicate())
+                .with(sortDescriptors: try? request.sortDescriptors())
+                .with(dataToSave: try? request.dataToSave())
+                .with(retries: request.retries())
+                .with(applyMiddlewares: request.applyMiddlewares())
         }
         
         public func build() -> HMCDRequest {
@@ -213,7 +247,7 @@ extension HMCDRequest: HMCDRequestType {
         let operation = try self.operation()
         let data = cdDataToSave
         
-        if case .persistData = operation, data.isEmpty {
+        if case .persist = operation, data.isEmpty {
             throw Exception("Data to save cannot be nil or empty")
         } else {
             return data
@@ -222,5 +256,9 @@ extension HMCDRequest: HMCDRequestType {
     
     public func retries() -> Int {
         return Swift.max(retryCount, 1)
+    }
+    
+    public func applyMiddlewares() -> Bool {
+        return middlewaresEnabled
     }
 }
