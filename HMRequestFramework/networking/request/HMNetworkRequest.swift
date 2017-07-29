@@ -20,6 +20,7 @@ public struct HMNetworkRequest {
     fileprivate var timeoutInterval: TimeInterval
     fileprivate var retryCount: Int
     fileprivate var middlewaresEnabled: Bool
+    fileprivate var rqDescription: String?
     
     fileprivate init() {
         retryCount = 1
@@ -133,41 +134,6 @@ public extension HMNetworkRequest {
             return self
         }
         
-        /// Set the retryCount.
-        ///
-        /// - Parameter retries: An Int value.
-        /// - Returns: The current Builder instance.
-        @discardableResult
-        public func with(retries: Int) -> Builder {
-            request.retryCount = retries
-            return self
-        }
-        
-        /// Enable or disable middlewares.
-        ///
-        /// - Parameter applyMiddlewares: A Bool value.
-        /// - Returns: The current Builder instance.
-        @discardableResult
-        public func with(applyMiddlewares: Bool) -> Builder {
-            request.middlewaresEnabled = applyMiddlewares
-            return self
-        }
-        
-        /// Enable middlewares.
-        ///
-        /// - Returns: The current Builder instance.
-        @discardableResult
-        public func shouldApplyMiddlewares() -> Builder {
-            return with(applyMiddlewares: true)
-        }
-        
-        /// Disable middlewares.
-        ///
-        /// - Returns: The current Builder instance.
-        public func shouldNotApplyMiddlewares() -> Builder {
-            return with(applyMiddlewares: false)
-        }
-        
         /// Copy all properties from one request to this.
         ///
         /// - Parameter request: A HMNetworkRequestType.
@@ -188,10 +154,44 @@ public extension HMNetworkRequest {
                 return self
             }
         }
-        
-        public func build() -> HMNetworkRequest {
-            return request
-        }
+    }
+}
+
+extension HMNetworkRequest.Builder: HMRequestBuilderType {
+    public typealias Req = HMNetworkRequest
+    
+    /// Override this method to provide default implementation.
+    ///
+    /// - Parameter retries: An Int value.
+    /// - Returns: The current Builder instance.
+    @discardableResult
+    public func with(retries: Int) -> HMNetworkRequest.Builder {
+        request.retryCount = retries
+        return self
+    }
+    
+    /// Override this method to provide default implementation.
+    ///
+    /// - Parameter applyMiddlewares: A Bool value.
+    /// - Returns: The current Builder instance.
+    @discardableResult
+    public func with(applyMiddlewares: Bool) -> HMNetworkRequest.Builder {
+        request.middlewaresEnabled = applyMiddlewares
+        return self
+    }
+    
+    /// Override this method to provide default implementation.
+    ///
+    /// - Parameter requestDescription: A String value.
+    /// - Returns: The current Builder instance.
+    @discardableResult
+    public func with(requestDescription: String?) -> HMNetworkRequest.Builder {
+        request.rqDescription = requestDescription
+        return self
+    }
+    
+    public func build() -> Req {
+        return request
     }
 }
 
@@ -269,5 +269,18 @@ extension HMNetworkRequest: HMNetworkRequestType {
     
     public func applyMiddlewares() -> Bool {
         return middlewaresEnabled
+    }
+    
+    public func requestDescription() -> String? {
+        return rqDescription
+    }
+}
+
+extension HMNetworkRequest: CustomStringConvertible {
+    public var description: String {
+        let method = (try? self.method().rawValue) ?? "INVALID METHOD"
+        let url = (try? self.url().absoluteString) ?? "INVALID URL"
+        let description = (self.requestDescription()) ?? "NONE"
+        return "Performing \(method) at: \(url). Description: \(description)"
     }
 }

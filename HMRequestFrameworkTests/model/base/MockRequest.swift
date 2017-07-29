@@ -11,6 +11,7 @@
 public struct MockRequest {
     fileprivate var retryCount: Int
     fileprivate var middlewaresEnabled: Bool
+    fileprivate var rqDescription: String?
     
     fileprivate init() {
         retryCount = 0
@@ -25,6 +26,10 @@ extension MockRequest: HMRequestType {
     
     public func applyMiddlewares() -> Bool {
         return middlewaresEnabled
+    }
+    
+    public func requestDescription() -> String? {
+        return rqDescription
     }
 }
 
@@ -49,6 +54,12 @@ public extension MockRequest {
         @discardableResult
         func with(applyMiddlewares: Bool) -> Builder {
             request.middlewaresEnabled = applyMiddlewares
+            return self
+        }
+        
+        @discardableResult
+        func with(requestDescription: String?) -> Builder {
+            request.rqDescription = requestDescription
             return self
         }
         

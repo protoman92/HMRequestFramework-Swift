@@ -20,4 +20,9 @@ public protocol HMRequestType {
     ///
     /// - Returns: A Bool value.
     func applyMiddlewares() -> Bool
+    
+    /// Get the request description. We use this for logging purposes.
+    ///
+    /// - Returns: A String value.
+    func requestDescription() -> String?
 }

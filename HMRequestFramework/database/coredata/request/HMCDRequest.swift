@@ -18,6 +18,7 @@ public struct HMCDRequest {
     fileprivate var cdDataToSave: [NSManagedObject]
     fileprivate var retryCount: Int
     fileprivate var middlewaresEnabled: Bool
+    fileprivate var rqDescription: String?
     
     fileprivate init() {
         nsSortDescriptors = []
@@ -41,7 +42,7 @@ public extension HMCDRequest {
     }
     
     public final class Builder {
-        private var request: HMCDRequest
+        fileprivate var request: HMCDRequest
         
         fileprivate init() {
             request = HMCDRequest()
@@ -156,41 +157,6 @@ public extension HMCDRequest {
             return with(dataToSave: data?.map({$0 as NSManagedObject}))
         }
         
-        /// Set the retry count.
-        ///
-        /// - Parameter retries: An Int value.
-        /// - Returns: The current Builder instance.
-        @discardableResult
-        public func with(retries: Int) -> Builder {
-            request.retryCount = retries
-            return self
-        }
-        
-        /// Enable or disable middlewares.
-        ///
-        /// - Parameter applyMiddlewares: A Bool value.
-        /// - Returns: The current Builder instance.
-        @discardableResult
-        public func with(applyMiddlewares: Bool) -> Builder {
-            request.middlewaresEnabled = applyMiddlewares
-            return self
-        }
-        
-        /// Enable middlewares.
-        ///
-        /// - Returns: The current Builder instance.
-        @discardableResult
-        public func shouldApplyMiddlewares() -> Builder {
-            return with(applyMiddlewares: true)
-        }
-        
-        /// Disable middlewares.
-        ///
-        /// - Returns: The current Builder instance.
-        public func shouldNotApplyMiddlewares() -> Builder {
-            return with(applyMiddlewares: false)
-        }
-        
         /// Copy all properties from another request to the current one.
         ///
         /// - Parameter request: A HMCDRequestType instance.
@@ -205,10 +171,44 @@ public extension HMCDRequest {
                 .with(retries: request.retries())
                 .with(applyMiddlewares: request.applyMiddlewares())
         }
-        
-        public func build() -> HMCDRequest {
-            return request
-        }
+    }
+}
+
+extension HMCDRequest.Builder: HMRequestBuilderType {
+    public typealias Req = HMCDRequest
+    
+    /// Override this method to provide default implementation.
+    ///
+    /// - Parameter retries: An Int value.
+    /// - Returns: The current Builder instance.
+    @discardableResult
+    public func with(retries: Int) -> HMCDRequest.Builder {
+        request.retryCount = retries
+        return self
+    }
+    
+    /// Override this method to provide default implementation.
+    ///
+    /// - Parameter applyMiddlewares: A Bool value.
+    /// - Returns: The current Builder instance.
+    @discardableResult
+    public func with(applyMiddlewares: Bool) -> HMCDRequest.Builder {
+        request.middlewaresEnabled = applyMiddlewares
+        return self
+    }
+    
+    /// Override this method to provide default implementation.
+    ///
+    /// - Parameter requestDescription: A String value.
+    /// - Returns: The current Builder instance.
+    @discardableResult
+    public func with(requestDescription: String?) -> HMCDRequest.Builder {
+        request.rqDescription = requestDescription
+        return self
+    }
+    
+    public func build() -> Req {
+        return request
     }
 }
 
@@ -261,4 +261,32 @@ extension HMCDRequest: HMCDRequestType {
     public func applyMiddlewares() -> Bool {
         return middlewaresEnabled
     }
+    
+    public func requestDescription() -> String? {
+        return rqDescription
+    }
 }
+
+extension HMCDRequest: CustomStringConvertible {
+    public var description: String {
+        var ops: String
+        
+        if let operation = try? self.operation() {
+            ops = String(describing: operation)
+            
+            if
+                case .fetch = operation,
+                let predicate = try? self.predicate(),
+                let sorts = try? self.sortDescriptors()
+            {
+                ops = "\(ops) with predicate \(predicate) and sort \(sorts)"
+            }
+        } else {
+            ops = "INVALID OPERATION"
+        }
+        
+        let description = self.requestDescription() ?? "NONE"
+        return "Performing \(ops). Description: \(description)"
+    }
+}
+
