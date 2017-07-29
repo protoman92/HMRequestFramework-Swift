@@ -30,6 +30,14 @@ public extension HMCDRequest {
         return Builder()
     }
     
+    /// Instead of defining setters, we expose a Builder instance for a new
+    /// request and copy all properties from this request.
+    ///
+    /// - Returns: A Builder instance.
+    public func builder() -> Builder {
+        return HMCDRequest.builder().with(request: self)
+    }
+    
     public final class Builder {
         private var request: HMCDRequest
         
@@ -148,6 +156,20 @@ public extension HMCDRequest {
         public func with(retries: Int) -> Builder {
             request.retryCount = retries
             return self
+        }
+        
+        /// Copy all properties from another request to the current one.
+        ///
+        /// - Parameter request: A HMCDRequestType instance.
+        /// - Returns: The current Builder instance.
+        public func with(request: HMCDRequestType) -> Builder {
+            return (try? self
+                .with(operation: request.operation())
+                .with(entityName: request.entityName())
+                .with(predicate: request.predicate())
+                .with(sortDescriptors: request.sortDescriptors())
+                .with(dataToSave: request.dataToSave())
+                .with(retries: request.retries())) ?? self
         }
         
         public func build() -> HMCDRequest {

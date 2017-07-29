@@ -13,8 +13,11 @@ import SwiftUtilities
 /// Use this class to perform network requests.
 public struct HMNetworkRequestHandler {
     fileprivate var urlSession: URLSession?
+    fileprivate var rqMiddlewares: [HMRequestMiddleware<Req>]
     
-    fileprivate init() {}
+    fileprivate init() {
+        rqMiddlewares = []
+    }
     
     /// Perform a network request with required dependencies.
     ///

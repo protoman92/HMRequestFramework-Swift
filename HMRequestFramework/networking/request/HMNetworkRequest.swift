@@ -31,6 +31,14 @@ public extension HMNetworkRequest {
         return Builder()
     }
     
+    /// Instead of defining setters, we expose a Builder instance for a new
+    /// request and copy all properties from this request.
+    ///
+    /// - Returns: A Builder instance.
+    public func builder() -> Builder {
+        return HMNetworkRequest.builder().with(request: self)
+    }
+    
     public final class Builder {
         fileprivate var request: HMNetworkRequest
         
@@ -108,7 +116,7 @@ public extension HMNetworkRequest {
         /// - Parameter headers: A Dictionary of headers.
         /// - Returns: The current Builder instance.
         @discardableResult
-        public func with(headers: [String : String]) -> Builder {
+        public func with(headers: [String : String]?) -> Builder {
             request.httpHeaders = headers
             return self
         }
@@ -118,7 +126,7 @@ public extension HMNetworkRequest {
         /// - Parameter body: Any object.
         /// - Returns: The current Builder instance.
         @discardableResult
-        public func with(body: Any) -> Builder {
+        public func with(body: Any?) -> Builder {
             request.httpBody = body
             return self
         }
@@ -131,6 +139,22 @@ public extension HMNetworkRequest {
         public func with(retries: Int) -> Builder {
             request.retryCount = retries
             return self
+        }
+        
+        /// Copy all properties from one request to this.
+        ///
+        /// - Parameter request: A HMNetworkRequestType.
+        /// - Returns: The current Builder instance.
+        public func with(request: HMNetworkRequestType) -> Builder {
+            return (try? self
+                .with(baseUrl: request.baseUrl())
+                .with(endPoint: request.endPoint())
+                .with(headers: request.headers())
+                .with(method: request.method())
+                .with(params: request.params())
+                .with(body: request.body())
+                .with(retries: request.retries())
+                .with(timeout: request.timeout())) ?? self
         }
         
         public func build() -> HMNetworkRequest {
@@ -173,7 +197,14 @@ extension HMNetworkRequest: HMNetworkRequestType {
     }
     
     public func body() throws -> Any? {
-        return httpBody
+        let method = try self.method()
+        let body = httpBody
+        
+        if method.requiresBody() && body == nil {
+            throw Exception("Body cannot be nil")
+        } else {
+            return httpBody
+        }
     }
     
     public func timeout() throws -> TimeInterval {

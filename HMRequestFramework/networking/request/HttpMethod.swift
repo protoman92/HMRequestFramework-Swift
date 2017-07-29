@@ -11,4 +11,17 @@ public enum HttpMethod: String {
     case post = "POST"
     case head = "HEAD"
     case put = "PUT"
+    
+    /// Check if the current method requires a HTTP body.
+    ///
+    /// - Returns: A Bool value.
+    public func requiresBody() -> Bool {
+        switch self {
+        case .post, .put:
+            return true;
+            
+        default:
+            return false
+        }
+    }
 }

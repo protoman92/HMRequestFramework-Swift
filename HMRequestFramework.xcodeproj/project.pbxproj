@@ -13,6 +13,9 @@
 		D31C586E1F27861800C8D8CC /* Singleton.swift in Sources */ = {isa = PBXBuildFile; fileRef = D31C58571F27861800C8D8CC /* Singleton.swift */; };
 		D31C58761F278A8A00C8D8CC /* HMProtocolConvertibleType.swift in Sources */ = {isa = PBXBuildFile; fileRef = D31C58751F278A8A00C8D8CC /* HMProtocolConvertibleType.swift */; };
 		D32649721F288EDC000226FA /* HMCDAttributeDescription.swift in Sources */ = {isa = PBXBuildFile; fileRef = D32649711F288EDC000226FA /* HMCDAttributeDescription.swift */; };
+		D34DF2921F2C2D740076D6B1 /* HMRequestMiddleware.swift in Sources */ = {isa = PBXBuildFile; fileRef = D34DF2911F2C2D740076D6B1 /* HMRequestMiddleware.swift */; };
+		D34DF2941F2C323A0076D6B1 /* HMMiddlewareManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D34DF2931F2C323A0076D6B1 /* HMMiddlewareManager.swift */; };
+		D34DF2971F2C52740076D6B1 /* MiddlewareTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = D34DF2961F2C52740076D6B1 /* MiddlewareTest.swift */; };
 		D378D6DE1F25E088009B89B2 /* HMRequestFramework.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D378D6D41F25E088009B89B2 /* HMRequestFramework.framework */; };
 		D378D6E51F25E088009B89B2 /* HMRequestFramework.h in Headers */ = {isa = PBXBuildFile; fileRef = D378D6D71F25E088009B89B2 /* HMRequestFramework.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D37D0BA11F25E3A00032C6AB /* HMRequestGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = D37D0B611F25E1BE0032C6AB /* HMRequestGenerator.swift */; };
@@ -77,6 +80,9 @@
 		D31C58571F27861800C8D8CC /* Singleton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Singleton.swift; sourceTree = "<group>"; };
 		D31C58751F278A8A00C8D8CC /* HMProtocolConvertibleType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HMProtocolConvertibleType.swift; sourceTree = "<group>"; };
 		D32649711F288EDC000226FA /* HMCDAttributeDescription.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMCDAttributeDescription.swift; sourceTree = "<group>"; };
+		D34DF2911F2C2D740076D6B1 /* HMRequestMiddleware.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMRequestMiddleware.swift; sourceTree = "<group>"; };
+		D34DF2931F2C323A0076D6B1 /* HMMiddlewareManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMMiddlewareManager.swift; sourceTree = "<group>"; };
+		D34DF2961F2C52740076D6B1 /* MiddlewareTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MiddlewareTest.swift; sourceTree = "<group>"; };
 		D378D6D41F25E088009B89B2 /* HMRequestFramework.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = HMRequestFramework.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D378D6D71F25E088009B89B2 /* HMRequestFramework.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HMRequestFramework.h; sourceTree = "<group>"; };
 		D378D6D81F25E088009B89B2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -184,6 +190,23 @@
 			name = request;
 			sourceTree = "<group>";
 		};
+		D34DF2901F2C2D540076D6B1 /* middleware */ = {
+			isa = PBXGroup;
+			children = (
+				D34DF2911F2C2D740076D6B1 /* HMRequestMiddleware.swift */,
+				D34DF2931F2C323A0076D6B1 /* HMMiddlewareManager.swift */,
+			);
+			path = middleware;
+			sourceTree = "<group>";
+		};
+		D34DF2951F2C52670076D6B1 /* middleware */ = {
+			isa = PBXGroup;
+			children = (
+				D34DF2961F2C52740076D6B1 /* MiddlewareTest.swift */,
+			);
+			path = middleware;
+			sourceTree = "<group>";
+		};
 		D378D6CA1F25E088009B89B2 = {
 			isa = PBXGroup;
 			children = (
@@ -220,6 +243,7 @@
 		D378D6E11F25E088009B89B2 /* HMRequestFrameworkTests */ = {
 			isa = PBXGroup;
 			children = (
+				D34DF2951F2C52670076D6B1 /* middleware */,
 				D3FF536A1F29E2FE00F78806 /* base */,
 				D3FF53651F29E2FE00F78806 /* database */,
 				D3FF53601F29E2FE00F78806 /* model */,
@@ -272,6 +296,7 @@
 		D37D0B5F1F25E1BE0032C6AB /* base */ = {
 			isa = PBXGroup;
 			children = (
+				D34DF2901F2C2D540076D6B1 /* middleware */,
 				D37D0B601F25E1BE0032C6AB /* generator */,
 				D37D0B621F25E1BE0032C6AB /* handler */,
 				D37D0B641F25E1BE0032C6AB /* processor */,
@@ -641,7 +666,9 @@
 				D3C522BC1F26F96600B294EF /* HMCDRxManagerType.swift in Sources */,
 				D37D0BA61F25E3A00032C6AB /* HMCDRequestProcessor.swift in Sources */,
 				D37D0BA71F25E3A00032C6AB /* HMCDRequestProcessorType.swift in Sources */,
+				D34DF2941F2C323A0076D6B1 /* HMMiddlewareManager.swift in Sources */,
 				D37D0BA81F25E3A00032C6AB /* HMCDResultProcessor.swift in Sources */,
+				D34DF2921F2C2D740076D6B1 /* HMRequestMiddleware.swift in Sources */,
 				D37D0BA91F25E3A00032C6AB /* CoreDataOperation.swift in Sources */,
 				D37D0BCB1F25F5A90032C6AB /* HMCDConstructor.swift in Sources */,
 				D37D0BAA1F25E3A00032C6AB /* HMCDPureObjectType.swift in Sources */,
@@ -677,6 +704,7 @@
 				D3FF53701F29E3A000F78806 /* Dummy1.swift in Sources */,
 				D3FF53711F29E3A000F78806 /* Dummy2.swift in Sources */,
 				D3FF53721F29E3A000F78806 /* NetworkingTest.swift in Sources */,
+				D34DF2971F2C52740076D6B1 /* MiddlewareTest.swift in Sources */,
 				D31C586E1F27861800C8D8CC /* Singleton.swift in Sources */,
 				D3FBDC151F2AF4D50052A94A /* Dummy3.swift in Sources */,
 				D31C586D1F27861800C8D8CC /* HMDatabaseRequestProcessor.swift in Sources */,
