@@ -170,6 +170,7 @@ public extension HMCDRequest {
                 .with(dataToSave: try? request.dataToSave())
                 .with(retries: request.retries())
                 .with(applyMiddlewares: request.applyMiddlewares())
+                .with(requestDescription: request.requestDescription())
         }
     }
 }

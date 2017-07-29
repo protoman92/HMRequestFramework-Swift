@@ -150,6 +150,7 @@ public extension HMNetworkRequest {
                     .with(timeout: request.timeout())
                     .with(retries: request.retries())
                     .with(applyMiddlewares: request.applyMiddlewares())
+                    .with(requestDescription: request.requestDescription())
             } catch {
                 return self
             }
