@@ -75,6 +75,13 @@ public extension HMNetworkRequestHandler {
         return Builder()
     }
     
+    /// Get a Builder instance and copy dependencies to the new handler.
+    ///
+    /// - Returns: A Builder instance.
+    public func builder() -> Builder {
+        return HMNetworkRequestHandler.builder().with(handler: self)
+    }
+    
     public class Builder {
         public typealias Req = HMNetworkRequestHandler.Req
         private var handler: HMNetworkRequestHandler
@@ -101,6 +108,16 @@ public extension HMNetworkRequestHandler {
         public func with(requestMiddlewareManager: HMMiddlewareManager<Req>) -> Builder {
             handler.rqMiddlewareManager = requestMiddlewareManager
             return self
+        }
+        
+        /// Copy dependencies from another handler.
+        ///
+        /// - Parameter handler: A HMNetworkRequestHandler instance
+        /// - Returns: The current Builder instance.
+        public func with(handler: HMNetworkRequestHandler) -> Builder {
+            return self
+                .with(urlSession: handler.urlSessionInstance())
+                .with(requestMiddlewareManager: handler.requestMiddlewareManager())
         }
         
         public func build() -> HMNetworkRequestHandler {

@@ -138,6 +138,13 @@ public extension HMCDRequestProcessor {
         return Builder()
     }
     
+    /// Get a Builder instance and copy dependencies to the new processor.
+    ///
+    /// - Returns: A Builder instance.
+    public func builder() -> Builder {
+        return HMCDRequestProcessor.builder().with(processor: self)
+    }
+    
     public final class Builder {
         public typealias Req = HMCDRequestProcessor.Req
         private var processor: HMCDRequestProcessor
@@ -164,6 +171,17 @@ public extension HMCDRequestProcessor {
         public func with(requestMiddlewareManager: HMMiddlewareManager<Req>) -> Builder {
             processor.rqMiddlewareManager = requestMiddlewareManager
             return self
+        }
+        
+        /// Copy dependencies from another processor.
+        ///
+        /// - Parameter processor: A HMCDRequestProcessor instance.
+        /// - Returns: The current Builder instance.
+        @discardableResult
+        public func with(processor: HMCDRequestProcessor) -> Builder {
+            return self
+                .with(manager: processor.coreDataManager())
+                .with(requestMiddlewareManager: processor.requestMiddlewareManager())
         }
         
         public func build() -> HMCDRequestProcessor {
