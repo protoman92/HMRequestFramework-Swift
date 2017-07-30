@@ -38,13 +38,13 @@ public struct HMPersistentStoreURL {
     }
 }
 
-public extension HMPersistentStoreURL {
+extension HMPersistentStoreURL: HMBuildableType {
     public static func builder() -> Builder {
         return Builder()
     }
     
     public final class Builder {
-        private var storeURL: HMPersistentStoreURL
+        fileprivate var storeURL: HMPersistentStoreURL
         
         fileprivate init() {
             storeURL = HMPersistentStoreURL()
@@ -55,7 +55,7 @@ public extension HMPersistentStoreURL {
         /// - Parameter fileManager: A FileManager instance.
         /// - Returns: The current Builder instance.
         @discardableResult
-        public func with(fileManager: FileManager) -> Builder {
+        public func with(fileManager: FileManager?) -> Self {
             storeURL.fileManager = fileManager
             return self
         }
@@ -64,7 +64,7 @@ public extension HMPersistentStoreURL {
         ///
         /// - Returns: The current Builder instance.
         @discardableResult
-        public func withDefaultFileManager() -> Builder {
+        public func withDefaultFileManager() -> Self {
             return with(fileManager: .default)
         }
         
@@ -73,7 +73,7 @@ public extension HMPersistentStoreURL {
         /// - Parameter searchPath: A SearchPathDirectory instance.
         /// - Returns: The current Builder instance.
         @discardableResult
-        public func with(searchPath: FileManager.SearchPathDirectory) -> Builder {
+        public func with(searchPath: FileManager.SearchPathDirectory?) -> Self {
             storeURL.searchPath = searchPath
             return self
         }
@@ -82,7 +82,7 @@ public extension HMPersistentStoreURL {
         ///
         /// - Returns: The current Builder instance.
         @discardableResult
-        public func withDocumentDirectory() -> Builder {
+        public func withDocumentDirectory() -> Self {
             return with(searchPath: .documentDirectory)
         }
         
@@ -91,7 +91,7 @@ public extension HMPersistentStoreURL {
         /// - Parameter domainMask: A SearchPathDomainMask instance.
         /// - Returns: The current Builder instance.
         @discardableResult
-        public func with(domainMask: FileManager.SearchPathDomainMask) -> Builder {
+        public func with(domainMask: FileManager.SearchPathDomainMask?) -> Self {
             storeURL.domainMask = domainMask
             return self
         }
@@ -100,7 +100,7 @@ public extension HMPersistentStoreURL {
         ///
         /// - Returns: The current Builder instance.
         @discardableResult
-        public func withUserDomainMask() -> Builder {
+        public func withUserDomainMask() -> Self {
             return with(domainMask: .userDomainMask)
         }
         
@@ -109,7 +109,7 @@ public extension HMPersistentStoreURL {
         /// - Parameter fileName: A String value.
         /// - Returns: The current Builder instance.
         @discardableResult
-        public func with(fileName: String) -> Builder {
+        public func with(fileName: String?) -> Self {
             storeURL.fileName = fileName
             return self
         }
@@ -119,7 +119,7 @@ public extension HMPersistentStoreURL {
         /// - Parameter fileExtension: A String value.
         /// - Returns: The current Builder instance.
         @discardableResult
-        public func with(fileExtension: String) -> Builder {
+        public func with(fileExtension: String?) -> Self {
             storeURL.fileExtension = fileExtension
             return self
         }
@@ -129,17 +129,34 @@ public extension HMPersistentStoreURL {
         /// - Parameter storeType: A StoreType instance.
         /// - Returns: The current Builder instance.
         @discardableResult
-        public func with(storeType: HMPersistentStoreSettings.StoreType) -> Builder {
+        public func with(storeType: HMPersistentStoreSettings.StoreType) -> Self {
             if let fileExtension = storeType.fileExtension() {
                 return with(fileExtension: fileExtension)
             } else {
                 return self
             }
         }
-        
-        public func build() -> HMPersistentStoreURL {
-            return storeURL
-        }
+    }
+}
+
+extension HMPersistentStoreURL.Builder: HMBuilderType {
+    public typealias Buildable = HMPersistentStoreURL
+    
+    /// Override this method to provide default implementation.
+    ///
+    /// - Parameter buildable: A Buildable instance.
+    /// - Returns: The current Builder instance.
+    public func with(buildable: Buildable) -> Self {
+        return self
+            .with(fileManager: buildable.fileManager)
+            .with(fileName: buildable.fileName)
+            .with(searchPath: buildable.searchPath)
+            .with(domainMask: buildable.domainMask)
+            .with(fileExtension: buildable.fileExtension)
+    }
+    
+    public func build() -> HMPersistentStoreURL {
+        return storeURL
     }
 }
 

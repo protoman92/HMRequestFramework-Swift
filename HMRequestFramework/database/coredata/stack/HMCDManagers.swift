@@ -145,7 +145,7 @@ public extension Reactive where Base: HMCDRxManagerType {
     /// - Throws: Exception if the save fails.
     public func saveToFile<S,PO>(_ data: S) -> Observable<Void> where
         PO: HMCDPureObjectType,
-        PO.CDClass: HMCDBuildable,
+        PO.CDClass: HMCDBuildableType,
         PO.CDClass.Builder.Base == PO,
         S: Sequence,
         S.Iterator.Element == PO

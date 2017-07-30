@@ -42,13 +42,13 @@ extension HMCDConstructor: HMCDConstructorType {
     }
 }
 
-public extension HMCDConstructor {
+extension HMCDConstructor: HMBuildableType {
     public static func builder() -> Builder {
         return Builder()
     }
     
     public final class Builder {
-        private var constructor: HMCDConstructor
+        fileprivate var constructor: HMCDConstructor
         
         fileprivate init() {
             constructor = HMCDConstructor()
@@ -59,7 +59,7 @@ public extension HMCDConstructor {
         /// - Parameter objectModel: A NSManagedObjectModel instance.
         /// - Returns: The current Builder instance.
         @discardableResult
-        public func with(objectModel: NSManagedObjectModel) -> Builder {
+        public func with(objectModel: NSManagedObjectModel?) -> Self {
             constructor.cdObjectModel = objectModel
             return self
         }
@@ -73,7 +73,7 @@ public extension HMCDConstructor {
         @discardableResult
         public func with(mergedModelFrom bundles: [Bundle]?,
                          withMetadata metadata: [String : Any]?)
-            -> Builder
+            -> Self
         {
             let model: NSManagedObjectModel?
             
@@ -95,7 +95,7 @@ public extension HMCDConstructor {
         /// - Parameter modelName: A String value.
         /// - Returns: The current Builder instance.
         @discardableResult
-        public func with(modelName: String) -> Builder {
+        public func with(modelName: String) -> Self {
             let bundle = Bundle(for: HMCDManager.self)
             
             if
@@ -114,7 +114,7 @@ public extension HMCDConstructor {
         /// - Parameter representables: An Sequence of HMCDRepresentableType subtype.
         /// - Returns: The current Builder instance.
         @discardableResult
-        public func with<S>(representables: S) -> Builder where
+        public func with<S>(representables: S) -> Self where
             S: Sequence, S.Iterator.Element == HMCDRepresentableType.Type
         {
             do {
@@ -131,7 +131,7 @@ public extension HMCDConstructor {
         /// - Parameter representables: A varargs of HMCDRepresentableType subtype.
         /// - Returns: The current Builder instance.
         @discardableResult
-        public func with(representables: HMCDRepresentableType.Type...) -> Builder {
+        public func with(representables: HMCDRepresentableType.Type...) -> Self {
             return with(representables: representables.map(eq))
         }
         
@@ -140,15 +140,30 @@ public extension HMCDConstructor {
         /// - Parameter settings: A Sequence of HMPersistentStoreSettings.
         /// - Returns: The current Builder instance.
         @discardableResult
-        public func with<S>(settings: S) -> Builder where
+        public func with<S>(settings: S) -> Self where
             S: Sequence, S.Iterator.Element == HMPersistentStoreSettings
         {
             constructor.cdStoreSettings.append(contentsOf: settings)
             return self
         }
-        
-        public func build() -> HMCDConstructor {
-            return constructor
-        }
+    }
+}
+
+extension HMCDConstructor.Builder: HMBuilderType {
+    public typealias Buildable = HMCDConstructor
+    
+    /// Override this method to provide default implementation.
+    ///
+    /// - Parameter buildable: A Buildable instance.
+    /// - Returns: The current Builder instance.
+    @discardableResult
+    public func with(buildable: Buildable) -> Self {
+        return self
+            .with(objectModel: try? buildable.objectModel())
+            .with(settings: (try? buildable.storeSettings()) ?? [])
+    }
+    
+    public func build() -> Buildable {
+        return constructor
     }
 }

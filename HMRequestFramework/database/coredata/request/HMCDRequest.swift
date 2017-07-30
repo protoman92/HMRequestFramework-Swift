@@ -45,7 +45,7 @@ extension HMCDRequest: HMBuildableType {
         /// - Parameter entityName: A String value.
         /// - Returns: The current Builder instance.
         @discardableResult
-        public func with(entityName: String?) -> Builder {
+        public func with(entityName: String?) -> Self {
             request.cdEntityName = entityName
             return self
         }
@@ -55,7 +55,7 @@ extension HMCDRequest: HMBuildableType {
         /// - Parameter representable: A HMCDRepresentableType class.
         /// - Returns: The current Builder instance.
         @discardableResult
-        public func with<CDR>(representable: CDR.Type) -> Builder where CDR: HMCDRepresentableType {
+        public func with<CDR>(representable: CDR.Type) -> Self where CDR: HMCDRepresentableType {
             return with(entityName: try? representable.entityName())
         }
         
@@ -64,7 +64,7 @@ extension HMCDRequest: HMBuildableType {
         /// - Parameter predicate: A NSPredicate instance.
         /// - Returns: The current Builder instance.
         @discardableResult
-        public func with(predicate: NSPredicate?) -> Builder {
+        public func with(predicate: NSPredicate?) -> Self {
             request.nsPredicate = predicate
             return self
         }
@@ -74,7 +74,7 @@ extension HMCDRequest: HMBuildableType {
         /// - Parameter sortDescriptors: A Sequence of NSSortDescriptor.
         /// - Returns: The current Builder instance.
         @discardableResult
-        public func with<S>(sortDescriptors: S?) -> Builder
+        public func with<S>(sortDescriptors: S?) -> Self
             where S: Sequence, S.Iterator.Element == NSSortDescriptor
         {
             if let descriptors = sortDescriptors {
@@ -89,7 +89,7 @@ extension HMCDRequest: HMBuildableType {
         /// - Parameter sortDescriptors: A Sequence of NSSortDescriptor.
         /// - Returns: The current Builder instance.
         @discardableResult
-        public func with<S>(sortDescriptors: S?) -> Builder
+        public func with<S>(sortDescriptors: S?) -> Self
             where S: Sequence, S.Iterator.Element: NSSortDescriptor
         {
             return with(sortDescriptors: sortDescriptors?.map(eq))
@@ -100,7 +100,7 @@ extension HMCDRequest: HMBuildableType {
         /// - Parameter sortDescriptors: Varargs of NSSortDescriptor.
         /// - Returns: The current Builder instance.
         @discardableResult
-        public func with(sortDescriptors: NSSortDescriptor...) -> Builder {
+        public func with(sortDescriptors: NSSortDescriptor...) -> Self {
             return with(sortDescriptors: sortDescriptors.map(eq))
         }
         
@@ -109,7 +109,7 @@ extension HMCDRequest: HMBuildableType {
         /// - Parameter sortDescriptors: Varargs of NSSortDescriptor.
         /// - Returns: The current Builder instance.
         @discardableResult
-        public func with<SD>(sortDescriptors: SD...) -> Builder where SD: NSSortDescriptor {
+        public func with<SD>(sortDescriptors: SD...) -> Self where SD: NSSortDescriptor {
             return with(sortDescriptors: sortDescriptors.map(eq))
         }
         
@@ -118,7 +118,7 @@ extension HMCDRequest: HMBuildableType {
         /// - Parameter operation: A CoreDataOperation instance.
         /// - Returns: The current Builder instance.
         @discardableResult
-        public func with(operation: CoreDataOperation?) -> Builder {
+        public func with(operation: CoreDataOperation?) -> Self {
             request.cdOperation = operation
             return self
         }
@@ -128,7 +128,7 @@ extension HMCDRequest: HMBuildableType {
         /// - Parameter data: A Sequence of NSManagedObject.
         /// - Returns: The current Builder instance.
         @discardableResult
-        public func with<S>(dataToSave data: S?) -> Builder where
+        public func with<S>(dataToSave data: S?) -> Self where
             S: Sequence, S.Iterator.Element == NSManagedObject
         {
             if let data = data {
@@ -143,7 +143,7 @@ extension HMCDRequest: HMBuildableType {
         /// - Parameter data: A Sequence of NSManagedObject.
         /// - Returns: The current Builder instance.
         @discardableResult
-        public func with<S>(dataToSave data: S?) -> Builder where
+        public func with<S>(dataToSave data: S?) -> Self where
             S: Sequence, S.Iterator.Element: NSManagedObject
         {
             return with(dataToSave: data?.map({$0 as NSManagedObject}))
@@ -165,7 +165,8 @@ extension HMCDRequest.Builder: HMProtocolConvertibleBuilderType {
     ///
     /// - Parameter generic: A HMCDRequestType instance.
     /// - Returns: The current Builder instance.
-    public func with(generic: Buildable.PTCType) -> Buildable.Builder {
+    @discardableResult
+    public func with(generic: Buildable.PTCType) -> Self {
         return self
             .with(operation: try? generic.operation())
             .with(entityName: try? generic.entityName())
@@ -186,7 +187,7 @@ extension HMCDRequest.Builder: HMRequestBuilderType {
     /// - Parameter retries: An Int value.
     /// - Returns: The current Builder instance.
     @discardableResult
-    public func with(retries: Int) -> Buildable.Builder {
+    public func with(retries: Int) -> Self {
         request.retryCount = retries
         return self
     }
@@ -196,7 +197,7 @@ extension HMCDRequest.Builder: HMRequestBuilderType {
     /// - Parameter applyMiddlewares: A Bool value.
     /// - Returns: The current Builder instance.
     @discardableResult
-    public func with(applyMiddlewares: Bool) -> Buildable.Builder {
+    public func with(applyMiddlewares: Bool) -> Self {
         request.middlewaresEnabled = applyMiddlewares
         return self
     }
@@ -206,7 +207,7 @@ extension HMCDRequest.Builder: HMRequestBuilderType {
     /// - Parameter requestDescription: A String value.
     /// - Returns: The current Builder instance.
     @discardableResult
-    public func with(requestDescription: String?) -> Buildable.Builder {
+    public func with(requestDescription: String?) -> Self {
         request.rqDescription = requestDescription
         return self
     }
@@ -216,7 +217,7 @@ extension HMCDRequest.Builder: HMRequestBuilderType {
     /// - Parameter buildable: A Buildable instance.
     /// - Returns: The current Builder instance.
     @discardableResult
-    public func with(buildable: Buildable) -> Buildable.Builder {
+    public func with(buildable: Buildable) -> Self {
         return with(generic: buildable)
     }
     

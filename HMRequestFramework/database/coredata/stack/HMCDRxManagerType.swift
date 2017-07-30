@@ -116,7 +116,7 @@ public extension HMCDRxManagerType {
         O: ObserverType,
         O.E == Void,
         PO: HMCDPureObjectType,
-        PO.CDClass: HMCDBuildable,
+        PO.CDClass: HMCDBuildableType,
         PO.CDClass.Builder.Base == PO,
         S: Sequence,
         S.Iterator.Element == PO

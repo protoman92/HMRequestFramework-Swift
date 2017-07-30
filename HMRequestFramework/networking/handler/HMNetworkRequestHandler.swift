@@ -91,7 +91,7 @@ public extension HMNetworkRequestHandler {
         /// - Parameter urlSession: A URLSession instance.
         /// - Returns: The current Builder instance.
         @discardableResult
-        public func with(urlSession: URLSession) -> Builder {
+        public func with(urlSession: URLSession) -> Self {
             handler.urlSession = urlSession
             return self
         }
@@ -101,7 +101,7 @@ public extension HMNetworkRequestHandler {
         /// - Parameter rqMiddlewareManager: A HMMiddlewareManager instance.
         /// - Returns: The current Builder instance.
         @discardableResult
-        public func with(rqMiddlewareManager: HMMiddlewareManager<Req>?) -> Builder {
+        public func with(rqMiddlewareManager: HMMiddlewareManager<Req>?) -> Self {
             handler.rqMiddlewareManager = rqMiddlewareManager
             return self
         }
@@ -110,7 +110,7 @@ public extension HMNetworkRequestHandler {
         ///
         /// - Parameter handler: A HMNetworkRequestHandler instance
         /// - Returns: The current Builder instance.
-        public func with(handler: HMNetworkRequestHandler) -> Builder {
+        public func with(handler: HMNetworkRequestHandler) -> Self {
             return self
                 .with(urlSession: handler.urlSessionInstance())
                 .with(rqMiddlewareManager: handler.requestMiddlewareManager())

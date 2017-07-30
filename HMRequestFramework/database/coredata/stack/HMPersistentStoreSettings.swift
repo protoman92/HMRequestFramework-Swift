@@ -71,26 +71,26 @@ public struct HMPersistentStoreSettings {
         }
     }
     
-    public func configurationName() throws -> String? {
+    public func configurationName() -> String? {
         return configName
     }
     
-    public func persistentStoreURL() throws -> URL? {
+    public func persistentStoreURL() -> URL? {
         return psStoreURL
     }
     
-    public func options() throws -> [AnyHashable : Any]? {
+    public func options() -> [AnyHashable : Any]? {
         return cdOptions.isEmpty ? nil : cdOptions
     }
 }
 
-public extension HMPersistentStoreSettings {
+extension HMPersistentStoreSettings: HMBuildableType {
     public static func builder() -> Builder {
         return Builder()
     }
     
     public final class Builder {
-        private var settings: HMPersistentStoreSettings
+        fileprivate var settings: HMPersistentStoreSettings
         
         fileprivate init() {
             settings = HMPersistentStoreSettings()
@@ -98,10 +98,20 @@ public extension HMPersistentStoreSettings {
         
         /// Set the store type using a StoreType instance.
         ///
+        /// - Parameter storeType: A String value.
+        /// - Returns: The current Builder instance.
+        @discardableResult
+        public func with(storeType: String?) -> Self {
+            settings.cdStoreType = storeType
+            return self
+        }
+        
+        /// Set the store type using a StoreType instance.
+        ///
         /// - Parameter storeType: A StoreType instance.
         /// - Returns: The current Builder instance.
         @discardableResult
-        public func with(storeType: StoreType) -> Builder {
+        public func with(storeType: StoreType) -> Self {
             settings.cdStoreType = storeType.storeType()
             return self
         }
@@ -111,7 +121,7 @@ public extension HMPersistentStoreSettings {
         /// - Parameter url: A URL instance.
         /// - Returns: The current Builder instance.
         @discardableResult
-        public func with(persistentStoreURL url: URL) -> Builder {
+        public func with(persistentStoreURL url: URL?) -> Self {
             settings.psStoreURL = url
             return self
         }
@@ -121,8 +131,8 @@ public extension HMPersistentStoreSettings {
         /// - Parameter url: A HMPersistentStoreURL instance.
         /// - Returns: The current Builder instance.
         @discardableResult
-        public func with(persistentStoreURL url: HMPersistentStoreURL) -> Builder {
-            return (try? with(persistentStoreURL: url.storeURL())) ?? self
+        public func with(persistentStoreURL url: HMPersistentStoreURL) -> Self {
+            return with(persistentStoreURL: try? url.storeURL())
         }
         
         /// Set the store options.
@@ -130,8 +140,18 @@ public extension HMPersistentStoreSettings {
         /// - Parameter options: A Dictionary of options.
         /// - Returns: The current Builder instance.
         @discardableResult
-        public func with(options: [AnyHashable : Any]) -> Builder {
+        public func with(options: [AnyHashable : Any]) -> Self {
             settings.cdOptions = options
+            return self
+        }
+        
+        /// Set the config name.
+        ///
+        /// - Parameter configName: A String value.
+        /// - Returns: The current Builder instance.
+        @discardableResult
+        public func with(configName: String?) -> Self {
+            settings.configName = configName
             return self
         }
         
@@ -142,7 +162,7 @@ public extension HMPersistentStoreSettings {
         ///   - value: The option value.
         /// - Returns: The current Builder instance.
         @discardableResult
-        public func add(option: AnyHashable, with value: Any) -> Builder {
+        public func add(option: AnyHashable, with value: Any) -> Self {
             settings.cdOptions[option] = value
             return self
         }
@@ -154,14 +174,28 @@ public extension HMPersistentStoreSettings {
         ///   - value: The option value.
         /// - Returns: The current Builder instance.
         @discardableResult
-        public func add(option: StoreOption, with value: Any) -> Builder {
+        public func add(option: StoreOption, with value: Any) -> Self {
             return add(option: option.optionType(), with: value)
-        }
-        
-        public func build() -> HMPersistentStoreSettings {
-            return settings
         }
     }
 }
 
-
+extension HMPersistentStoreSettings.Builder: HMBuilderType {
+    public typealias Buildable = HMPersistentStoreSettings
+    
+    /// Override this method to provide default implementation.
+    ///
+    /// - Parameter buildable: A Buildable instance.
+    /// - Returns: The current Builder instance.
+    public func with(buildable: Buildable) -> Self {
+        return self
+            .with(storeType: buildable.cdStoreType)
+            .with(options: buildable.options() ?? [:])
+            .with(configName: buildable.configurationName())
+            .with(persistentStoreURL: buildable.persistentStoreURL())
+    }
+    
+    public func build() -> Buildable {
+        return settings
+    }
+}

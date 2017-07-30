@@ -73,17 +73,17 @@ extension Model1: HMBuildableType {
     public final class Builder {
         fileprivate var model: Model1 = Model1()
         
-        public func with(a1: String?) -> Builder {
+        public func with(a1: String?) -> Self {
             model.a1 = a1
             return self
         }
         
-        public func with(a2: Int?) -> Builder {
+        public func with(a2: Int?) -> Self {
             model.a2 = a2
             return self
         }
         
-        public func with(a3: Double?) -> Builder {
+        public func with(a3: Double?) -> Self {
             model.a3 = a3
             return self
         }
@@ -93,14 +93,14 @@ extension Model1: HMBuildableType {
 extension Model1.Builder: HMProtocolConvertibleBuilderType {
     public typealias Buildable = Model1
     
-    public func with(generic: Buildable.PTCType) -> Buildable.Builder {
+    public func with(generic: Buildable.PTCType) -> Self {
         return self
             .with(a1: generic.a1)
             .with(a2: generic.a2)
             .with(a3: generic.a3)
     }
     
-    public func with(buildable: Buildable) -> Buildable.Builder {
+    public func with(buildable: Buildable) -> Self {
         return with(generic: buildable)
     }
     

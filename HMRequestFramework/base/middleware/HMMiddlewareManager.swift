@@ -72,13 +72,13 @@ extension HMMiddlewareManager: HMMiddlewareManagerType {
     }
 }
 
-public extension HMMiddlewareManager {
-    public static func builder<A>() -> Builder<A> {
+extension HMMiddlewareManager: HMBuildableType {
+    public static func builder() -> Builder {
         return Builder()
     }
     
-    public final class Builder<A> {
-        private var manager: HMMiddlewareManager<A>
+    public final class Builder {
+        fileprivate var manager: HMMiddlewareManager<A>
         
         fileprivate init() {
             manager = HMMiddlewareManager<A>()
@@ -89,7 +89,7 @@ public extension HMMiddlewareManager {
         /// - Parameter transform: A HMTransformMiddleware instance.
         /// - Returns: The current Builder instance.
         @discardableResult
-        public func add(transform: @escaping HMTransformMiddleware<A>) -> Builder<A> {
+        public func add(transform: @escaping HMTransformMiddleware<A>) -> Self {
             manager.tfMiddlewares.append(transform)
             return self
         }
@@ -98,7 +98,7 @@ public extension HMMiddlewareManager {
         ///
         /// - Parameter transforms: A Sequence of HMTransformMiddleware.
         /// - Returns: The current Builder instance.
-        public func add<S>(transforms: S) -> Builder<A> where
+        public func add<S>(transforms: S) -> Self where
             S: Sequence, S.Iterator.Element == HMTransformMiddleware<A>
         {
             manager.tfMiddlewares.append(contentsOf: transforms)
@@ -109,7 +109,7 @@ public extension HMMiddlewareManager {
         ///
         /// - Parameter transforms: Varargs of HMTransformMiddleware.
         /// - Returns: The current Builder instance.
-        public func add(transforms: HMTransformMiddleware<A>...) -> Builder<A> {
+        public func add(transforms: HMTransformMiddleware<A>...) -> Self {
             return add(transforms: transforms)
         }
         
@@ -117,7 +117,7 @@ public extension HMMiddlewareManager {
         ///
         /// - Parameter transforms: A Sequence of HMTransformMiddleware.
         /// - Returns: The current Builder instance.
-        public func with<S>(transforms: S) -> Builder<A> where
+        public func with<S>(transforms: S) -> Self where
             S: Sequence, S.Iterator.Element == HMTransformMiddleware<A>
         {
             manager.tfMiddlewares.removeAll()
@@ -128,7 +128,7 @@ public extension HMMiddlewareManager {
         ///
         /// - Parameter transforms: Varargs of HMTransformMiddleware.
         /// - Returns: The current Builder instance.
-        public func with(transforms: HMTransformMiddleware<A>...) -> Builder<A> {
+        public func with(transforms: HMTransformMiddleware<A>...) -> Self {
             return with(transforms: transforms)
         }
         
@@ -136,7 +136,7 @@ public extension HMMiddlewareManager {
         ///
         /// - Parameter sideEffect: A HMSideEffectMiddleware instance.
         /// - Returns: The current Builder instance.
-        public func add(sideEffect: @escaping HMSideEffectMiddleware<A>) -> Builder<A> {
+        public func add(sideEffect: @escaping HMSideEffectMiddleware<A>) -> Self {
             manager.seMiddlewares.append(sideEffect)
             return self
         }
@@ -145,7 +145,7 @@ public extension HMMiddlewareManager {
         ///
         /// - Parameter sideEffects: A Sequence of HMSideEffectMiddleware.
         /// - Returns: The current Builder instance.
-        public func add<S>(sideEffects: S) -> Builder<A> where
+        public func add<S>(sideEffects: S) -> Self where
             S: Sequence, S.Iterator.Element == HMSideEffectMiddleware<A>
         {
             manager.seMiddlewares.append(contentsOf: sideEffects)
@@ -156,7 +156,7 @@ public extension HMMiddlewareManager {
         ///
         /// - Parameter sideEffects: Varargs of HMSideEffectMiddleware.
         /// - Returns: The current Builder instance.
-        public func add(sideEffects: HMSideEffectMiddleware<A>...) -> Builder<A> {
+        public func add(sideEffects: HMSideEffectMiddleware<A>...) -> Self {
             return add(sideEffects: sideEffects)
         }
         
@@ -164,7 +164,7 @@ public extension HMMiddlewareManager {
         ///
         /// - Parameter sideEffects: A Sequence of HMSideEffectMiddleware.
         /// - Returns: The current Builder instance.
-        public func with<S>(sideEffects: S) -> Builder<A> where
+        public func with<S>(sideEffects: S) -> Self where
             S: Sequence, S.Iterator.Element == HMSideEffectMiddleware<A>
         {
             manager.seMiddlewares.removeAll()
@@ -175,26 +175,41 @@ public extension HMMiddlewareManager {
         ///
         /// - Parameter sideEffects: Varargs of HMSideEffectMiddleware.
         /// - Returns: The current Builder instance.
-        public func with(sideEffects: HMSideEffectMiddleware<A>...) -> Builder<A> {
+        public func with(sideEffects: HMSideEffectMiddleware<A>...) -> Self {
             return with(sideEffects: sideEffects)
         }
         
         /// Add logging middleware.
         ///
         /// - Returns: The current Builder instance.
-        public func addLoggingMiddleware() -> Builder<A> {
+        public func addLoggingMiddleware() -> Self {
             return add(sideEffect: HMMiddlewares.loggingMiddleware())
         }
         
         /// Add logging middleware only in debug mode.
         ///
         /// - Returns: The current Builder instance.
-        public func addLoggingMiddlewareInDebug() -> Builder<A> {
+        public func addLoggingMiddlewareInDebug() -> Self {
             return isInDebugMode() ? addLoggingMiddleware() : self
         }
-        
-        public func build() -> HMMiddlewareManager<A> {
-            return manager
-        }
+    }
+}
+
+extension HMMiddlewareManager.Builder: HMBuilderType {
+    public typealias Buildable = HMMiddlewareManager<A>
+    
+    /// Override this method to provide default implementation.
+    ///
+    /// - Parameter buildable: A Buildable instance.
+    /// - Returns: The current Builder instance.
+    @discardableResult
+    public func with(buildable: Buildable) -> Self {
+        return self
+            .add(transforms: buildable.tfMiddlewares)
+            .add(sideEffects: buildable.seMiddlewares)
+    }
+    
+    public func build() -> HMMiddlewareManager<A> {
+        return manager
     }
 }

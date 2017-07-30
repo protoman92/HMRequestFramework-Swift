@@ -49,11 +49,11 @@ extension HMCDRequestProcessor: HMCDRequestProcessorType {
     /// Override this method to provide default implementation.
     ///
     /// - Parameter pureObj: A HMCDPureObjectType instance.
-    /// - Returns: A HMCDBuildable object.
+    /// - Returns: A HMCDBuildableType object.
     /// - Throws: Exception if the construction fails.
     public func construct<PO>(_ pureObj: PO) throws -> PO.CDClass where
         PO: HMCDPureObjectType,
-        PO.CDClass: HMCDBuildable,
+        PO.CDClass: HMCDBuildableType,
         PO.CDClass.Builder.Base == PO
     {
         return try coreDataManager().construct(pureObj)
@@ -129,21 +129,14 @@ extension HMCDRequestProcessor: HMCDRequestProcessorType {
     }
 }
 
-public extension HMCDRequestProcessor {
+extension HMCDRequestProcessor: HMBuildableType {
     public static func builder() -> Builder {
         return Builder()
     }
     
-    /// Get a Builder instance and copy dependencies to the new processor.
-    ///
-    /// - Returns: A Builder instance.
-    public func builder() -> Builder {
-        return HMCDRequestProcessor.builder().with(processor: self)
-    }
-    
     public final class Builder {
         public typealias Req = HMCDRequestProcessor.Req
-        private var processor: HMCDRequestProcessor
+        fileprivate var processor: HMCDRequestProcessor
         
         fileprivate init() {
             processor = HMCDRequestProcessor()
@@ -154,7 +147,7 @@ public extension HMCDRequestProcessor {
         /// - Parameter manager: A HMCDManager instance.
         /// - Returns: The current Builder instance.
         @discardableResult
-        public func with(manager: HMCDManager) -> Builder {
+        public func with(manager: HMCDManager) -> Self {
             processor.manager = manager
             return self
         }
@@ -164,24 +157,28 @@ public extension HMCDRequestProcessor {
         /// - Parameter rqMiddlewareManager: A HMMiddlewareManager instance.
         /// - Returns: The current Builder instance.
         @discardableResult
-        public func with(rqMiddlewareManager: HMMiddlewareManager<Req>?) -> Builder {
+        public func with(rqMiddlewareManager: HMMiddlewareManager<Req>?) -> Self {
             processor.rqMiddlewareManager = rqMiddlewareManager
             return self
         }
-        
-        /// Copy dependencies from another processor.
-        ///
-        /// - Parameter processor: A HMCDRequestProcessor instance.
-        /// - Returns: The current Builder instance.
-        @discardableResult
-        public func with(processor: HMCDRequestProcessor) -> Builder {
-            return self
-                .with(manager: processor.coreDataManager())
-                .with(rqMiddlewareManager: processor.requestMiddlewareManager())
-        }
-        
-        public func build() -> HMCDRequestProcessor {
-            return processor
-        }
+    }
+}
+
+extension HMCDRequestProcessor.Builder: HMBuilderType {
+    public typealias Buildable = HMCDRequestProcessor
+    
+    /// Override this method to provide default implementation.
+    ///
+    /// - Parameter buildable: A Buildable instance.
+    /// - Returns: The current Builder instance.
+    @discardableResult
+    public func with(buildable: Buildable) -> Self {
+        return self
+            .with(manager: buildable.coreDataManager())
+            .with(rqMiddlewareManager: buildable.requestMiddlewareManager())
+    }
+    
+    public func build() -> HMCDRequestProcessor {
+        return processor
     }
 }

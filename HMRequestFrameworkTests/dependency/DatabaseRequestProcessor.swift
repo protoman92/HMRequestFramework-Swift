@@ -33,7 +33,7 @@ extension DatabaseRequestProcessor: HMCDRequestProcessorType {
     public func construct<PO>(_ pureObj: PO) throws -> PO.CDClass where
         PO: HMCDPureObjectType,
         PO == PO.CDClass.Builder.Base,
-        PO.CDClass: HMCDBuildable
+        PO.CDClass: HMCDBuildableType
     {
         return try processor.construct(pureObj)
     }

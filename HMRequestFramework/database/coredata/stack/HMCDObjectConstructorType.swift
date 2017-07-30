@@ -33,11 +33,11 @@ public protocol HMCDObjectConstructorType {
     /// save this to the local DB.
     ///
     /// - Parameter pureObj: A HMCDPureObjectType instance.
-    /// - Returns: A HMCDBuildable object.
+    /// - Returns: A HMCDBuildableType object.
     /// - Throws: Exception if the construction fails.
     func construct<PO>(_ pureObj: PO) throws -> PO.CDClass where
         PO: HMCDPureObjectType,
-        PO.CDClass: HMCDBuildable,
+        PO.CDClass: HMCDBuildableType,
         PO.CDClass.Builder.Base == PO
 }
 

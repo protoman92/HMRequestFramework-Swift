@@ -98,11 +98,11 @@ extension HMCDManager: HMCDManagerType {
     /// Override this method to provide default implementation.
     ///
     /// - Parameter pureObj: A HMCDPureObjectType instance.
-    /// - Returns: A HMCDBuildable object.
+    /// - Returns: A HMCDBuildableType object.
     /// - Throws: Exception if the construction fails.
     public func construct<PO>(_ pureObj: PO) throws -> PO.CDClass where
         PO: HMCDPureObjectType,
-        PO.CDClass: HMCDBuildable,
+        PO.CDClass: HMCDBuildableType,
         PO.CDClass.Builder.Base == PO
     {
         return try PO.CDClass.builder(mainContext).with(base: pureObj).build()

@@ -96,7 +96,7 @@ public extension HMCDManagerType {
     /// - Throws: Exception if the save fails.
     public func saveToFileUnsafely<S,PO>(_ data: S) throws where
         PO: HMCDPureObjectType,
-        PO.CDClass: HMCDBuildable,
+        PO.CDClass: HMCDBuildableType,
         PO.CDClass.Builder.Base == PO,
         S: Sequence,
         S.Iterator.Element == PO

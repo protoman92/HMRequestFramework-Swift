@@ -13,7 +13,7 @@ public extension NSAttributeDescription {
         return Builder()
     }
     
-    public struct Builder {
+    public final class Builder {
         private let attribute: NSAttributeDescription
         
         fileprivate init() {
@@ -24,7 +24,7 @@ public extension NSAttributeDescription {
         ///
         /// - Parameter name: A String value.
         /// - Returns: The current Builder instance.
-        public func with(name: String) -> Builder {
+        public func with(name: String) -> Self {
             attribute.name = name
             return self
         }
@@ -33,7 +33,7 @@ public extension NSAttributeDescription {
         ///
         /// - Parameter type: An AttributeType instance.
         /// - Returns: The current Builder instance.
-        public func with(type: NSAttributeType) -> Builder {
+        public func with(type: NSAttributeType) -> Self {
             attribute.attributeType = type
             return self
         }
@@ -42,7 +42,7 @@ public extension NSAttributeDescription {
         ///
         /// - Parameter optional: A Bool value.
         /// - Returns: The current Builder instance.
-        public func with(optional: Bool) -> Builder {
+        public func with(optional: Bool) -> Self {
             attribute.isOptional = optional
             return self
         }
@@ -50,14 +50,14 @@ public extension NSAttributeDescription {
         /// Set the optional flag.
         ///
         /// - Returns: The current Builder instance.
-        public func shouldBeOptional() -> Builder {
+        public func shouldBeOptional() -> Self {
             return with(optional: true)
         }
         
         /// Set the optional flag.
         ///
         /// - Returns: The current Builder instance.
-        public func shouldNotBeOptional() -> Builder {
+        public func shouldNotBeOptional() -> Self {
             return with(optional: false)
         }
         
@@ -65,7 +65,7 @@ public extension NSAttributeDescription {
         ///
         /// - Parameter allow: A Bool value.
         /// - Returns: The current Builder instance.
-        public func with(allowExternalBinaryDataStorage allow: Bool) -> Builder {
+        public func with(allowExternalBinaryDataStorage allow: Bool) -> Self {
             attribute.allowsExternalBinaryDataStorage = allow
             return self
         }
@@ -74,7 +74,7 @@ public extension NSAttributeDescription {
         ///
         /// - Parameter allow: A Bool value.
         /// - Returns: The current Builder instance.
-        public func shouldAllowExternalBinaryDataStorage() -> Builder {
+        public func shouldAllowExternalBinaryDataStorage() -> Self {
             return with(allowExternalBinaryDataStorage: true)
         }
         
@@ -82,7 +82,7 @@ public extension NSAttributeDescription {
         ///
         /// - Parameter allow: A Bool value.
         /// - Returns: The current Builder instance.
-        public func shouldNotAllowExternalBinaryDataStorage() -> Builder {
+        public func shouldNotAllowExternalBinaryDataStorage() -> Self {
             return with(allowExternalBinaryDataStorage: false)
         }
         
@@ -99,7 +99,7 @@ public extension NSAttributeDescription {
         ///
         /// - Parameter cls: A String value.
         /// - Returns: The current Builder instance.
-        public func with(attributeValueClassName cls: String?) -> Builder {
+        public func with(attributeValueClassName cls: String?) -> Self {
             attribute.attributeValueClassName = cls
             return self
         }
@@ -108,7 +108,7 @@ public extension NSAttributeDescription {
         ///
         /// - Parameter cls: A String value.
         /// - Returns: The current Builder instance.
-        public func with(valueTransformerName name: String?) -> Builder {
+        public func with(valueTransformerName name: String?) -> Self {
             attribute.valueTransformerName = name
             return self
         }

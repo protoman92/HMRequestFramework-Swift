@@ -46,19 +46,19 @@ public extension MockRequest {
         }
         
         @discardableResult
-        func with(retries: Int) -> Builder {
+        func with(retries: Int) -> Self {
             request.retryCount = retries
             return self
         }
         
         @discardableResult
-        func with(applyMiddlewares: Bool) -> Builder {
+        func with(applyMiddlewares: Bool) -> Self {
             request.middlewaresEnabled = applyMiddlewares
             return self
         }
         
         @discardableResult
-        func with(requestDescription: String?) -> Builder {
+        func with(requestDescription: String?) -> Self {
             request.rqDescription = requestDescription
             return self
         }
