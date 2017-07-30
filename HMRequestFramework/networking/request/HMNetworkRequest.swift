@@ -35,10 +35,10 @@ extension HMNetworkRequest: HMBuildableType {
     }
     
     public final class Builder {
-        fileprivate var request: HMNetworkRequest
+        fileprivate var request: Buildable
         
         fileprivate init() {
-            request = HMNetworkRequest()
+            request = Buildable()
         }
         
         /// Set the endpoint.
@@ -164,10 +164,10 @@ extension HMNetworkRequest.Builder: HMProtocolConvertibleBuilderType {
     
     /// Override this method to provide default implementation.
     ///
-    /// - Parameter buildable: A HMNetworkRequest instance.
+    /// - Parameter buildable: A Buildable instance.
     /// - Returns: The current Builder instance.
     @discardableResult
-    public func with(buildable: HMNetworkRequest) -> Self {
+    public func with(buildable: Buildable) -> Self {
         return with(generic: buildable)
     }
 }

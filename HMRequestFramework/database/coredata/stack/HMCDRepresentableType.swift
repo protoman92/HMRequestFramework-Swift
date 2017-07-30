@@ -96,8 +96,8 @@ public protocol HMCDRepresentableBuilderType {
 }
 
 /// Classes that implement this protocol are usually NSManagedObject that
-/// has in-built Builders that implement HMCDBuilderType. It should also be
-/// convertible to a pure data object.
+/// has in-built Builders that implement HMCDRepresentableBuilderType. It should
+/// also be convertible to a pure data object.
 ///
 /// This protocol is not related to HMBuildableType, because the initializer
 /// requirements are different.

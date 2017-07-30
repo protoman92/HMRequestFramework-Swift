@@ -78,10 +78,10 @@ extension HMMiddlewareManager: HMBuildableType {
     }
     
     public final class Builder {
-        fileprivate var manager: HMMiddlewareManager<A>
+        fileprivate var manager: Buildable
         
         fileprivate init() {
-            manager = HMMiddlewareManager<A>()
+            manager = Buildable()
         }
         
         /// Add a transform middleware.

@@ -66,21 +66,14 @@ extension HMNetworkRequestHandler: HMNetworkRequestHandlerType {
     }
 }
 
-public extension HMNetworkRequestHandler {
+extension HMNetworkRequestHandler: HMBuildableType {
     public static func builder() -> Builder {
         return Builder()
     }
     
-    /// Get a Builder instance and copy dependencies to the new handler.
-    ///
-    /// - Returns: A Builder instance.
-    public func builder() -> Builder {
-        return HMNetworkRequestHandler.builder().with(handler: self)
-    }
-    
     public class Builder {
         public typealias Req = HMNetworkRequestHandler.Req
-        private var handler: HMNetworkRequestHandler
+        fileprivate var handler: Buildable
         
         fileprivate init() {
             handler = HMNetworkRequestHandler()
@@ -105,19 +98,24 @@ public extension HMNetworkRequestHandler {
             handler.rqMiddlewareManager = rqMiddlewareManager
             return self
         }
-        
-        /// Copy dependencies from another handler.
-        ///
-        /// - Parameter handler: A HMNetworkRequestHandler instance
-        /// - Returns: The current Builder instance.
-        public func with(handler: HMNetworkRequestHandler) -> Self {
-            return self
-                .with(urlSession: handler.urlSessionInstance())
-                .with(rqMiddlewareManager: handler.requestMiddlewareManager())
-        }
-        
-        public func build() -> HMNetworkRequestHandler {
-            return handler
-        }
+    }
+}
+
+extension HMNetworkRequestHandler.Builder: HMBuilderType {
+    public typealias Buildable = HMNetworkRequestHandler
+    
+    /// Override this method to provide default implementation.
+    ///
+    /// - Parameter buildable: A HMNetworkRequestHandler instance
+    /// - Returns: The current Builder instance.
+    @discardableResult
+    public func with(buildable: Buildable) -> Self {
+        return self
+            .with(urlSession: handler.urlSessionInstance())
+            .with(rqMiddlewareManager: handler.requestMiddlewareManager())
+    }
+    
+    public func build() -> Buildable {
+        return handler
     }
 }

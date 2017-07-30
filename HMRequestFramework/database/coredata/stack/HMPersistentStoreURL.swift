@@ -44,10 +44,10 @@ extension HMPersistentStoreURL: HMBuildableType {
     }
     
     public final class Builder {
-        fileprivate var storeURL: HMPersistentStoreURL
+        fileprivate var storeURL: Buildable
         
         fileprivate init() {
-            storeURL = HMPersistentStoreURL()
+            storeURL = Buildable()
         }
         
         /// Set the fileManager instance.
@@ -155,7 +155,7 @@ extension HMPersistentStoreURL.Builder: HMBuilderType {
             .with(fileExtension: buildable.fileExtension)
     }
     
-    public func build() -> HMPersistentStoreURL {
+    public func build() -> Buildable {
         return storeURL
     }
 }
