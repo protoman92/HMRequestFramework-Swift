@@ -284,12 +284,11 @@ extension HMNetworkRequest: HMNetworkRequestType {
     }
 }
 
-//extension HMNetworkRequest: CustomStringConvertible {
-//    public var description: String {
-//        let method = (try? self.method().rawValue) ?? "INVALID METHOD"
-//        let url = (try? self.url().absoluteString) ?? "INVALID URL"
-//        let description = (self.requestDescription()) ?? "NONE"
-//        return "Performing \(method) at: \(url). Description: \(description)"
-//    }
-//}
-
+extension HMNetworkRequest: CustomStringConvertible {
+    public var description: String {
+        let method = (try? self.method().rawValue) ?? "INVALID METHOD"
+        let url = (try? self.url().absoluteString) ?? "INVALID URL"
+        let description = (self.requestDescription()) ?? "NONE"
+        return "Performing \(method) at: \(url). Description: \(description)"
+    }
+}
