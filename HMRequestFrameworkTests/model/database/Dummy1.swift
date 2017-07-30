@@ -16,10 +16,6 @@ public protocol Dummy1Type {
     var float: Float { get }
 }
 
-public protocol Dummy1ConvertibleType {
-    func asDummy1() -> Dummy1
-}
-
 public final class Dummy1: NSManagedObject {
     @NSManaged public var id: String
     @NSManaged public var int64: Int64
@@ -92,9 +88,3 @@ extension Dummy1: HMProtocolConvertibleType {
 }
 
 extension Dummy1: Dummy1Type {}
-
-extension Dummy1: Dummy1ConvertibleType {
-    public func asDummy1() -> Dummy1 {
-        return self
-    }
-}

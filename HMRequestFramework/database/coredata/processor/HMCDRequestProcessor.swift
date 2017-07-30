@@ -49,12 +49,12 @@ extension HMCDRequestProcessor: HMCDRequestProcessorType {
     /// Override this method to provide default implementation.
     ///
     /// - Parameter pureObj: A HMCDPureObjectType instance.
-    /// - Returns: A HMCDBuildableType object.
+    /// - Returns: A HMCDRepresetableBuildableType object.
     /// - Throws: Exception if the construction fails.
     public func construct<PO>(_ pureObj: PO) throws -> PO.CDClass where
         PO: HMCDPureObjectType,
-        PO.CDClass: HMCDBuildableType,
-        PO.CDClass.Builder.Base == PO
+        PO.CDClass: HMCDRepresetableBuildableType,
+        PO.CDClass.Builder.PureObject == PO
     {
         return try coreDataManager().construct(pureObj)
     }

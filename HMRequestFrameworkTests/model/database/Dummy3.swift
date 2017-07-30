@@ -22,26 +22,26 @@ public class HMCDDummy3: NSManagedObject {
     }
 }
 
-extension HMCDDummy3: HMCDBuildableType {
+extension HMCDDummy3: HMCDRepresetableBuildableType {
     public static func builder(_ context: NSManagedObjectContext) throws -> Builder {
         return try Builder(HMCDDummy3(context))
     }
     
-    public final class Builder: HMCDBuilderType {
-        public typealias Base = Dummy3
+    public final class Builder: HMCDRepresentableBuilderType {
+        public typealias PureObject = Dummy3
         
         private let cdo: HMCDDummy3
         
-        fileprivate init(_ cdo: HMCDDummy3) {
+        fileprivate init(_ cdo: PureObject.CDClass) {
             self.cdo = cdo
         }
         
-        public func with(base: Dummy3) -> Self {
-            cdo.id = base.id
+        public func with(pureObject: PureObject) -> Self {
+            cdo.id = pureObject.id
             return self
         }
         
-        public func build() -> HMCDDummy3 {
+        public func build() -> PureObject.CDClass {
             return cdo
         }
     }
@@ -83,19 +83,19 @@ extension Dummy3: HMCDPureObjectBuildableType {
     public final class Builder: HMCDPureObjectBuilderType {
         public typealias Buildable = Dummy3
         
-        private let dummy = Dummy3()
+        private let dummy = Buildable()
         
-        public func with(representable: HMCDDummy3) -> Self {
+        public func with(representable: Buildable.CDClass) -> Self {
             dummy.id = representable.id
             return self
         }
         
-        public func with(buildable: Dummy3) -> Self {
+        public func with(buildable: Buildable) -> Self {
             dummy.id = buildable.id
             return self
         }
         
-        public func build() -> Dummy3 {
+        public func build() -> Buildable {
             return dummy
         }
     }

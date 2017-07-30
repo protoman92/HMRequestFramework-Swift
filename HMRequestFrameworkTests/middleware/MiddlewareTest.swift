@@ -159,7 +159,7 @@ public final class MiddlewareTest: XCTestCase {
                     Observable.just($0.cloneBuilder().with(headers: headers).build())
                 })
                 .add(sideEffect: {
-                    let rqHeaders = try! $0.headers()
+                    let rqHeaders = $0.headers()
                     XCTAssertEqual(headers, rqHeaders!)
                     requestObject = request
                 })

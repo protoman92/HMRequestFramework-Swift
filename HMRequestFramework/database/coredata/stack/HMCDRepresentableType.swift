@@ -87,19 +87,22 @@ public extension HMCDRepresentableType where Self: NSManagedObject {
 ///
 /// The with(base:) method will copy all attributes from the pure data object
 /// into the newly constructor CoreData object.
-public protocol HMCDBuilderType {
-    associatedtype Base: HMCDPureObjectType
+public protocol HMCDRepresentableBuilderType {
+    associatedtype PureObject: HMCDPureObjectType
     
-    func with(base: Base) -> Self
+    func with(pureObject: PureObject) -> Self
     
-    func build() -> Base.CDClass
+    func build() -> PureObject.CDClass
 }
 
 /// Classes that implement this protocol are usually NSManagedObject that
 /// has in-built Builders that implement HMCDBuilderType. It should also be
 /// convertible to a pure data object.
-public protocol HMCDBuildableType {
-    associatedtype Builder: HMCDBuilderType
+///
+/// This protocol is not related to HMBuildableType, because the initializer
+/// requirements are different.
+public protocol HMCDRepresetableBuildableType {
+    associatedtype Builder: HMCDRepresentableBuilderType
     
     static func builder(_ context: NSManagedObjectContext) throws -> Builder
 }

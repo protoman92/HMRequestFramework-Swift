@@ -113,18 +113,4 @@ public final class NetworkingTest: XCTestCase {
         /// End
         _ = request7
     }
-    
-    public func test_builder() {
-        let request = HMNetworkRequest.builder()
-            .with(method: .get)
-            .build()
-            .cloneBuilder()
-            .with(params: ["K1" : "V1"])
-            .build()
-            .cloneBuilder()
-            .with(baseUrl: "BASEURL!")
-            .build()
-        
-        print(request)
-    }
 }

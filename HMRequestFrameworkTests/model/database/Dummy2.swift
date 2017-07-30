@@ -11,10 +11,6 @@ import CoreData
 
 public protocol Dummy2Type {}
 
-public protocol Dummy2ConvertibleType {
-    func asDummy2() -> Dummy2
-}
-
 public final class Dummy2: NSManagedObject {
     @NSManaged public var string1: String
     @NSManaged public var string2: String
@@ -73,9 +69,3 @@ extension Dummy2: HMProtocolConvertibleType {
 }
 
 extension Dummy2: Dummy2Type {}
-
-extension Dummy2: Dummy2ConvertibleType {
-    public func asDummy2() -> Dummy2 {
-        return self
-    }
-}

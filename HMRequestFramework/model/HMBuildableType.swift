@@ -18,6 +18,11 @@ public protocol HMBuildableType {
 public protocol HMBuilderType {
     associatedtype Buildable: HMBuildableType
     
+    /// Copy all properties from another Buildable to the one associated with
+    /// this Builder.
+    ///
+    /// - Parameter buildable: A Buildable instance.
+    /// - Returns: The current Builder instance.
     func with(buildable: Buildable) -> Self
     
     func build() -> Buildable
