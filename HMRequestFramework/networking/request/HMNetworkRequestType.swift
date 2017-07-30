@@ -15,13 +15,13 @@ import SwiftUtilities
 public protocol HMNetworkRequestType: HMRequestType, HMNetworkResourceType {
     func method() throws -> HttpMethod
     
-    func headers() throws -> [String : String]?
-    
-    func params() throws -> [String : Any]?
-    
-    func body() throws -> Any?
+    func body() throws -> Any
     
     func urlRequest() throws -> URLRequest
+    
+    func headers() -> [String : String]?
+    
+    func params() -> [String : Any]?
     
     func timeout() -> TimeInterval
 }

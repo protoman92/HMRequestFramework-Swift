@@ -66,6 +66,10 @@ extension Dummy2: HMCDPureObjectType {
 
 extension Dummy2: HMProtocolConvertibleType {
     public typealias PTCType = Dummy2Type
+    
+    public func asProtocol() -> PTCType {
+        return self as PTCType
+    }
 }
 
 extension Dummy2: Dummy2Type {}

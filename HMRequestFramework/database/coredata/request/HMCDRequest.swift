@@ -28,17 +28,9 @@ public struct HMCDRequest {
     }
 }
 
-public extension HMCDRequest {
+extension HMCDRequest: HMBuildableType {
     public static func builder() -> Builder {
         return Builder()
-    }
-    
-    /// Instead of defining setters, we expose a Builder instance for a new
-    /// request and copy all properties from this request.
-    ///
-    /// - Returns: A Builder instance.
-    public func builder() -> Builder {
-        return HMCDRequest.builder().with(request: self)
     }
     
     public final class Builder {
@@ -156,34 +148,45 @@ public extension HMCDRequest {
         {
             return with(dataToSave: data?.map({$0 as NSManagedObject}))
         }
-        
-        /// Copy all properties from another request to the current one.
-        ///
-        /// - Parameter request: A HMCDRequestType instance.
-        /// - Returns: The current Builder instance.
-        public func with(request: HMCDRequestType) -> Builder {
-            return self
-                .with(operation: try? request.operation())
-                .with(entityName: try? request.entityName())
-                .with(predicate: try? request.predicate())
-                .with(sortDescriptors: try? request.sortDescriptors())
-                .with(dataToSave: try? request.dataToSave())
-                .with(retries: request.retries())
-                .with(applyMiddlewares: request.applyMiddlewares())
-                .with(requestDescription: request.requestDescription())
-        }
+    }
+}
+
+extension HMCDRequest: HMProtocolConvertibleType {
+    public typealias PTCType = HMCDRequestType
+    
+    public func asProtocol() -> PTCType {
+        return self as PTCType
+    }
+}
+
+extension HMCDRequest.Builder: HMProtocolConvertibleBuilderType {
+    
+    /// Override this method to provide default implementation.
+    ///
+    /// - Parameter request: A HMCDRequestType instance.
+    /// - Returns: The current Builder instance.
+    public func with(generic: Buildable.PTCType) -> Buildable.Builder {
+        return self
+            .with(operation: try? request.operation())
+            .with(entityName: try? request.entityName())
+            .with(predicate: try? request.predicate())
+            .with(sortDescriptors: try? request.sortDescriptors())
+            .with(dataToSave: try? request.dataToSave())
+            .with(retries: request.retries())
+            .with(applyMiddlewares: request.applyMiddlewares())
+            .with(requestDescription: request.requestDescription())
     }
 }
 
 extension HMCDRequest.Builder: HMRequestBuilderType {
-    public typealias Req = HMCDRequest
+    public typealias Buildable = HMCDRequest
     
     /// Override this method to provide default implementation.
     ///
     /// - Parameter retries: An Int value.
     /// - Returns: The current Builder instance.
     @discardableResult
-    public func with(retries: Int) -> HMCDRequest.Builder {
+    public func with(retries: Int) -> Buildable.Builder {
         request.retryCount = retries
         return self
     }
@@ -193,7 +196,7 @@ extension HMCDRequest.Builder: HMRequestBuilderType {
     /// - Parameter applyMiddlewares: A Bool value.
     /// - Returns: The current Builder instance.
     @discardableResult
-    public func with(applyMiddlewares: Bool) -> HMCDRequest.Builder {
+    public func with(applyMiddlewares: Bool) -> Buildable.Builder {
         request.middlewaresEnabled = applyMiddlewares
         return self
     }
@@ -203,12 +206,21 @@ extension HMCDRequest.Builder: HMRequestBuilderType {
     /// - Parameter requestDescription: A String value.
     /// - Returns: The current Builder instance.
     @discardableResult
-    public func with(requestDescription: String?) -> HMCDRequest.Builder {
+    public func with(requestDescription: String?) -> Buildable.Builder {
         request.rqDescription = requestDescription
         return self
     }
+
+    /// Override this method to provide default implementation.
+    ///
+    /// - Parameter buildable: A Buildable instance.
+    /// - Returns: The current Builder instance.
+    @discardableResult
+    public func with(buildable: Buildable) -> Buildable.Builder {
+        return with(generic: buildable)
+    }
     
-    public func build() -> Req {
+    public func build() -> Buildable {
         return request
     }
 }

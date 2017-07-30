@@ -29,17 +29,9 @@ public struct HMNetworkRequest {
     }
 }
 
-public extension HMNetworkRequest {
+extension HMNetworkRequest: HMBuildableType {
     public static func builder() -> Builder {
         return Builder()
-    }
-    
-    /// Instead of defining setters, we expose a Builder instance for a new
-    /// request and copy all properties from this request.
-    ///
-    /// - Returns: A Builder instance.
-    public func builder() -> Builder {
-        return HMNetworkRequest.builder().with(request: self)
     }
     
     public final class Builder {
@@ -54,7 +46,7 @@ public extension HMNetworkRequest {
         /// - Parameter endPoint: A String value.
         /// - Returns: The current Builder instance.
         @discardableResult
-        public func with(endPoint: String) -> Builder {
+        public func with(endPoint: String?) -> Builder {
             request.endPointStr = endPoint
             return self
         }
@@ -64,7 +56,7 @@ public extension HMNetworkRequest {
         /// - Parameter baseUrl: A String value.
         /// - Returns: The current Builder instance.
         @discardableResult
-        public func with(baseUrl: String) -> Builder {
+        public func with(baseUrl: String?) -> Builder {
             request.baseUrlStr = baseUrl
             return self
         }
@@ -75,13 +67,9 @@ public extension HMNetworkRequest {
         /// - Returns: The current Builder instance.
         @discardableResult
         public func with(resource: HMNetworkResourceType) -> Builder {
-            do {
-                return try self
-                    .with(baseUrl: resource.baseUrl())
-                    .with(endPoint: resource.endPoint())
-            } catch {
-                return self
-            }
+            return self
+                .with(baseUrl: try? resource.baseUrl())
+                .with(endPoint: try? resource.endPoint())
         }
         
         /// Set the HTTP method.
@@ -89,7 +77,7 @@ public extension HMNetworkRequest {
         /// - Parameter method: A HttpMethod instance.
         /// - Returns: The current Builder instance.
         @discardableResult
-        public func with(method: HttpMethod) -> Builder {
+        public func with(method: HttpMethod?) -> Builder {
             request.httpMethod = method
             return self
         }
@@ -134,39 +122,55 @@ public extension HMNetworkRequest {
             return self
         }
         
-        /// Copy all properties from one request to this.
+        /// Set the body.
         ///
-        /// - Parameter request: A HMNetworkRequestType.
+        /// - Parameter jsonConvertible: A HMJSONConvertibleType instance.
         /// - Returns: The current Builder instance.
-        public func with(request: HMNetworkRequestType) -> Builder {
-            do {
-                return self
-                    .with(baseUrl: try request.baseUrl())
-                    .with(endPoint: try request.endPoint())
-                    .with(method: try request.method())
-                    .with(headers: try request.headers())
-                    .with(params: try request.params())
-                    .with(body: try request.body())
-                    .with(timeout: request.timeout())
-                    .with(retries: request.retries())
-                    .with(applyMiddlewares: request.applyMiddlewares())
-                    .with(requestDescription: request.requestDescription())
-            } catch {
-                return self
-            }
+        @discardableResult
+        public func with(jsonConvertible: HMJSONConvertibleType) -> Builder {
+            return with(body: jsonConvertible.toJSON())
         }
     }
 }
 
+extension HMNetworkRequest: HMProtocolConvertibleType {
+    public typealias PTCType = HMNetworkRequestType
+    
+    public func asProtocol() -> PTCType {
+        return self as PTCType
+    }
+}
+
+extension HMNetworkRequest.Builder: HMProtocolConvertibleBuilderType {
+    
+    /// Override this method to provide default implementation.
+    ///
+    /// - Parameter request: A HMNetworkRequestType.
+    /// - Returns: The current Builder instance.
+    public func with(generic: Buildable.PTCType) -> Buildable.Builder {
+        return self
+            .with(baseUrl: try? request.baseUrl())
+            .with(endPoint: try? request.endPoint())
+            .with(method: try? request.method())
+            .with(body: try? request.body())
+            .with(headers: request.headers())
+            .with(params: request.params())
+            .with(timeout: request.timeout())
+            .with(retries: request.retries())
+            .with(applyMiddlewares: request.applyMiddlewares())
+            .with(requestDescription: request.requestDescription())
+    }
+}
+
 extension HMNetworkRequest.Builder: HMRequestBuilderType {
-    public typealias Req = HMNetworkRequest
+    public typealias Buildable = HMNetworkRequest
     
     /// Override this method to provide default implementation.
     ///
     /// - Parameter retries: An Int value.
     /// - Returns: The current Builder instance.
     @discardableResult
-    public func with(retries: Int) -> HMNetworkRequest.Builder {
+    public func with(retries: Int) -> Buildable.Builder {
         request.retryCount = retries
         return self
     }
@@ -176,7 +180,7 @@ extension HMNetworkRequest.Builder: HMRequestBuilderType {
     /// - Parameter applyMiddlewares: A Bool value.
     /// - Returns: The current Builder instance.
     @discardableResult
-    public func with(applyMiddlewares: Bool) -> HMNetworkRequest.Builder {
+    public func with(applyMiddlewares: Bool) -> Buildable.Builder {
         request.middlewaresEnabled = applyMiddlewares
         return self
     }
@@ -186,12 +190,21 @@ extension HMNetworkRequest.Builder: HMRequestBuilderType {
     /// - Parameter requestDescription: A String value.
     /// - Returns: The current Builder instance.
     @discardableResult
-    public func with(requestDescription: String?) -> HMNetworkRequest.Builder {
+    public func with(requestDescription: String?) -> Buildable.Builder {
         request.rqDescription = requestDescription
         return self
     }
     
-    public func build() -> Req {
+    /// Override this method to provide default implementation.
+    ///
+    /// - Parameter buildable: A HMNetworkRequest instance.
+    /// - Returns: The current Builder instance.
+    @discardableResult
+    public func with(buildable: HMNetworkRequest) -> Buildable.Builder {
+        return with(generic: buildable)
+    }
+    
+    public func build() -> Buildable {
         return request
     }
 }
@@ -221,22 +234,11 @@ extension HMNetworkRequest: HMNetworkRequestType {
         }
     }
     
-    public func params() throws -> [String : Any]? {
-        return httpParams
-    }
-    
-    public func headers() throws -> [String : String]? {
-        return httpHeaders
-    }
-    
-    public func body() throws -> Any? {
-        let method = try self.method()
-        let body = httpBody
-        
-        if method.requiresBody() && body == nil {
-            throw Exception("Body cannot be nil")
+    public func body() throws -> Any {
+        if let body = httpBody {
+            return body
         } else {
-            return httpBody
+            throw Exception("Body cannot be nil")
         }
     }
     
@@ -246,18 +248,23 @@ extension HMNetworkRequest: HMNetworkRequestType {
         
         switch method {
         case .post, .put:
-            if let body = try self.body() {
-                request.httpBody = try? JSONSerialization.data(
-                    withJSONObject: body,
-                    options: .prettyPrinted
-                )
-            }
+            request.httpBody = try JSONSerialization.data(
+                withJSONObject: try self.body(),
+                options: .prettyPrinted)
             
         default:
             break
         }
         
         return request
+    }
+    
+    public func params() -> [String : Any]? {
+        return httpParams
+    }
+    
+    public func headers() -> [String : String]? {
+        return httpHeaders
     }
     
     public func timeout() -> TimeInterval {
@@ -277,11 +284,12 @@ extension HMNetworkRequest: HMNetworkRequestType {
     }
 }
 
-extension HMNetworkRequest: CustomStringConvertible {
-    public var description: String {
-        let method = (try? self.method().rawValue) ?? "INVALID METHOD"
-        let url = (try? self.url().absoluteString) ?? "INVALID URL"
-        let description = (self.requestDescription()) ?? "NONE"
-        return "Performing \(method) at: \(url). Description: \(description)"
-    }
-}
+//extension HMNetworkRequest: CustomStringConvertible {
+//    public var description: String {
+//        let method = (try? self.method().rawValue) ?? "INVALID METHOD"
+//        let url = (try? self.url().absoluteString) ?? "INVALID URL"
+//        let description = (self.requestDescription()) ?? "NONE"
+//        return "Performing \(method) at: \(url). Description: \(description)"
+//    }
+//}
+

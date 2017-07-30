@@ -6,8 +6,10 @@
 //  Copyright © 2017 Holmusk. All rights reserved.
 //
 
-public protocol HMRequestBuilderType {
-    associatedtype Req
+public protocol HMRequestBuilderType: HMBuilderType where
+    Buildable: HMRequestType,
+    Self == Buildable.Builder
+{
     
     /// Set the retry count.
     ///
@@ -29,8 +31,6 @@ public protocol HMRequestBuilderType {
     /// - Returns: The current Builder instance.
     @discardableResult
     func with(requestDescription: String?) -> Self
-    
-    func build() -> Req
 }
 
 public extension HMRequestBuilderType {

@@ -13,4 +13,17 @@
 /// their protocol representation.
 public protocol HMProtocolConvertibleType {
     associatedtype PTCType
+    
+    /// This should be a trivial cast.
+    ///
+    /// - Returns: A PTCType instance.
+    func asProtocol() -> PTCType
+}
+
+/// Builders that implement this protocol must be able to copy properties
+/// from some protocol to the implementation object that is being built.
+public protocol HMProtocolConvertibleBuilderType: HMBuilderType where
+    Buildable: HMProtocolConvertibleType
+{
+    func with(generic: Buildable.PTCType) -> Self
 }

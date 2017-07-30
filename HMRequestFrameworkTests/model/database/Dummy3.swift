@@ -94,6 +94,11 @@ extension Dummy3: HMCDPureObjectBuildableType {
             return self
         }
         
+        public func with(buildable: Dummy3) -> Builder {
+            dummy.id = buildable.id
+            return self
+        }
+        
         public func build() -> Dummy3 {
             return dummy
         }

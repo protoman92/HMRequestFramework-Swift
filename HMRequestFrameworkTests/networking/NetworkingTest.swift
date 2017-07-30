@@ -76,9 +76,8 @@ public final class NetworkingTest: XCTestCase {
         
         let checkError: (HMNetworkRequest, Bool) -> HMNetworkRequest = {
             currentCheck += 1
-            print("Checking request \(currentCheck)")
-            
             let request = $0.0
+            print("Checking request \(currentCheck): \(request)")
             
             do {
                 _ = try request.urlRequest()
@@ -113,5 +112,19 @@ public final class NetworkingTest: XCTestCase {
         
         /// End
         _ = request7
+    }
+    
+    public func test_builder() {
+        let request = HMNetworkRequest.builder()
+            .with(method: .get)
+            .build()
+            .builder()
+            .with(params: ["K1" : "V1"])
+            .build()
+            .builder()
+            .with(baseUrl: "BASEURL!")
+            .build()
+        
+        print(request)
     }
 }
