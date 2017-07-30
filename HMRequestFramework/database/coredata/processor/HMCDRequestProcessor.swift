@@ -136,10 +136,10 @@ extension HMCDRequestProcessor: HMBuildableType {
     
     public final class Builder {
         public typealias Req = HMCDRequestProcessor.Req
-        fileprivate var processor: HMCDRequestProcessor
+        fileprivate var processor: Buildable
         
         fileprivate init() {
-            processor = HMCDRequestProcessor()
+            processor = Buildable()
         }
         
         /// Set the manager instance.
@@ -178,7 +178,7 @@ extension HMCDRequestProcessor.Builder: HMBuilderType {
             .with(rqMiddlewareManager: buildable.requestMiddlewareManager())
     }
     
-    public func build() -> HMCDRequestProcessor {
+    public func build() -> Buildable {
         return processor
     }
 }

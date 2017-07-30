@@ -34,10 +34,10 @@ extension HMCDRequest: HMBuildableType {
     }
     
     public final class Builder {
-        fileprivate var request: HMCDRequest
+        fileprivate var request: Buildable
         
         fileprivate init() {
-            request = HMCDRequest()
+            request = Buildable()
         }
         
         /// Set the entity name.
@@ -74,8 +74,8 @@ extension HMCDRequest: HMBuildableType {
         /// - Parameter sortDescriptors: A Sequence of NSSortDescriptor.
         /// - Returns: The current Builder instance.
         @discardableResult
-        public func with<S>(sortDescriptors: S?) -> Self
-            where S: Sequence, S.Iterator.Element == NSSortDescriptor
+        public func with<S>(sortDescriptors: S?) -> Self where
+            S: Sequence, S.Iterator.Element == NSSortDescriptor
         {
             if let descriptors = sortDescriptors {
                 request.nsSortDescriptors.append(contentsOf: descriptors)
@@ -89,8 +89,8 @@ extension HMCDRequest: HMBuildableType {
         /// - Parameter sortDescriptors: A Sequence of NSSortDescriptor.
         /// - Returns: The current Builder instance.
         @discardableResult
-        public func with<S>(sortDescriptors: S?) -> Self
-            where S: Sequence, S.Iterator.Element: NSSortDescriptor
+        public func with<S>(sortDescriptors: S?) -> Self where
+            S: Sequence, S.Iterator.Element: NSSortDescriptor
         {
             return with(sortDescriptors: sortDescriptors?.map(eq))
         }

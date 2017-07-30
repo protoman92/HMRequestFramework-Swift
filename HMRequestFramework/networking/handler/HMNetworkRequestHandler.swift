@@ -111,8 +111,8 @@ extension HMNetworkRequestHandler.Builder: HMBuilderType {
     @discardableResult
     public func with(buildable: Buildable) -> Self {
         return self
-            .with(urlSession: handler.urlSessionInstance())
-            .with(rqMiddlewareManager: handler.requestMiddlewareManager())
+            .with(urlSession: buildable.urlSessionInstance())
+            .with(rqMiddlewareManager: buildable.requestMiddlewareManager())
     }
     
     public func build() -> Buildable {

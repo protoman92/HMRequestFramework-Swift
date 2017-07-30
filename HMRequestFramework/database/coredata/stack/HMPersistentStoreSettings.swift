@@ -90,10 +90,10 @@ extension HMPersistentStoreSettings: HMBuildableType {
     }
     
     public final class Builder {
-        fileprivate var settings: HMPersistentStoreSettings
+        fileprivate var settings: Buildable
         
         fileprivate init() {
-            settings = HMPersistentStoreSettings()
+            settings = Buildable()
         }
         
         /// Set the store type using a StoreType instance.

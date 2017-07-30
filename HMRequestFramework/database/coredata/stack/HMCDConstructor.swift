@@ -48,10 +48,10 @@ extension HMCDConstructor: HMBuildableType {
     }
     
     public final class Builder {
-        fileprivate var constructor: HMCDConstructor
+        fileprivate var constructor: Buildable
         
         fileprivate init() {
-            constructor = HMCDConstructor()
+            constructor = Buildable()
         }
         
         /// Set the objectModl.
