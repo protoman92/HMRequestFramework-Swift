@@ -12,8 +12,6 @@ public protocol HMBuildableType {
     associatedtype Builder: HMBuilderType
     
     static func builder() -> Builder
-    
-    func builder() -> Builder
 }
 
 /// Builders should implement this protocol.
@@ -31,7 +29,7 @@ public extension HMBuildableType where Self == Builder.Buildable {
     /// all properties to the new Buildable instance.
     ///
     /// - Returns: A Builder instance.
-    public func builder() -> Builder {
+    public func cloneBuilder() -> Builder {
         return Self.builder().with(buildable: self)
     }
 }

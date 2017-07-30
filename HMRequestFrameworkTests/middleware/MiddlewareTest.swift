@@ -156,7 +156,7 @@ public final class MiddlewareTest: XCTestCase {
         let rqMiddlewareManager: HMMiddlewareManager<HMNetworkRequest> =
             HMMiddlewareManager<HMNetworkRequest>.builder()
                 .add(transform: {
-                    Observable.just($0.builder().with(headers: headers).build())
+                    Observable.just($0.cloneBuilder().with(headers: headers).build())
                 })
                 .add(sideEffect: {
                     let rqHeaders = try! $0.headers()

@@ -80,10 +80,6 @@ extension Dummy3: HMCDPureObjectBuildableType {
         return Builder()
     }
     
-    public func builder() -> Dummy3.Builder {
-        return Dummy3.builder()
-    }
-    
     public final class Builder: HMCDPureObjectBuilderType {
         public typealias Buildable = Dummy3
         

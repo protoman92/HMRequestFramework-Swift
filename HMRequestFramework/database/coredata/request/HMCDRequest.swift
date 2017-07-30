@@ -163,18 +163,18 @@ extension HMCDRequest.Builder: HMProtocolConvertibleBuilderType {
     
     /// Override this method to provide default implementation.
     ///
-    /// - Parameter request: A HMCDRequestType instance.
+    /// - Parameter generic: A HMCDRequestType instance.
     /// - Returns: The current Builder instance.
     public func with(generic: Buildable.PTCType) -> Buildable.Builder {
         return self
-            .with(operation: try? request.operation())
-            .with(entityName: try? request.entityName())
-            .with(predicate: try? request.predicate())
-            .with(sortDescriptors: try? request.sortDescriptors())
-            .with(dataToSave: try? request.dataToSave())
-            .with(retries: request.retries())
-            .with(applyMiddlewares: request.applyMiddlewares())
-            .with(requestDescription: request.requestDescription())
+            .with(operation: try? generic.operation())
+            .with(entityName: try? generic.entityName())
+            .with(predicate: try? generic.predicate())
+            .with(sortDescriptors: try? generic.sortDescriptors())
+            .with(dataToSave: try? generic.dataToSave())
+            .with(retries: generic.retries())
+            .with(applyMiddlewares: generic.applyMiddlewares())
+            .with(requestDescription: generic.requestDescription())
     }
 }
 

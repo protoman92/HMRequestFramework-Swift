@@ -142,29 +142,38 @@ extension HMNetworkRequest: HMProtocolConvertibleType {
 }
 
 extension HMNetworkRequest.Builder: HMProtocolConvertibleBuilderType {
+    public typealias Buildable = HMNetworkRequest
     
     /// Override this method to provide default implementation.
     ///
-    /// - Parameter request: A HMNetworkRequestType.
+    /// - Parameter generic: A HMNetworkRequestType.
     /// - Returns: The current Builder instance.
     public func with(generic: Buildable.PTCType) -> Buildable.Builder {
         return self
-            .with(baseUrl: try? request.baseUrl())
-            .with(endPoint: try? request.endPoint())
-            .with(method: try? request.method())
-            .with(body: try? request.body())
-            .with(headers: request.headers())
-            .with(params: request.params())
-            .with(timeout: request.timeout())
-            .with(retries: request.retries())
-            .with(applyMiddlewares: request.applyMiddlewares())
-            .with(requestDescription: request.requestDescription())
+            .with(baseUrl: try? generic.baseUrl())
+            .with(endPoint: try? generic.endPoint())
+            .with(method: try? generic.method())
+            .with(body: try? generic.body())
+            .with(headers: generic.headers())
+            .with(params: generic.params())
+            .with(timeout: generic.timeout())
+            .with(retries: generic.retries())
+            .with(applyMiddlewares: generic.applyMiddlewares())
+            .with(requestDescription: generic.requestDescription())
+    }
+    
+    /// Override this method to provide default implementation.
+    ///
+    /// - Parameter buildable: A HMNetworkRequest instance.
+    /// - Returns: The current Builder instance.
+    @discardableResult
+    public func with(buildable: HMNetworkRequest) -> Buildable.Builder {
+        return with(generic: buildable)
     }
 }
 
 extension HMNetworkRequest.Builder: HMRequestBuilderType {
-    public typealias Buildable = HMNetworkRequest
-    
+
     /// Override this method to provide default implementation.
     ///
     /// - Parameter retries: An Int value.
@@ -193,15 +202,6 @@ extension HMNetworkRequest.Builder: HMRequestBuilderType {
     public func with(requestDescription: String?) -> Buildable.Builder {
         request.rqDescription = requestDescription
         return self
-    }
-    
-    /// Override this method to provide default implementation.
-    ///
-    /// - Parameter buildable: A HMNetworkRequest instance.
-    /// - Returns: The current Builder instance.
-    @discardableResult
-    public func with(buildable: HMNetworkRequest) -> Buildable.Builder {
-        return with(generic: buildable)
     }
     
     public func build() -> Buildable {

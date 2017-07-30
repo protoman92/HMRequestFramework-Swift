@@ -19,6 +19,7 @@
 		D32995531F2CC8DD00715932 /* MockRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = D32995521F2CC8DD00715932 /* MockRequest.swift */; };
 		D32995551F2CC9BB00715932 /* RequestHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = D32995541F2CC9BB00715932 /* RequestHandler.swift */; };
 		D32CF7861F2C7F2C00884886 /* HMMiddlewareManagers.swift in Sources */ = {isa = PBXBuildFile; fileRef = D32CF7851F2C7F2C00884886 /* HMMiddlewareManagers.swift */; };
+		D32D1C071F2DA7F5005099D2 /* BuildableTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = D32D1C061F2DA7F5005099D2 /* BuildableTest.swift */; };
 		D34DF2921F2C2D740076D6B1 /* HMMiddlewares.swift in Sources */ = {isa = PBXBuildFile; fileRef = D34DF2911F2C2D740076D6B1 /* HMMiddlewares.swift */; };
 		D34DF2941F2C323A0076D6B1 /* HMMiddlewareManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D34DF2931F2C323A0076D6B1 /* HMMiddlewareManager.swift */; };
 		D34DF2971F2C52740076D6B1 /* MiddlewareTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = D34DF2961F2C52740076D6B1 /* MiddlewareTest.swift */; };
@@ -94,6 +95,7 @@
 		D32995521F2CC8DD00715932 /* MockRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockRequest.swift; sourceTree = "<group>"; };
 		D32995541F2CC9BB00715932 /* RequestHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RequestHandler.swift; sourceTree = "<group>"; };
 		D32CF7851F2C7F2C00884886 /* HMMiddlewareManagers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMMiddlewareManagers.swift; sourceTree = "<group>"; };
+		D32D1C061F2DA7F5005099D2 /* BuildableTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BuildableTest.swift; sourceTree = "<group>"; };
 		D34DF2911F2C2D740076D6B1 /* HMMiddlewares.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMMiddlewares.swift; sourceTree = "<group>"; };
 		D34DF2931F2C323A0076D6B1 /* HMMiddlewareManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMMiddlewareManager.swift; sourceTree = "<group>"; };
 		D34DF2961F2C52740076D6B1 /* MiddlewareTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MiddlewareTest.swift; sourceTree = "<group>"; };
@@ -232,6 +234,14 @@
 			path = base;
 			sourceTree = "<group>";
 		};
+		D32D1C051F2DA7D7005099D2 /* buildable */ = {
+			isa = PBXGroup;
+			children = (
+				D32D1C061F2DA7F5005099D2 /* BuildableTest.swift */,
+			);
+			path = buildable;
+			sourceTree = "<group>";
+		};
 		D34DF2901F2C2D540076D6B1 /* middleware */ = {
 			isa = PBXGroup;
 			children = (
@@ -288,6 +298,7 @@
 		D378D6E11F25E088009B89B2 /* HMRequestFrameworkTests */ = {
 			isa = PBXGroup;
 			children = (
+				D32D1C051F2DA7D7005099D2 /* buildable */,
 				D34DF2951F2C52670076D6B1 /* middleware */,
 				D3FF536A1F29E2FE00F78806 /* base */,
 				D3FF53651F29E2FE00F78806 /* database */,
@@ -762,6 +773,7 @@
 				D31C586E1F27861800C8D8CC /* Singleton.swift in Sources */,
 				D3FBDC151F2AF4D50052A94A /* Dummy3.swift in Sources */,
 				D31C586D1F27861800C8D8CC /* DatabaseRequestProcessor.swift in Sources */,
+				D32D1C071F2DA7F5005099D2 /* BuildableTest.swift in Sources */,
 				D32995531F2CC8DD00715932 /* MockRequest.swift in Sources */,
 				D32995501F2CC4D700715932 /* MockResource.swift in Sources */,
 			);

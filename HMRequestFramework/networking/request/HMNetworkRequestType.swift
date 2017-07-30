@@ -31,7 +31,7 @@ public extension HMNetworkRequestType {
         let url = try self.url()
         var request = URLRequest(url: url)
         request.httpMethod = try method().rawValue
-        request.allHTTPHeaderFields = try headers()
+        request.allHTTPHeaderFields = headers()
         request.timeoutInterval = timeout()
         return request
     }

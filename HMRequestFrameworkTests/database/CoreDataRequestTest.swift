@@ -283,13 +283,19 @@ public final class CoreDataRequestTest: XCTestCase {
         let request1 = checkError(HMCDRequest.builder().build(), true)
         
         /// 2
-        let request2 = checkError(request1.builder().with(entityName: "E1").build(), true)
+        let request2 = checkError(request1.cloneBuilder()
+            .with(entityName: "E1")
+            .build(), true)
         
         /// 3
-        let request3 = checkError(request2.builder().with(operation: .persist).build(), true)
+        let request3 = checkError(request2.cloneBuilder()
+            .with(operation: .persist)
+            .build(), true)
         
         /// 4
-        let request4 = checkError(request3.builder().with(dataToSave: [try! Dummy1(context)]).build(), false)
+        let request4 = checkError(request3.cloneBuilder()
+            .with(dataToSave: [try! Dummy1(context)])
+            .build(), false)
         
         /// End
         _ = request4

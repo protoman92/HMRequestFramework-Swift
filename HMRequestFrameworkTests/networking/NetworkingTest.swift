@@ -93,22 +93,22 @@ public final class NetworkingTest: XCTestCase {
         let request1 = checkError(HMNetworkRequest.builder().build(), true)
         
         /// 2
-        let request2 = checkError(request1.builder().with(baseUrl: "http://google.com").build(), true)
+        let request2 = checkError(request1.cloneBuilder().with(baseUrl: "http://google.com").build(), true)
         
         /// 3
-        let request3 = checkError(request2.builder().with(endPoint: "").build(), true)
+        let request3 = checkError(request2.cloneBuilder().with(endPoint: "").build(), true)
         
         /// 4
-        let request4 = checkError(request3.builder().with(method: .get).build(), false)
+        let request4 = checkError(request3.cloneBuilder().with(method: .get).build(), false)
         
         /// 5
-        let request5 = checkError(request4.builder().with(method: .post).build(), true)
+        let request5 = checkError(request4.cloneBuilder().with(method: .post).build(), true)
         
         /// 6
-        let request6 = checkError(request5.builder().with(method: .put).build(), true)
+        let request6 = checkError(request5.cloneBuilder().with(method: .put).build(), true)
         
         /// 7
-        let request7 = checkError(request6.builder().with(body: ["1" : "2"]).build(), false)
+        let request7 = checkError(request6.cloneBuilder().with(body: ["1" : "2"]).build(), false)
         
         /// End
         _ = request7
@@ -118,10 +118,10 @@ public final class NetworkingTest: XCTestCase {
         let request = HMNetworkRequest.builder()
             .with(method: .get)
             .build()
-            .builder()
+            .cloneBuilder()
             .with(params: ["K1" : "V1"])
             .build()
-            .builder()
+            .cloneBuilder()
             .with(baseUrl: "BASEURL!")
             .build()
         

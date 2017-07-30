@@ -6,10 +6,7 @@
 //  Copyright © 2017 Holmusk. All rights reserved.
 //
 
-public protocol HMRequestBuilderType: HMBuilderType where
-    Buildable: HMRequestType,
-    Self == Buildable.Builder
-{
+public protocol HMRequestBuilderType: HMBuilderType where Buildable: HMRequestType {
     
     /// Set the retry count.
     ///
