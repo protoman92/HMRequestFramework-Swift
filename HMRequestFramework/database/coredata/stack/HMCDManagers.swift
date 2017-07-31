@@ -30,14 +30,58 @@ extension HMCDManager: HMCDRxManagerType {
         O: ObserverType,
         O.E == Void
     {
-        let data = data.map(eq)
-        
         privateContext.performAndWait {
             do {
-                if data.isNotEmpty {
-                    try self.saveToFileUnsafely(data)
-                }
-                
+                try self.saveToFileUnsafely(data)
+                obs.onNext(())
+                obs.onCompleted()
+            } catch let e {
+                obs.onError(e)
+            }
+        }
+    }
+    
+    /// Override this method to provide default implementation.
+    ///
+    /// - Parameters:
+    ///   - data: A Sequence of NSManagedObject.
+    ///   - obs: An ObserverType instance.
+    public func deleteFromFile<S,O>(_ data: S, _ obs: O) where
+        S: Sequence,
+        S.Iterator.Element == NSManagedObject,
+        O: ObserverType,
+        O.E == Void
+    {
+        privateContext.performAndWait {
+            do {
+                try self.deleteFromFileUnsafely(data)
+                obs.onNext(())
+                obs.onCompleted()
+            } catch let e {
+                obs.onError(e)
+            }
+        }
+    }
+    
+    /// Construct a Sequence of CoreData from data objects, save it to the
+    /// database and observe the process.
+    ///
+    /// - Parameters:
+    ///   - data: A Sequence of HMCDPureObjectType.
+    ///   - obs: An ObserverType instance.
+    /// - Throws: Exception if the save fails.
+    public func saveToFile<S,PO,O>(_ data: S, _ obs: O) where
+        PO: HMCDPureObjectType,
+        PO.CDClass: HMCDRepresetableBuildableType,
+        PO.CDClass.Builder.PureObject == PO,
+        S: Sequence,
+        S.Iterator.Element == PO,
+        O: ObserverType,
+        O.E == Void
+    {
+        privateContext.performAndWait {
+            do {
+                try saveToFileUnsafely(data)
                 obs.onNext()
                 obs.onCompleted()
             } catch let e {
@@ -49,7 +93,7 @@ extension HMCDManager: HMCDRxManagerType {
 
 extension HMCDManager: ReactiveCompatible {}
 
-public extension Reactive where Base: HMCDRxManagerType {
+public extension Reactive where Base: HMCDManager {
     
     /// Save changes for a NSManagedObjectContext.
     ///
@@ -108,6 +152,26 @@ public extension Reactive where Base: HMCDRxManagerType {
         return saveToFile(data.map({$0 as NSManagedObject}))
     }
     
+    /// Construct a Sequence of CoreData from data objects and save it to the
+    /// database.
+    ///
+    /// - Parameters data: A Sequence of HMCDPureObjectType.
+    /// - Throws: Exception if the save fails.
+    public func saveToFile<S,PO>(_ data: S) -> Observable<Void> where
+        PO: HMCDPureObjectType,
+        PO.CDClass: HMCDRepresetableBuildableType,
+        PO.CDClass.Builder.PureObject == PO,
+        S: Sequence,
+        S.Iterator.Element == PO
+    {
+        let base = self.base
+        
+        return Observable.create(({(obs: AnyObserver<Void>) in
+            base.saveToFile(data, obs)
+            return Disposables.create()
+        }))
+    }
+    
     /// Save a lazily produced Sequence of data to file.
     ///
     /// - Parameter data: A function that produces data.
@@ -138,24 +202,29 @@ public extension Reactive where Base: HMCDRxManagerType {
         }))
     }
     
-    /// Construct a Sequence of CoreData from data objects and save it to the
-    /// database.
+    /// Delete data from file.
     ///
-    /// - Parameters data: A Sequence of HMCDPureObjectType.
-    /// - Throws: Exception if the save fails.
-    public func saveToFile<S,PO>(_ data: S) -> Observable<Void> where
-        PO: HMCDPureObjectType,
-        PO.CDClass: HMCDRepresetableBuildableType,
-        PO.CDClass.Builder.PureObject == PO,
-        S: Sequence,
-        S.Iterator.Element == PO
+    /// - Parameter data: A Sequence of NSManagedObject.
+    /// - Returns: An Observable instance.
+    public func deleteFromFile<S>(_ data: S) -> Observable<Void> where
+        S: Sequence, S.Iterator.Element == NSManagedObject
     {
         let base = self.base
         
         return Observable.create(({(obs: AnyObserver<Void>) in
-            base.saveToFile(data, obs)
+            base.deleteFromFile(data, obs)
             return Disposables.create()
         }))
+    }
+    
+    /// Delete data from file.
+    ///
+    /// - Parameter data: A Sequence of NSManagedObject.
+    /// - Returns: An Observable instance.
+    public func deleteFromFile<S>(_ data: S) -> Observable<Void> where
+        S: Sequence, S.Iterator.Element: NSManagedObject
+    {
+        return deleteFromFile(data.map({$0 as NSManagedObject}))
     }
     
     /// Save all changes in the main and private contexts. When the main context

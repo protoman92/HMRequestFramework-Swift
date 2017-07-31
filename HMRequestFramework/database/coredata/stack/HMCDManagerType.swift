@@ -36,6 +36,13 @@ public protocol HMCDManagerType: HMCDObjectConstructorType {
     func saveToFileUnsafely<S>(_ data: S) throws where
         S: Sequence, S.Iterator.Element == NSManagedObject
     
+    /// Delete a Sequence of data from file. This operation is not thread-safe.
+    ///
+    /// - Parameter data: A Sequence of NSManagedObject.
+    /// - Throws: Exception if the delete fails.
+    func deleteFromFileUnsafely<S>(_ data: S) throws where
+        S: Sequence, S.Iterator.Element == NSManagedObject
+    
     /// Fetch data using a request. This operation blocks.
     ///
     /// - Parameter request: A NSFetchRequest instance.
@@ -103,6 +110,17 @@ public extension HMCDManagerType {
         let data = try data.map({try self.construct($0)})
         try saveToFileUnsafely(data)
     }
+    
+    /// Delete a Sequence of data from file. This operation is not thread-safe.
+    ///
+    /// - Parameter data: A Sequence of NSManagedObject.
+    /// - Throws: Exception if the delete fails.
+    public func deleteFromFileUnsafely<S>(_ data: S) throws where
+        S: Sequence, S.Iterator.Element == NSManagedObject
+    {
+        return try deleteFromFileUnsafely(data.map({$0 as NSManagedObject}))
+    }
+
     
     /// Save changes in the main object context.
     ///

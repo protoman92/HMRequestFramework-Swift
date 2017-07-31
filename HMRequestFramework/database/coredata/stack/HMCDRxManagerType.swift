@@ -30,6 +30,17 @@ public protocol HMCDRxManagerType: HMCDManagerType {
         S.Iterator.Element == NSManagedObject,
         O: ObserverType,
         O.E == Void
+    
+    /// Delete data from file and observe the process.
+    ///
+    /// - Parameters:
+    ///   - data: A Sequence of NSManagedObject.
+    ///   - obs: An ObserverType instance.
+    func deleteFromFile<S,O>(_ data: S, _ obs: O) where
+        S: Sequence,
+        S.Iterator.Element == NSManagedObject,
+        O: ObserverType,
+        O.E == Void
 }
 
 public extension HMCDRxManagerType {
@@ -64,7 +75,7 @@ public extension HMCDRxManagerType {
         O: ObserverType,
         O.E == Void
     {
-        return saveToFile(data.map({$0 as NSManagedObject}), obs)
+        saveToFile(data.map({$0 as NSManagedObject}), obs)
     }
     
     /// Save a lazily produced Sequence of data to file and observe the process.
@@ -105,29 +116,18 @@ public extension HMCDRxManagerType {
         }
     }
     
-    /// Construct a Sequence of CoreData from data objects, save it to the
-    /// database and observe the process.
+    /// Delete data from file and observe the process.
     ///
     /// - Parameters:
-    ///   - data: A Sequence of HMCDPureObjectType.
+    ///   - data: A Sequence of NSManagedObject.
     ///   - obs: An ObserverType instance.
-    /// - Throws: Exception if the save fails.
-    public func saveToFile<S,PO,O>(_ data: S, _ obs: O) where
-        O: ObserverType,
-        O.E == Void,
-        PO: HMCDPureObjectType,
-        PO.CDClass: HMCDRepresetableBuildableType,
-        PO.CDClass.Builder.PureObject == PO,
+    public func deleteFromFile<S,O>(_ data: S, _ obs: O) where
         S: Sequence,
-        S.Iterator.Element == PO
+        S.Iterator.Element == NSManagedObject,
+        O: ObserverType,
+        O.E == Void
     {
-        do {
-            try saveToFileUnsafely(data)
-            obs.onNext()
-            obs.onCompleted()
-        } catch let e {
-            obs.onError(e)
-        }
+        deleteFromFile(data.map({$0 as NSManagedObject}), obs)
     }
     
     /// Save changes in the main context.

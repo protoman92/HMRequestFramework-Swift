@@ -111,6 +111,9 @@ extension HMCDRequestProcessor: HMCDRequestProcessorType {
         case .persist:
             return try executePersist(request)
             
+        case .delete:
+            return try executeDelete(request)
+            
         case .upsert:
             return try executeUpsert(request)
             
@@ -129,6 +132,21 @@ extension HMCDRequestProcessor: HMCDRequestProcessorType {
         let data = try request.dataToSave()
             
         return manager.rx.saveToFile(data)
+            .retry(request.retries())
+            .map(Try.success)
+            .catchErrorJustReturn(Try.failure)
+    }
+    
+    /// Perform a CoreData data delete operation.
+    ///
+    /// - Parameter request: A Req instance.
+    /// - Returns: An Observable instance.
+    /// - Throws: Exception if the execution fails.
+    private func executeDelete(_ request: Req) throws -> Observable<Try<Void>> {
+        let manager = coreDataManager()
+        let data = try request.dataToDelete()
+        
+        return manager.rx.deleteFromFile(data)
             .retry(request.retries())
             .map(Try.success)
             .catchErrorJustReturn(Try.failure)

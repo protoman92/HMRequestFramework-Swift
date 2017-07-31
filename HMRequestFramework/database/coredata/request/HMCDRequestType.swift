@@ -38,6 +38,12 @@ public protocol HMCDRequestType: HMDatabaseRequestType {
     /// - Throws: Exception if the data is not available.
     func dataToSave() throws -> [NSManagedObject]
     
+    /// Get the data to be deleted. Only used with delete operations.
+    ///
+    /// - Returns: An Array of NSManagedObject.
+    /// - Throws: Exception if the data is not available.
+    func dataToDelete() throws -> [NSManagedObject]
+    
     /// Get the data to be upserted. Only used with upsert operations.
     ///
     /// - Returns: An Array of HMCDUpsertableObject.

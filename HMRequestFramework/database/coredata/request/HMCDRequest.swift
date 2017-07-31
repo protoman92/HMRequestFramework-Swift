@@ -16,6 +16,7 @@ public struct HMCDRequest {
     fileprivate var nsSortDescriptors: [NSSortDescriptor]
     fileprivate var cdOperation: CoreDataOperation?
     fileprivate var cdDataToSave: [NSManagedObject]
+    fileprivate var cdDataToDelete: [NSManagedObject]
     fileprivate var cdDataToUpsert: [HMCDUpsertableObject]
     fileprivate var retryCount: Int
     fileprivate var middlewaresEnabled: Bool
@@ -24,6 +25,7 @@ public struct HMCDRequest {
     fileprivate init() {
         nsSortDescriptors = []
         cdDataToSave = []
+        cdDataToDelete = []
         cdDataToUpsert = []
         retryCount = 1
         middlewaresEnabled = false
@@ -149,6 +151,32 @@ extension HMCDRequest: HMBuildableType {
             S: Sequence, S.Iterator.Element: NSManagedObject
         {
             return with(dataToSave: data?.map({$0 as NSManagedObject}))
+        }
+        
+        /// Set the data to delete.
+        ///
+        /// - Parameter data: A Sequence of NSManagedObject.
+        /// - Returns: The current Builder instance.
+        @discardableResult
+        public func with<S>(dataToDelete data: S?) -> Self where
+            S: Sequence, S.Iterator.Element == NSManagedObject
+        {
+            if let data = data {
+                request.cdDataToDelete.append(contentsOf: data)
+            }
+            
+            return self
+        }
+        
+        /// Set the data to delete.
+        ///
+        /// - Parameter data: A Sequence of NSManagedObject.
+        /// - Returns: The current Builder instance.
+        @discardableResult
+        public func with<S>(dataToDelete data: S?) -> Self where
+            S: Sequence, S.Iterator.Element: NSManagedObject
+        {
+            return with(dataToDelete: data?.map({$0 as NSManagedObject}))
         }
         
         /// Set the data to upsert.
@@ -291,6 +319,17 @@ extension HMCDRequest: HMCDRequestType {
         
         if case .persist = operation, data.isEmpty {
             throw Exception("Data to save cannot be nil or empty")
+        } else {
+            return data
+        }
+    }
+    
+    public func dataToDelete() throws -> [NSManagedObject] {
+        let operation = try self.operation()
+        let data = cdDataToDelete
+        
+        if case .delete = operation, data.isEmpty {
+            throw Exception("Data to delete cannot be nil or empty")
         } else {
             return data
         }

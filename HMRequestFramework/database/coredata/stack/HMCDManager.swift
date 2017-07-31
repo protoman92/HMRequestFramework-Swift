@@ -67,6 +67,22 @@ public class HMCDManager {
     
     /// Override this method to provide default implementation.
     ///
+    /// - Parameter data: A Sequence of NSManagedObject.
+    /// - Throws: Exception if the delete fails.
+    public func deleteFromFileUnsafely<S>(_ data: S) throws where
+        S: Sequence, S.Element == NSManagedObject
+    {
+        let data = data.map(eq)
+        
+        if data.isNotEmpty {
+            let context = privateContext
+            data.forEach(context.delete)
+            try saveUnsafely(context)
+        }
+    }
+    
+    /// Override this method to provide default implementation.
+    ///
     /// - Parameter request: A NSFetchRequest instance.
     /// - Returns: An Array of NSManagedObject.
     /// - Throws: Exception if the fetch fails.

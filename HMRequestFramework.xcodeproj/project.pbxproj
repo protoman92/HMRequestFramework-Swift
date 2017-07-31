@@ -60,6 +60,7 @@
 		D3EBB70C1F2BB6C6003CEB5F /* HMNetworkRequestProcessorType.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3EBB70B1F2BB6C6003CEB5F /* HMNetworkRequestProcessorType.swift */; };
 		D3FBDC151F2AF4D50052A94A /* Dummy3.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3FBDC141F2AF4D50052A94A /* Dummy3.swift */; };
 		D3FBDC171F2AFA080052A94A /* HMCDObjectConstructorType.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3FBDC161F2AFA080052A94A /* HMCDObjectConstructorType.swift */; };
+		D3FC61921F2F88430006188D /* HMRequestGenerators.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3FC61911F2F88430006188D /* HMRequestGenerators.swift */; };
 		D3FC6E7C1F2F0588007471E2 /* HMUpsertableType.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3FC6E7B1F2F0588007471E2 /* HMUpsertableType.swift */; };
 		D3FC6E801F2F0C7F007471E2 /* HMCDUpsertableType.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3FC6E7F1F2F0C7F007471E2 /* HMCDUpsertableType.swift */; };
 		D3FF536C1F29E3A000F78806 /* RequestTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3FF536B1F29E2FE00F78806 /* RequestTest.swift */; };
@@ -142,6 +143,7 @@
 		D3EBB70B1F2BB6C6003CEB5F /* HMNetworkRequestProcessorType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMNetworkRequestProcessorType.swift; sourceTree = "<group>"; };
 		D3FBDC141F2AF4D50052A94A /* Dummy3.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Dummy3.swift; sourceTree = "<group>"; };
 		D3FBDC161F2AFA080052A94A /* HMCDObjectConstructorType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMCDObjectConstructorType.swift; sourceTree = "<group>"; };
+		D3FC61911F2F88430006188D /* HMRequestGenerators.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMRequestGenerators.swift; sourceTree = "<group>"; };
 		D3FC6E7B1F2F0588007471E2 /* HMUpsertableType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMUpsertableType.swift; sourceTree = "<group>"; };
 		D3FC6E7F1F2F0C7F007471E2 /* HMCDUpsertableType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMCDUpsertableType.swift; sourceTree = "<group>"; };
 		D3FF53621F29E2FE00F78806 /* Dummy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Dummy.swift; sourceTree = "<group>"; };
@@ -373,6 +375,7 @@
 			isa = PBXGroup;
 			children = (
 				D37D0B611F25E1BE0032C6AB /* HMRequestGenerator.swift */,
+				D3FC61911F2F88430006188D /* HMRequestGenerators.swift */,
 			);
 			path = generator;
 			sourceTree = "<group>";
@@ -737,6 +740,7 @@
 				D34DF2991F2C530F0076D6B1 /* HMMiddlewareManagerType.swift in Sources */,
 				D3C522BC1F26F96600B294EF /* HMCDRxManagerType.swift in Sources */,
 				D37D0BA61F25E3A00032C6AB /* HMCDRequestProcessor.swift in Sources */,
+				D3FC61921F2F88430006188D /* HMRequestGenerators.swift in Sources */,
 				D37D0BA71F25E3A00032C6AB /* HMCDRequestProcessorType.swift in Sources */,
 				D34DF2941F2C323A0076D6B1 /* HMMiddlewareManager.swift in Sources */,
 				D37D0BA81F25E3A00032C6AB /* HMCDResultProcessor.swift in Sources */,
