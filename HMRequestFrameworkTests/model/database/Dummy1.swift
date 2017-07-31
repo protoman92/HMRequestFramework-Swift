@@ -16,7 +16,9 @@ public protocol Dummy1Type {
     var float: Float { get }
 }
 
-public final class Dummy1: NSManagedObject {
+public final class Dummy1: HMCDUpsertableObject {
+    fileprivate static var counter = 0
+    
     @NSManaged public var id: String
     @NSManaged public var int64: Int64
     @NSManaged public var date: Date
@@ -32,10 +34,23 @@ public final class Dummy1: NSManagedObject {
         date = Date()
         float = Float(counter)
     }
-}
-
-public extension Dummy1 {
-    fileprivate static var counter = 0
+    
+    public override func primaryKey() -> String {
+        return "id"
+    }
+    
+    public override func primaryValue() -> String {
+        return id
+    }
+    
+    public override func toJSON() -> [String : Any] {
+        return [
+            "id": id,
+            "int64": int64,
+            "date": date,
+            "float": float
+        ]
+    }
 }
 
 extension Dummy1: HMCDRepresentableType {

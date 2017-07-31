@@ -42,7 +42,6 @@ public protocol HMCDManagerType: HMCDObjectConstructorType {
     /// - Returns: An Array of NSManagedObject.
     /// - Throws: Exception if the fetch fails.
     func blockingFetch<Val>(_ request: NSFetchRequest<Val>) throws -> [Val]
-        where Val: NSFetchRequestResult
 }
 
 public extension HMCDManagerType {

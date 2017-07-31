@@ -28,9 +28,7 @@ public final class ErrorCDManager: HMCDManager {
         try super.init(constructor: constructor)
     }
     
-    override public func blockingFetch<Val>(_ request: NSFetchRequest<Val>) throws -> [Val] where
-        Val: NSFetchRequestResult
-    {
+    override public func blockingFetch<Val>(_ request: NSFetchRequest<Val>) throws -> [Val] {
         if fetchSuccess() {
             return try super.blockingFetch(request)
         } else {

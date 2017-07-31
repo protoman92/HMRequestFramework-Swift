@@ -70,10 +70,34 @@ public class HMCDManager {
     /// - Parameter request: A NSFetchRequest instance.
     /// - Returns: An Array of NSManagedObject.
     /// - Throws: Exception if the fetch fails.
-    public func blockingFetch<Val>(_ request: NSFetchRequest<Val>) throws -> [Val]
-        where Val: NSFetchRequestResult
-    {
+    public func blockingFetch<Val>(_ request: NSFetchRequest<Val>) throws -> [Val] {
         return try mainContext.fetch(request)
+    }
+    
+    /// Get the predicate to search for records related to a Sequence of
+    /// upsertables. This predicate will be used to distinguish between
+    /// existing and new data.
+    ///
+    /// - Parameter data: A Sequence of HMCDUpsertableType.
+    /// - Returns: A NSPredicate instance.
+    func predicateForUpsertableFetch<S>(_ data: S) -> NSPredicate where
+        S: Sequence, S.Iterator.Element == HMCDUpsertableType
+    {
+        return NSCompoundPredicate(orPredicateWithSubpredicates: data
+            .map({($0.primaryKey(), $0.primaryValue())})
+            .map({NSPredicate(format: "%K == %@", $0.0, $0.1)}))
+    }
+
+    /// Get the predicate to search for records related to a Sequence of
+    /// upsertables. This predicate will be used to distinguish between
+    /// existing and new data.
+    ///
+    /// - Parameter data: A Sequence of HMCDUpsertableType.
+    /// - Returns: A NSPredicate instance.
+    func predicateForUpsertableFetch<S>(_ data: S) -> NSPredicate where
+        S: Sequence, S.Iterator.Element: HMCDUpsertableType
+    {
+        return predicateForUpsertableFetch(data.map({$0 as HMCDUpsertableType}))
     }
 }
 

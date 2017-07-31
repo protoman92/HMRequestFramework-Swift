@@ -171,9 +171,7 @@ public extension Reactive where Base: HMCDRxManagerType {
     ///
     /// - Parameter request: A NSFetchRequest instance.
     /// - Returns: An Observable instance.
-    public func fetch<Val>(_ request: NSFetchRequest<Val>) -> Observable<Val>
-        where Val: NSFetchRequestResult
-    {
+    public func fetch<Val>(_ request: NSFetchRequest<Val>) -> Observable<Val> {
         let base = self.base
         
         return Observable.create({(obs: AnyObserver<[Val]>) in

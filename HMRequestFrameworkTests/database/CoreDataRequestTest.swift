@@ -300,6 +300,23 @@ public final class CoreDataRequestTest: XCTestCase {
         /// End
         _ = request4
     }
+    
+    public func test_predicateForUpsertFetch_shouldWork() {
+        /// Setup
+        let times = 1000
+        let context = manager.mainObjectContext()
+        let objs = (0..<times).map({_ in try! Dummy1(context)})
+        
+        /// When
+        let predicate = manager.predicateForUpsertableFetch(objs)
+        
+        /// Then
+        let description = predicate.description
+        let dComponents = description.components(separatedBy: " ")
+        let dummyValues = objs.map({$0.primaryValue()})
+        XCTAssertEqual(dComponents.filter({$0 == "OR"}).count, times - 1)
+        XCTAssertTrue(dummyValues.all(satisfying: description.contains))
+    }
 }
 
 extension CoreDataRequestTest {

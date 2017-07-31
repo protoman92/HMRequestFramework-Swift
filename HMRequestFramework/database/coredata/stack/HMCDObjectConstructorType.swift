@@ -15,8 +15,8 @@ public protocol HMCDObjectConstructorType {
     /// Construct a CoreData model object - this is because the context object
     /// is hidden.
     ///
-    /// - Parameter cls: A HMCDType class type.
-    /// - Returns: A HMCD object.
+    /// - Parameter cls: A CD class type.
+    /// - Returns: A CD instance.
     /// - Throws: Exception if the construction fails.
     func construct<CD>(_ cls: CD.Type) throws -> CD where CD: HMCDRepresentableType
     
@@ -32,8 +32,8 @@ public protocol HMCDObjectConstructorType {
     /// us a NSManagedObject instance with the same properties. We can then
     /// save this to the local DB.
     ///
-    /// - Parameter pureObj: A HMCDPureObjectType instance.
-    /// - Returns: A HMCDRepresetableBuildableType object.
+    /// - Parameter pureObj: A PO instance.
+    /// - Returns: A PO.CDClass object.
     /// - Throws: Exception if the construction fails.
     func construct<PO>(_ pureObj: PO) throws -> PO.CDClass where
         PO: HMCDPureObjectType,
@@ -46,8 +46,8 @@ public extension HMCDObjectConstructorType {
     /// Convenient method to construct a CoreData model object from a data
     /// class.
     ///
-    /// - Parameter cls: A HMCDPureObjectType class.
-    /// - Returns: A HMCD object.
+    /// - Parameter cls: A PO class.
+    /// - Returns: A PO.CDClass object.
     /// - Throws: Exception if the construction fails.
     public func construct<PO>(_ cls: PO.Type) throws -> PO.CDClass where PO: HMCDPureObjectType {
         return try construct(cls.CDClass.self)

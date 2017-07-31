@@ -18,7 +18,7 @@ public protocol HMCDRequestProcessorType: HMRequestHandlerType, HMCDObjectConstr
     /// should be used for CoreData operations whose results are constrained
     /// to some NSManagedObject subtype.
     ///
-    /// - Parameter request: A HMCoreDataRequestType instance.
+    /// - Parameter request: A Req instance.
     /// - Returns: An Observable instance.
     func executeTyped<Val>(_ request: Req) throws -> Observable<Try<Val>>
         where Val: NSFetchRequestResult
@@ -28,7 +28,7 @@ public protocol HMCDRequestProcessorType: HMRequestHandlerType, HMCDObjectConstr
     /// This method should be used with operations that do not require specific
     /// result type, e.g. CoreData save requests.
     ///
-    /// - Parameter request: A HMCoreDataRequestType instance.
+    /// - Parameter request: A Req instance.
     /// - Returns: An Observable instance.
     func execute(_ request: Req) throws -> Observable<Try<Void>>
 }

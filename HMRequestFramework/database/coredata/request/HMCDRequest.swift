@@ -16,6 +16,7 @@ public struct HMCDRequest {
     fileprivate var nsSortDescriptors: [NSSortDescriptor]
     fileprivate var cdOperation: CoreDataOperation?
     fileprivate var cdDataToSave: [NSManagedObject]
+    fileprivate var cdDataToUpsert: [HMCDUpsertableObject]
     fileprivate var retryCount: Int
     fileprivate var middlewaresEnabled: Bool
     fileprivate var rqDescription: String?
@@ -23,6 +24,7 @@ public struct HMCDRequest {
     fileprivate init() {
         nsSortDescriptors = []
         cdDataToSave = []
+        cdDataToUpsert = []
         retryCount = 1
         middlewaresEnabled = false
     }
@@ -148,6 +150,32 @@ extension HMCDRequest: HMBuildableType {
         {
             return with(dataToSave: data?.map({$0 as NSManagedObject}))
         }
+        
+        /// Set the data to upsert.
+        ///
+        /// - Parameter data: A Sequence of HMCDUpsertableObject.
+        /// - Returns: The current Builder instance.
+        @discardableResult
+        public func with<S>(dataToUpsert data: S?) -> Self where
+            S: Sequence, S.Iterator.Element == HMCDUpsertableObject
+        {
+            if let data = data {
+                request.cdDataToUpsert.append(contentsOf: data)
+            }
+            
+            return self
+        }
+        
+        /// Set the data to upsert.
+        ///
+        /// - Parameter data: A Sequence of HMCDUpsertableObject.
+        /// - Returns: The current Builder instance.
+        @discardableResult
+        public func with<S>(dataToUpsert data: S?) -> Self where
+            S: Sequence, S.Iterator.Element: HMCDUpsertableObject
+        {
+            return with(dataToUpsert: data?.map({$0 as HMCDUpsertableObject}))
+        }
     }
 }
 
@@ -263,6 +291,17 @@ extension HMCDRequest: HMCDRequestType {
         
         if case .persist = operation, data.isEmpty {
             throw Exception("Data to save cannot be nil or empty")
+        } else {
+            return data
+        }
+    }
+    
+    public func dataToUpsert() throws -> [HMCDUpsertableObject] {
+        let operation = try self.operation()
+        let data = cdDataToUpsert
+        
+        if case .upsert = operation, data.isEmpty {
+            throw Exception("Data to upsert cannot be nil or empty")
         } else {
             return data
         }

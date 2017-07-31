@@ -39,8 +39,8 @@ extension HMCDRequestProcessor: HMCDRequestProcessorType {
     
     /// Override this method to provide default implementation.
     ///
-    /// - Parameter cls: A HMCDType class type.
-    /// - Returns: A HMCD object.
+    /// - Parameter cls: A CD class type.
+    /// - Returns: A CD instance.
     /// - Throws: Exception if the construction fails.
     public func construct<CD>(_ cls: CD.Type) throws -> CD where CD: HMCDRepresentableType {
         return try coreDataManager().construct(cls)
@@ -48,8 +48,8 @@ extension HMCDRequestProcessor: HMCDRequestProcessorType {
     
     /// Override this method to provide default implementation.
     ///
-    /// - Parameter pureObj: A HMCDPureObjectType instance.
-    /// - Returns: A HMCDRepresetableBuildableType object.
+    /// - Parameter pureObj: A PO instance.
+    /// - Returns: A PO.CDClass instance.
     /// - Throws: Exception if the construction fails.
     public func construct<PO>(_ pureObj: PO) throws -> PO.CDClass where
         PO: HMCDPureObjectType,
@@ -61,7 +61,7 @@ extension HMCDRequestProcessor: HMCDRequestProcessorType {
     
     /// Override this method to provide default implementation.
     ///
-    /// - Parameter request: A HMCoreDataRequestType instance.
+    /// - Parameter request: A Req instance.
     /// - Returns: An Observable instance.
     /// - Throws: Exception if no context is available.
     public func executeTyped<Val>(_ request: Req) throws -> Observable<Try<Val>>
@@ -71,7 +71,7 @@ extension HMCDRequestProcessor: HMCDRequestProcessorType {
         
         switch operation {
         case .fetch:
-            return try executeFetch(request)
+            return try executeFetch(request, Val.self)
             
         default:
             throw Exception("Please use normal execute for void return values")
@@ -80,10 +80,13 @@ extension HMCDRequestProcessor: HMCDRequestProcessorType {
     
     /// Perform a CoreData get request.
     ///
-    /// - Parameter request: A HMCoreDataRequestType instance.
+    /// - Parameters:
+    ///   - request: A Req instance.
+    ///   - cls: The Val class type.
     /// - Returns: An Observable instance.
     /// - Throws: Exception if the execution fails.
-    private func executeFetch<Val>(_ request: Req) throws -> Observable<Try<Val>>
+    private func executeFetch<Val>(_ request: Req, _ cls: Val.Type) throws
+        -> Observable<Try<Val>>
         where Val: NSFetchRequestResult
     {
         let manager = coreDataManager()
@@ -98,7 +101,7 @@ extension HMCDRequestProcessor: HMCDRequestProcessorType {
     
     /// Override this method to provide default implementation.
     ///
-    /// - Parameter request: A HMCoreDataRequestType instance.
+    /// - Parameter request: A Req instance.
     /// - Returns: An Observable instance.
     /// - Throws: Exception if the execution fails.
     public func execute(_ request: Req) throws -> Observable<Try<Void>> {
@@ -108,6 +111,9 @@ extension HMCDRequestProcessor: HMCDRequestProcessorType {
         case .persist:
             return try executePersist(request)
             
+        case .upsert:
+            return try executeUpsert(request)
+            
         case .fetch:
             throw Exception("Please use typed execute for typed return values")
         }
@@ -115,7 +121,7 @@ extension HMCDRequestProcessor: HMCDRequestProcessorType {
     
     /// Perform a CoreData data persistence operation.
     ///
-    /// - Parameter request: A HMCoreDataRequestType instance.
+    /// - Parameter request: A Req instance.
     /// - Returns: An Observable instance.
     /// - Throws: Exception if the execution fails.
     private func executePersist(_ request: Req) throws -> Observable<Try<Void>> {
@@ -125,6 +131,56 @@ extension HMCDRequestProcessor: HMCDRequestProcessorType {
         return manager.rx.saveToFile(data)
             .retry(request.retries())
             .map(Try.success)
+            .catchErrorJustReturn(Try.failure)
+    }
+    
+    /// Perform a CoreData upsert operation.
+    ///
+    /// - Parameter request: A Req instance.
+    /// - Returns: An Observable instance.
+    /// - Throws: Exception if the execution fails.
+    private func executeUpsert(_ request: Req) throws -> Observable<Try<Void>> {
+        let manager = coreDataManager()
+        let data = try request.dataToUpsert()
+        let predicate = manager.predicateForUpsertableFetch(data)
+        
+        let fetchRequest = request.cloneBuilder()
+            .with(predicate: predicate)
+            .with(sortDescriptors: [])
+            .build()
+        
+        return try executeFetch(fetchRequest, NSManagedObject.self)
+            .toArray().map({$0.flatMap({$0.value})})
+            .flatMap({(objs: [NSManagedObject]) -> Observable<Try<Void>> in
+                var insertObjs: [HMCDUpsertableObject] = data
+                
+                for obj in objs {
+                    if let datum = data.first(where: {
+                        let key = $0.primaryKey()
+                        let value = $0.primaryValue()
+                        return obj.value(forKey: key) as? String == value
+                    }) {
+                        obj.setValuesForKeys(datum.toJSON())
+                    
+                        if let index = insertObjs.index(where: {
+                            $0.primaryValue() == datum.primaryValue()
+                        }) {
+                            insertObjs.remove(at: index)
+                        }
+                    }
+                }
+                
+                return Observable.concat(
+                    manager.rx.saveToFile()
+                        .map(Try.success)
+                        .catchErrorJustReturn(Try.failure),
+                    
+                    try self.execute(request.cloneBuilder()
+                        .with(operation: .persist)
+                        .with(dataToSave: insertObjs)
+                        .build())
+                )
+            })
             .catchErrorJustReturn(Try.failure)
     }
 }
