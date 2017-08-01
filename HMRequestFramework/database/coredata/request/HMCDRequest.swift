@@ -314,36 +314,15 @@ extension HMCDRequest: HMCDRequestType {
     }
     
     public func dataToSave() throws -> [NSManagedObject] {
-        let operation = try self.operation()
-        let data = cdDataToSave
-        
-        if case .persist = operation, data.isEmpty {
-            throw Exception("Data to save cannot be nil or empty")
-        } else {
-            return data
-        }
+        return cdDataToSave
     }
     
     public func dataToDelete() throws -> [NSManagedObject] {
-        let operation = try self.operation()
-        let data = cdDataToDelete
-        
-        if case .delete = operation, data.isEmpty {
-            throw Exception("Data to delete cannot be nil or empty")
-        } else {
-            return data
-        }
+        return cdDataToDelete
     }
     
     public func dataToUpsert() throws -> [HMCDUpsertableObject] {
-        let operation = try self.operation()
-        let data = cdDataToUpsert
-        
-        if case .upsert = operation, data.isEmpty {
-            throw Exception("Data to upsert cannot be nil or empty")
-        } else {
-            return data
-        }
+        return cdDataToUpsert
     }
     
     public func retries() -> Int {

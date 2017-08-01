@@ -92,8 +92,7 @@ extension HMCDRequestProcessor: HMCDRequestProcessorType {
         let manager = coreDataManager()
         let cdRequest: NSFetchRequest<Val> = try request.fetchRequest()
     
-        return Observable.just(cdRequest)
-            .flatMap(manager.rx.fetch)
+        return manager.rx.fetch(cdRequest)
             .retry(request.retries())
             .map(Try<Val>.success)
             .catchErrorJustReturn(Try<Val>.failure)
@@ -108,8 +107,11 @@ extension HMCDRequestProcessor: HMCDRequestProcessorType {
         let operation = try request.operation()
         
         switch operation {
-        case .persist:
-            return try executePersist(request)
+        case .persistInMemory:
+            return try executePersistInMemory(request)
+            
+        case .persistToFile:
+            return try executePersistToFile(request)
             
         case .delete:
             return try executeDelete(request)
@@ -122,16 +124,30 @@ extension HMCDRequestProcessor: HMCDRequestProcessorType {
         }
     }
     
+    /// Perform a CoreData data in-memory persistence operation.
+    ///
+    /// - Parameter request: A Req instance.
+    /// - Returns: An Observable instance.
+    /// - Throws: Exception if the execution fails.
+    private func executePersistInMemory(_ request: Req) throws -> Observable<Try<Void>> {
+        let manager = coreDataManager()
+        let data = try request.dataToSave()
+            
+        return manager.rx.saveInMemory(data)
+            .retry(request.retries())
+            .map(Try.success)
+            .catchErrorJustReturn(Try.failure)
+    }
+    
     /// Perform a CoreData data persistence operation.
     ///
     /// - Parameter request: A Req instance.
     /// - Returns: An Observable instance.
     /// - Throws: Exception if the execution fails.
-    private func executePersist(_ request: Req) throws -> Observable<Try<Void>> {
+    private func executePersistToFile(_ request: Req) throws -> Observable<Try<Void>> {
         let manager = coreDataManager()
-        let data = try request.dataToSave()
-            
-        return manager.rx.saveToFile(data)
+        
+        return manager.rx.persistAllChangesToFile()
             .retry(request.retries())
             .map(Try.success)
             .catchErrorJustReturn(Try.failure)
@@ -146,7 +162,7 @@ extension HMCDRequestProcessor: HMCDRequestProcessorType {
         let manager = coreDataManager()
         let data = try request.dataToDelete()
         
-        return manager.rx.deleteFromFile(data)
+        return manager.rx.deleteFromMemory(data)
             .retry(request.retries())
             .map(Try.success)
             .catchErrorJustReturn(Try.failure)
@@ -170,31 +186,29 @@ extension HMCDRequestProcessor: HMCDRequestProcessorType {
         return try executeFetch(fetchRequest, NSManagedObject.self)
             .toArray().map({$0.flatMap({$0.value})})
             .flatMap({(objs: [NSManagedObject]) -> Observable<Try<Void>> in
-                var insertObjs: [HMCDUpsertableObject] = data
+                let insertObjs: [HMCDUpsertableObject] = data
+                var deleteObjs: [NSManagedObject] = []
                 
                 for obj in objs {
                     if let datum = data.first(where: {
                         let key = $0.primaryKey()
                         let value = $0.primaryValue()
+                        print("KEY \(key) VALUE \(value)")
                         return obj.value(forKey: key) as? String == value
                     }) {
-                        obj.setValuesForKeys(datum.toJSON())
-                    
-                        if let index = insertObjs.index(where: {
-                            $0.primaryValue() == datum.primaryValue()
-                        }) {
-                            insertObjs.remove(at: index)
-                        }
+                        print(datum)
+                        deleteObjs.append(obj)
                     }
                 }
                 
                 return Observable.concat(
-                    manager.rx.saveToFile()
-                        .map(Try.success)
-                        .catchErrorJustReturn(Try.failure),
+                    try self.execute(request.cloneBuilder()
+                        .with(operation: .delete)
+                        .with(dataToDelete: deleteObjs)
+                        .build()),
                     
                     try self.execute(request.cloneBuilder()
-                        .with(operation: .persist)
+                        .with(operation: .persistToFile)
                         .with(dataToSave: insertObjs)
                         .build())
                 )

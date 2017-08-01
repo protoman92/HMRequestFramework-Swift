@@ -19,28 +19,29 @@ public protocol HMCDManagerType: HMCDObjectConstructorType {
     /// - Throws: Exception if construction fails.
     init(constructor: HMCDConstructorType) throws
     
-    /// Get the main-queue object context.
-    ///
-    /// - Returns: A NSManagedObjectContext instance.
-    func mainObjectContext() -> NSManagedObjectContext
-    
     /// Save changes to file. This operation is not thread-safe.
     ///
+    /// This method should be the only one that uses the private context to
+    /// save to the local DB file. All other operations should use the main
+    /// context.
+    ///
     /// - Throws: Exception if the save fails.
-    func saveToFileUnsafely() throws
+    func persistChangesToFileUnsafely() throws
     
-    /// Save a Sequence of data to file. This operation is not thread-safe.
+    /// Save a Sequence of data to the interface context, without persisting to
+    /// DB. This operation is not thread-safe.
     ///
     /// - Parameter data: A Sequence of NSManagedObject.
     /// - Throws: Exception if the save fails.
-    func saveToFileUnsafely<S>(_ data: S) throws where
+    func saveInMemoryUnsafely<S>(_ data: S) throws where
         S: Sequence, S.Iterator.Element == NSManagedObject
     
-    /// Delete a Sequence of data from file. This operation is not thread-safe.
+    /// Delete a Sequence of data from the interface context, without persisting
+    /// to DB. This operation is not thread-safe.
     ///
     /// - Parameter data: A Sequence of NSManagedObject.
     /// - Throws: Exception if the delete fails.
-    func deleteFromFileUnsafely<S>(_ data: S) throws where
+    func deleteFromMemoryUnsafely<S>(_ data: S) throws where
         S: Sequence, S.Iterator.Element == NSManagedObject
     
     /// Fetch data using a request. This operation blocks.
@@ -57,7 +58,7 @@ public extension HMCDManagerType {
     ///
     /// - Parameter context: A NSManagedObjectContext instance.
     /// - Throws: Exception if the save fails.
-    public func saveUnsafely(_ context: NSManagedObjectContext) throws {
+    public func saveUnsafely(context: NSManagedObjectContext) throws {
         if context.hasChanges {
             try context.save()
         }
@@ -67,40 +68,40 @@ public extension HMCDManagerType {
     ///
     /// - Parameter data: A Sequence of NSManagedObject.
     /// - Throws: Exception if the save fails.
-    public func saveToFileUnsafely<S>(_ data: S) throws where
+    public func saveInMemoryUnsafely<S>(_ data: S) throws where
         S: Sequence, S.Iterator.Element: NSManagedObject
     {
-        return try saveToFileUnsafely(data.map({$0 as NSManagedObject}))
+        return try saveInMemoryUnsafely(data.map({$0 as NSManagedObject}))
     }
     
-    /// Save a lazily produced Sequence of data to file. This operation is not
-    /// thread-safe.
+    /// Save a lazily produced Sequence of data to the interface context,
+    /// without persisting to DB. This operation is not thread-safe.
     ///
     /// - Parameter dataFn: A function that produces data.
     /// - Throws: Exception if the save fails.
-    public func saveToFileUnsafely<S>(_ dataFn: () throws -> S) throws where
+    public func saveInMemoryUnsafely<S>(_ dataFn: () throws -> S) throws where
         S: Sequence, S.Iterator.Element == NSManagedObject
     {
-        try saveToFileUnsafely(dataFn())
+        try saveInMemoryUnsafely(dataFn())
     }
     
-    /// Save a lazily produced Sequence of data to file. This operation is not
-    /// thread-safe.
+    /// Save a lazily produced Sequence of data to the interface context. This
+    /// operation is not thread-safe.
     ///
     /// - Parameter dataFn: A function that produces data.
     /// - Throws: Exception if the save fails.
-    public func saveToFileUnsafely<S>(_ dataFn: () throws -> S) throws where
+    public func saveInMemoryUnsafely<S>(_ dataFn: () throws -> S) throws where
         S: Sequence, S.Iterator.Element: NSManagedObject
     {
-        try saveToFileUnsafely(dataFn())
+        try saveInMemoryUnsafely(dataFn())
     }
     
     /// Construct a Sequence of CoreData from data objects and save it to
-    /// the database unsafely.
+    /// the interface context.
     ///
     /// - Parameter data: A Sequence of HMCDPureObjectType.
     /// - Throws: Exception if the save fails.
-    public func saveToFileUnsafely<S,PO>(_ data: S) throws where
+    public func saveInMemoryUnsafely<S,PO>(_ data: S) throws where
         PO: HMCDPureObjectType,
         PO.CDClass: HMCDRepresetableBuildableType,
         PO.CDClass.Builder.PureObject == PO,
@@ -108,35 +109,17 @@ public extension HMCDManagerType {
         S.Iterator.Element == PO
     {
         let data = try data.map({try self.construct($0)})
-        try saveToFileUnsafely(data)
+        try saveInMemoryUnsafely(data)
     }
     
-    /// Delete a Sequence of data from file. This operation is not thread-safe.
+    /// Delete a Sequence of data from the interface context. This operation
+    /// is not thread-safe.
     ///
     /// - Parameter data: A Sequence of NSManagedObject.
     /// - Throws: Exception if the delete fails.
-    public func deleteFromFileUnsafely<S>(_ data: S) throws where
+    public func deleteFromMemoryUnsafely<S>(_ data: S) throws where
         S: Sequence, S.Iterator.Element == NSManagedObject
     {
-        return try deleteFromFileUnsafely(data.map({$0 as NSManagedObject}))
-    }
-
-    
-    /// Save changes in the main object context.
-    ///
-    /// - Throws: Exception if the save fails.
-    public func saveMainContextUnsafely() throws {
-        try saveUnsafely(mainObjectContext())
-    }
-    
-    /// Get the edit object context. This context should be created dynamically
-    /// to provide disposable scratch pads.
-    ///
-    /// - Returns: A NSManagedObjectContext instance.
-    public func editObjectContext() -> NSManagedObjectContext {
-        let mainContext = mainObjectContext()
-        let context = NSManagedObjectContext(concurrencyType: .privateQueueConcurrencyType)
-        context.parent = mainContext
-        return context
+        return try deleteFromMemoryUnsafely(data.map({$0 as NSManagedObject}))
     }
 }

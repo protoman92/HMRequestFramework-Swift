@@ -45,23 +45,23 @@ public class HMCDManager {
     /// Override this method to provide default implementation.
     ///
     /// - Throws: Exception if the save fails.
-    public func saveToFileUnsafely() throws {
-        try saveUnsafely(privateContext)
+    public func persistChangesToFileUnsafely() throws {
+        try saveUnsafely(context: privateContext)
     }
     
     /// Override this method to provide default implementation.
     ///
     /// - Parameter data: A Sequence of NSManagedObject.
     /// - Throws: Exception if the save fails.
-    public func saveToFileUnsafely<S>(_ data: S) throws where
+    public func saveInMemoryUnsafely<S>(_ data: S) throws where
         S: Sequence, S.Iterator.Element == NSManagedObject
     {
         let data = data.map(eq)
         
         if data.isNotEmpty {
-            let context = privateContext
+            let context = interfaceObjectContext()
             data.forEach(context.insert)
-            try saveUnsafely(context)
+            try saveUnsafely(context: context)
         }
     }
     
@@ -69,15 +69,15 @@ public class HMCDManager {
     ///
     /// - Parameter data: A Sequence of NSManagedObject.
     /// - Throws: Exception if the delete fails.
-    public func deleteFromFileUnsafely<S>(_ data: S) throws where
+    public func deleteFromMemoryUnsafely<S>(_ data: S) throws where
         S: Sequence, S.Element == NSManagedObject
     {
         let data = data.map(eq)
         
         if data.isNotEmpty {
-            let context = privateContext
+            let context = interfaceObjectContext()
             data.forEach(context.delete)
-            try saveUnsafely(context)
+            try saveUnsafely(context: context)
         }
     }
     
@@ -87,7 +87,7 @@ public class HMCDManager {
     /// - Returns: An Array of NSManagedObject.
     /// - Throws: Exception if the fetch fails.
     public func blockingFetch<Val>(_ request: NSFetchRequest<Val>) throws -> [Val] {
-        return try mainContext.fetch(request)
+        return try interfaceObjectContext().fetch(request)
     }
     
     /// Get the predicate to search for records related to a Sequence of
@@ -119,10 +119,10 @@ public class HMCDManager {
 
 extension HMCDManager: HMCDManagerType {
     
-    /// Override this method to provide default implementation.
+    /// This context is used to store changes before saving to file.
     ///
     /// - Returns: A NSManagedObjectContext instance.
-    public func mainObjectContext() -> NSManagedObjectContext {
+    public func interfaceObjectContext() -> NSManagedObjectContext {
         return mainContext
     }
     
@@ -132,7 +132,7 @@ extension HMCDManager: HMCDManagerType {
     /// - Returns: A HMCD object.
     /// - Throws: Exception if the construction fails.
     public func construct<CD>(_ cls: CD.Type) throws -> CD where CD: HMCDRepresentableType {
-        return try cls.init(mainContext)
+        return try cls.init(interfaceObjectContext())
     }
     
     /// Override this method to provide default implementation.
@@ -145,6 +145,21 @@ extension HMCDManager: HMCDManagerType {
         PO.CDClass: HMCDRepresetableBuildableType,
         PO.CDClass.Builder.PureObject == PO
     {
-        return try PO.CDClass.builder(mainContext).with(pureObject: pureObj).build()
+        let context = interfaceObjectContext()
+        return try PO.CDClass.builder(context).with(pureObject: pureObj).build()
+    }
+}
+
+public extension HMCDManager {
+    
+    /// Get the edit object context. This context should be created dynamically
+    /// to provide disposable scratch pads.
+    ///
+    /// - Returns: A NSManagedObjectContext instance.
+    public func editObjectContext() -> NSManagedObjectContext {
+        let mainContext = interfaceObjectContext()
+        let context = NSManagedObjectContext(concurrencyType: .privateQueueConcurrencyType)
+        context.parent = mainContext
+        return context
     }
 }

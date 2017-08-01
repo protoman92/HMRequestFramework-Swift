@@ -15,8 +15,8 @@ extension HMCDManager: HMCDRxManagerType {
     /// Override this method to provide default implementation.
     ///
     /// - Parameter obs: An ObserverType instance.
-    public func saveToFile<O>(_ obs: O) where O: ObserverType, O.E == Void {
-        save(privateContext, obs)
+    public func persistChangesToFile<O>(_ obs: O) where O: ObserverType, O.E == Void {
+        save(context: privateContext, obs)
     }
     
     /// Override this method to provide default implementation.
@@ -24,15 +24,17 @@ extension HMCDManager: HMCDRxManagerType {
     /// - Parameters:
     ///   - data: A Sequence of NSManagedObject.
     ///   - obs: An ObserverType instance.
-    public func saveToFile<S,O>(_ data: S, _ obs: O) where
+    public func saveInMemory<S,O>(_ data: S, _ obs: O) where
         S: Sequence,
         S.Iterator.Element == NSManagedObject,
         O: ObserverType,
         O.E == Void
     {
-        privateContext.performAndWait {
+        let context = interfaceObjectContext()
+        
+        context.performAndWait {
             do {
-                try self.saveToFileUnsafely(data)
+                try self.saveInMemoryUnsafely(data)
                 obs.onNext(())
                 obs.onCompleted()
             } catch let e {
@@ -46,15 +48,17 @@ extension HMCDManager: HMCDRxManagerType {
     /// - Parameters:
     ///   - data: A Sequence of NSManagedObject.
     ///   - obs: An ObserverType instance.
-    public func deleteFromFile<S,O>(_ data: S, _ obs: O) where
+    public func deleteFromMemory<S,O>(_ data: S, _ obs: O) where
         S: Sequence,
         S.Iterator.Element == NSManagedObject,
         O: ObserverType,
         O.E == Void
     {
-        privateContext.performAndWait {
+        let context = interfaceObjectContext()
+        
+        context.performAndWait {
             do {
-                try self.deleteFromFileUnsafely(data)
+                try self.deleteFromMemoryUnsafely(data)
                 obs.onNext(())
                 obs.onCompleted()
             } catch let e {
@@ -70,7 +74,7 @@ extension HMCDManager: HMCDRxManagerType {
     ///   - data: A Sequence of HMCDPureObjectType.
     ///   - obs: An ObserverType instance.
     /// - Throws: Exception if the save fails.
-    public func saveToFile<S,PO,O>(_ data: S, _ obs: O) where
+    public func saveInMemory<S,PO,O>(_ data: S, _ obs: O) where
         PO: HMCDPureObjectType,
         PO.CDClass: HMCDRepresetableBuildableType,
         PO.CDClass.Builder.PureObject == PO,
@@ -79,9 +83,11 @@ extension HMCDManager: HMCDRxManagerType {
         O: ObserverType,
         O.E == Void
     {
-        privateContext.performAndWait {
+        let context = interfaceObjectContext()
+        
+        context.performAndWait {
             do {
-                try saveToFileUnsafely(data)
+                try saveInMemoryUnsafely(data)
                 obs.onNext()
                 obs.onCompleted()
             } catch let e {
@@ -99,65 +105,46 @@ public extension Reactive where Base: HMCDManager {
     ///
     /// - Parameter context: A NSManagedObjectContext instance.
     /// - Returns: An Observable instance.
-    public func save(_ context: NSManagedObjectContext) -> Observable<Void> {
+    public func save(context: NSManagedObjectContext) -> Observable<Void> {
         let base = self.base
         
         return Observable.create({(obs: AnyObserver<Void>) in
-            base.save(context, obs)
+            base.save(context: context, obs)
             return Disposables.create()
         })
     }
     
-    /// Save changes to the main context.
-    ///
-    /// - Returns: An Observable instance.
-    public func saveMainContext() -> Observable<Void> {
-        return save(base.mainObjectContext())
-    }
-    
-    /// Save changes to file.
-    ///
-    /// - Returns: An Observable instance.
-    public func saveToFile() -> Observable<Void> {
-        let base = self.base
-        
-        return Observable.create(({(obs: AnyObserver<Void>) in
-            base.saveToFile(obs)
-            return Disposables.create()
-        }))
-    }
-    
-    /// Save data to file.
+    /// Save data to interface context.
     ///
     /// - Parameter data: A Sequence of NSManagedObject.
     /// - Returns: An Observable instance.
-    public func saveToFile<S>(_ data: S) -> Observable<Void> where
+    public func saveInMemory<S>(_ data: S) -> Observable<Void> where
         S: Sequence, S.Iterator.Element == NSManagedObject
     {
         let base = self.base
         
         return Observable.create(({(obs: AnyObserver<Void>) in
-            base.saveToFile(data, obs)
+            base.saveInMemory(data, obs)
             return Disposables.create()
         }))
     }
     
-    /// Save data to file.
+    /// Save data to interface context.
     ///
     /// - Parameter data: A Sequence of NSManagedObject.
     /// - Returns: An Observable instance.
-    public func saveToFile<S>(_ data: S) -> Observable<Void> where
+    public func saveInMemory<S>(_ data: S) -> Observable<Void> where
         S: Sequence, S.Iterator.Element: NSManagedObject
     {
-        return saveToFile(data.map({$0 as NSManagedObject}))
+        return saveInMemory(data.map({$0 as NSManagedObject}))
     }
     
     /// Construct a Sequence of CoreData from data objects and save it to the
-    /// database.
+    /// interface context.
     ///
     /// - Parameters data: A Sequence of HMCDPureObjectType.
     /// - Throws: Exception if the save fails.
-    public func saveToFile<S,PO>(_ data: S) -> Observable<Void> where
+    public func saveInMemory<S,PO>(_ data: S) -> Observable<Void> where
         PO: HMCDPureObjectType,
         PO.CDClass: HMCDRepresetableBuildableType,
         PO.CDClass.Builder.PureObject == PO,
@@ -167,37 +154,54 @@ public extension Reactive where Base: HMCDManager {
         let base = self.base
         
         return Observable.create(({(obs: AnyObserver<Void>) in
-            base.saveToFile(data, obs)
+            base.saveInMemory(data, obs)
             return Disposables.create()
         }))
     }
     
-    /// Save a lazily produced Sequence of data to file.
+    /// Save a lazily produced Sequence of data to the interface context.
     ///
     /// - Parameter data: A function that produces data.
     /// - Returns: An Observable instance.
-    public func saveToFile<S>(_ dataFn: @escaping () throws -> S) -> Observable<Void> where
+    public func saveInMemory<S>(_ dataFn: @escaping () throws -> S)
+        -> Observable<Void> where
         S: Sequence, S.Iterator.Element == NSManagedObject
     {
         let base = self.base
         
         return Observable.create(({(obs: AnyObserver<Void>) in
-            base.saveToFile(dataFn, obs)
+            base.saveInMemory(dataFn, obs)
             return Disposables.create()
         }))
     }
     
-    /// Save a lazily produced Sequence of data to file.
+    /// Save a lazily produced Sequence of data to the interface context.
     ///
     /// - Parameter data: A function that produces data.
     /// - Returns: An Observable instance.
-    public func saveToFile<S>(_ dataFn: @escaping () throws -> S) -> Observable<Void> where
+    public func saveInMemory<S>(_ dataFn: @escaping () throws -> S)
+        -> Observable<Void> where
         S: Sequence, S.Iterator.Element: NSManagedObject
     {
         let base = self.base
         
         return Observable.create(({(obs: AnyObserver<Void>) in
-            base.saveToFile(dataFn, obs)
+            base.saveInMemory(dataFn, obs)
+            return Disposables.create()
+        }))
+    }
+    
+    /// Delete data from the interface context.
+    ///
+    /// - Parameter data: A Sequence of NSManagedObject.
+    /// - Returns: An Observable instance.
+    public func deleteFromMemory<S>(_ data: S) -> Observable<Void> where
+        S: Sequence, S.Iterator.Element == NSManagedObject
+    {
+        let base = self.base
+        
+        return Observable.create(({(obs: AnyObserver<Void>) in
+            base.deleteFromMemory(data, obs)
             return Disposables.create()
         }))
     }
@@ -206,25 +210,10 @@ public extension Reactive where Base: HMCDManager {
     ///
     /// - Parameter data: A Sequence of NSManagedObject.
     /// - Returns: An Observable instance.
-    public func deleteFromFile<S>(_ data: S) -> Observable<Void> where
-        S: Sequence, S.Iterator.Element == NSManagedObject
-    {
-        let base = self.base
-        
-        return Observable.create(({(obs: AnyObserver<Void>) in
-            base.deleteFromFile(data, obs)
-            return Disposables.create()
-        }))
-    }
-    
-    /// Delete data from file.
-    ///
-    /// - Parameter data: A Sequence of NSManagedObject.
-    /// - Returns: An Observable instance.
-    public func deleteFromFile<S>(_ data: S) -> Observable<Void> where
+    public func deleteFromMemory<S>(_ data: S) -> Observable<Void> where
         S: Sequence, S.Iterator.Element: NSManagedObject
     {
-        return deleteFromFile(data.map({$0 as NSManagedObject}))
+        return deleteFromMemory(data.map({$0 as NSManagedObject}))
     }
     
     /// Save all changes in the main and private contexts. When the main context
@@ -232,8 +221,13 @@ public extension Reactive where Base: HMCDManager {
     /// need to save the former first.
     ///
     /// - Returns: An Observable instance.
-    public func persistAll() -> Observable<Void> {
-        return Observable.concat(saveMainContext(), saveToFile())
+    public func persistAllChangesToFile() -> Observable<Void> {
+        let base = self.base
+        
+        return Observable.concat(
+            save(context: base.mainContext),
+            save(context: base.privateContext)
+        )
     }
     
     /// Get data for a fetch request.

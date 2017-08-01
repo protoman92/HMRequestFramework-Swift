@@ -15,16 +15,16 @@ import SwiftUtilitiesTests
 public final class ErrorCDManager: HMCDManager {
     public static let fetchError = "Fetch error"
     public static let saveToFileError = "Save to file error"
-    public static let saveDataToFileError = "Save data to file error"
+    public static let saveInMemoryError = "Save data to file error"
     
     public var fetchSuccess: () -> Bool
     public var saveToFileSuccess: () -> Bool
-    public var saveDataToFileSuccess: () -> Bool
+    public var saveInMemorySuccess: () -> Bool
     
     public required init(constructor: HMCDConstructorType) throws {
         fetchSuccess = {true}
         saveToFileSuccess = {true}
-        saveDataToFileSuccess = {true}
+        saveInMemorySuccess = {true}
         try super.init(constructor: constructor)
     }
     
@@ -36,21 +36,21 @@ public final class ErrorCDManager: HMCDManager {
         }
     }
     
-    override public func saveToFileUnsafely() throws {
+    override public func persistChangesToFileUnsafely() throws {
         if saveToFileSuccess() {
-            try super.saveToFileUnsafely()
+            try super.persistChangesToFileUnsafely()
         } else {
             throw Exception(ErrorCDManager.saveToFileError)
         }
     }
     
-    override public func saveToFileUnsafely<S>(_ data: S) throws where
+    override public func saveInMemoryUnsafely<S>(_ data: S) throws where
         S: Sequence, S.Iterator.Element == NSManagedObject
     {
-        if saveDataToFileSuccess() {
-            try super.saveToFileUnsafely(data)
+        if saveInMemorySuccess() {
+            try super.saveInMemoryUnsafely(data)
         } else {
-            throw Exception(ErrorCDManager.saveDataToFileError)
+            throw Exception(ErrorCDManager.saveInMemoryError)
         }
     }
 }

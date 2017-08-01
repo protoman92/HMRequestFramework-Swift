@@ -18,25 +18,25 @@ public protocol HMCDRxManagerType: HMCDManagerType {
     /// in the private context.
     ///
     /// - Parameter obs: An ObserverType instance.
-    func saveToFile<O>(_ obs: O) where O: ObserverType, O.E == Void
+    func persistChangesToFile<O>(_ obs: O) where O: ObserverType, O.E == Void
     
-    /// Save data to file and observe the process.
+    /// Save data to the interface context and observe the process.
     ///
     /// - Parameters:
     ///   - data: A Sequence of NSManagedObject.
     ///   - obs: An ObserverType instance.
-    func saveToFile<S,O>(_ data: S, _ obs: O) where
+    func saveInMemory<S,O>(_ data: S, _ obs: O) where
         S: Sequence,
         S.Iterator.Element == NSManagedObject,
         O: ObserverType,
         O.E == Void
     
-    /// Delete data from file and observe the process.
+    /// Delete data from the interface context and observe the process.
     ///
     /// - Parameters:
     ///   - data: A Sequence of NSManagedObject.
     ///   - obs: An ObserverType instance.
-    func deleteFromFile<S,O>(_ data: S, _ obs: O) where
+    func deleteFromMemory<S,O>(_ data: S, _ obs: O) where
         S: Sequence,
         S.Iterator.Element == NSManagedObject,
         O: ObserverType,
@@ -50,12 +50,12 @@ public extension HMCDRxManagerType {
     /// - Parameters:
     ///   - context: A NSManagedObjectContext instance.
     ///   - obs: An ObserverType instance.
-    public func save<O>(_ context: NSManagedObjectContext, _ obs: O)
+    public func save<O>(context: NSManagedObjectContext, _ obs: O)
         where O: ObserverType, O.E == Void
     {
         context.performAndWait {
             do {
-                try self.saveUnsafely(context)
+                try self.saveUnsafely(context: context)
                 obs.onNext()
                 obs.onCompleted()
             } catch let e {
@@ -64,26 +64,26 @@ public extension HMCDRxManagerType {
         }
     }
     
-    /// Save data to file and observe the process.
+    /// Save data and observe the process.
     ///
     /// - Parameters:
     ///   - data: A Sequence of NSManagedObject.
     ///   - obs: An ObserverType instance.
-    public func saveToFile<S,O>(_ data: S, _ obs: O) where
+    public func saveInMemory<S,O>(_ data: S, _ obs: O) where
         S: Sequence,
         S.Iterator.Element: NSManagedObject,
         O: ObserverType,
         O.E == Void
     {
-        saveToFile(data.map({$0 as NSManagedObject}), obs)
+        saveInMemory(data.map({$0 as NSManagedObject}), obs)
     }
     
-    /// Save a lazily produced Sequence of data to file and observe the process.
+    /// Save a lazily produced Sequence of data and observe the process.
     ///
     /// - Parameters:
     ///   - dataFn: A function that produces data.
     ///   - obs: An ObserverType instance.
-    public func saveToFile<S,O>(_ dataFn: () throws -> S, _ obs: O) where
+    public func saveInMemory<S,O>(_ dataFn: () throws -> S, _ obs: O) where
         S: Sequence,
         S.Iterator.Element == NSManagedObject,
         O: ObserverType,
@@ -91,18 +91,18 @@ public extension HMCDRxManagerType {
     {
         do {
             let data = try dataFn()
-            saveToFile(data, obs)
+            saveInMemory(data, obs)
         } catch let e {
             obs.onError(e)
         }
     }
     
-    /// Save a lazily produced Sequence of data to file and observe the process.
+    /// Save a lazily produced Sequence of data and observe the process.
     ///
     /// - Parameters:
     ///   - dataFn: A function that produces data.
     ///   - obs: An ObserverType instance.
-    public func saveToFile<S,O>(_ dataFn: () throws -> S, _ obs: O) where
+    public func saveInMemory<S,O>(_ dataFn: () throws -> S, _ obs: O) where
         S: Sequence,
         S.Iterator.Element: NSManagedObject,
         O: ObserverType,
@@ -110,30 +110,23 @@ public extension HMCDRxManagerType {
     {
         do {
             let data = try dataFn()
-            saveToFile(data, obs)
+            saveInMemory(data, obs)
         } catch let e {
             obs.onError(e)
         }
     }
     
-    /// Delete data from file and observe the process.
+    /// Delete data and observe the process.
     ///
     /// - Parameters:
     ///   - data: A Sequence of NSManagedObject.
     ///   - obs: An ObserverType instance.
-    public func deleteFromFile<S,O>(_ data: S, _ obs: O) where
+    public func deleteFromMemory<S,O>(_ data: S, _ obs: O) where
         S: Sequence,
         S.Iterator.Element == NSManagedObject,
         O: ObserverType,
         O.E == Void
     {
-        deleteFromFile(data.map({$0 as NSManagedObject}), obs)
-    }
-    
-    /// Save changes in the main context.
-    ///
-    /// - Parameter obs: An ObserverType instance.
-    public func saveMainContext<O>(_ obs: O) where O: ObserverType, O.E == Void {
-        save(mainObjectContext(), obs)
+        deleteFromMemory(data.map({$0 as NSManagedObject}), obs)
     }
 }
