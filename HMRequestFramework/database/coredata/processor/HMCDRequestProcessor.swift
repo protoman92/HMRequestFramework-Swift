@@ -179,17 +179,21 @@ extension HMCDRequestProcessor: HMCDRequestProcessorType {
                     }
                 }
                 
-                return Observable.concat(
-                    try self.execute(request.cloneBuilder()
-                        .with(operation: .delete)
-                        .with(dataToDelete: deleteObjs)
-                        .build()),
-                    
-                    try self.execute(request.cloneBuilder()
-                        .with(operation: .persistToFile)
-                        .with(dataToSave: insertObjs)
-                        .build())
-                )
+                return Observable
+                    .concat(
+                        try self.execute(request.cloneBuilder()
+                            .with(operation: .delete)
+                            .with(dataToDelete: deleteObjs)
+                            .build()),
+                        
+                        try self.execute(request.cloneBuilder()
+                            .with(operation: .persistToFile)
+                            .with(dataToSave: insertObjs)
+                            .build())
+                    )
+                    .toArray()
+                    .map(toVoid)
+                    .map(Try.success)
             })
             .catchErrorJustReturn(Try.failure)
     }

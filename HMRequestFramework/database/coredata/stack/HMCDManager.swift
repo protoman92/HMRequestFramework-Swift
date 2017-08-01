@@ -87,7 +87,7 @@ public class HMCDManager {
 
 extension HMCDManager: HMCDManagerType {}
 
-public extension HMCDManager {
+extension HMCDManager: HMCDContextProviderType {
 
     /// This context is used to store changes before saving to file.
     ///
@@ -96,11 +96,10 @@ public extension HMCDManager {
         return mainContext
     }
     
-    /// This context should be created dynamically to provide disposable scratch pads.
-    /// It is the default context for initializing/saving/deleting data objects.
+    /// Override this method to provide default implementation.
     ///
     /// - Returns: A NSManagedObjectContext instance.
-    func disposableObjectContext() -> NSManagedObjectContext {
+    public func disposableObjectContext() -> NSManagedObjectContext {
         let mainContext = mainObjectContext()
         let context = NSManagedObjectContext(concurrencyType: .privateQueueConcurrencyType)
         context.parent = mainContext

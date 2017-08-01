@@ -51,8 +51,13 @@ public extension HMCDManagerType {
 
 public extension HMCDManagerType {
     
-    /// Save a Sequence of data to memory, without persisting to DB. This operation
-    /// is not thread-safe.
+    /// Save a Sequence of data to memory, without persisting to DB. We get
+    /// all non-nil contexts from the data and filter out duplicates. At the
+    /// same time, objects that are not managed by a context will be inserted
+    /// into the context that we passed in. We then save the contexts one by
+    /// one.
+    ///
+    /// This operation is not thread-safe.
     ///
     /// - Parameters:
     ///   - context: A NSManagedObjectContext instance.
@@ -65,8 +70,11 @@ public extension HMCDManagerType {
         let data = data.map(eq)
         
         if data.isNotEmpty {
-            data.forEach(context.insert)
-            try saveUnsafely(context: context)
+            var contexts = data.flatMap({$0.managedObjectContext})
+            let noContexts = data.filter({$0.managedObjectContext == nil})
+            noContexts.forEach(context.insert)
+            contexts.append(context)
+            try contexts.forEach(saveUnsafely)
         }
     }
 
@@ -146,12 +154,20 @@ public extension HMCDManagerType {
         let data = data.map(eq)
         
         if data.isNotEmpty {
-            data.forEach(context.delete)
-            try saveUnsafely(context: context)
+            var contexts = data.flatMap({$0.managedObjectContext})
+            let noContexts = data.filter({$0.managedObjectContext == nil})
+            noContexts.forEach(context.delete)
+            contexts.append(context)
+            try contexts.forEach(saveUnsafely)
         }
     }
     
-    /// Delete a Sequence of data from memory. This operation is not thread-safe.
+    /// Delete a Sequence of data from memory. We get all non-nil contexts from
+    /// the data and filter out duplicates. At the same time, objects that are
+    /// not managed by a context will be inserted into the context that we passed
+    /// in. We then save the contexts one by one.
+    ///
+    /// This operation is not thread-safe.
     ///
     /// - Parameters:
     ///   - context: A NSManagedObjectContext instance.

@@ -123,9 +123,9 @@ public final class CoreDataRequestTest: XCTestCase {
     
     public func test_insertRandomDummies_shouldWork() {
         /// Setup
-        let dummyCount = 1000
+        let dummyCount = 10
         let manager = self.manager!
-        let context = manager.mainObjectContext()
+        let context = manager.disposableObjectContext()
         let d1 = {self.randomDummies(Dummy1.self, context, dummyCount)}
         let d2 = {self.randomDummies(Dummy2.self, context, dummyCount)}
         let observer = scheduler.createObserver(Any.self)
@@ -133,6 +133,8 @@ public final class CoreDataRequestTest: XCTestCase {
         
         Observable
             .merge(manager.rx.saveInMemory(d1), manager.rx.saveInMemory(d2))
+            .reduce((), accumulator: {_ in ()})
+            .flatMap(manager.rx.persistAllChangesToFile)
             .cast(to: Any.self)
             .subscribeOn(qos: .background)
             .observeOn(MainScheduler.instance)
@@ -154,7 +156,6 @@ public final class CoreDataRequestTest: XCTestCase {
     public func test_insertManyRandomDummies_shouldWork() {
         /// Setup
         let manager = self.manager!
-        let context = manager.mainObjectContext()
         let iterationCount = self.iterationCount
         let dummyCount = self.dummyCount
         let request: NSFetchRequest<Dummy1> = try! dummy1FetchRequest().fetchRequest()
@@ -163,9 +164,13 @@ public final class CoreDataRequestTest: XCTestCase {
         
         /// When
         Observable.from(0..<iterationCount)
-            .map({_ in self.randomDummies(Dummy1.self, context, dummyCount)})
-            .flatMap({manager.rx.saveInMemory($0).subscribeOn(qos: .background)})
+            .flatMap({(_) -> Observable<Void> in
+                let context = manager.disposableObjectContext()
+                let dummies = self.randomDummies(Dummy1.self, context, dummyCount)
+                return manager.rx.saveInMemory(dummies).subscribeOn(qos: .background)
+            })
             .reduce((), accumulator: {_ in ()})
+            .flatMap(manager.rx.persistAllChangesToFile)
             .flatMap({manager.rx.fetch(request).subscribeOn(qos: .background)})
             .doOnDispose(expect.fulfill)
             .subscribe(observer)
@@ -174,6 +179,7 @@ public final class CoreDataRequestTest: XCTestCase {
         waitForExpectations(timeout: timeout, handler: nil)
         
         /// Then
+        print(observer.events.count)
         let elements = observer.nextElements()
         XCTAssertEqual(elements.count, iterationCount * dummyCount)
     }
