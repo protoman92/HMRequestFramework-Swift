@@ -44,11 +44,12 @@ public final class ErrorCDManager: HMCDManager {
         }
     }
     
-    override public func saveInMemoryUnsafely<S>(_ data: S) throws where
+    public func saveInMemoryUnsafely<S>(_ context: NSManagedObjectContext,
+                                        _ data: S) throws where
         S: Sequence, S.Iterator.Element == NSManagedObject
     {
         if saveInMemorySuccess() {
-            try super.saveInMemoryUnsafely(data)
+            try super.saveInMemoryUnsafely(context, data)
         } else {
             throw Exception(ErrorCDManager.saveInMemoryError)
         }

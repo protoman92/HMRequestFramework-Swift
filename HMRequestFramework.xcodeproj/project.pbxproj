@@ -448,19 +448,19 @@
 		D37D0B741F25E1BE0032C6AB /* stack */ = {
 			isa = PBXGroup;
 			children = (
-				D398B7941F265CAC00DCE4D8 /* HMCDRepresentableType.swift */,
-				D37D0B711F25E1BE0032C6AB /* HMCDPureObjectType.swift */,
+				D32649711F288EDC000226FA /* HMCDAttributeDescription.swift */,
 				D37D0BCA1F25F5A90032C6AB /* HMCDConstructor.swift */,
 				D37D0BC81F25F2EE0032C6AB /* HMCDConstructorType.swift */,
 				D37D0BCE1F25F7600032C6AB /* HMCDManager.swift */,
 				D3922E0B1F2644AC004A49B9 /* HMCDManagers.swift */,
 				D37D0BCC1F25F7220032C6AB /* HMCDManagerType.swift */,
+				D3FBDC161F2AFA080052A94A /* HMCDObjectConstructorType.swift */,
+				D37D0B711F25E1BE0032C6AB /* HMCDPureObjectType.swift */,
+				D398B7941F265CAC00DCE4D8 /* HMCDRepresentableType.swift */,
 				D3C522BB1F26F96600B294EF /* HMCDRxManagerType.swift */,
+				D3FC6E7F1F2F0C7F007471E2 /* HMCDUpsertableType.swift */,
 				D3922E071F262B41004A49B9 /* HMPersistentStoreSettings.swift */,
 				D3922E091F26334A004A49B9 /* HMPersistentStoreURL.swift */,
-				D32649711F288EDC000226FA /* HMCDAttributeDescription.swift */,
-				D3FBDC161F2AFA080052A94A /* HMCDObjectConstructorType.swift */,
-				D3FC6E7F1F2F0C7F007471E2 /* HMCDUpsertableType.swift */,
 			);
 			path = stack;
 			sourceTree = "<group>";

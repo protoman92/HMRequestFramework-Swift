@@ -26,7 +26,7 @@ public final class Dummy1: HMCDUpsertableObject {
     
     public convenience init(_ context: NSManagedObjectContext) throws {
         let entity = try Dummy1.entityDescription(in: context)
-        self.init(entity: entity, insertInto: nil)
+        self.init(entity: entity, insertInto: context)
         Dummy1.counter += 1
         let counter = Dummy1.counter
         id = "id-\(counter)"
@@ -41,15 +41,6 @@ public final class Dummy1: HMCDUpsertableObject {
     
     public override func primaryValue() -> String {
         return id
-    }
-    
-    public override func toJSON() -> [String : Any] {
-        return [
-            "id": id,
-            "int64": int64,
-            "date": date,
-            "float": float
-        ]
     }
 }
 

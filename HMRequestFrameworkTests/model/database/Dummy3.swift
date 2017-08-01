@@ -15,10 +15,11 @@ public protocol Dummy3Type {
 
 public class HMCDDummy3: NSManagedObject {
     @NSManaged var id: String
+    @NSManaged var count: Int64
     
     public convenience required init(_ context: NSManagedObjectContext) throws {
         let entity = try HMCDDummy3.entityDescription(in: context)
-        self.init(entity: entity, insertInto: nil)
+        self.init(entity: entity, insertInto: context)
     }
 }
 
@@ -38,6 +39,7 @@ extension HMCDDummy3: HMCDRepresetableBuildableType {
         
         public func with(pureObject: PureObject) -> Self {
             cdo.id = pureObject.id
+            cdo.count = pureObject.count
             return self
         }
         
@@ -54,6 +56,12 @@ extension HMCDDummy3: HMCDRepresentableType {
                 .with(name: "id")
                 .shouldNotBeOptional()
                 .with(type: .stringAttributeType)
+                .build(),
+            
+            NSAttributeDescription.builder()
+                .with(name: "count")
+                .shouldBeOptional()
+                .with(type: .integer64AttributeType)
                 .build()
         ]
     }
@@ -64,10 +72,21 @@ extension HMCDDummy3: HMCDPureObjectConvertibleType {
 }
 
 public class Dummy3 {
+    fileprivate static var counter = 0
+    
     public var id: String
+    public var count: Int64
     
     init() {
-        id = String.random(withLength: 100)
+        Dummy3.counter += 1
+        id = "id-\(Dummy3.counter)"
+        count = Int64(Int.random(0, 100))
+    }
+}
+
+extension Dummy3: CustomStringConvertible {
+    public var description: String {
+        return id
     }
 }
 

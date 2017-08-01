@@ -140,10 +140,13 @@ extension HMCDConstructor: HMBuildableType {
         /// - Parameter settings: A Sequence of HMPersistentStoreSettings.
         /// - Returns: The current Builder instance.
         @discardableResult
-        public func with<S>(settings: S) -> Self where
+        public func with<S>(settings: S?) -> Self where
             S: Sequence, S.Iterator.Element == HMPersistentStoreSettings
         {
-            constructor.cdStoreSettings.append(contentsOf: settings)
+            if let settings = settings {
+                constructor.cdStoreSettings.append(contentsOf: settings)
+            }
+            
             return self
         }
     }
@@ -160,7 +163,7 @@ extension HMCDConstructor.Builder: HMBuilderType {
     public func with(buildable: Buildable) -> Self {
         return self
             .with(objectModel: try? buildable.objectModel())
-            .with(settings: (try? buildable.storeSettings()) ?? [])
+            .with(settings: (try? buildable.storeSettings()))
     }
     
     public func build() -> Buildable {

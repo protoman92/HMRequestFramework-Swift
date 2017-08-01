@@ -19,7 +19,7 @@ public class HMCDManager {
     /// concurrently on main thread and should be used strictly for interfacing
     /// with user
     let mainContext: NSManagedObjectContext
-    fileprivate let coordinator: NSPersistentStoreCoordinator
+    private let coordinator: NSPersistentStoreCoordinator
     
     public required init(constructor: HMCDConstructorType) throws {
         let coordinator = try constructor.persistentStoreCoordinator()
@@ -51,43 +51,11 @@ public class HMCDManager {
     
     /// Override this method to provide default implementation.
     ///
-    /// - Parameter data: A Sequence of NSManagedObject.
-    /// - Throws: Exception if the save fails.
-    public func saveInMemoryUnsafely<S>(_ data: S) throws where
-        S: Sequence, S.Iterator.Element == NSManagedObject
-    {
-        let data = data.map(eq)
-        
-        if data.isNotEmpty {
-            let context = interfaceObjectContext()
-            data.forEach(context.insert)
-            try saveUnsafely(context: context)
-        }
-    }
-    
-    /// Override this method to provide default implementation.
-    ///
-    /// - Parameter data: A Sequence of NSManagedObject.
-    /// - Throws: Exception if the delete fails.
-    public func deleteFromMemoryUnsafely<S>(_ data: S) throws where
-        S: Sequence, S.Element == NSManagedObject
-    {
-        let data = data.map(eq)
-        
-        if data.isNotEmpty {
-            let context = interfaceObjectContext()
-            data.forEach(context.delete)
-            try saveUnsafely(context: context)
-        }
-    }
-    
-    /// Override this method to provide default implementation.
-    ///
     /// - Parameter request: A NSFetchRequest instance.
     /// - Returns: An Array of NSManagedObject.
     /// - Throws: Exception if the fetch fails.
     public func blockingFetch<Val>(_ request: NSFetchRequest<Val>) throws -> [Val] {
-        return try interfaceObjectContext().fetch(request)
+        return try mainObjectContext().fetch(request)
     }
     
     /// Get the predicate to search for records related to a Sequence of
@@ -117,47 +85,23 @@ public class HMCDManager {
     }
 }
 
-extension HMCDManager: HMCDManagerType {
-    
+extension HMCDManager: HMCDManagerType {}
+
+public extension HMCDManager {
+
     /// This context is used to store changes before saving to file.
     ///
     /// - Returns: A NSManagedObjectContext instance.
-    public func interfaceObjectContext() -> NSManagedObjectContext {
+    public func mainObjectContext() -> NSManagedObjectContext {
         return mainContext
     }
     
-    /// Override this method to provide default implementation.
-    ///
-    /// - Parameter cls: A HMCDType class type.
-    /// - Returns: A HMCD object.
-    /// - Throws: Exception if the construction fails.
-    public func construct<CD>(_ cls: CD.Type) throws -> CD where CD: HMCDRepresentableType {
-        return try cls.init(interfaceObjectContext())
-    }
-    
-    /// Override this method to provide default implementation.
-    ///
-    /// - Parameter pureObj: A HMCDPureObjectType instance.
-    /// - Returns: A HMCDRepresetableBuildableType object.
-    /// - Throws: Exception if the construction fails.
-    public func construct<PO>(_ pureObj: PO) throws -> PO.CDClass where
-        PO: HMCDPureObjectType,
-        PO.CDClass: HMCDRepresetableBuildableType,
-        PO.CDClass.Builder.PureObject == PO
-    {
-        let context = interfaceObjectContext()
-        return try PO.CDClass.builder(context).with(pureObject: pureObj).build()
-    }
-}
-
-public extension HMCDManager {
-    
-    /// Get the edit object context. This context should be created dynamically
-    /// to provide disposable scratch pads.
+    /// This context should be created dynamically to provide disposable scratch pads.
+    /// It is the default context for initializing/saving/deleting data objects.
     ///
     /// - Returns: A NSManagedObjectContext instance.
-    public func editObjectContext() -> NSManagedObjectContext {
-        let mainContext = interfaceObjectContext()
+    func disposableObjectContext() -> NSManagedObjectContext {
+        let mainContext = mainObjectContext()
         let context = NSManagedObjectContext(concurrencyType: .privateQueueConcurrencyType)
         context.parent = mainContext
         return context

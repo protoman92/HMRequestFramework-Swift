@@ -26,18 +26,6 @@ extension DatabaseRequestProcessor: HMCDRequestProcessorType {
         return processor.requestMiddlewareManager()
     }
     
-    public func construct<CD>(_ cls: CD.Type) throws -> CD where CD: HMCDRepresentableType {
-        return try processor.construct(cls)
-    }
-    
-    public func construct<PO>(_ pureObj: PO) throws -> PO.CDClass where
-        PO: HMCDPureObjectType,
-        PO == PO.CDClass.Builder.PureObject,
-        PO.CDClass: HMCDRepresetableBuildableType
-    {
-        return try processor.construct(pureObj)
-    }
-    
     public func executeTyped<Val>(_ request: Req) throws -> Observable<Try<Val>>
         where Val : NSFetchRequestResult
     {

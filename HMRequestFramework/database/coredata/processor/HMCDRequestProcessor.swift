@@ -39,28 +39,6 @@ extension HMCDRequestProcessor: HMCDRequestProcessorType {
     
     /// Override this method to provide default implementation.
     ///
-    /// - Parameter cls: A CD class type.
-    /// - Returns: A CD instance.
-    /// - Throws: Exception if the construction fails.
-    public func construct<CD>(_ cls: CD.Type) throws -> CD where CD: HMCDRepresentableType {
-        return try coreDataManager().construct(cls)
-    }
-    
-    /// Override this method to provide default implementation.
-    ///
-    /// - Parameter pureObj: A PO instance.
-    /// - Returns: A PO.CDClass instance.
-    /// - Throws: Exception if the construction fails.
-    public func construct<PO>(_ pureObj: PO) throws -> PO.CDClass where
-        PO: HMCDPureObjectType,
-        PO.CDClass: HMCDRepresetableBuildableType,
-        PO.CDClass.Builder.PureObject == PO
-    {
-        return try coreDataManager().construct(pureObj)
-    }
-    
-    /// Override this method to provide default implementation.
-    ///
     /// - Parameter request: A Req instance.
     /// - Returns: An Observable instance.
     /// - Throws: Exception if no context is available.
@@ -107,8 +85,8 @@ extension HMCDRequestProcessor: HMCDRequestProcessorType {
         let operation = try request.operation()
         
         switch operation {
-        case .persistInMemory:
-            return try executePersistInMemory(request)
+        case .saveInMemory:
+            return try executeSaveInMemory(request)
             
         case .persistToFile:
             return try executePersistToFile(request)
@@ -129,7 +107,7 @@ extension HMCDRequestProcessor: HMCDRequestProcessorType {
     /// - Parameter request: A Req instance.
     /// - Returns: An Observable instance.
     /// - Throws: Exception if the execution fails.
-    private func executePersistInMemory(_ request: Req) throws -> Observable<Try<Void>> {
+    private func executeSaveInMemory(_ request: Req) throws -> Observable<Try<Void>> {
         let manager = coreDataManager()
         let data = try request.dataToSave()
             

@@ -14,7 +14,7 @@ Processors wrap handlers and provide result-processing capabilities. This is don
 
 For example, the CoreData request processor can be used to emit only pure objects. Conversion of NSManagedObject instances is done automatically.
 
-### Middleware ###
+### Middlewares ###
 
 These are used to intercept some result. Currently only request middlewares are supported.
 

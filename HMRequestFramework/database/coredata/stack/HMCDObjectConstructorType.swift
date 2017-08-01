@@ -10,15 +10,23 @@ import CoreData
 
 /// Classes that implement this protocol must be able to construct NSManagedObject
 /// without exposing the inner NSManagedObjectContext.
-public protocol HMCDObjectConstructorType {
+public protocol HMCDObjectConstructorType {}
+
+public extension HMCDObjectConstructorType {
     
-    /// Construct a CoreData model object - this is because the context object
-    /// is hidden.
+    /// Construct a CoreData model object.
     ///
-    /// - Parameter cls: A CD class type.
+    /// - Parameters:
+    ///   - context: A NSManagedObjectContext instance.
+    ///   - cls: A CD class type.
     /// - Returns: A CD instance.
     /// - Throws: Exception if the construction fails.
-    func construct<CD>(_ cls: CD.Type) throws -> CD where CD: HMCDRepresentableType
+    public func construct<CD>(_ context: NSManagedObjectContext,
+                              _ cls: CD.Type) throws -> CD where
+        CD: HMCDRepresentableType
+    {
+        return try cls.init(context)
+    }
     
     /// Construct a CoreData object from a data object. With this method, we
     /// do not need to expose the internal NSManagedObjectContext.
@@ -32,24 +40,32 @@ public protocol HMCDObjectConstructorType {
     /// us a NSManagedObject instance with the same properties. We can then
     /// save this to the local DB.
     ///
-    /// - Parameter pureObj: A PO instance.
+    /// - Parameter:
+    ///   - context: A NSManagedObjectContext instance.
+    ///   - pureObj: A PO instance.
     /// - Returns: A PO.CDClass object.
     /// - Throws: Exception if the construction fails.
-    func construct<PO>(_ pureObj: PO) throws -> PO.CDClass where
+    public func construct<PO>(_ context: NSManagedObjectContext,
+                              _ pureObj: PO) throws -> PO.CDClass where
         PO: HMCDPureObjectType,
         PO.CDClass: HMCDRepresetableBuildableType,
         PO.CDClass.Builder.PureObject == PO
-}
-
-public extension HMCDObjectConstructorType {
+    {
+        return try PO.CDClass.builder(context).with(pureObject: pureObj).build()
+    }
     
     /// Convenient method to construct a CoreData model object from a data
     /// class.
     ///
-    /// - Parameter cls: A PO class.
+    /// - Parameter:
+    ///   - context: A NSManagedObjectContext instance.
+    ///   - pureObj: A PO class.
     /// - Returns: A PO.CDClass object.
     /// - Throws: Exception if the construction fails.
-    public func construct<PO>(_ cls: PO.Type) throws -> PO.CDClass where PO: HMCDPureObjectType {
-        return try construct(cls.CDClass.self)
+    public func construct<PO>(_ context: NSManagedObjectContext,
+                              _ cls: PO.Type) throws -> PO.CDClass
+        where PO: HMCDPureObjectType
+    {
+        return try construct(context, cls.CDClass.self)
     }
 }
