@@ -79,20 +79,18 @@ public final class CoreDataRequestTest: XCTestCase {
     public func test_constructBuildable_shouldWork() {
         /// Setup
         let dummy = Dummy3()
-        let context = manager.disposableObjectContext()
         
         /// When
-        let cdDummy = try! manager.construct(context, dummy)
+        let cdDummy = try! manager.construct(dummy)
         let reconstructed = cdDummy.asPureObject()
         
         /// Then
-        XCTAssertEqual(dummy.id, cdDummy.id)
-        XCTAssertEqual(dummy.id, reconstructed.id)
+        XCTAssertEqual(dummy, reconstructed)
     }
     
     public func test_saveAndFetchBuildable_shouldWork() {
         /// Setup
-        let dummyCount = 1
+        let dummyCount = 1000
         let manager = self.manager!
         let mainContext = manager.mainContext
         let privateContext = manager.privateContext

@@ -79,14 +79,20 @@ public class Dummy3 {
     
     init() {
         Dummy3.counter += 1
-        id = "id-\(Dummy3.counter)"
+        id = "\(Dummy3.counter)"
         count = Int64(Int.random(0, 100))
     }
 }
 
 extension Dummy3: CustomStringConvertible {
     public var description: String {
-        return id
+        return "id: \(id), count: \(count)"
+    }
+}
+
+extension Dummy3: Equatable {
+    public static func ==(lhs: Dummy3, rhs: Dummy3) -> Bool {
+        return lhs.id == rhs.id && lhs.count == rhs.count
     }
 }
 
@@ -106,11 +112,13 @@ extension Dummy3: HMCDPureObjectBuildableType {
         
         public func with(representable: Buildable.CDClass) -> Self {
             dummy.id = representable.id
+            dummy.count = representable.count
             return self
         }
         
         public func with(buildable: Buildable) -> Self {
             dummy.id = buildable.id
+            dummy.count = buildable.count
             return self
         }
         
