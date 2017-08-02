@@ -29,37 +29,6 @@ public extension Reactive where Base: HMCDManager {
 
 public extension Reactive where Base: HMCDManager {
     
-//    /// Save data to memory.
-//    ///
-//    /// - Parameters:
-//    ///   - context: A NSManagedObjectContext instance.
-//    ///   - data: A Sequence of NSManagedObject.
-//    /// - Returns: An Observable instance.
-//    public func saveInMemory<S>(_ context: NSManagedObjectContext,
-//                                _ data: S) -> Observable<Void> where
-//        S: Sequence, S.Iterator.Element == NSManagedObject
-//    {
-//        let data = data.map(eq)
-//
-//        return Observable.create(({(obs: AnyObserver<Void>) in
-//            self.base.saveInMemory(context, data, obs)
-//            return Disposables.create()
-//        }))
-//    }
-    
-//    /// Save data to memory.
-//    ///
-//    /// - Parameters:
-//    ///   - context: A NSManagedObjectContext instance.
-//    ///   - data: A Sequence of NSManagedObject.
-//    /// - Returns: An Observable instance.
-//    public func saveInMemory<S>(_ context: NSManagedObjectContext,
-//                                _ data: S) -> Observable<Void> where
-//        S: Sequence, S.Iterator.Element: NSManagedObject
-//    {
-//        return saveInMemory(context, data.map({$0 as NSManagedObject}))
-//    }
-    
     /// Construct a Sequence of CoreData from data objects and save it to memory.
     ///
     /// - Parameters:
@@ -83,28 +52,6 @@ public extension Reactive where Base: HMCDManager {
 
 public extension Reactive where Base: HMCDManager {
     
-//    /// Save data to a disposable context.
-//    ///
-//    /// - Parameter data: A Sequence of NSManagedObject.
-//    /// - Returns: An Observable instance.
-//    public func saveInMemory<S>(_ data: S) -> Observable<Void> where
-//        S: Sequence, S.Iterator.Element == NSManagedObject
-//    {
-//        let context = base.disposableObjectContext()
-//        print(context)
-//        return saveInMemory(context, data)
-//    }
-//
-//    /// Save data to a disposable context.
-//    ///
-//    /// - Parameter data: A Sequence of NSManagedObject.
-//    /// - Returns: An Observable instance.
-//    public func saveInMemory<S>(_ data: S) -> Observable<Void> where
-//        S: Sequence, S.Iterator.Element: NSManagedObject
-//    {
-//        return saveInMemory(data.map({$0 as NSManagedObject}))
-//    }
-    
     /// Construct a Sequence of CoreData from data objects and save it to the
     /// disposable context.
     ///
@@ -119,62 +66,6 @@ public extension Reactive where Base: HMCDManager {
     {
         return saveInMemory(base.disposableObjectContext(), data)
     }
-}
-
-public extension Reactive where Base: HMCDManager {
-    
-//    /// Delete data from memory.
-//    ///
-//    /// - Parameters:
-//    ///   - context: A NSManagedObjectContext instance.
-//    ///   - data: A Sequence of NSManagedObject.
-//    /// - Returns: An Observable instance.
-//    public func deleteFromMemory<S>(_ context: NSManagedObjectContext,
-//                                    _ data: S) -> Observable<Void> where
-//        S: Sequence, S.Iterator.Element == NSManagedObject
-//    {
-//        return Observable.create(({(obs: AnyObserver<Void>) in
-//            self.base.deleteFromMemory(context, data, obs)
-//            return Disposables.create()
-//        }))
-//    }
-//
-//    /// Delete data from memory.
-//    ///
-//    /// - Parameters:
-//    ///   - context: A NSManagedObjectContext instance.
-//    ///   - data: A Sequence of NSManagedObject.
-//    /// - Returns: An Observable instance.
-//    public func deleteFromMemory<S>(_ context: NSManagedObjectContext,
-//                                    _ data: S) -> Observable<Void> where
-//        S: Sequence, S.Iterator.Element: NSManagedObject
-//    {
-//        return deleteFromMemory(context, data.map({$0 as NSManagedObject}))
-//    }
-}
-
-public extension Reactive where Base: HMCDManager {
-    
-//    /// Delete data from memory.
-//    ///
-//    /// - Parameters data: A Sequence of NSManagedObject.
-//    /// - Returns: An Observable instance.
-//    public func deleteFromMemory<S>(_ data: S) -> Observable<Void> where
-//        S: Sequence, S.Iterator.Element == NSManagedObject
-//    {
-//        return deleteFromMemory(base.disposableObjectContext(), data)
-//    }
-//    
-//    /// Delete data from memory.
-//    ///
-//    /// - Parameters data: A Sequence of NSManagedObject.
-//    /// - Returns: An Observable instance.
-//    public func deleteFromMemory<S>(_ data: S) -> Observable<Void> where
-//        S: Sequence, S.Iterator.Element: NSManagedObject
-//    {
-//        let context = base.disposableObjectContext()
-//        return deleteFromMemory(context, data.map({$0 as NSManagedObject}))
-//    }
 }
 
 public extension Reactive where Base: HMCDManager {
@@ -198,14 +89,17 @@ public extension Reactive where Base: HMCDManager {
     
     /// Get data for a fetch request.
     ///
-    /// - Parameter request: A NSFetchRequest instance.
+    /// - Parameters:
+    ///   - context: A NSManagedObjectContext instance.
+    ///   - request: A NSFetchRequest instance.
     /// - Returns: An Observable instance.
-    public func fetch<Val>(_ request: NSFetchRequest<Val>) -> Observable<Val> {
+    public func fetch<Val>(_ context: NSManagedObjectContext,
+                           _ request: NSFetchRequest<Val>) -> Observable<[Val]> {
         let base = self.base
         
         return Observable.create({(obs: AnyObserver<[Val]>) in
             do {
-                let result = try base.blockingFetch(request)
+                let result = try base.blockingFetch(context, request)
                 obs.onNext(result)
                 obs.onCompleted()
             } catch let e {
@@ -213,6 +107,38 @@ public extension Reactive where Base: HMCDManager {
             }
             
             return Disposables.create()
-        }).flatMap({Observable.from($0)})
+        })
+    }
+    
+    /// Get data for a fetch request.
+    ///
+    /// - Parameters:
+    ///   - context: A NSManagedObjectContext instance.
+    ///   - request: A NSFetchRequest instance.
+    ///   - cls: A Val class type.
+    /// - Returns: An Observable instance.
+    public func fetch<Val>(_ context: NSManagedObjectContext,
+                           _ request: NSFetchRequest<Val>,
+                           _ cls: Val.Type) -> Observable<[Val]> {
+        return fetch(context, request)
+    }
+    
+    /// Get data for a fetch request.
+    ///
+    /// - Parameters request: A NSFetchRequest instance.
+    /// - Returns: An Observable instance.
+    public func fetch<Val>(_ request: NSFetchRequest<Val>) -> Observable<[Val]> {
+        return fetch(base.mainObjectContext(), request)
+    }
+    
+    /// Get data for a fetch request.
+    ///
+    /// - Parameters:
+    ///   - request: A NSFetchRequest instance.
+    ///   - cls: A Val class type.
+    /// - Returns: An Observable instance.
+    public func fetch<Val>(_ request: NSFetchRequest<Val>,
+                           _ cls: Val.Type) -> Observable<[Val]> {
+        return fetch(request)
     }
 }

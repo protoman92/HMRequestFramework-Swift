@@ -26,7 +26,7 @@ extension DatabaseRequestProcessor: HMCDRequestProcessorType {
         return processor.requestMiddlewareManager()
     }
     
-    public func executeTyped<Val>(_ request: Req) throws -> Observable<Try<Val>>
+    public func executeTyped<Val>(_ request: Req) throws -> Observable<Try<[Val]>>
         where Val : NSFetchRequestResult
     {
         return try processor.executeTyped(request)

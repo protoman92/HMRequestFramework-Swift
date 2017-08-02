@@ -38,6 +38,50 @@ public protocol HMCDManagerType: HMCDObjectConstructorType {
 
 public extension HMCDManagerType {
     
+    /// Fetch data using a request and a specified Val class. This operation blocks.
+    ///
+    /// - Parameters:
+    ///   - request: A NSFetchRequest instance.
+    ///   - cls: A Val class type.
+    /// - Returns: An Array of NSManagedObject.
+    /// - Throws: Exception if the fetch fails.
+    public func blockingFetch<Val>(_ request: NSFetchRequest<Val>,
+                                   _ cls: Val.Type) throws -> [Val] {
+        return try blockingFetch(request)
+    }
+    
+    /// Fetch data from a context using a request. This operation blocks.
+    ///
+    /// - Parameters:
+    ///   - context: A NSManagedObjectContext instance.
+    ///   - request: A NSFetchRequest instance.
+    /// - Returns: An Array of NSManagedObject.
+    /// - Throws: Exception if the fetch fails.
+    public func blockingFetch<Val>(_ context: NSManagedObjectContext,
+                                   _ request: NSFetchRequest<Val>) throws
+        -> [Val]
+    {
+        return try context.fetch(request)
+    }
+    
+    /// Fetch data from a context using a request and a specified Val class.
+    /// This operation blocks.
+    ///
+    /// - Parameters:
+    ///   - context: A NSManagedObjectContext instance.
+    ///   - request: A NSFetchRequest instance.
+    ///   - cls: A Val class type.
+    /// - Returns: An Array of NSManagedObject.
+    /// - Throws: Exception if the fetch fails.
+    public func blockingFetch<Val>(_ context: NSManagedObjectContext,
+                                   _ request: NSFetchRequest<Val>,
+                                   _ cls: Val.Type) throws -> [Val] {
+        return try blockingFetch(context, request)
+    }
+}
+
+public extension HMCDManagerType {
+    
     /// Save changes in a context. This operation is not thread-safe.
     ///
     /// - Parameter context: A NSManagedObjectContext instance.
@@ -50,74 +94,6 @@ public extension HMCDManagerType {
 }
 
 public extension HMCDManagerType {
-    
-//    /// Save a Sequence of data to memory, without persisting to DB. We get
-//    /// all non-nil contexts from the data and filter out duplicates. At the
-//    /// same time, objects that are not managed by a context will be inserted
-//    /// into the context that we passed in. We then save the contexts one by
-//    /// one.
-//    ///
-//    /// This operation is not thread-safe.
-//    ///
-//    /// - Parameters:
-//    ///   - context: A NSManagedObjectContext instance.
-//    ///   - data: A Sequence of NSManagedObject.
-//    /// - Throws: Exception if the save fails.
-//    public func saveInMemoryUnsafely<S>(_ context: NSManagedObjectContext,
-//                                        _ data: S) throws where
-//        S: Sequence, S.Iterator.Element == NSManagedObject
-//    {
-//        let data = data.map(eq)
-//
-//        if data.isNotEmpty {
-//            var contexts = Set(data.flatMap({$0.managedObjectContext}))
-//            let noContexts = data.filter({$0.managedObjectContext == nil})
-//            noContexts.forEach(context.insert)
-//            contexts.insert(context)
-//            try contexts.forEach(saveUnsafely)
-//        }
-//    }
-//
-//    /// Save a Sequence of data to memory. This operation is not thread-safe.
-//    ///
-//    /// - Parameters:
-//    ///   - context: A NSManagedObjectContext instance.
-//    ///   - data: A Sequence of NSManagedObject.
-//    /// - Throws: Exception if the save fails.
-//    public func saveInMemoryUnsafely<S>(_ context: NSManagedObjectContext,
-//                                        _ data: S) throws where
-//        S: Sequence, S.Iterator.Element: NSManagedObject
-//    {
-//        return try saveInMemoryUnsafely(context, data.map({$0 as NSManagedObject}))
-//    }
-//
-//    /// Save a lazily produced Sequence of data to memory, without persisting to
-//    /// DB. This operation is not thread-safe.
-//    ///
-//    /// - Parameters:
-//    ///   - context: A NSManagedObjectContext instance.
-//    ///   - dataFn: A function that produces data.
-//    /// - Throws: Exception if the save fails.
-//    public func saveInMemoryUnsafely<S>(_ context: NSManagedObjectContext,
-//                                        _ dataFn: () throws -> S) throws where
-//        S: Sequence, S.Iterator.Element == NSManagedObject
-//    {
-//        try saveInMemoryUnsafely(context, dataFn())
-//    }
-//
-//    /// Save a lazily produced Sequence of data to memory. This operation is
-//    /// not thread-safe.
-//    ///
-//    /// - Parameters:
-//    ///   - context: A NSManagedObjectContext instance.
-//    ///   - dataFn: A function that produces data.
-//    /// - Throws: Exception if the save fails.
-//    public func saveInMemoryUnsafely<S>(_ context: NSManagedObjectContext,
-//                                        _ dataFn: () throws -> S) throws where
-//        S: Sequence, S.Iterator.Element: NSManagedObject
-//    {
-//        try saveInMemoryUnsafely(context, dataFn())
-//    }
     
     /// Construct a Sequence of CoreData from data objects and save it to memory.
     ///
@@ -136,47 +112,4 @@ public extension HMCDManagerType {
         let _ = try data.map({try self.construct(context, $0)})
         try saveUnsafely(context)
     }
-}
-
-public extension HMCDManagerType {
-    
-//    /// Delete a Sequence of data from memory, without persisting to DB. This
-//    /// operation is not thread-safe.
-//    ///
-//    /// - Parameters:
-//    ///   - context: A NSManagedObjectContext instance.
-//    ///   - data: A Sequence of NSManagedObject.
-//    /// - Throws: Exception if the delete fails.
-//    public func deleteFromMemoryUnsafely<S>(_ context: NSManagedObjectContext,
-//                                            _ data: S) throws where
-//        S: Sequence, S.Element == NSManagedObject
-//    {
-//        let data = data.map(eq)
-//        
-//        if data.isNotEmpty {
-//            var contexts = Set(data.flatMap({$0.managedObjectContext}))
-//            let noContexts = data.filter({$0.managedObjectContext == nil})
-//            noContexts.forEach(context.delete)
-//            contexts.insert(context)
-//            try contexts.forEach(saveUnsafely)
-//        }
-//    }
-//    
-//    /// Delete a Sequence of data from memory. We get all non-nil contexts from
-//    /// the data and filter out duplicates. At the same time, objects that are
-//    /// not managed by a context will be inserted into the context that we passed
-//    /// in. We then save the contexts one by one.
-//    ///
-//    /// This operation is not thread-safe.
-//    ///
-//    /// - Parameters:
-//    ///   - context: A NSManagedObjectContext instance.
-//    ///   - dataFn: A Sequence of NSManagedObject.
-//    /// - Throws: Exception if the delete fails.
-//    public func deleteFromMemoryUnsafely<S>(_ context: NSManagedObjectContext,
-//                                            _ data: S) throws where
-//        S: Sequence, S.Iterator.Element: NSManagedObject
-//    {
-//        return try deleteFromMemoryUnsafely(context, data.map({$0 as NSManagedObject}))
-//    }
 }

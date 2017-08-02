@@ -42,7 +42,7 @@ extension HMCDRequestProcessor: HMCDRequestProcessorType {
     /// - Parameter request: A Req instance.
     /// - Returns: An Observable instance.
     /// - Throws: Exception if no context is available.
-    public func executeTyped<Val>(_ request: Req) throws -> Observable<Try<Val>>
+    public func executeTyped<Val>(_ request: Req) throws -> Observable<Try<[Val]>>
         where Val: NSFetchRequestResult
     {
         let operation = try request.operation()
@@ -64,7 +64,7 @@ extension HMCDRequestProcessor: HMCDRequestProcessorType {
     /// - Returns: An Observable instance.
     /// - Throws: Exception if the execution fails.
     private func executeFetch<Val>(_ request: Req, _ cls: Val.Type) throws
-        -> Observable<Try<Val>>
+        -> Observable<Try<[Val]>>
         where Val: NSFetchRequestResult
     {
         let manager = coreDataManager()
@@ -72,8 +72,8 @@ extension HMCDRequestProcessor: HMCDRequestProcessorType {
     
         return manager.rx.fetch(cdRequest)
             .retry(request.retries())
-            .map(Try<Val>.success)
-            .catchErrorJustReturn(Try<Val>.failure)
+            .map(Try.success)
+            .catchErrorJustReturn(Try.failure)
     }
     
     /// Override this method to provide default implementation.
@@ -135,44 +135,36 @@ extension HMCDRequestProcessor: HMCDRequestProcessorType {
     /// - Throws: Exception if the execution fails.
     private func executeUpsert(_ request: Req) throws -> Observable<Try<Void>> {
         let manager = coreDataManager()
-        let data = try request.dataToUpsert()
-        let predicate = manager.predicateForUpsertableFetch(data)
+        let context = try request.contextToSave()
+        let data = context.insertedObjects
+        let upsertables = data.flatMap({$0 as? HMCDUpsertableObject})
+        let predicate = manager.predicateForUpsertableFetch(upsertables)
         
-        let fetchRequest = request.cloneBuilder()
+        let fetchRq = request.cloneBuilder()
             .with(predicate: predicate)
             .with(sortDescriptors: [])
             .build()
         
-        return try executeFetch(fetchRequest, NSManagedObject.self)
-            .toArray().map({$0.flatMap({$0.value})})
+        return manager.rx
+            // We need to pass the context to the fetch operation because we
+            // want it to own the managed objects. This way, we can call its
+            // delete(_:) method without an Error being thrown (e.g. objects
+            // can only be managed by one context).
+            .fetch(context, try fetchRq.fetchRequest(), NSManagedObject.self)
             .flatMap({(objs: [NSManagedObject]) -> Observable<Try<Void>> in
-                let insertObjs: [HMCDUpsertableObject] = data
-                var deleteObjs: [NSManagedObject] = []
-                
-                for obj in objs {
-                    if let datum = data.first(where: {
+                // We need to get only objects that are not inserted (which
+                // may indicate that they have just been pulled from DB).
+                for obj in objs where !obj.isInserted {
+                    if let _ = upsertables.first(where: {
                         let key = $0.primaryKey()
                         let value = $0.primaryValue()
-                        print("KEY \(key) VALUE \(value)")
                         return obj.value(forKey: key) as? String == value
                     }) {
-                        deleteObjs.append(obj)
+                        context.delete(obj)
                     }
                 }
                 
-                return Observable
-                    .concat(
-                        try self.execute(request.cloneBuilder()
-                            .with(operation: .saveContext)
-                            .build()),
-                        
-                        try self.execute(request.cloneBuilder()
-                            .with(operation: .persistToFile)
-                            .build())
-                    )
-                    .toArray()
-                    .map(toVoid)
-                    .map(Try.success)
+                return manager.rx.save(context).map(Try.success)
             })
             .catchErrorJustReturn(Try.failure)
     }

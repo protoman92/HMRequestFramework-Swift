@@ -35,6 +35,9 @@ public protocol HMCDRequestType: HMDatabaseRequestType {
     /// Get the context to perform a save/delete operation. The context should
     /// contain changes to be modified from memory.
     ///
+    /// It is crucial that this context is a newly created disposable one (to
+    /// avoid shared state in the main context).
+    ///
     /// - Returns: A NSManagedObjectContext instance.
     /// - Throws: Exception if the context is not available.
     func contextToSave() throws -> NSManagedObjectContext

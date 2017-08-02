@@ -18,8 +18,8 @@ import XCTest
 public final class CoreDataRequestTest: XCTestCase {
     public typealias Req = HMCDRequestProcessor.Req
     fileprivate let timeout: TimeInterval = 1000
-    fileprivate let iterationCount = 1000
-    fileprivate let dummyCount = 1000
+    fileprivate let iterationCount = 100
+    fileprivate let dummyCount = 100
     fileprivate let dummyTypeCount = 2
     fileprivate let generatorError = "Generator error!"
     fileprivate let processorError = "Processor error!"
@@ -61,9 +61,13 @@ public final class CoreDataRequestTest: XCTestCase {
         
         /// When
         dbProcessor.process(dummy, generator, processor)
+            .map({$0.map({$0 as Any})})
             .flatMap({dbProcessor.process($0, generator, processor)})
+            .map({$0.map({$0 as Any})})
             .flatMap({dbProcessor.process($0, generator, processor)})
+            .map({$0.map({$0 as Any})})
             .flatMap({dbProcessor.process($0, generator, processor)})
+            .map({$0.map({$0 as Any})})
             .subscribe(observer)
             .disposed(by: disposeBag)
         
@@ -103,13 +107,14 @@ public final class CoreDataRequestTest: XCTestCase {
         
         /// When
         manager.rx.saveInMemory(dummies)
-            .flatMap({manager.rx.fetch(fetchRq).toArray()})
+            .flatMap({manager.rx.fetch(fetchRq)})
             .doOnNext({XCTAssertEqual($0.count, dummyCount)})
             .doOnNext({_ in XCTAssertEqual(mainContext.insertedObjects.count, dummyCount)})
             .doOnNext({_ in XCTAssertTrue(privateContext.insertedObjects.isEmpty)})
             .map(toVoid)
             .flatMap(manager.rx.persistAllChangesToFile)
             .flatMap({manager.rx.fetch(fetchRq)})
+            .flatMap({Observable.from($0)})
             .doOnDispose(expect.fulfill)
             .subscribe(observer)
             .disposed(by: disposeBag)
@@ -169,6 +174,7 @@ public final class CoreDataRequestTest: XCTestCase {
             .reduce((), accumulator: {_ in ()})
             .flatMap(manager.rx.persistAllChangesToFile)
             .flatMap({manager.rx.fetch(request).subscribeOn(qos: .background)})
+            .flatMap({Observable.from($0)})
             .doOnDispose(expect.fulfill)
             .subscribe(observer)
             .disposed(by: disposeBag)
@@ -192,12 +198,13 @@ public final class CoreDataRequestTest: XCTestCase {
         
         manager.rx.save(context)
             .flatMap(manager.rx.persistAllChangesToFile)
-            .flatMap({_ in manager.rx.fetch(fetchRq).toArray()})
+            .flatMap({_ in manager.rx.fetch(fetchRq)})
             .doOnNext({XCTAssertEqual($0.count, dummyCount)})
             .doOnNext({_ in dummies.forEach(context.delete)})
             .flatMap({_ in manager.rx.save(context)})
             .flatMap(manager.rx.persistAllChangesToFile)
             .flatMap({_ in manager.rx.fetch(fetchRq)})
+            .flatMap({Observable.from($0)})
             .cast(to: Any.self)
             .subscribeOn(qos: .background)
             .observeOn(MainScheduler.instance)
@@ -229,6 +236,8 @@ public final class CoreDataRequestTest: XCTestCase {
         cdProcessor.process(dummy, persistGn, persistPs)
             .map({$0.map({$0 as Any})})
             .flatMap({cdProcessor.process($0, fetchGn, fetchPs)})
+            .map({try $0.getOrThrow()})
+            .flatMap({Observable.from($0)})
             .doOnDispose(expect.fulfill)
             .subscribe(observer)
             .disposed(by: disposeBag)
@@ -266,6 +275,8 @@ public final class CoreDataRequestTest: XCTestCase {
             .flatMap({cdProcessor.process($0, deleteGn, deletePs)})
             .map({$0.map({$0 as Any})})
             .flatMap({cdProcessor.process($0, fetchGn, fetchPs)})
+            .map({try $0.getOrThrow()})
+            .flatMap({Observable.from($0)})
             .doOnDispose(expect.fulfill)
             .subscribe(observer)
             .disposed(by: disposeBag)
@@ -296,6 +307,8 @@ public final class CoreDataRequestTest: XCTestCase {
         cdProcessor.process(dummy, persistGn, persistPs)
             .map({$0.map({$0 as Any})})
             .flatMap({cdProcessor.process($0, fetchGn, fetchPs)})
+            .map({try $0.getOrThrow()})
+            .flatMap({Observable.from($0)})
             .doOnDispose(expect.fulfill)
             .subscribe(observer)
             .disposed(by: disposeBag)
@@ -327,81 +340,86 @@ public final class CoreDataRequestTest: XCTestCase {
         XCTAssertTrue(dummyValues.all(satisfying: description.contains))
     }
     
-//    public func test_coreDataUpsert_shouldWork() {
-//        /// Setup
-//        let manager = self.manager!
-//        let dbProcessor = self.dbProcessor!
-//        let context = manager.mainObjectContext()
-//        let expect = expectation(description: "Should have completed")
-//        let observer = scheduler.createObserver(Try<Dummy1>.self)
-//        let times1 = 2
-//        let times2 = 2
-//        let data1 = (0..<times1).map({_ in try! Dummy1(context)})
-//        let data2 = (0..<times2).map({_ in try! Dummy1(context)})
-//
-//        let data3 = (0..<times1).map({(index) -> Dummy1 in
-//            let dummy = try! Dummy1(context)
-//            dummy.id = data1[index].id
-//            return dummy
-//        })
-//
-//        let data23 = [data2, data3].flatMap({$0})
-//
-//        let saveRq1 = Req.builder()
-//            .with(operation: .persistToFile)
-//            .with(dataToSave: data1)
-//            .build()
-//
-//        let generator1 = HMRequestGenerators.forceGenerateFn(saveRq1, Any.self)
-//        let processor1: HMEQResultProcessor<Void> = HMResultProcessors.eqProcessor()
-//
-//        let upsertRq23 = Req.builder()
-//            .with(operation: .upsert)
-//            .with(dataToUpsert: data23)
-//            .with(representable: Dummy1.self)
-//            .build()
-//
-//        let generator2 = HMRequestGenerators.forceGenerateFn(upsertRq23, Any.self)
-//        let processor2: HMEQResultProcessor<Void> = HMResultProcessors.eqProcessor()
-//
-//        let fetchRqAll = Req.builder()
-//            .with(representable: Dummy1.self)
-//            .with(predicate: NSPredicate(value: true))
-//            .with(operation: .fetch)
-//            .build()
-//
-//        let fetchRq: NSFetchRequest<Dummy1> = try! fetchRqAll.fetchRequest()
-//        let generator3 = HMRequestGenerators.forceGenerateFn(fetchRqAll, Any.self)
-//        let processor3: HMEQResultProcessor<Dummy1> = HMResultProcessors.eqProcessor()
-//
-//        /// When
-//        dbProcessor.process(dummy, generator1, processor1)
-//            .doOnNext({_ in try! print(manager.blockingFetch(fetchRq))})
-//            .doOnNext({_ in print(">>>>>>>>>>>>>>>>>>>")})
-//            .map({$0.map({$0 as Any})})
-//            .flatMap({dbProcessor.process($0, generator2, processor2)})
-//            .map({$0.map({$0 as Any})})
-//            .flatMap({dbProcessor.process($0, generator3, processor3)})
-//            .doOnDispose(expect.fulfill)
-//            .subscribe(observer)
-//            .disposed(by: disposeBag)
-//
-//        waitForExpectations(timeout: timeout, handler: nil)
-//
-//        /// Then
-//        let nextElements = observer.nextElements()
-//        let nextDummies = nextElements.flatMap({$0.value})
-//        XCTAssertEqual(nextElements.count, data23.count)
-//
-//        XCTAssertTrue(data23.all(satisfying: {dummy1 in
-//            nextDummies.contains(where: {
-//                $0.id == dummy1.id &&
-//                $0.date == dummy1.date &&
-//                $0.int64 == dummy1.int64 &&
-//                $0.float == dummy1.float
-//            })
-//        }))
-//    }
+    public func test_coreDataUpsert_shouldWork() {
+        /// Setup
+        let expect = expectation(description: "Should have completed")
+        let observer = scheduler.createObserver(Try<Dummy1>.self)
+        let manager = self.manager!
+        let dbProcessor = self.dbProcessor!
+        let context1 = manager.disposableObjectContext()
+        let context2 = manager.disposableObjectContext()
+        let times1 = 1000
+        let times2 = 1000
+        let data1 = (0..<times1).map({_ in try! Dummy1(context1)})
+        let data2 = (0..<times2).map({_ in try! Dummy1(context2)})
+
+        let data3 = (0..<times1).map({(index) -> Dummy1 in
+            let dummy = try! Dummy1(context2)
+            dummy.id = data1[index].id
+            return dummy
+        })
+
+        let data23 = [data2, data3].flatMap({$0})
+
+        let saveRq1 = Req.builder()
+            .with(operation: .saveContext)
+            .with(contextToSave: context1)
+            .build()
+
+        let generator1 = HMRequestGenerators.forceGenerateFn(saveRq1, Any.self)
+        let processor1: HMEQResultProcessor<Void> = HMResultProcessors.eqProcessor()
+
+        let upsertRq23 = Req.builder()
+            .with(operation: .upsert)
+            .with(contextToSave: context2)
+            .with(representable: Dummy1.self)
+            .build()
+
+        let generator2 = HMRequestGenerators.forceGenerateFn(upsertRq23, Any.self)
+        let processor2: HMEQResultProcessor<Void> = HMResultProcessors.eqProcessor()
+
+        let fetchRqAll = Req.builder()
+            .with(representable: Dummy1.self)
+            .with(predicate: NSPredicate(value: true))
+            .with(operation: .fetch)
+            .build()
+
+        let generator3 = HMRequestGenerators.forceGenerateFn(fetchRqAll, Any.self)
+        let processor3: HMEQResultProcessor<Dummy1> = HMResultProcessors.eqProcessor()
+
+        /// When
+        // Insert the first set of data
+        dbProcessor.process(dummy, generator1, processor1)
+            .map({$0.map({$0 as Any})})
+            
+            // Upsert the second set of data
+            .flatMap({dbProcessor.process($0, generator2, processor2)})
+            .map({$0.map({$0 as Any})})
+            
+            // Fetch all data
+            .flatMap({dbProcessor.process($0, generator3, processor3)})
+            .map({try $0.getOrThrow()})
+            .flatMap({Observable.from($0)})
+            .doOnDispose(expect.fulfill)
+            .subscribe(observer)
+            .disposed(by: disposeBag)
+
+        waitForExpectations(timeout: timeout, handler: nil)
+
+        /// Then
+        let nextElements = observer.nextElements()
+        let nextDummies = nextElements.flatMap({$0.value})
+        XCTAssertEqual(nextElements.count, data23.count)
+
+        XCTAssertTrue(data23.all(satisfying: {dummy1 in
+            nextDummies.contains(where: {
+                $0.id == dummy1.id &&
+                $0.date == dummy1.date &&
+                $0.int64 == dummy1.int64 &&
+                $0.float == dummy1.float
+            })
+        }))
+    }
     
     public func test_cdNonTypedRequestObject_shouldThrowErrorsIfNecessary() {
         var currentCheck = 0

@@ -20,7 +20,7 @@ public protocol HMCDRequestProcessorType: HMRequestHandlerType, HMCDObjectConstr
     ///
     /// - Parameter request: A Req instance.
     /// - Returns: An Observable instance.
-    func executeTyped<Val>(_ request: Req) throws -> Observable<Try<Val>>
+    func executeTyped<Val>(_ request: Req) throws -> Observable<Try<[Val]>>
         where Val: NSFetchRequestResult
     
     /// Perform a CoreData request with required dependencies.
@@ -46,11 +46,21 @@ public extension HMCDRequestProcessorType {
         _ previous: Try<Prev>,
         _ generator: @escaping HMRequestGenerator<Prev,Req>,
         _ processor: @escaping HMResultProcessor<Val,Res>)
-        -> Observable<Try<Res>>
+        -> Observable<Try<[Try<Res>]>>
         where Val: NSFetchRequestResult
     {
         return execute(previous, generator, executeTyped)
-            .flatMap({try HMResultProcessors.processResultFn($0, processor)})
+            .map({try $0.getOrThrow()})
+            .flatMap({(vals: [Val]) -> Observable<[Try<Res>]> in
+                Observable.from(vals)
+                    .flatMap({Observable.just($0)
+                        .flatMap({try processor($0)})
+                        .catchErrorJustReturn(Try.failure)
+                    })
+                    .toArray()
+            })
+            .map(Try.success)
+            .catchErrorJustReturn(Try.failure)
     }
     
     /// Override this method to provide default implementation.

@@ -55,7 +55,7 @@ public class HMCDManager {
     /// - Returns: An Array of NSManagedObject.
     /// - Throws: Exception if the fetch fails.
     public func blockingFetch<Val>(_ request: NSFetchRequest<Val>) throws -> [Val] {
-        return try mainObjectContext().fetch(request)
+        return try blockingFetch(mainObjectContext(), request)
     }
     
     /// Get the predicate to search for records related to a Sequence of
