@@ -10,6 +10,7 @@
 		31BCA874AFE20701A33CCAFC /* Pods_HMRequestFramework.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AD4191EDC58157CBCAE6FEBF /* Pods_HMRequestFramework.framework */; };
 		ABE6A4A654544FD66F9B1369 /* Pods_HMRequestFrameworkTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 259F23974F3AE63652FE6811 /* Pods_HMRequestFrameworkTests.framework */; };
 		D311B3141F30E7CB008F3B8D /* HMCDContextProviderType.swift in Sources */ = {isa = PBXBuildFile; fileRef = D311B3131F30E7CB008F3B8D /* HMCDContextProviderType.swift */; };
+		D31BE8B61F32260A006385A1 /* HMResultProcessors.swift in Sources */ = {isa = PBXBuildFile; fileRef = D31BE8B51F32260A006385A1 /* HMResultProcessors.swift */; };
 		D31C586D1F27861800C8D8CC /* DatabaseRequestProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = D31C58561F27861800C8D8CC /* DatabaseRequestProcessor.swift */; };
 		D31C586E1F27861800C8D8CC /* Singleton.swift in Sources */ = {isa = PBXBuildFile; fileRef = D31C58571F27861800C8D8CC /* Singleton.swift */; };
 		D31C58761F278A8A00C8D8CC /* HMProtocolConvertibleType.swift in Sources */ = {isa = PBXBuildFile; fileRef = D31C58751F278A8A00C8D8CC /* HMProtocolConvertibleType.swift */; };
@@ -90,6 +91,7 @@
 		AD4191EDC58157CBCAE6FEBF /* Pods_HMRequestFramework.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_HMRequestFramework.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		C4C9084A44030EDC5A620685 /* Pods-HMRequestFrameworkTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-HMRequestFrameworkTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-HMRequestFrameworkTests/Pods-HMRequestFrameworkTests.debug.xcconfig"; sourceTree = "<group>"; };
 		D311B3131F30E7CB008F3B8D /* HMCDContextProviderType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMCDContextProviderType.swift; sourceTree = "<group>"; };
+		D31BE8B51F32260A006385A1 /* HMResultProcessors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMResultProcessors.swift; sourceTree = "<group>"; };
 		D31C58561F27861800C8D8CC /* DatabaseRequestProcessor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DatabaseRequestProcessor.swift; sourceTree = "<group>"; };
 		D31C58571F27861800C8D8CC /* Singleton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Singleton.swift; sourceTree = "<group>"; };
 		D31C58751F278A8A00C8D8CC /* HMProtocolConvertibleType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HMProtocolConvertibleType.swift; sourceTree = "<group>"; };
@@ -394,6 +396,7 @@
 			children = (
 				D37D0B651F25E1BE0032C6AB /* HMRequestProcessorType.swift */,
 				D37D0B661F25E1BE0032C6AB /* HMResultProcessor.swift */,
+				D31BE8B51F32260A006385A1 /* HMResultProcessors.swift */,
 			);
 			path = processor;
 			sourceTree = "<group>";
@@ -762,6 +765,7 @@
 				D37D0BCD1F25F7220032C6AB /* HMCDManagerType.swift in Sources */,
 				D37D0BAC1F25E3A00032C6AB /* HMCDRequestType.swift in Sources */,
 				D37D0BAF1F25E3A00032C6AB /* HMDatabaseRequestType.swift in Sources */,
+				D31BE8B61F32260A006385A1 /* HMResultProcessors.swift in Sources */,
 				D37D0BB01F25E3A00032C6AB /* HMNetworkRequestHandler.swift in Sources */,
 				D37D0BB11F25E3A00032C6AB /* HMNetworkRequestHandlerType.swift in Sources */,
 				D3EBB70C1F2BB6C6003CEB5F /* HMNetworkRequestProcessorType.swift in Sources */,
