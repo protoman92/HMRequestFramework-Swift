@@ -68,3 +68,33 @@ public extension HMCDRxManagerType {
         }
     }
 }
+
+public extension HMCDRxManagerType {
+    
+    /// Delete a Sequence of data from memory by refetching them using some
+    /// context and observe the process.
+    ///
+    /// - Parameters:
+    ///   - context: A NSManagedObjectContext instance.
+    ///   - entityName: A String value representing the entity's name.
+    ///   - data: A Sequence of NSManagedObject.
+    ///   - obs: An ObserverType instance.
+    /// - Throws: Exception if the delete fails.
+    public func deleteFromMemory<S,O>(_ context: NSManagedObjectContext,
+                                      _ entityName: String,
+                                      _ data: S,
+                                      _ obs: O) where
+        S: Sequence, S.Iterator.Element: NSManagedObject,
+        O: ObserverType, O.E == Void
+    {
+        context.performAndWait {
+            do {
+                try deleteFromMemoryUnsafely(context, entityName, data)
+                obs.onNext()
+                obs.onCompleted()
+            } catch let e {
+                obs.onError(e)
+            }
+        }
+    }
+}

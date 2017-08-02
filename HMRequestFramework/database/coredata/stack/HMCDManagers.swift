@@ -19,15 +19,12 @@ public extension Reactive where Base: HMCDManager {
     ///
     /// - Parameter context: A NSManagedObjectContext instance.
     /// - Returns: An Observable instance.
-    public func save(_ context: NSManagedObjectContext) -> Observable<Void> {
+    func save(_ context: NSManagedObjectContext) -> Observable<Void> {
         return Observable.create({(obs: AnyObserver<Void>) in
             self.base.save(context, obs)
             return Disposables.create()
         })
     }
-}
-
-public extension Reactive where Base: HMCDManager {
     
     /// Construct a Sequence of CoreData from data objects and save it to memory.
     ///
@@ -35,8 +32,8 @@ public extension Reactive where Base: HMCDManager {
     ///   - context: A NSManagedObjectContext instance.
     ///   - data: A Sequence of HMCDPureObjectType.
     /// - Returns: An Observable instance.
-    public func saveInMemory<S,PO>(_ context: NSManagedObjectContext,
-                                   _ data: S) -> Observable<Void> where
+    func saveInMemory<S,PO>(_ context: NSManagedObjectContext,
+                            _ data: S) -> Observable<Void> where
         PO: HMCDPureObjectType,
         PO.CDClass: HMCDRepresetableBuildableType,
         PO.CDClass.Builder.PureObject == PO,
@@ -57,7 +54,7 @@ public extension Reactive where Base: HMCDManager {
     ///
     /// - Parameter data: A Sequence of HMCDPureObjectType.
     /// - Returns: An Observable instance.
-    public func saveInMemory<S,PO>(_ data: S) -> Observable<Void> where
+    func saveInMemory<S,PO>(_ data: S) -> Observable<Void> where
         PO: HMCDPureObjectType,
         PO.CDClass: HMCDRepresetableBuildableType,
         PO.CDClass.Builder.PureObject == PO,
@@ -70,12 +67,48 @@ public extension Reactive where Base: HMCDManager {
 
 public extension Reactive where Base: HMCDManager {
     
+    /// Delete a Sequence of data from memory by refetching them using some
+    /// context.
+    ///
+    /// - Parameters:
+    ///   - context: A NSManagedObjectContext instance.
+    ///   - entityName: A String value representing the entity's name.
+    ///   - data: A Sequence of NSManagedObject.
+    /// - Throws: Exception if the delete fails.
+    func deleteFromMemory<S>(_ context: NSManagedObjectContext,
+                             _ entityName: String,
+                             _ data: S) -> Observable<Void> where
+        S: Sequence, S.Iterator.Element: NSManagedObject
+    {
+        return Observable.create(({(obs: AnyObserver<Void>) in
+            self.base.deleteFromMemory(context, entityName, data, obs)
+            return Disposables.create()
+        }))
+    }
+    
+    /// Delete a Sequence of data from memory by refetching them using a
+    /// disposable context.
+    ///
+    /// - Parameters:
+    ///   - entityName: A String value representing the entity's name.
+    ///   - data: A Sequence of NSManagedObject.
+    /// - Returns: An Observable instance.
+    func deleteFromMemory<S>(_ entityName: String, _ data: S)
+        -> Observable<Void> where
+        S: Sequence, S.Iterator.Element: NSManagedObject
+    {
+        return deleteFromMemory(base.disposableObjectContext(), entityName, data)
+    }
+}
+
+public extension Reactive where Base: HMCDManager {
+    
     /// Save all changes in the main and private contexts. When the main context
     /// is saved, the changes will be reflected in the private context, so we
     /// need to save the former first.
     ///
     /// - Returns: An Observable instance.
-    public func persistAllChangesToFile() -> Observable<Void> {
+    func persistAllChangesToFile() -> Observable<Void> {
         let mainContext = base.mainContext
         let privateContext = base.privateContext
         
@@ -93,8 +126,8 @@ public extension Reactive where Base: HMCDManager {
     ///   - context: A NSManagedObjectContext instance.
     ///   - request: A NSFetchRequest instance.
     /// - Returns: An Observable instance.
-    public func fetch<Val>(_ context: NSManagedObjectContext,
-                           _ request: NSFetchRequest<Val>) -> Observable<[Val]> {
+    func fetch<Val>(_ context: NSManagedObjectContext,
+                    _ request: NSFetchRequest<Val>) -> Observable<[Val]> {
         let base = self.base
         
         return Observable.create({(obs: AnyObserver<[Val]>) in
@@ -117,9 +150,9 @@ public extension Reactive where Base: HMCDManager {
     ///   - request: A NSFetchRequest instance.
     ///   - cls: A Val class type.
     /// - Returns: An Observable instance.
-    public func fetch<Val>(_ context: NSManagedObjectContext,
-                           _ request: NSFetchRequest<Val>,
-                           _ cls: Val.Type) -> Observable<[Val]> {
+    func fetch<Val>(_ context: NSManagedObjectContext,
+                    _ request: NSFetchRequest<Val>,
+                    _ cls: Val.Type) -> Observable<[Val]> {
         return fetch(context, request)
     }
     
@@ -127,7 +160,7 @@ public extension Reactive where Base: HMCDManager {
     ///
     /// - Parameters request: A NSFetchRequest instance.
     /// - Returns: An Observable instance.
-    public func fetch<Val>(_ request: NSFetchRequest<Val>) -> Observable<[Val]> {
+    func fetch<Val>(_ request: NSFetchRequest<Val>) -> Observable<[Val]> {
         return fetch(base.mainObjectContext(), request)
     }
     
@@ -137,8 +170,8 @@ public extension Reactive where Base: HMCDManager {
     ///   - request: A NSFetchRequest instance.
     ///   - cls: A Val class type.
     /// - Returns: An Observable instance.
-    public func fetch<Val>(_ request: NSFetchRequest<Val>,
-                           _ cls: Val.Type) -> Observable<[Val]> {
+    func fetch<Val>(_ request: NSFetchRequest<Val>,
+                    _ cls: Val.Type) -> Observable<[Val]> {
         return fetch(request)
     }
 }

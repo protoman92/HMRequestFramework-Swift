@@ -66,7 +66,6 @@
 		D3FC6E801F2F0C7F007471E2 /* HMCDUpsertableType.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3FC6E7F1F2F0C7F007471E2 /* HMCDUpsertableType.swift */; };
 		D3FF536C1F29E3A000F78806 /* RequestTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3FF536B1F29E2FE00F78806 /* RequestTest.swift */; };
 		D3FF536D1F29E3A000F78806 /* CoreDataRequestTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3FF53661F29E2FE00F78806 /* CoreDataRequestTest.swift */; };
-		D3FF536E1F29E3A000F78806 /* ErrorCDManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3FF53671F29E2FE00F78806 /* ErrorCDManager.swift */; };
 		D3FF536F1F29E3A000F78806 /* Dummy.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3FF53621F29E2FE00F78806 /* Dummy.swift */; };
 		D3FF53701F29E3A000F78806 /* Dummy1.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3FF53631F29E2FE00F78806 /* Dummy1.swift */; };
 		D3FF53711F29E3A000F78806 /* Dummy2.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3FF53641F29E2FE00F78806 /* Dummy2.swift */; };
@@ -152,7 +151,6 @@
 		D3FF53631F29E2FE00F78806 /* Dummy1.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Dummy1.swift; sourceTree = "<group>"; };
 		D3FF53641F29E2FE00F78806 /* Dummy2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Dummy2.swift; sourceTree = "<group>"; };
 		D3FF53661F29E2FE00F78806 /* CoreDataRequestTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataRequestTest.swift; sourceTree = "<group>"; };
-		D3FF53671F29E2FE00F78806 /* ErrorCDManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorCDManager.swift; sourceTree = "<group>"; };
 		D3FF53691F29E2FE00F78806 /* NetworkingTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkingTest.swift; sourceTree = "<group>"; };
 		D3FF536B1F29E2FE00F78806 /* RequestTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RequestTest.swift; sourceTree = "<group>"; };
 		FC726CF994EA0A543CC7E354 /* Pods-HMRequestFramework.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-HMRequestFramework.debug.xcconfig"; path = "Pods/Target Support Files/Pods-HMRequestFramework/Pods-HMRequestFramework.debug.xcconfig"; sourceTree = "<group>"; };
@@ -202,7 +200,6 @@
 		D31C58551F27861800C8D8CC /* dependency */ = {
 			isa = PBXGroup;
 			children = (
-				D3FF53671F29E2FE00F78806 /* ErrorCDManager.swift */,
 				D31C58561F27861800C8D8CC /* DatabaseRequestProcessor.swift */,
 				D31C58571F27861800C8D8CC /* Singleton.swift */,
 				D32995541F2CC9BB00715932 /* RequestHandler.swift */,
@@ -782,7 +779,6 @@
 				D32995551F2CC9BB00715932 /* RequestHandler.swift in Sources */,
 				D3FF536C1F29E3A000F78806 /* RequestTest.swift in Sources */,
 				D3FF536D1F29E3A000F78806 /* CoreDataRequestTest.swift in Sources */,
-				D3FF536E1F29E3A000F78806 /* ErrorCDManager.swift in Sources */,
 				D3FF536F1F29E3A000F78806 /* Dummy.swift in Sources */,
 				D3FF53701F29E3A000F78806 /* Dummy1.swift in Sources */,
 				D3FF53711F29E3A000F78806 /* Dummy2.swift in Sources */,

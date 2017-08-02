@@ -88,6 +88,9 @@ extension HMCDRequestProcessor: HMCDRequestProcessorType {
         case .saveContext:
             return try executeSaveContext(request)
             
+        case .delete:
+            return try executeDelete(request)
+            
         case .persistToFile:
             return try executePersistToFile(request)
             
@@ -97,6 +100,22 @@ extension HMCDRequestProcessor: HMCDRequestProcessorType {
         case .fetch:
             throw Exception("Please use typed execute for typed return values")
         }
+    }
+    
+    /// Perform a CoreData delete operation.
+    ///
+    /// - Parameter request: A Req instance.
+    /// - Returns: An Observable instance.
+    /// - Throws: Exception if the execution fails.
+    private func executeDelete(_ request: Req) throws -> Observable<Try<Void>> {
+        let manager = coreDataManager()
+        let data = try request.dataToDelete()
+        let entityName = try request.entityName()
+        
+        return manager.rx.deleteFromMemory(entityName, data)
+            .retry(request.retries())
+            .map(Try.success)
+            .catchErrorJustReturn(Try.failure)
     }
     
     /// Perform a CoreData context save operation.
@@ -145,26 +164,23 @@ extension HMCDRequestProcessor: HMCDRequestProcessorType {
             .with(sortDescriptors: [])
             .build()
         
+        let entityName = try request.entityName()
+        
         return manager.rx
-            // We need to pass the context to the fetch operation because we
-            // want it to own the managed objects. This way, we can call its
-            // delete(_:) method without an Error being thrown (e.g. objects
-            // can only be managed by one context).
+            // First we need to fetch all objects that match some primary
+            // key values from the DB - those are the ones that have to be updated.
             .fetch(context, try fetchRq.fetchRequest(), NSManagedObject.self)
-            .flatMap({(objs: [NSManagedObject]) -> Observable<Try<Void>> in
-                // We need to get only objects that are not inserted (which
-                // may indicate that they have just been pulled from DB).
-                for obj in objs where !obj.isInserted {
-                    if let _ = upsertables.first(where: {
-                        let key = $0.primaryKey()
-                        let value = $0.primaryValue()
-                        return obj.value(forKey: key) as? String == value
-                    }) {
-                        context.delete(obj)
-                    }
-                }
-                
-                return manager.rx.save(context).map(Try.success)
+            .flatMap({Observable
+                .concat(
+                    // This will only delete objects that are already in the
+                    // DB. Therefore, even if the above fetch request result
+                    // contains inserted, but non-persisted objects, the delete
+                    // will still work correctly.
+                    manager.rx.deleteFromMemory(entityName, $0),
+                    manager.rx.save(context)
+                )
+                .reduce((), accumulator: {_ in ()})
+                .map(Try.success)
             })
             .catchErrorJustReturn(Try.failure)
     }

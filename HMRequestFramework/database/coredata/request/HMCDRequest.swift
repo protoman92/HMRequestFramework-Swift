@@ -16,14 +16,14 @@ public struct HMCDRequest {
     fileprivate var nsSortDescriptors: [NSSortDescriptor]
     fileprivate var cdOperation: CoreDataOperation?
     fileprivate var cdContextToSave: NSManagedObjectContext?
-    fileprivate var cdDataToUpsert: [HMCDUpsertableObject]
+    fileprivate var cdDataToDelete: [NSManagedObject]
     fileprivate var retryCount: Int
     fileprivate var middlewaresEnabled: Bool
     fileprivate var rqDescription: String?
     
     fileprivate init() {
         nsSortDescriptors = []
-        cdDataToUpsert = []
+        cdDataToDelete = []
         retryCount = 1
         middlewaresEnabled = false
     }
@@ -134,30 +134,30 @@ extension HMCDRequest: HMBuildableType {
             return self
         }
         
-        /// Set the data to upsert.
+        /// Set the data to delete.
         ///
-        /// - Parameter data: A Sequence of HMCDUpsertableObject.
+        /// - Parameter dataToDelete: A Sequence of NSManagedObject.
         /// - Returns: The current Builder instance.
         @discardableResult
-        public func with<S>(dataToUpsert data: S?) -> Self where
-            S: Sequence, S.Iterator.Element == HMCDUpsertableObject
+        public func with<S>(dataToDelete: S?) -> Self where
+            S: Sequence, S.Iterator.Element == NSManagedObject
         {
-            if let data = data {
-                request.cdDataToUpsert.append(contentsOf: data)
+            if let data = dataToDelete {
+                request.cdDataToDelete.append(contentsOf: data)
             }
             
             return self
         }
         
-        /// Set the data to upsert.
+        /// Set the data to delete.
         ///
-        /// - Parameter data: A Sequence of HMCDUpsertableObject.
+        /// - Parameter dataToDelete: A Sequence of NSManagedObject.
         /// - Returns: The current Builder instance.
         @discardableResult
-        public func with<S>(dataToUpsert data: S?) -> Self where
-            S: Sequence, S.Iterator.Element: HMCDUpsertableObject
+        public func with<S>(dataToDelete: S?) -> Self where
+            S: Sequence, S.Iterator.Element: NSManagedObject
         {
-            return with(dataToUpsert: data?.map({$0 as HMCDUpsertableObject}))
+            return with(dataToDelete: dataToDelete?.map({$0 as NSManagedObject}))
         }
     }
 }
@@ -184,7 +184,7 @@ extension HMCDRequest.Builder: HMProtocolConvertibleBuilderType {
             .with(predicate: try? generic.predicate())
             .with(sortDescriptors: try? generic.sortDescriptors())
             .with(contextToSave: try? generic.contextToSave())
-            .with(dataToUpsert: try? generic.dataToUpsert())
+            .with(dataToDelete: try? generic.dataToDelete())
             .with(retries: generic.retries())
             .with(applyMiddlewares: generic.applyMiddlewares())
             .with(requestDescription: generic.requestDescription())
@@ -277,8 +277,8 @@ extension HMCDRequest: HMCDRequestType {
         }
     }
     
-    public func dataToUpsert() throws -> [HMCDUpsertableObject] {
-        return cdDataToUpsert
+    public func dataToDelete() throws -> [NSManagedObject] {
+        return cdDataToDelete
     }
     
     public func retries() -> Int {

@@ -57,32 +57,6 @@ public class HMCDManager {
     public func blockingFetch<Val>(_ request: NSFetchRequest<Val>) throws -> [Val] {
         return try blockingFetch(mainObjectContext(), request)
     }
-    
-    /// Get the predicate to search for records related to a Sequence of
-    /// upsertables. This predicate will be used to distinguish between
-    /// existing and new data.
-    ///
-    /// - Parameter data: A Sequence of HMCDUpsertableType.
-    /// - Returns: A NSPredicate instance.
-    func predicateForUpsertableFetch<S>(_ data: S) -> NSPredicate where
-        S: Sequence, S.Iterator.Element == HMCDUpsertableType
-    {
-        return NSCompoundPredicate(orPredicateWithSubpredicates: data
-            .map({($0.primaryKey(), $0.primaryValue())})
-            .map({NSPredicate(format: "%K == %@", $0.0, $0.1)}))
-    }
-
-    /// Get the predicate to search for records related to a Sequence of
-    /// upsertables. This predicate will be used to distinguish between
-    /// existing and new data.
-    ///
-    /// - Parameter data: A Sequence of HMCDUpsertableType.
-    /// - Returns: A NSPredicate instance.
-    func predicateForUpsertableFetch<S>(_ data: S) -> NSPredicate where
-        S: Sequence, S.Iterator.Element: HMCDUpsertableType
-    {
-        return predicateForUpsertableFetch(data.map({$0 as HMCDUpsertableType}))
-    }
 }
 
 extension HMCDManager: HMCDManagerType {}

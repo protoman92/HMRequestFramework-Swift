@@ -32,8 +32,8 @@ public protocol HMCDRequestType: HMDatabaseRequestType {
     /// - Returns: A CoreDataOperation instance.
     func operation() throws -> CoreDataOperation
     
-    /// Get the context to perform a save/delete operation. The context should
-    /// contain changes to be modified from memory.
+    /// Get the context to perform a save operation. The context should contain
+    /// changes to be modified from memory.
     ///
     /// It is crucial that this context is a newly created disposable one (to
     /// avoid shared state in the main context).
@@ -42,11 +42,22 @@ public protocol HMCDRequestType: HMDatabaseRequestType {
     /// - Throws: Exception if the context is not available.
     func contextToSave() throws -> NSManagedObjectContext
     
-    /// Get the data to be upserted. Only used with upsert operations.
+    /// Get the data to be deleted. Only used for delete operations.
     ///
-    /// - Returns: An Array of HMCDUpsertableObject.
+    /// The reason why we can specify exactly the data to delete (instead of
+    /// passing a context with changes to be saved, as is the case for save
+    /// and upsert) is that we can actually create a disposable context ourselves,
+    /// populate it with data pulled from the DB using objectIDs and call said
+    /// context's delete(_:) method without it throwing an Error.
+    ///
+    /// For save/upsert, it's not possible to do this since most likely the
+    /// data are not yet in the DB, and we cannot pass objects between contexts.
+    /// Therefore, we can neither query the DB nor transfer the data to our
+    /// own disposable context.
+    ///
+    /// - Returns: An Array of NSManagedObject.
     /// - Throws: Exception if the data is not available.
-    func dataToUpsert() throws -> [HMCDUpsertableObject]
+    func dataToDelete() throws -> [NSManagedObject]
 }
 
 public extension HMCDRequestType {

@@ -26,8 +26,8 @@ public final class Singleton {
             .build()
     }
     
-    public static func dummyCDManager() -> ErrorCDManager {
-        return try! ErrorCDManager(constructor: dummyCDConstructor())
+    public static func dummyCDManager() -> HMCDManager {
+        return try! HMCDManager(constructor: dummyCDConstructor())
     }
     
     private init() {}
