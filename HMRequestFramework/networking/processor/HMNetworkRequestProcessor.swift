@@ -13,7 +13,7 @@ import SwiftUtilities
 public struct HMNetworkRequestProcessor {
     
     /// This variable has internal access just for testing purposes.
-    let handler: HMNetworkRequestHandler
+    public let handler: HMNetworkRequestHandler
     
     public init(handler: HMNetworkRequestHandler) {
         self.handler = handler

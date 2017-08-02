@@ -18,7 +18,7 @@ public struct HMCDRequestProcessor {
     
     fileprivate init() {}
     
-    fileprivate func coreDataManager() -> HMCDManager {
+    public func coreDataManager() -> HMCDManager {
         if let manager = self.manager {
             return manager
         } else {
