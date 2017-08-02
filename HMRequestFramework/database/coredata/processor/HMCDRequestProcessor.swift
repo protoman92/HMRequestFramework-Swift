@@ -85,14 +85,11 @@ extension HMCDRequestProcessor: HMCDRequestProcessorType {
         let operation = try request.operation()
         
         switch operation {
-        case .saveInMemory:
-            return try executeSaveInMemory(request)
+        case .saveContext:
+            return try executeSaveContext(request)
             
         case .persistToFile:
             return try executePersistToFile(request)
-            
-        case .delete:
-            return try executeDelete(request)
             
         case .upsert:
             return try executeUpsert(request)
@@ -102,16 +99,16 @@ extension HMCDRequestProcessor: HMCDRequestProcessorType {
         }
     }
     
-    /// Perform a CoreData data in-memory persistence operation.
+    /// Perform a CoreData context save operation.
     ///
     /// - Parameter request: A Req instance.
     /// - Returns: An Observable instance.
     /// - Throws: Exception if the execution fails.
-    private func executeSaveInMemory(_ request: Req) throws -> Observable<Try<Void>> {
+    private func executeSaveContext(_ request: Req) throws -> Observable<Try<Void>> {
         let manager = coreDataManager()
-        let data = try request.dataToSave()
+        let context = try request.contextToSave()
             
-        return manager.rx.saveInMemory(data)
+        return manager.rx.save(context)
             .retry(request.retries())
             .map(Try.success)
             .catchErrorJustReturn(Try.failure)
@@ -126,21 +123,6 @@ extension HMCDRequestProcessor: HMCDRequestProcessorType {
         let manager = coreDataManager()
         
         return manager.rx.persistAllChangesToFile()
-            .retry(request.retries())
-            .map(Try.success)
-            .catchErrorJustReturn(Try.failure)
-    }
-    
-    /// Perform a CoreData data delete operation.
-    ///
-    /// - Parameter request: A Req instance.
-    /// - Returns: An Observable instance.
-    /// - Throws: Exception if the execution fails.
-    private func executeDelete(_ request: Req) throws -> Observable<Try<Void>> {
-        let manager = coreDataManager()
-        let data = try request.dataToDelete()
-        
-        return manager.rx.deleteFromMemory(data)
             .retry(request.retries())
             .map(Try.success)
             .catchErrorJustReturn(Try.failure)
@@ -174,7 +156,6 @@ extension HMCDRequestProcessor: HMCDRequestProcessorType {
                         print("KEY \(key) VALUE \(value)")
                         return obj.value(forKey: key) as? String == value
                     }) {
-                        print(datum)
                         deleteObjs.append(obj)
                     }
                 }
@@ -182,13 +163,11 @@ extension HMCDRequestProcessor: HMCDRequestProcessorType {
                 return Observable
                     .concat(
                         try self.execute(request.cloneBuilder()
-                            .with(operation: .delete)
-                            .with(dataToDelete: deleteObjs)
+                            .with(operation: .saveContext)
                             .build()),
                         
                         try self.execute(request.cloneBuilder()
                             .with(operation: .persistToFile)
-                            .with(dataToSave: insertObjs)
                             .build())
                     )
                     .toArray()

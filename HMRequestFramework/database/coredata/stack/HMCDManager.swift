@@ -46,7 +46,7 @@ public class HMCDManager {
     ///
     /// - Throws: Exception if the save fails.
     public func persistChangesToFileUnsafely() throws {
-        try saveUnsafely(context: privateContext)
+        try saveUnsafely(privateContext)
     }
     
     /// Override this method to provide default implementation.

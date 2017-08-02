@@ -10,14 +10,12 @@
 /// out.
 ///
 /// - fetch: Fetch operation.
-/// - saveInMemory: Save operation. This saves some data to memory.
+/// - saveContext: Save operation. This saves some context.
 /// - persistToFile: Save operation. This saves some data to the local DB file.
-/// - delete: Delete operation. This deletes some data from the local DB file.
 /// - upsert: Update or insert. Persist new data and update existing data.
 public enum CoreDataOperation {
     case fetch
-    case saveInMemory
+    case saveContext
     case persistToFile
-    case delete
     case upsert
 }

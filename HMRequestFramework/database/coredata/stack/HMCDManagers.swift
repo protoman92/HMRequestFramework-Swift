@@ -19,9 +19,9 @@ public extension Reactive where Base: HMCDManager {
     ///
     /// - Parameter context: A NSManagedObjectContext instance.
     /// - Returns: An Observable instance.
-    public func save(context: NSManagedObjectContext) -> Observable<Void> {
+    public func save(_ context: NSManagedObjectContext) -> Observable<Void> {
         return Observable.create({(obs: AnyObserver<Void>) in
-            self.base.save(context: context, obs)
+            self.base.save(context, obs)
             return Disposables.create()
         })
     }
@@ -29,34 +29,36 @@ public extension Reactive where Base: HMCDManager {
 
 public extension Reactive where Base: HMCDManager {
     
-    /// Save data to memory.
-    ///
-    /// - Parameters:
-    ///   - context: A NSManagedObjectContext instance.
-    ///   - data: A Sequence of NSManagedObject.
-    /// - Returns: An Observable instance.
-    public func saveInMemory<S>(_ context: NSManagedObjectContext,
-                                _ data: S) -> Observable<Void> where
-        S: Sequence, S.Iterator.Element == NSManagedObject
-    {
-        return Observable.create(({(obs: AnyObserver<Void>) in
-            self.base.saveInMemory(context, data, obs)
-            return Disposables.create()
-        }))
-    }
+//    /// Save data to memory.
+//    ///
+//    /// - Parameters:
+//    ///   - context: A NSManagedObjectContext instance.
+//    ///   - data: A Sequence of NSManagedObject.
+//    /// - Returns: An Observable instance.
+//    public func saveInMemory<S>(_ context: NSManagedObjectContext,
+//                                _ data: S) -> Observable<Void> where
+//        S: Sequence, S.Iterator.Element == NSManagedObject
+//    {
+//        let data = data.map(eq)
+//
+//        return Observable.create(({(obs: AnyObserver<Void>) in
+//            self.base.saveInMemory(context, data, obs)
+//            return Disposables.create()
+//        }))
+//    }
     
-    /// Save data to memory.
-    ///
-    /// - Parameters:
-    ///   - context: A NSManagedObjectContext instance.
-    ///   - data: A Sequence of NSManagedObject.
-    /// - Returns: An Observable instance.
-    public func saveInMemory<S>(_ context: NSManagedObjectContext,
-                                _ data: S) -> Observable<Void> where
-        S: Sequence, S.Iterator.Element: NSManagedObject
-    {
-        return saveInMemory(context, data.map({$0 as NSManagedObject}))
-    }
+//    /// Save data to memory.
+//    ///
+//    /// - Parameters:
+//    ///   - context: A NSManagedObjectContext instance.
+//    ///   - data: A Sequence of NSManagedObject.
+//    /// - Returns: An Observable instance.
+//    public func saveInMemory<S>(_ context: NSManagedObjectContext,
+//                                _ data: S) -> Observable<Void> where
+//        S: Sequence, S.Iterator.Element: NSManagedObject
+//    {
+//        return saveInMemory(context, data.map({$0 as NSManagedObject}))
+//    }
     
     /// Construct a Sequence of CoreData from data objects and save it to memory.
     ///
@@ -77,63 +79,31 @@ public extension Reactive where Base: HMCDManager {
             return Disposables.create()
         }))
     }
-    
-    /// Save a lazily produced Sequence of data to memory.
-    ///
-    /// - Parameters:
-    ///   - context: A NSManagedObjectContext instance.
-    ///   - data: A function that produces data.
-    /// - Returns: An Observable instance.
-    public func saveInMemory<S>(_ context: NSManagedObjectContext,
-                                _ dataFn: @escaping () throws -> S)
-        -> Observable<Void> where
-        S: Sequence, S.Iterator.Element == NSManagedObject
-    {
-        return Observable.create(({(obs: AnyObserver<Void>) in
-            self.base.saveInMemory(context, dataFn, obs)
-            return Disposables.create()
-        }))
-    }
-    
-    /// Save a lazily produced Sequence of data to memory.
-    ///
-    /// - Parameters:
-    ///   - context: A NSManagedObjectContext instance.
-    ///   - data: A function that produces data.
-    /// - Returns: An Observable instance.
-    public func saveInMemory<S>(_ context: NSManagedObjectContext,
-                                _ dataFn: @escaping () throws -> S)
-        -> Observable<Void> where
-        S: Sequence, S.Iterator.Element: NSManagedObject
-    {
-        return Observable.create(({(obs: AnyObserver<Void>) in
-            self.base.saveInMemory(context, dataFn, obs)
-            return Disposables.create()
-        }))
-    }
 }
 
 public extension Reactive where Base: HMCDManager {
     
-    /// Save data to a disposable context.
-    ///
-    /// - Parameter data: A Sequence of NSManagedObject.
-    /// - Returns: An Observable instance.
-    public func saveInMemory<S>(_ data: S) -> Observable<Void> where
-        S: Sequence, S.Iterator.Element == NSManagedObject
-    {
-        return saveInMemory(base.disposableObjectContext(), data)
-    }
-    
-    /// Save data to a disposable context.
-    ///
-    /// - Parameter data: A Sequence of NSManagedObject.
-    /// - Returns: An Observable instance.
-    public func saveInMemory<S>(_ data: S) -> Observable<Void> where
-        S: Sequence, S.Iterator.Element: NSManagedObject
-    {
-        return saveInMemory(data.map({$0 as NSManagedObject}))
-    }
+//    /// Save data to a disposable context.
+//    ///
+//    /// - Parameter data: A Sequence of NSManagedObject.
+//    /// - Returns: An Observable instance.
+//    public func saveInMemory<S>(_ data: S) -> Observable<Void> where
+//        S: Sequence, S.Iterator.Element == NSManagedObject
+//    {
+//        let context = base.disposableObjectContext()
+//        print(context)
+//        return saveInMemory(context, data)
+//    }
+//
+//    /// Save data to a disposable context.
+//    ///
+//    /// - Parameter data: A Sequence of NSManagedObject.
+//    /// - Returns: An Observable instance.
+//    public func saveInMemory<S>(_ data: S) -> Observable<Void> where
+//        S: Sequence, S.Iterator.Element: NSManagedObject
+//    {
+//        return saveInMemory(data.map({$0 as NSManagedObject}))
+//    }
     
     /// Construct a Sequence of CoreData from data objects and save it to the
     /// disposable context.
@@ -149,86 +119,62 @@ public extension Reactive where Base: HMCDManager {
     {
         return saveInMemory(base.disposableObjectContext(), data)
     }
-    
-    /// Save a lazily produced Sequence of data to the disposable context.
-    ///
-    /// - Parameter dataFn: A function that produces data.
-    /// - Returns: An Observable instance.
-    public func saveInMemory<S>(_ dataFn: @escaping () throws -> S)
-        -> Observable<Void> where
-        S: Sequence, S.Iterator.Element == NSManagedObject
-    {
-        return saveInMemory(base.disposableObjectContext(), dataFn)
-    }
-    
-    /// Save a lazily produced Sequence of data to the disposable context.
-    ///
-    /// - Parameters:
-    ///   - context: A NSManagedObjectContext instance.
-    ///   - data: A function that produces data.
-    /// - Returns: An Observable instance.
-    public func saveInMemory<S>(_ dataFn: @escaping () throws -> S)
-        -> Observable<Void> where
-        S: Sequence, S.Iterator.Element: NSManagedObject
-    {
-        return saveInMemory(base.disposableObjectContext(), dataFn)
-    }
 }
 
 public extension Reactive where Base: HMCDManager {
     
-    /// Delete data from memory.
-    ///
-    /// - Parameters:
-    ///   - context: A NSManagedObjectContext instance.
-    ///   - data: A Sequence of NSManagedObject.
-    /// - Returns: An Observable instance.
-    public func deleteFromMemory<S>(_ context: NSManagedObjectContext,
-                                    _ data: S) -> Observable<Void> where
-        S: Sequence, S.Iterator.Element == NSManagedObject
-    {
-        return Observable.create(({(obs: AnyObserver<Void>) in
-            self.base.deleteFromMemory(context, data, obs)
-            return Disposables.create()
-        }))
-    }
-    
-    /// Delete data from memory.
-    ///
-    /// - Parameters:
-    ///   - context: A NSManagedObjectContext instance.
-    ///   - data: A Sequence of NSManagedObject.
-    /// - Returns: An Observable instance.
-    public func deleteFromMemory<S>(_ context: NSManagedObjectContext,
-                                    _ data: S) -> Observable<Void> where
-        S: Sequence, S.Iterator.Element: NSManagedObject
-    {
-        return deleteFromMemory(context, data.map({$0 as NSManagedObject}))
-    }
+//    /// Delete data from memory.
+//    ///
+//    /// - Parameters:
+//    ///   - context: A NSManagedObjectContext instance.
+//    ///   - data: A Sequence of NSManagedObject.
+//    /// - Returns: An Observable instance.
+//    public func deleteFromMemory<S>(_ context: NSManagedObjectContext,
+//                                    _ data: S) -> Observable<Void> where
+//        S: Sequence, S.Iterator.Element == NSManagedObject
+//    {
+//        return Observable.create(({(obs: AnyObserver<Void>) in
+//            self.base.deleteFromMemory(context, data, obs)
+//            return Disposables.create()
+//        }))
+//    }
+//
+//    /// Delete data from memory.
+//    ///
+//    /// - Parameters:
+//    ///   - context: A NSManagedObjectContext instance.
+//    ///   - data: A Sequence of NSManagedObject.
+//    /// - Returns: An Observable instance.
+//    public func deleteFromMemory<S>(_ context: NSManagedObjectContext,
+//                                    _ data: S) -> Observable<Void> where
+//        S: Sequence, S.Iterator.Element: NSManagedObject
+//    {
+//        return deleteFromMemory(context, data.map({$0 as NSManagedObject}))
+//    }
 }
 
 public extension Reactive where Base: HMCDManager {
     
-    /// Delete data from memory.
-    ///
-    /// - Parameters data: A Sequence of NSManagedObject.
-    /// - Returns: An Observable instance.
-    public func deleteFromMemory<S>(_ data: S) -> Observable<Void> where
-        S: Sequence, S.Iterator.Element == NSManagedObject
-    {
-        return deleteFromMemory(base.disposableObjectContext(), data)
-    }
-    
-    /// Delete data from memory.
-    ///
-    /// - Parameters data: A Sequence of NSManagedObject.
-    /// - Returns: An Observable instance.
-    public func deleteFromMemory<S>(_ data: S) -> Observable<Void> where
-        S: Sequence, S.Iterator.Element: NSManagedObject
-    {
-        let context = base.disposableObjectContext()
-        return deleteFromMemory(context, data.map({$0 as NSManagedObject}))
-    }
+//    /// Delete data from memory.
+//    ///
+//    /// - Parameters data: A Sequence of NSManagedObject.
+//    /// - Returns: An Observable instance.
+//    public func deleteFromMemory<S>(_ data: S) -> Observable<Void> where
+//        S: Sequence, S.Iterator.Element == NSManagedObject
+//    {
+//        return deleteFromMemory(base.disposableObjectContext(), data)
+//    }
+//    
+//    /// Delete data from memory.
+//    ///
+//    /// - Parameters data: A Sequence of NSManagedObject.
+//    /// - Returns: An Observable instance.
+//    public func deleteFromMemory<S>(_ data: S) -> Observable<Void> where
+//        S: Sequence, S.Iterator.Element: NSManagedObject
+//    {
+//        let context = base.disposableObjectContext()
+//        return deleteFromMemory(context, data.map({$0 as NSManagedObject}))
+//    }
 }
 
 public extension Reactive where Base: HMCDManager {
@@ -243,7 +189,7 @@ public extension Reactive where Base: HMCDManager {
         let privateContext = base.privateContext
         
         return Observable
-            .concat(save(context: mainContext), save(context: privateContext))
+            .concat(save(mainContext), save(privateContext))
             .reduce((), accumulator: {_ in ()})
     }
 }

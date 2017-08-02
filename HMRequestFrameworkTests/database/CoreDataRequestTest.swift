@@ -18,8 +18,8 @@ import XCTest
 public final class CoreDataRequestTest: XCTestCase {
     public typealias Req = HMCDRequestProcessor.Req
     fileprivate let timeout: TimeInterval = 1000
-    fileprivate let iterationCount = 10
-    fileprivate let dummyCount = 10
+    fileprivate let iterationCount = 1000
+    fileprivate let dummyCount = 1000
     fileprivate let dummyTypeCount = 2
     fileprivate let generatorError = "Generator error!"
     fileprivate let processorError = "Processor error!"
@@ -90,7 +90,7 @@ public final class CoreDataRequestTest: XCTestCase {
     
     public func test_saveAndFetchBuildable_shouldWork() {
         /// Setup
-        let dummyCount = 1000
+        let dummyCount = self.dummyCount
         let manager = self.manager!
         let mainContext = manager.mainContext
         let privateContext = manager.privateContext
@@ -108,7 +108,7 @@ public final class CoreDataRequestTest: XCTestCase {
             .doOnNext({_ in XCTAssertEqual(mainContext.insertedObjects.count, dummyCount)})
             .doOnNext({_ in XCTAssertTrue(privateContext.insertedObjects.isEmpty)})
             .map(toVoid)
-            .flatMap({manager.rx.persistAllChangesToFile()})
+            .flatMap(manager.rx.persistAllChangesToFile)
             .flatMap({manager.rx.fetch(fetchRq)})
             .doOnDispose(expect.fulfill)
             .subscribe(observer)
@@ -126,14 +126,12 @@ public final class CoreDataRequestTest: XCTestCase {
         let dummyCount = 10
         let manager = self.manager!
         let context = manager.disposableObjectContext()
-        let d1 = {self.randomDummies(Dummy1.self, context, dummyCount)}
-        let d2 = {self.randomDummies(Dummy2.self, context, dummyCount)}
+        let d1 = randomDummies(Dummy1.self, context, dummyCount)
+        let d2 = randomDummies(Dummy2.self, context, dummyCount)
         let observer = scheduler.createObserver(Any.self)
         let expect = expectation(description: "Should have completed")
         
-        Observable
-            .merge(manager.rx.saveInMemory(d1), manager.rx.saveInMemory(d2))
-            .reduce((), accumulator: {_ in ()})
+        manager.rx.save(context)
             .flatMap(manager.rx.persistAllChangesToFile)
             .cast(to: Any.self)
             .subscribeOn(qos: .background)
@@ -149,8 +147,7 @@ public final class CoreDataRequestTest: XCTestCase {
         let request2: NSFetchRequest<Dummy2> = try! dummy2FetchRequest().fetchRequest()
         let inserted1 = try! manager.blockingFetch(request1)
         let inserted2 = try! manager.blockingFetch(request2)
-        let totalCount = inserted1.count + inserted2.count
-        XCTAssertEqual(totalCount, dummyTypeCount * dummyCount)
+        XCTAssertEqual(inserted1.count + inserted2.count, d1.count + d2.count)
     }
     
     public func test_insertManyRandomDummies_shouldWork() {
@@ -166,8 +163,8 @@ public final class CoreDataRequestTest: XCTestCase {
         Observable.from(0..<iterationCount)
             .flatMap({(_) -> Observable<Void> in
                 let context = manager.disposableObjectContext()
-                let dummies = self.randomDummies(Dummy1.self, context, dummyCount)
-                return manager.rx.saveInMemory(dummies).subscribeOn(qos: .background)
+                let _ = self.randomDummies(Dummy1.self, context, dummyCount)
+                return manager.rx.save(context).subscribeOn(qos: .background)
             })
             .reduce((), accumulator: {_ in ()})
             .flatMap(manager.rx.persistAllChangesToFile)
@@ -179,27 +176,27 @@ public final class CoreDataRequestTest: XCTestCase {
         waitForExpectations(timeout: timeout, handler: nil)
         
         /// Then
-        print(observer.events.count)
         let elements = observer.nextElements()
         XCTAssertEqual(elements.count, iterationCount * dummyCount)
     }
     
     public func test_insertAndDeleteRandomDummies_shouldWork() {
         /// Setup
-        let dummyCount = 1000
+        let dummyCount = self.dummyCount
         let manager = self.manager!
-        let context = manager.mainObjectContext()
+        let context = manager.disposableObjectContext()
         let dummies = randomDummies(Dummy1.self, context, dummyCount)
         let fetchRq: NSFetchRequest<Dummy1> = try! dummy1FetchRequest().fetchRequest()
         let observer = scheduler.createObserver(Any.self)
         let expect = expectation(description: "Should have completed")
         
-        manager.rx.saveInMemory(dummies)
-            .flatMap({_ in manager.rx.persistAllChangesToFile()})
+        manager.rx.save(context)
+            .flatMap(manager.rx.persistAllChangesToFile)
             .flatMap({_ in manager.rx.fetch(fetchRq).toArray()})
             .doOnNext({XCTAssertEqual($0.count, dummyCount)})
-            .flatMap({_ in manager.rx.deleteFromMemory(dummies)})
-            .flatMap({_ in manager.rx.persistAllChangesToFile()})
+            .doOnNext({_ in dummies.forEach(context.delete)})
+            .flatMap({_ in manager.rx.save(context)})
+            .flatMap(manager.rx.persistAllChangesToFile)
             .flatMap({_ in manager.rx.fetch(fetchRq)})
             .cast(to: Any.self)
             .subscribeOn(qos: .background)
@@ -218,16 +215,16 @@ public final class CoreDataRequestTest: XCTestCase {
     public func test_insertRandomDummiesWithProcessor_shouldWork() {
         /// Setup
         let cdProcessor = self.cdProcessor!
-        let context = manager.mainObjectContext()
+        let context = manager.disposableObjectContext()
         let dummyCount = self.dummyCount
-        let dummies = randomDummies(Dummy1.self, context, dummyCount)
-        let persistGn = dummyMemoryPersistRgn(dummies)
+        let _ = randomDummies(Dummy1.self, context, dummyCount)
+        let persistGn = dummySaveContextRgn(context)
         let persistPs = dummyPersistRps()
         let fetchGn = dummy1FetchRgn()
         let fetchPs = dummy1FetchRps()
         let observer = scheduler.createObserver(Try<Dummy1Type>.self)
         let expect = expectation(description: "Should have completed")
-        
+
         /// When
         cdProcessor.process(dummy, persistGn, persistPs)
             .map({$0.map({$0 as Any})})
@@ -235,92 +232,66 @@ public final class CoreDataRequestTest: XCTestCase {
             .doOnDispose(expect.fulfill)
             .subscribe(observer)
             .disposed(by: disposeBag)
-        
+
         waitForExpectations(timeout: timeout, handler: nil)
-        
+
         /// Then
         let nextElements = observer.nextElements()
-        nextElements.forEach({XCTAssertTrue($0.isSuccess)})
         XCTAssertEqual(nextElements.count, dummyCount)
+        XCTAssertTrue(nextElements.all(satisfying: {$0.isSuccess}))
     }
-    
+
     public func test_insertAndDeleteRandomDummiesWithProcessor_shouldWork() {
         /// Setup
         let cdProcessor = self.cdProcessor!
-        let context = manager.mainObjectContext()
+        let context = manager.disposableObjectContext()
         let dummyCount = self.dummyCount
         let dummies = randomDummies(Dummy1.self, context, dummyCount)
-        let persistGn = dummyMemoryPersistRgn(dummies)
+        let persistGn = dummySaveContextRgn(context)
         let persistPs = dummyPersistRps()
-        let deleteGn = dummyMemoryDeleteRgn(dummies)
+        let deleteGn = dummyMemoryDeleteRgn(context)
         let deletePs = dummyMemoryDeleteRps()
         let fetchGn = dummy1FetchRgn()
         let fetchPs = dummy1FetchRps()
         let observer = scheduler.createObserver(Try<Dummy1Type>.self)
         let expect = expectation(description: "Should have completed")
-        
+
         /// When
         cdProcessor.process(dummy, persistGn, persistPs)
             .map({$0.map({$0 as Any})})
             .flatMap({cdProcessor.process($0, fetchGn, fetchPs).toArray()})
             .doOnNext({XCTAssertEqual($0.count, dummyCount)})
             .map({$0 as Any}).map(Try.success)
+            .doOnNext({_ in dummies.forEach(context.delete)})
             .flatMap({cdProcessor.process($0, deleteGn, deletePs)})
             .map({$0.map({$0 as Any})})
             .flatMap({cdProcessor.process($0, fetchGn, fetchPs)})
             .doOnDispose(expect.fulfill)
             .subscribe(observer)
             .disposed(by: disposeBag)
-        
+
         waitForExpectations(timeout: timeout, handler: nil)
-        
+
         /// Then
         let nextElements = observer.nextElements()
         XCTAssertEqual(nextElements.count, 0)
     }
     
-    public func test_insertRandomDummiesWithError_shouldNotThrow() {
-        /// Setup
-        let cdProcessor = self.cdProcessor!
-        let context = manager.mainObjectContext()
-        let dummies = randomDummies(Dummy1.self, context, dummyCount)
-        let persistGn = dummyMemoryPersistRgn(dummies)
-        let persistPs = dummyPersistRps()
-        let expect = expectation(description: "Should have completed")
-        let observer = scheduler.createObserver(Try<Void>.self)
-        
-        manager.saveInMemorySuccess = {false}
-        
-        /// When
-        cdProcessor.process(dummy, persistGn, persistPs)
-            .doOnDispose(expect.fulfill)
-            .subscribe(observer)
-            .disposed(by: disposeBag)
-        
-        waitForExpectations(timeout: timeout, handler: nil)
-        
-        /// Then
-        let nextElements = observer.nextElements()
-        XCTAssertEqual(nextElements.count, 1)
-        
-        let first = nextElements.first!
-        XCTAssertEqual(first.error!.localizedDescription, ErrorCDManager.saveInMemoryError)
-    }
-    
+
     public func test_fetchDummiesWithError_shouldNotThrow() {
         /// Setup
         let cdProcessor = self.cdProcessor!
-        let context = manager.mainObjectContext()
-        let dummies = randomDummies(Dummy1.self, context, dummyCount)
-        let persistGn = dummyMemoryPersistRgn(dummies)
+        let context = manager.disposableObjectContext()
+        let _ = randomDummies(Dummy1.self, context, dummyCount)
+        let persistGn = dummySaveContextRgn(context)
         let persistPs = dummyPersistRps()
         let fetchGn = dummy1FetchRgn()
         let fetchPs = dummy1FetchRps()
         let expect = expectation(description: "Should have completed")
         let observer = scheduler.createObserver(Try<Dummy1Type>.self)
-        
+
         manager.fetchSuccess = {false}
-        
+
         /// When
         cdProcessor.process(dummy, persistGn, persistPs)
             .map({$0.map({$0 as Any})})
@@ -328,16 +299,109 @@ public final class CoreDataRequestTest: XCTestCase {
             .doOnDispose(expect.fulfill)
             .subscribe(observer)
             .disposed(by: disposeBag)
-        
+
         waitForExpectations(timeout: timeout, handler: nil)
-        
+
         /// Then
         let nextElements = observer.nextElements()
         XCTAssertEqual(nextElements.count, 1)
-        
+
         let first = nextElements.first!
         XCTAssertEqual(first.error!.localizedDescription, ErrorCDManager.fetchError)
     }
+    
+    public func test_predicateForUpsertFetch_shouldWork() {
+        /// Setup
+        let times = 1000
+        let context = manager.mainObjectContext()
+        let objs = (0..<times).map({_ in try! Dummy1(context)})
+        
+        /// When
+        let predicate = manager.predicateForUpsertableFetch(objs)
+        
+        /// Then
+        let description = predicate.description
+        let dComponents = description.components(separatedBy: " ")
+        let dummyValues = objs.map({$0.primaryValue()})
+        XCTAssertEqual(dComponents.filter({$0 == "OR"}).count, times - 1)
+        XCTAssertTrue(dummyValues.all(satisfying: description.contains))
+    }
+    
+//    public func test_coreDataUpsert_shouldWork() {
+//        /// Setup
+//        let manager = self.manager!
+//        let dbProcessor = self.dbProcessor!
+//        let context = manager.mainObjectContext()
+//        let expect = expectation(description: "Should have completed")
+//        let observer = scheduler.createObserver(Try<Dummy1>.self)
+//        let times1 = 2
+//        let times2 = 2
+//        let data1 = (0..<times1).map({_ in try! Dummy1(context)})
+//        let data2 = (0..<times2).map({_ in try! Dummy1(context)})
+//
+//        let data3 = (0..<times1).map({(index) -> Dummy1 in
+//            let dummy = try! Dummy1(context)
+//            dummy.id = data1[index].id
+//            return dummy
+//        })
+//
+//        let data23 = [data2, data3].flatMap({$0})
+//
+//        let saveRq1 = Req.builder()
+//            .with(operation: .persistToFile)
+//            .with(dataToSave: data1)
+//            .build()
+//
+//        let generator1 = HMRequestGenerators.forceGenerateFn(saveRq1, Any.self)
+//        let processor1: HMEQResultProcessor<Void> = HMResultProcessors.eqProcessor()
+//
+//        let upsertRq23 = Req.builder()
+//            .with(operation: .upsert)
+//            .with(dataToUpsert: data23)
+//            .with(representable: Dummy1.self)
+//            .build()
+//
+//        let generator2 = HMRequestGenerators.forceGenerateFn(upsertRq23, Any.self)
+//        let processor2: HMEQResultProcessor<Void> = HMResultProcessors.eqProcessor()
+//
+//        let fetchRqAll = Req.builder()
+//            .with(representable: Dummy1.self)
+//            .with(predicate: NSPredicate(value: true))
+//            .with(operation: .fetch)
+//            .build()
+//
+//        let fetchRq: NSFetchRequest<Dummy1> = try! fetchRqAll.fetchRequest()
+//        let generator3 = HMRequestGenerators.forceGenerateFn(fetchRqAll, Any.self)
+//        let processor3: HMEQResultProcessor<Dummy1> = HMResultProcessors.eqProcessor()
+//
+//        /// When
+//        dbProcessor.process(dummy, generator1, processor1)
+//            .doOnNext({_ in try! print(manager.blockingFetch(fetchRq))})
+//            .doOnNext({_ in print(">>>>>>>>>>>>>>>>>>>")})
+//            .map({$0.map({$0 as Any})})
+//            .flatMap({dbProcessor.process($0, generator2, processor2)})
+//            .map({$0.map({$0 as Any})})
+//            .flatMap({dbProcessor.process($0, generator3, processor3)})
+//            .doOnDispose(expect.fulfill)
+//            .subscribe(observer)
+//            .disposed(by: disposeBag)
+//
+//        waitForExpectations(timeout: timeout, handler: nil)
+//
+//        /// Then
+//        let nextElements = observer.nextElements()
+//        let nextDummies = nextElements.flatMap({$0.value})
+//        XCTAssertEqual(nextElements.count, data23.count)
+//
+//        XCTAssertTrue(data23.all(satisfying: {dummy1 in
+//            nextDummies.contains(where: {
+//                $0.id == dummy1.id &&
+//                $0.date == dummy1.date &&
+//                $0.int64 == dummy1.int64 &&
+//                $0.float == dummy1.float
+//            })
+//        }))
+//    }
     
     public func test_cdNonTypedRequestObject_shouldThrowErrorsIfNecessary() {
         var currentCheck = 0
@@ -375,104 +439,11 @@ public final class CoreDataRequestTest: XCTestCase {
         
         /// 4
         let request4 = checkError(request3.cloneBuilder()
-            .with(dataToSave: [try! Dummy1(context)])
+            .with(contextToSave: context)
             .build(), false)
         
         /// End
         _ = request4
-    }
-    
-    public func test_predicateForUpsertFetch_shouldWork() {
-        /// Setup
-        let times = 1000
-        let context = manager.mainObjectContext()
-        let objs = (0..<times).map({_ in try! Dummy1(context)})
-        
-        /// When
-        let predicate = manager.predicateForUpsertableFetch(objs)
-        
-        /// Then
-        let description = predicate.description
-        let dComponents = description.components(separatedBy: " ")
-        let dummyValues = objs.map({$0.primaryValue()})
-        XCTAssertEqual(dComponents.filter({$0 == "OR"}).count, times - 1)
-        XCTAssertTrue(dummyValues.all(satisfying: description.contains))
-    }
-    
-    public func test_coreDataUpsert_shouldWork() {
-        /// Setup
-        let manager = self.manager!
-        let dbProcessor = self.dbProcessor!
-        let context = manager.mainObjectContext()
-        let expect = expectation(description: "Should have completed")
-        let observer = scheduler.createObserver(Try<Dummy1>.self)
-        let times1 = 2
-        let times2 = 2
-        let data1 = (0..<times1).map({_ in try! Dummy1(context)})
-        let data2 = (0..<times2).map({_ in try! Dummy1(context)})
-        
-        let data3 = (0..<times1).map({(index) -> Dummy1 in
-            let dummy = try! Dummy1(context)
-            dummy.id = data1[index].id
-            return dummy
-        })
-        
-        let data23 = [data2, data3].flatMap({$0})
-        
-        let saveRq1 = Req.builder()
-            .with(operation: .persistToFile)
-            .with(dataToSave: data1)
-            .build()
-        
-        let generator1 = HMRequestGenerators.forceGenerateFn(saveRq1, Any.self)
-        let processor1: HMEQResultProcessor<Void> = HMResultProcessors.eqProcessor()
-        
-        let upsertRq23 = Req.builder()
-            .with(operation: .upsert)
-            .with(dataToUpsert: data23)
-            .with(representable: Dummy1.self)
-            .build()
-        
-        let generator2 = HMRequestGenerators.forceGenerateFn(upsertRq23, Any.self)
-        let processor2: HMEQResultProcessor<Void> = HMResultProcessors.eqProcessor()
-        
-        let fetchRqAll = Req.builder()
-            .with(representable: Dummy1.self)
-            .with(predicate: NSPredicate(value: true))
-            .with(operation: .fetch)
-            .build()
-        
-        let fetchRq: NSFetchRequest<Dummy1> = try! fetchRqAll.fetchRequest()
-        let generator3 = HMRequestGenerators.forceGenerateFn(fetchRqAll, Any.self)
-        let processor3: HMEQResultProcessor<Dummy1> = HMResultProcessors.eqProcessor()
-        
-        /// When
-        dbProcessor.process(dummy, generator1, processor1)
-            .doOnNext({_ in try! print(manager.blockingFetch(fetchRq))})
-            .doOnNext({_ in print(">>>>>>>>>>>>>>>>>>>")})
-            .map({$0.map({$0 as Any})})
-            .flatMap({dbProcessor.process($0, generator2, processor2)})
-            .map({$0.map({$0 as Any})})
-            .flatMap({dbProcessor.process($0, generator3, processor3)})
-            .doOnDispose(expect.fulfill)
-            .subscribe(observer)
-            .disposed(by: disposeBag)
-        
-        waitForExpectations(timeout: timeout, handler: nil)
-        
-        /// Then
-        let nextElements = observer.nextElements()
-        let nextDummies = nextElements.flatMap({$0.value})
-        XCTAssertEqual(nextElements.count, data23.count)
-        
-        XCTAssertTrue(data23.all(satisfying: {dummy1 in
-            nextDummies.contains(where: {
-                $0.id == dummy1.id &&
-                $0.date == dummy1.date &&
-                $0.int64 == dummy1.int64 &&
-                $0.float == dummy1.float
-            })
-        }))
     }
 }
 
@@ -535,15 +506,15 @@ extension CoreDataRequestTest {
 }
 
 extension CoreDataRequestTest {
-    func dummyMemoryPersistRequest(_ data: [NSManagedObject]) -> Req {
+    func dummySaveContextRequest(_ context: NSManagedObjectContext) -> Req {
         return Req.builder()
-            .with(operation: .saveInMemory)
-            .with(dataToSave: data)
+            .with(operation: .saveContext)
+            .with(contextToSave: context)
             .build()
     }
     
-    func dummyMemoryPersistRgn(_ data: [NSManagedObject]) -> HMRequestGenerator<Any,Req> {
-        return HMRequestGenerators.forceGenerateFn(dummyMemoryPersistRequest(data))
+    func dummySaveContextRgn(_ context: NSManagedObjectContext) -> HMRequestGenerator<Any,Req> {
+        return HMRequestGenerators.forceGenerateFn(dummySaveContextRequest(context))
     }
     
     func dummyPersistRps() -> HMEQResultProcessor<Void> {
@@ -552,15 +523,15 @@ extension CoreDataRequestTest {
 }
 
 extension CoreDataRequestTest {
-    func dummyMemoryDeleteRequest(_ data: [NSManagedObject]) -> Req {
+    func dummyMemoryDeleteRequest(_ context: NSManagedObjectContext) -> Req {
         return Req.builder()
-            .with(operation: .delete)
-            .with(dataToDelete: data)
+            .with(operation: .saveContext)
+            .with(contextToSave: context)
             .build()
     }
     
-    func dummyMemoryDeleteRgn(_ data: [NSManagedObject]) -> HMRequestGenerator<Any,Req> {
-        return HMRequestGenerators.forceGenerateFn(dummyMemoryDeleteRequest(data))
+    func dummyMemoryDeleteRgn(_ context: NSManagedObjectContext) -> HMRequestGenerator<Any,Req> {
+        return HMRequestGenerators.forceGenerateFn(dummyMemoryDeleteRequest(context))
     }
     
     func dummyMemoryDeleteRps() -> HMEQResultProcessor<Void> {

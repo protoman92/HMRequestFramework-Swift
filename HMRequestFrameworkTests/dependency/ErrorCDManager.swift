@@ -15,16 +15,13 @@ import SwiftUtilitiesTests
 public final class ErrorCDManager: HMCDManager {
     public static let fetchError = "Fetch error"
     public static let saveToFileError = "Save to file error"
-    public static let saveInMemoryError = "Save data to file error"
     
     public var fetchSuccess: () -> Bool
     public var saveToFileSuccess: () -> Bool
-    public var saveInMemorySuccess: () -> Bool
     
     public required init(constructor: HMCDConstructorType) throws {
         fetchSuccess = {true}
         saveToFileSuccess = {true}
-        saveInMemorySuccess = {true}
         try super.init(constructor: constructor)
     }
     
@@ -41,17 +38,6 @@ public final class ErrorCDManager: HMCDManager {
             try super.persistChangesToFileUnsafely()
         } else {
             throw Exception(ErrorCDManager.saveToFileError)
-        }
-    }
-    
-    public func saveInMemoryUnsafely<S>(_ context: NSManagedObjectContext,
-                                        _ data: S) throws where
-        S: Sequence, S.Iterator.Element == NSManagedObject
-    {
-        if saveInMemorySuccess() {
-            try super.saveInMemoryUnsafely(context, data)
-        } else {
-            throw Exception(ErrorCDManager.saveInMemoryError)
         }
     }
 }

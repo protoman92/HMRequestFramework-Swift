@@ -15,8 +15,7 @@ public struct HMCDRequest {
     fileprivate var nsPredicate: NSPredicate?
     fileprivate var nsSortDescriptors: [NSSortDescriptor]
     fileprivate var cdOperation: CoreDataOperation?
-    fileprivate var cdDataToSave: [NSManagedObject]
-    fileprivate var cdDataToDelete: [NSManagedObject]
+    fileprivate var cdContextToSave: NSManagedObjectContext?
     fileprivate var cdDataToUpsert: [HMCDUpsertableObject]
     fileprivate var retryCount: Int
     fileprivate var middlewaresEnabled: Bool
@@ -24,8 +23,6 @@ public struct HMCDRequest {
     
     fileprivate init() {
         nsSortDescriptors = []
-        cdDataToSave = []
-        cdDataToDelete = []
         cdDataToUpsert = []
         retryCount = 1
         middlewaresEnabled = false
@@ -127,56 +124,14 @@ extension HMCDRequest: HMBuildableType {
             return self
         }
         
-        /// Set the data to save.
+        /// Set the context to save.
         ///
-        /// - Parameter data: A Sequence of NSManagedObject.
+        /// - Parameter data: A NSManagedObject instance.
         /// - Returns: The current Builder instance.
         @discardableResult
-        public func with<S>(dataToSave data: S?) -> Self where
-            S: Sequence, S.Iterator.Element == NSManagedObject
-        {
-            if let data = data {
-                request.cdDataToSave.append(contentsOf: data)
-            }
-            
+        public func with(contextToSave: NSManagedObjectContext?) -> Self {
+            request.cdContextToSave = contextToSave
             return self
-        }
-        
-        /// Set the data to save.
-        ///
-        /// - Parameter data: A Sequence of NSManagedObject.
-        /// - Returns: The current Builder instance.
-        @discardableResult
-        public func with<S>(dataToSave data: S?) -> Self where
-            S: Sequence, S.Iterator.Element: NSManagedObject
-        {
-            return with(dataToSave: data?.map({$0 as NSManagedObject}))
-        }
-        
-        /// Set the data to delete.
-        ///
-        /// - Parameter data: A Sequence of NSManagedObject.
-        /// - Returns: The current Builder instance.
-        @discardableResult
-        public func with<S>(dataToDelete data: S?) -> Self where
-            S: Sequence, S.Iterator.Element == NSManagedObject
-        {
-            if let data = data {
-                request.cdDataToDelete.append(contentsOf: data)
-            }
-            
-            return self
-        }
-        
-        /// Set the data to delete.
-        ///
-        /// - Parameter data: A Sequence of NSManagedObject.
-        /// - Returns: The current Builder instance.
-        @discardableResult
-        public func with<S>(dataToDelete data: S?) -> Self where
-            S: Sequence, S.Iterator.Element: NSManagedObject
-        {
-            return with(dataToDelete: data?.map({$0 as NSManagedObject}))
         }
         
         /// Set the data to upsert.
@@ -228,7 +183,8 @@ extension HMCDRequest.Builder: HMProtocolConvertibleBuilderType {
             .with(entityName: try? generic.entityName())
             .with(predicate: try? generic.predicate())
             .with(sortDescriptors: try? generic.sortDescriptors())
-            .with(dataToSave: try? generic.dataToSave())
+            .with(contextToSave: try? generic.contextToSave())
+            .with(dataToUpsert: try? generic.dataToUpsert())
             .with(retries: generic.retries())
             .with(applyMiddlewares: generic.applyMiddlewares())
             .with(requestDescription: generic.requestDescription())
@@ -313,12 +269,12 @@ extension HMCDRequest: HMCDRequestType {
         return nsSortDescriptors
     }
     
-    public func dataToSave() throws -> [NSManagedObject] {
-        return cdDataToSave
-    }
-    
-    public func dataToDelete() throws -> [NSManagedObject] {
-        return cdDataToDelete
+    public func contextToSave() throws -> NSManagedObjectContext {
+        if let context = cdContextToSave {
+            return context
+        } else {
+            throw Exception("Context to save cannot be nil")
+        }
     }
     
     public func dataToUpsert() throws -> [HMCDUpsertableObject] {

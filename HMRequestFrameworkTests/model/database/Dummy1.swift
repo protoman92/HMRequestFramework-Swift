@@ -24,6 +24,10 @@ public final class Dummy1: HMCDUpsertableObject {
     @NSManaged public var date: Date
     @NSManaged public var float: Float
     
+    public override var description: String {
+        return "id: \(id), int64: \(int64)"
+    }
+    
     public convenience init(_ context: NSManagedObjectContext) throws {
         let entity = try Dummy1.entityDescription(in: context)
         self.init(entity: entity, insertInto: context)

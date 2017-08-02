@@ -32,17 +32,12 @@ public protocol HMCDRequestType: HMDatabaseRequestType {
     /// - Returns: A CoreDataOperation instance.
     func operation() throws -> CoreDataOperation
     
-    /// Get the data to be saved. Only used with save operations.
+    /// Get the context to perform a save/delete operation. The context should
+    /// contain changes to be modified from memory.
     ///
-    /// - Returns: An Array of NSManagedObject.
-    /// - Throws: Exception if the data is not available.
-    func dataToSave() throws -> [NSManagedObject]
-    
-    /// Get the data to be deleted. Only used with delete operations.
-    ///
-    /// - Returns: An Array of NSManagedObject.
-    /// - Throws: Exception if the data is not available.
-    func dataToDelete() throws -> [NSManagedObject]
+    /// - Returns: A NSManagedObjectContext instance.
+    /// - Throws: Exception if the context is not available.
+    func contextToSave() throws -> NSManagedObjectContext
     
     /// Get the data to be upserted. Only used with upsert operations.
     ///
