@@ -119,28 +119,6 @@ public extension HMCDManagerType {
                             _ cls: Val.Type) throws -> [Val] {
         return try blockingFetch(context, request)
     }
-    
-    /// Re-fetch some data based on ObjectID and insert them into some disposable
-    /// context. This is useful for save/delete operations whereby we are not
-    /// certain what contexts the data are inserted in.
-    ///
-    /// - Parameters:
-    ///   - context: A NSManagedObjectContext instance.
-    ///   - entityName: A String value representing the entity's name.
-    ///   - data: A Sequence of NSManagedObject.
-    /// - Returns: An Array of Element.
-    /// - Throws: Exception if the fetch fails.
-    func blockingRefetch<S>(_ context: NSManagedObjectContext,
-                            _ entityName: String,
-                            _ data: S) throws
-        -> [S.Iterator.Element] where
-        S: Sequence, S.Iterator.Element: NSManagedObject
-    {
-        let predicate = predicateForObjectIDFetch(data)
-        let request: NSFetchRequest<S.Iterator.Element> = NSFetchRequest(entityName: entityName)
-        request.predicate = predicate
-        return try context.fetch(request)
-    }
 }
 
 public extension HMCDManagerType {
@@ -172,7 +150,7 @@ public extension HMCDManagerType {
         S: Sequence,
         S.Iterator.Element == PO
     {
-        let _ = try data.map({try self.construct(context, $0)})
+        let _ = try data.map({try self.constructUnsafely(context, $0)})
         try saveUnsafely(context)
     }
 }
@@ -187,16 +165,51 @@ public extension HMCDManagerType {
     ///   - entityName: A String value representing the entity's name.
     ///   - data: A Sequence of NSManagedObject.
     /// - Throws: Exception if the delete fails.
-    func deleteFromMemoryUnsafely<S>(_ context: NSManagedObjectContext,
-                                     _ entityName: String,
-                                     _ data: S) throws where
-        S: Sequence, S.Iterator.Element: NSManagedObject
+    func deleteFromMemoryUnsafely<NS,S>(_ context: NSManagedObjectContext,
+                                        _ entityName: String,
+                                        _ data: S) throws where
+        NS: NSManagedObject, S: Sequence, S.Iterator.Element == NS
     {
         let data = data.map(eq)
         
         if data.isNotEmpty {
-            let refetched = try blockingRefetch(context, entityName, data)
+            let predicate = predicateForObjectIDFetch(data)
+            let request: NSFetchRequest<NS> = NSFetchRequest(entityName: entityName)
+            request.predicate = predicate
+            
+            let refetched = try context.fetch(request)
             refetched.forEach(context.delete)
+            try saveUnsafely(context)
+        }
+    }
+    
+    /// Delete a Sequence of upsertable data from memory by refetching them
+    /// using some context.
+    ///
+    /// This is different from the above operation because the predicate used
+    /// here involves primaryKey/primaryValue of each object, not objectID.
+    ///
+    /// This operation is not thread-safe.
+    ///
+    /// - Parameters:
+    ///   - context: A NSManagedObjectContext instance.
+    ///   - entityName: A String value representing the entity's name.
+    ///   - data: A Sequence of NSManagedObject.
+    /// - Throws: Exception if the delete fails.
+    func deleteFromMemoryUnsafely<U,S>(_ context: NSManagedObjectContext,
+                                       _ entityName: String,
+                                       _ data: S) throws where
+        U: HMCDUpsertableObject, S: Sequence, S.Iterator.Element == U
+    {
+        let data = data.map(eq)
+        
+        if data.isNotEmpty {
+            let predicate = predicateForUpsertableFetch(data)
+            let request: NSFetchRequest<U> = NSFetchRequest(entityName: entityName)
+            request.predicate = predicate
+            
+            let upsertables = try context.fetch(request)
+            upsertables.forEach(context.delete)
             try saveUnsafely(context)
         }
     }

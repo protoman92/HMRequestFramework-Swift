@@ -11,7 +11,31 @@ import RxSwift
 import SwiftUtilities
 
 extension HMCDManager: HMCDRxManagerType {}
+extension HMCDManager: HMCDRxObjectConstructorType {}
 extension HMCDManager: ReactiveCompatible {}
+
+public extension Reactive where Base: HMCDManager {
+    
+    /// Construct CoreData objects from multiple pure objects.
+    ///
+    /// - Parameters:
+    ///   - context: A NSManagedObjectContext instance.
+    ///   - pureObjs: A Sequence of PO.
+    /// - Returns: An Observable instance.
+    /// - Throws: Exception if the construction fails.
+    public func construct<PO,S>(_ context: NSManagedObjectContext, _ pureObjs: S)
+        -> Observable<[PO.CDClass]> where
+        PO: HMCDPureObjectType,
+        PO.CDClass: HMCDRepresetableBuildableType,
+        PO.CDClass.Builder.PureObject == PO,
+        S: Sequence, S.Iterator.Element == PO
+    {
+        return Observable.create({(obs: AnyObserver<[PO.CDClass]>) in
+            self.base.construct(context, pureObjs, obs)
+            return Disposables.create()
+        })
+    }
+}
 
 public extension Reactive where Base: HMCDManager {
     
@@ -75,10 +99,10 @@ public extension Reactive where Base: HMCDManager {
     ///   - entityName: A String value representing the entity's name.
     ///   - data: A Sequence of NSManagedObject.
     /// - Throws: Exception if the delete fails.
-    func deleteFromMemory<S>(_ context: NSManagedObjectContext,
-                             _ entityName: String,
-                             _ data: S) -> Observable<Void> where
-        S: Sequence, S.Iterator.Element: NSManagedObject
+    func deleteFromMemory<NS,S>(_ context: NSManagedObjectContext,
+                                _ entityName: String,
+                                _ data: S) -> Observable<Void> where
+        NS: NSManagedObject, S: Sequence, S.Iterator.Element == NS
     {
         return Observable.create(({(obs: AnyObserver<Void>) in
             self.base.deleteFromMemory(context, entityName, data, obs)
@@ -93,9 +117,45 @@ public extension Reactive where Base: HMCDManager {
     ///   - entityName: A String value representing the entity's name.
     ///   - data: A Sequence of NSManagedObject.
     /// - Returns: An Observable instance.
-    func deleteFromMemory<S>(_ entityName: String, _ data: S)
+    func deleteFromMemory<NS,S>(_ entityName: String, _ data: S)
         -> Observable<Void> where
-        S: Sequence, S.Iterator.Element: NSManagedObject
+        NS: NSManagedObject, S: Sequence, S.Iterator.Element == NS
+    {
+        return deleteFromMemory(base.disposableObjectContext(), entityName, data)
+    }
+}
+
+public extension Reactive where Base: HMCDManager {
+    
+    /// Delete a Sequence of upsertable data from memory by refetching them
+    /// using some context.
+    ///
+    /// - Parameters:
+    ///   - context: A NSManagedObjectContext instance.
+    ///   - entityName: A String value representing the entity's name.
+    ///   - data: A Sequence of HMCDUpsertableObject.
+    /// - Throws: Exception if the delete fails.
+    func deleteFromMemory<U,S>(_ context: NSManagedObjectContext,
+                               _ entityName: String,
+                               _ data: S) -> Observable<Void> where
+        U: HMCDUpsertableObject, S: Sequence, S.Iterator.Element == U
+    {
+        return Observable.create(({(obs: AnyObserver<Void>) in
+            self.base.deleteFromMemory(context, entityName, data, obs)
+            return Disposables.create()
+        }))
+    }
+    
+    /// Delete a Sequence of upsertable data from memory by refetching them
+    /// using some context.
+    ///
+    /// - Parameters:
+    ///   - entityName: A String value representing the entity's name.
+    ///   - data: A Sequence of HMCDUpsertableObject.
+    /// - Returns: An Observable instance.
+    func deleteFromMemory<U,S>(_ entityName: String, _ data: S)
+        -> Observable<Void> where
+        U: HMCDUpsertableObject, S: Sequence, S.Iterator.Element == U
     {
         return deleteFromMemory(base.disposableObjectContext(), entityName, data)
     }

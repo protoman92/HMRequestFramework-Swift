@@ -157,31 +157,17 @@ extension HMCDRequestProcessor: HMCDRequestProcessorType {
         let context = try request.contextToSave()
         let data = context.insertedObjects
         let upsertables = data.flatMap({$0 as? HMCDUpsertableObject})
-        let predicate = manager.predicateForUpsertableFetch(upsertables)
-        
-        let fetchRq = request.cloneBuilder()
-            .with(predicate: predicate)
-            .with(sortDescriptors: [])
-            .build()
-        
         let entityName = try request.entityName()
         
-        return manager.rx
-            // First we need to fetch all objects that match some primary
-            // key values from the DB - those are the ones that have to be updated.
-            .fetch(context, try fetchRq.fetchRequest(), NSManagedObject.self)
-            .flatMap({Observable
-                .concat(
-                    // This will only delete objects that are already in the
-                    // DB. Therefore, even if the above fetch request result
-                    // contains inserted, but non-persisted objects, the delete
-                    // will still work correctly.
-                    manager.rx.deleteFromMemory(entityName, $0),
-                    manager.rx.save(context)
-                )
-                .reduce((), accumulator: {_ in ()})
-                .map(Try.success)
-            })
+        return Observable
+            .concat(
+                // This will only delete objects that are already in the
+                // DB, so we can call it with all data.
+                manager.rx.deleteFromMemory(entityName, upsertables),
+                manager.rx.save(context)
+            )
+            .reduce((), accumulator: {_ in ()})
+            .map(Try.success)
             .catchErrorJustReturn(Try.failure)
     }
 }

@@ -16,6 +16,7 @@
 		D32649721F288EDC000226FA /* HMCDAttributeDescription.swift in Sources */ = {isa = PBXBuildFile; fileRef = D32649711F288EDC000226FA /* HMCDAttributeDescription.swift */; };
 		D326B17F1F2D76FE0021216C /* HMJSONConvertibleType.swift in Sources */ = {isa = PBXBuildFile; fileRef = D326B17E1F2D76FE0021216C /* HMJSONConvertibleType.swift */; };
 		D326B1821F2D7B210021216C /* HMBuildableType.swift in Sources */ = {isa = PBXBuildFile; fileRef = D326B1811F2D7B210021216C /* HMBuildableType.swift */; };
+		D326BCFB1F31C44100B4DEFA /* HMCDRxObjectConstructorType.swift in Sources */ = {isa = PBXBuildFile; fileRef = D326BCFA1F31C44100B4DEFA /* HMCDRxObjectConstructorType.swift */; };
 		D32995501F2CC4D700715932 /* MockResource.swift in Sources */ = {isa = PBXBuildFile; fileRef = D329954F1F2CC4D700715932 /* MockResource.swift */; };
 		D32995531F2CC8DD00715932 /* MockRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = D32995521F2CC8DD00715932 /* MockRequest.swift */; };
 		D32995551F2CC9BB00715932 /* RequestHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = D32995541F2CC9BB00715932 /* RequestHandler.swift */; };
@@ -95,6 +96,7 @@
 		D32649711F288EDC000226FA /* HMCDAttributeDescription.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMCDAttributeDescription.swift; sourceTree = "<group>"; };
 		D326B17E1F2D76FE0021216C /* HMJSONConvertibleType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMJSONConvertibleType.swift; sourceTree = "<group>"; };
 		D326B1811F2D7B210021216C /* HMBuildableType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMBuildableType.swift; sourceTree = "<group>"; };
+		D326BCFA1F31C44100B4DEFA /* HMCDRxObjectConstructorType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMCDRxObjectConstructorType.swift; sourceTree = "<group>"; };
 		D329954F1F2CC4D700715932 /* MockResource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockResource.swift; sourceTree = "<group>"; };
 		D32995521F2CC8DD00715932 /* MockRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockRequest.swift; sourceTree = "<group>"; };
 		D32995541F2CC9BB00715932 /* RequestHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RequestHandler.swift; sourceTree = "<group>"; };
@@ -450,6 +452,7 @@
 				D32649711F288EDC000226FA /* HMCDAttributeDescription.swift */,
 				D37D0BCA1F25F5A90032C6AB /* HMCDConstructor.swift */,
 				D37D0BC81F25F2EE0032C6AB /* HMCDConstructorType.swift */,
+				D311B3131F30E7CB008F3B8D /* HMCDContextProviderType.swift */,
 				D37D0BCE1F25F7600032C6AB /* HMCDManager.swift */,
 				D3922E0B1F2644AC004A49B9 /* HMCDManagers.swift */,
 				D37D0BCC1F25F7220032C6AB /* HMCDManagerType.swift */,
@@ -457,10 +460,10 @@
 				D37D0B711F25E1BE0032C6AB /* HMCDPureObjectType.swift */,
 				D398B7941F265CAC00DCE4D8 /* HMCDRepresentableType.swift */,
 				D3C522BB1F26F96600B294EF /* HMCDRxManagerType.swift */,
+				D326BCFA1F31C44100B4DEFA /* HMCDRxObjectConstructorType.swift */,
 				D3FC6E7F1F2F0C7F007471E2 /* HMCDUpsertableType.swift */,
 				D3922E071F262B41004A49B9 /* HMPersistentStoreSettings.swift */,
 				D3922E091F26334A004A49B9 /* HMPersistentStoreURL.swift */,
-				D311B3131F30E7CB008F3B8D /* HMCDContextProviderType.swift */,
 			);
 			path = stack;
 			sourceTree = "<group>";
@@ -732,6 +735,7 @@
 				D37D0BA11F25E3A00032C6AB /* HMRequestGenerator.swift in Sources */,
 				D326B1821F2D7B210021216C /* HMBuildableType.swift in Sources */,
 				D37D0BA21F25E3A00032C6AB /* HMRequestHandlerType.swift in Sources */,
+				D326BCFB1F31C44100B4DEFA /* HMCDRxObjectConstructorType.swift in Sources */,
 				D37D0BA31F25E3A00032C6AB /* HMRequestProcessorType.swift in Sources */,
 				D32CF7861F2C7F2C00884886 /* HMMiddlewareManagers.swift in Sources */,
 				D3922E0C1F2644AC004A49B9 /* HMCDManagers.swift in Sources */,

@@ -18,8 +18,8 @@ import XCTest
 public final class CoreDataRequestTest: XCTestCase {
     public typealias Req = HMCDRequestProcessor.Req
     fileprivate let timeout: TimeInterval = 1000
-    fileprivate let iterationCount = 100
-    fileprivate let dummyCount = 100
+    fileprivate let iterationCount = 10
+    fileprivate let dummyCount = 1000
     fileprivate let dummyTypeCount = 2
     fileprivate let generatorError = "Generator error!"
     fileprivate let processorError = "Processor error!"
@@ -54,10 +54,11 @@ public final class CoreDataRequestTest: XCTestCase {
     /// and result processors.
     public func test_databaseRequestProcessor_shouldNotLeakContext() {
         /// Setup
+        let observer = scheduler.createObserver(Try<Any>.self)
+        let expect = expectation(description: "Should have completed")
         let dbProcessor = self.dbProcessor!
         let generator = errorDBRgn()
         let processor = errorDBRps()
-        let observer = scheduler.createObserver(Try<Any>.self)
         
         /// When
         dbProcessor.process(dummy, generator, processor)
@@ -68,8 +69,11 @@ public final class CoreDataRequestTest: XCTestCase {
             .map({$0.map({$0 as Any})})
             .flatMap({dbProcessor.process($0, generator, processor)})
             .map({$0.map({$0 as Any})})
+            .doOnDispose(expect.fulfill)
             .subscribe(observer)
             .disposed(by: disposeBag)
+        
+        waitForExpectations(timeout: timeout, handler: nil)
         
         /// Then
         let nextElements = observer.nextElements()
@@ -82,26 +86,37 @@ public final class CoreDataRequestTest: XCTestCase {
     
     public func test_constructBuildable_shouldWork() {
         /// Setup
-        let dummy = Dummy3()
+        let observer = scheduler.createObserver(Dummy3.self)
+        let expect = expectation(description: "Should have completed")
+        let manager = self.manager!
+        let context = manager.disposableObjectContext()
+        let dummies = (0..<10000).map({_ in Dummy3()})
         
         /// When
-        let cdDummy = try! manager.construct(dummy)
-        let reconstructed = cdDummy.asPureObject()
+        manager.rx.construct(context, dummies)
+            .flatMap({Observable.from($0)})
+            .map({$0.asPureObject()})
+            .doOnDispose(expect.fulfill)
+            .subscribe(observer)
+            .disposed(by: disposeBag)
         
+        waitForExpectations(timeout: timeout, handler: nil)
+            
         /// Then
-        XCTAssertEqual(dummy, reconstructed)
+        let nextElements = observer.nextElements()
+        XCTAssertEqual(dummies, nextElements)
     }
     
     public func test_saveAndFetchBuildable_shouldWork() {
         /// Setup
+        let observer = scheduler.createObserver(HMCDDummy3.self)
+        let expect = expectation(description: ("Should have completed"))
         let dummyCount = self.dummyCount
         let manager = self.manager!
         let mainContext = manager.mainContext
         let privateContext = manager.privateContext
         let dummies = (0..<dummyCount).map({_ in Dummy3()})
         let fetchRq: NSFetchRequest<HMCDDummy3> = try! dummy3FetchRequest().fetchRequest()
-        let observer = scheduler.createObserver(HMCDDummy3.self)
-        let expect = expectation(description: ("Should have completed"))
         XCTAssertTrue(mainContext.insertedObjects.isEmpty)
         XCTAssertTrue(privateContext.insertedObjects.isEmpty)
         
@@ -137,14 +152,14 @@ public final class CoreDataRequestTest: XCTestCase {
     
     public func test_insertAndDeleteRandomDummies_shouldWork() {
         /// Setup
+        let observer = scheduler.createObserver(Any.self)
+        let expect = expectation(description: "Should have completed")
         let dummyCount = self.dummyCount
         let manager = self.manager!
         let context = manager.disposableObjectContext()
         let dummies = randomDummies(Dummy1.self, context, dummyCount)
         let fetchRq: NSFetchRequest<Dummy1> = try! dummy1FetchRequest().fetchRequest()
         let entityName = try! Dummy1.entityName()
-        let observer = scheduler.createObserver(Any.self)
-        let expect = expectation(description: "Should have completed")
         
         // The NSManagedObjects, once initilized, should have been inserted into
         // this context. When we save it, we propagate the changes one level
@@ -181,15 +196,75 @@ public final class CoreDataRequestTest: XCTestCase {
         XCTAssertEqual(nextElements.count, 0)
     }
     
+    public func test_insertAndDeleteUpsertables_shouldWork() {
+        /// Setup
+        let observer = scheduler.createObserver(Dummy1.self)
+        let expect = expectation(description: "Should have completed")
+        let manager = self.manager!
+        
+        // Two contexts for two operations, no shared context.
+        let context1 = manager.disposableObjectContext()
+        let context2 = manager.disposableObjectContext()
+        let dummyCount = self.dummyCount
+        let data1 = (0..<dummyCount).map({_ in try! Dummy1(context1)})
+        
+        let data2 = (0..<dummyCount).map({(i) -> Dummy1 in
+            let dummy = try! Dummy1(context2)
+            dummy.id = data1[i].id
+            return dummy
+        })
+        
+        let fetchRq: NSFetchRequest<Dummy1> = try! HMCDRequest.builder()
+            .with(representable: Dummy1.self)
+            .with(operation: .fetch)
+            .with(predicate: NSPredicate(value: true))
+            .build()
+            .fetchRequest()
+        
+        let entityName = fetchRq.entityName!
+        
+        /// When
+        // Save data1 to memory without persisting to DB.
+        manager.rx.save(context1)
+            
+            // Persist changes to DB. At this stage, data1 is the only set
+            // of data within the DB.
+            .flatMap(manager.rx.persistAllChangesToFile)
+            
+            // Fetch to verify that the DB only contains data1.
+            .flatMap({manager.rx.fetch(fetchRq)})
+            .doOnNext({XCTAssertEqual($0.count, dummyCount)})
+            
+            // Delete data2 from memory. data1 and data2 are two different
+            // sets of data that only have the same primary key-value.
+            .flatMap({_ in manager.rx.deleteFromMemory(entityName, data2)})
+            
+            // Persist changes to DB.
+            .flatMap(manager.rx.persistAllChangesToFile)
+            
+            // Fetch to verify that the DB is now empty.
+            .flatMap({manager.rx.fetch(fetchRq)})
+            .flatMap({Observable.from($0)})
+            .doOnDispose(expect.fulfill)
+            .subscribe(observer)
+            .disposed(by: disposeBag)
+        
+        waitForExpectations(timeout: timeout, handler: nil)
+        
+        /// Then
+        let nextElements = observer.nextElements()
+        XCTAssertEqual(nextElements.count, 0)
+    }
+    
     public func test_insertAndDeleteManyRandomDummies_shouldWork() {
         /// Setup
+        let observer = scheduler.createObserver(Dummy1.self)
+        let expect = expectation(description: "Should have completed")
         let manager = self.manager!
         let iterationCount = self.iterationCount
         let dummyCount = self.dummyCount
         let entityName = try! Dummy1.entityName()
         let request: NSFetchRequest<Dummy1> = try! dummy1FetchRequest().fetchRequest()
-        let expect = expectation(description: "Should have completed")
-        let observer = scheduler.createObserver(Dummy1.self)
         
         /// When
         Observable.from(0..<iterationCount)
@@ -233,6 +308,8 @@ public final class CoreDataRequestTest: XCTestCase {
 
     public func test_insertAndDeleteRandomDummiesWithProcessor_shouldWork() {
         /// Setup
+        let observer = scheduler.createObserver(Try<Dummy1Type>.self)
+        let expect = expectation(description: "Should have completed")
         let cdProcessor = self.cdProcessor!
         let context = manager.disposableObjectContext()
         let dummyCount = self.dummyCount
@@ -245,21 +322,31 @@ public final class CoreDataRequestTest: XCTestCase {
         let deletePs = dummyMemoryDeleteRps()
         let fetchGn = dummy1FetchRgn()
         let fetchPs = dummy1FetchRps()
-        let observer = scheduler.createObserver(Try<Dummy1Type>.self)
-        let expect = expectation(description: "Should have completed")
 
         /// When
         // Save the changes in the disposable context.
         cdProcessor.process(dummy, saveContextGn, saveContextPs)
             .map({$0.map({$0 as Any})})
+            
+            // Persist changes to DB.
             .flatMap({cdProcessor.process($0, persistGn, persistPs)})
             .map({$0.map({$0 as Any})})
+            
+            // Fetch to verify that data have been persisted.
             .flatMap({cdProcessor.process($0, fetchGn, fetchPs)})
             .map({try $0.getOrThrow()})
             .doOnNext({XCTAssertEqual($0.count, dummyCount)})
             .map({$0 as Any}).map(Try.success)
+            
+            // Delete data from memory, but do not persist to DB yet.
             .flatMap({cdProcessor.process($0, deleteGn, deletePs)})
             .map({$0.map({$0 as Any})})
+            
+            // Persist changes to DB.
+            .flatMap({cdProcessor.process($0, persistGn, persistPs)})
+            .map({$0.map({$0 as Any})})
+            
+            // Fetch to verify that the data have been deleted.
             .flatMap({cdProcessor.process($0, fetchGn, fetchPs)})
             .map({try $0.getOrThrow()})
             .flatMap({Observable.from($0)})
@@ -293,14 +380,18 @@ public final class CoreDataRequestTest: XCTestCase {
     
     public func test_coreDataUpsert_shouldWork() {
         /// Setup
-        let expect = expectation(description: "Should have completed")
         let observer = scheduler.createObserver(Try<Dummy1>.self)
+        let expect = expectation(description: "Should have completed")
         let manager = self.manager!
         let dbProcessor = self.dbProcessor!
+        
+        // We need 2 contexts here because we will perform 2 operations:
+        // persist data1 to DB, and upsert data23. Under no circumstances
+        // should the operations share a disposable context.
         let context1 = manager.disposableObjectContext()
         let context2 = manager.disposableObjectContext()
         let times1 = 1000
-        let times2 = 1000
+        let times2 = 2000
         let data1 = (0..<times1).map({_ in try! Dummy1(context1)})
         let data2 = (0..<times2).map({_ in try! Dummy1(context2)})
 
@@ -339,15 +430,16 @@ public final class CoreDataRequestTest: XCTestCase {
         let processor3: HMEQResultProcessor<Dummy1> = HMResultProcessors.eqProcessor()
 
         /// When
-        // Insert the first set of data
+        // Insert the first set of data.
         dbProcessor.process(dummy, generator1, processor1)
             .map({$0.map({$0 as Any})})
             
-            // Upsert the second set of data
+            // Upsert the second set of data. This set of data contains some
+            // data with the same ids as the first set of data.
             .flatMap({dbProcessor.process($0, generator2, processor2)})
             .map({$0.map({$0 as Any})})
             
-            // Fetch all data
+            // Fetch all data to check that the upsert was successful.
             .flatMap({dbProcessor.process($0, generator3, processor3)})
             .map({try $0.getOrThrow()})
             .flatMap({Observable.from($0)})
@@ -363,6 +455,15 @@ public final class CoreDataRequestTest: XCTestCase {
         XCTAssertEqual(nextElements.count, data23.count)
 
         XCTAssertTrue(data23.all(satisfying: {dummy1 in
+            nextDummies.contains(where: {
+                $0.id == dummy1.id &&
+                $0.date == dummy1.date &&
+                $0.int64 == dummy1.int64 &&
+                $0.float == dummy1.float
+            })
+        }))
+        
+        XCTAssertFalse(data1.any(satisfying: {dummy1 in
             nextDummies.contains(where: {
                 $0.id == dummy1.id &&
                 $0.date == dummy1.date &&
