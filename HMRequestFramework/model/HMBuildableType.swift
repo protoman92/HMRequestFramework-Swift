@@ -9,14 +9,14 @@
 /// Classes that implement this protocol must declare a Builder class to
 /// construct instances of said classes.
 public protocol HMBuildableType {
-    associatedtype Builder: HMBuilderType
+    associatedtype Builder
     
     static func builder() -> Builder
 }
 
 /// Builders should implement this protocol.
 public protocol HMBuilderType {
-    associatedtype Buildable: HMBuildableType
+    associatedtype Buildable
     
     /// Copy all properties from another Buildable to the one associated with
     /// this Builder.
@@ -28,7 +28,7 @@ public protocol HMBuilderType {
     func build() -> Buildable
 }
 
-public extension HMBuildableType where Self == Builder.Buildable {
+public extension HMBuildableType where Builder: HMBuilderType, Self == Builder.Buildable {
 
     /// Instead of mutating properties here, we create a new Builder and copy
     /// all properties to the new Buildable instance.

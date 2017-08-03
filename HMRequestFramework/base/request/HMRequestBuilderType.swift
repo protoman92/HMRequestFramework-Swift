@@ -6,7 +6,8 @@
 //  Copyright © 2017 Holmusk. All rights reserved.
 //
 
-public protocol HMRequestBuilderType: HMBuilderType where Buildable: HMRequestType {
+public protocol HMRequestBuilderType: HMBuilderType {
+    associatedtype Buildable: HMRequestType
     
     /// Set the retry count.
     ///
