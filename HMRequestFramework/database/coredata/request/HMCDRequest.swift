@@ -53,11 +53,20 @@ extension HMCDRequest: HMBuildableType {
         
         /// Set the entityName using a HMCDRepresentableType subtype.
         ///
-        /// - Parameter representable: A HMCDRepresentableType class.
+        /// - Parameter representable: A HMCDRepresentableType class type.
         /// - Returns: The current Builder instance.
         @discardableResult
         public func with<CDR>(representable: CDR.Type) -> Self where CDR: HMCDRepresentableType {
             return with(entityName: try? representable.entityName())
+        }
+        
+        /// Set the entityName using a HMCDPureObjectType subtype.
+        ///
+        /// - Parameter pureObject: A HMCDPureObjectType class type.
+        /// - Returns: The current Builder instance.
+        @discardableResult
+        public func with<PO>(pureObject: PO.Type) -> Self where PO: HMCDPureObjectType {
+            return with(representable: pureObject.CDClass.self)
         }
         
         /// Set the predicate.
