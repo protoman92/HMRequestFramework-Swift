@@ -142,13 +142,15 @@ public extension HMCDManagerType {
     ///   - context: A NSManagedObjectContext instance.
     ///   - dataFn: A Sequence of HMCDPureObjectType.
     /// - Throws: Exception if the save fails.
-    func saveInMemoryUnsafely<S,PO>(_ context: NSManagedObjectContext,
-                                    _ data: S) throws where
-        PO: HMCDPureObjectType,
-        PO.CDClass: HMCDRepresetableBuildableType,
-        PO.CDClass.Builder.PureObject == PO,
+    func saveInMemoryUnsafely<S>(_ context: NSManagedObjectContext,
+                                 _ data: S) throws where
+        // For some reasons, XCode 8 cannot compile if we define a separate
+        // generics for S.Iterator.Element. Although this is longer, it works
+        // for both XCode 8 and 9.
         S: Sequence,
-        S.Iterator.Element == PO
+        S.Iterator.Element: HMCDPureObjectType,
+        S.Iterator.Element.CDClass: HMCDRepresetableBuildableType,
+        S.Iterator.Element.CDClass.Builder.PureObject == S.Iterator.Element
     {
         let _ = try data.map({try self.constructUnsafely(context, $0)})
         try saveUnsafely(context)

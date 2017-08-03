@@ -16,7 +16,7 @@ import CoreData
 /// These objects should simply contain data that mirror their NSManagedObject
 /// counterparts.
 public protocol HMCDPureObjectType {
-    associatedtype CDClass: NSManagedObject, HMCDRepresentableType
+    associatedtype CDClass: HMCDRepresentableType
 }
 
 /// CoreData classes that implement this protocol must be able to transform

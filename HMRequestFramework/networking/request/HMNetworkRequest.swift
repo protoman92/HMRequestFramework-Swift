@@ -121,15 +121,6 @@ extension HMNetworkRequest: HMBuildableType {
             request.httpBody = body
             return self
         }
-        
-        /// Set the body.
-        ///
-        /// - Parameter jsonConvertible: A HMJSONConvertibleType instance.
-        /// - Returns: The current Builder instance.
-        @discardableResult
-        public func with(jsonConvertible: HMJSONConvertibleType) -> Self {
-            return with(body: jsonConvertible.toJSON())
-        }
     }
 }
 

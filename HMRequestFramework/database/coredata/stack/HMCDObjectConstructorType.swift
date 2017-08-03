@@ -14,22 +14,7 @@ public protocol HMCDObjectConstructorType {}
 
 public extension HMCDObjectConstructorType {
     
-//    /// Construct a CoreData model object.
-//    ///
-//    /// - Parameters:
-//    ///   - context: A NSManagedObjectContext instance.
-//    ///   - cls: A CD class type.
-//    /// - Returns: A CD instance.
-//    /// - Throws: Exception if the construction fails.
-//    public func construct<CD>(_ context: NSManagedObjectContext,
-//                              _ cls: CD.Type) throws -> CD where
-//        CD: HMCDRepresentableType
-//    {
-//        return try cls.init(context)
-//    }
-    
-    /// Construct a CoreData object from a data object. With this method, we
-    /// do not need to expose the internal NSManagedObjectContext.
+    /// Construct a CoreData object from a data object.
     ///
     /// This method is useful when we have two parallel classes - one inheriting
     /// from NSManagedObject, while the other simply contains properties
@@ -72,19 +57,4 @@ public extension HMCDObjectConstructorType {
     {
         return try pureObjs.map({try self.constructUnsafely(context, $0)})
     }
-    
-//    /// Convenient method to construct a CoreData model object from a data
-//    /// class.
-//    ///
-//    /// - Parameter:
-//    ///   - context: A NSManagedObjectContext instance.
-//    ///   - pureObj: A PO class.
-//    /// - Returns: A PO.CDClass object.
-//    /// - Throws: Exception if the construction fails.
-//    public func constructUnsafely<PO>(_ context: NSManagedObjectContext,
-//                              _ cls: PO.Type) throws -> PO.CDClass
-//        where PO: HMCDPureObjectType
-//    {
-//        return try construct(context, cls.CDClass.self)
-//    }
 }

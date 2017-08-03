@@ -59,7 +59,7 @@ public extension HMCDRxManagerType {
     {
         context.performAndWait {
             do {
-                try saveInMemoryUnsafely(context, data)
+                try self.saveInMemoryUnsafely(context, data)
                 obs.onNext()
                 obs.onCompleted()
             } catch let e {
@@ -90,7 +90,7 @@ public extension HMCDRxManagerType {
     {
         context.performAndWait {
             do {
-                try deleteFromMemoryUnsafely(context, entityName, data)
+                try self.deleteFromMemoryUnsafely(context, entityName, data)
                 obs.onNext()
                 obs.onCompleted()
             } catch let e {
@@ -118,7 +118,7 @@ public extension HMCDRxManagerType {
     {
         context.performAndWait {
             do {
-                try deleteFromMemoryUnsafely(context, entityName, data)
+                try self.deleteFromMemoryUnsafely(context, entityName, data)
                 obs.onNext()
                 obs.onCompleted()
             } catch let e {
