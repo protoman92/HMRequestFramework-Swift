@@ -66,11 +66,24 @@ public extension HMCDRequestType {
     ///
     /// - Returns: A NSFetchRequest instance.
     /// - Throws: Exception if the request cannot be generated.
-    public func fetchRequest<Val>() throws -> NSFetchRequest<Val> where Val: NSFetchRequestResult {
+    public func fetchRequest<Val>() throws -> NSFetchRequest<Val> where
+        Val: NSFetchRequestResult
+    {
         let description = try entityName()
         let cdRequest = NSFetchRequest<Val>(entityName: description)
         cdRequest.predicate = try predicate()
         cdRequest.sortDescriptors = try sortDescriptors()
         return cdRequest
+    }
+    
+    /// Get the associated fetch request.
+    ///
+    /// - Parameter cls: The Val class type.
+    /// - Returns: A NSFetchRequest instance.
+    /// - Throws: Exception if the request cannot be generated.
+    public func fetchRequest<Val>(_ cls: Val.Type) throws -> NSFetchRequest<Val> where
+        Val: NSFetchRequestResult
+    {
+        return try fetchRequest()
     }
 }
