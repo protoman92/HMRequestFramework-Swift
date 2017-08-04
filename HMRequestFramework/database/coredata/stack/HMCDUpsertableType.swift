@@ -18,7 +18,7 @@ public protocol HMCDUpsertableType: HMUpsertableType {}
 
 /// Instead of inheriting from NSManagedObject, inherit from the class to
 /// access upsert-related properties.
-public class HMCDUpsertableObject: NSManagedObject {}
+open class HMCDUpsertableObject: NSManagedObject {}
 
 extension HMCDUpsertableObject: HMCDUpsertableType {
     open func primaryKey() -> String {
