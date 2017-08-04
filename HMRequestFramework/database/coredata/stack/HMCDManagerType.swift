@@ -63,18 +63,6 @@ public extension HMCDManagerType {
     {
         return predicateForUpsertableFetch(data.map({$0 as HMCDUpsertableType}))
     }
-    
-    /// Get the predicate to search for records based on ObjectID.
-    ///
-    /// - Parameter data: A Sequence of NSManagedObject.
-    /// - Returns: A NSPredicate instance.
-    func predicateForObjectIDFetch<S>(_ data: S) -> NSPredicate where
-        S: Sequence, S.Iterator.Element: NSManagedObject
-    {
-        return NSCompoundPredicate(orPredicateWithSubpredicates: data
-            .map({$0.objectID})
-            .map({NSPredicate(format: "objectID == %@", $0)}))
-    }
 }
 
 public extension HMCDManagerType {
@@ -192,12 +180,11 @@ public extension HMCDManagerType {
         let data = data.map(eq)
         
         if data.isNotEmpty {
-            let predicate = predicateForObjectIDFetch(data)
-            let request: NSFetchRequest<NS> = NSFetchRequest(entityName: entityName)
-            request.predicate = predicate
+            data.map({$0.objectID})
+                .map({try? context.existingObject(with: $0)})
+                .flatMap({$0})
+                .forEach(context.delete)
             
-            let refetched = try context.fetch(request)
-            refetched.forEach(context.delete)
             try saveUnsafely(context)
         }
     }
