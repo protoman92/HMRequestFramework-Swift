@@ -21,11 +21,11 @@ public protocol HMCDUpsertableType: HMUpsertableType {}
 public class HMCDUpsertableObject: NSManagedObject {}
 
 extension HMCDUpsertableObject: HMCDUpsertableType {
-    public func primaryKey() -> String {
+    open func primaryKey() -> String {
         fatalError("Must override this")
     }
     
-    public func primaryValue() -> String {
+    open func primaryValue() -> String {
         fatalError("Must override this")
     }
 }
