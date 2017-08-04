@@ -119,6 +119,23 @@ public extension HMCDManagerType {
                             _ cls: Val.Type) throws -> [Val] {
         return try blockingFetch(context, request)
     }
+    
+    /// Fetch data from a context using a request and a specified PureObject class.
+    /// This operation blocks.
+    ///
+    /// - Parameters:
+    ///   - context: A NSManagedObjectContext instance.
+    ///   - request: A NSFetchRequest instance.
+    ///   - cls: A PO class type.
+    /// - Returns: An Array of NSManagedObject.
+    /// - Throws: Exception if the fetch fails
+    func blockingFetch<PO>(_ context: NSManagedObjectContext,
+                           _ request: NSFetchRequest<PO.CDClass>,
+                           _ cls: PO.Type) throws -> [PO.CDClass]
+        where PO: HMCDPureObjectType
+    {
+        return try blockingFetch(context, request, cls.CDClass.self)
+    }
 }
 
 public extension HMCDManagerType {

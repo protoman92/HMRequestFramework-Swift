@@ -85,7 +85,7 @@ public extension Reactive where Base: HMCDManager {
         S: Sequence,
         S.Iterator.Element == PO
     {
-        return saveInMemory(base.disposableObjectContext(), data)
+        return saveInMemory(base.defaultCreateContext(), data)
     }
 }
 
@@ -121,7 +121,7 @@ public extension Reactive where Base: HMCDManager {
         -> Observable<Void> where
         NS: NSManagedObject, S: Sequence, S.Iterator.Element == NS
     {
-        return deleteFromMemory(base.disposableObjectContext(), entityName, data)
+        return deleteFromMemory(base.defaultDeleteContext(), entityName, data)
     }
 }
 
@@ -157,7 +157,7 @@ public extension Reactive where Base: HMCDManager {
         -> Observable<Void> where
         U: HMCDUpsertableObject, S: Sequence, S.Iterator.Element == U
     {
-        return deleteFromMemory(base.disposableObjectContext(), entityName, data)
+        return deleteFromMemory(base.defaultDeleteContext(), entityName, data)
     }
 }
 
@@ -218,10 +218,25 @@ public extension Reactive where Base: HMCDManager {
     
     /// Get data for a fetch request.
     ///
+    /// - Parameters:
+    ///   - context: A NSManagedObjectContext instance.
+    ///   - request: A NSFetchRequest instance.
+    ///   - cls: A PO class type.
+    /// - Returns: An Observable instance.
+    func fetch<PO>(_ context: NSManagedObjectContext,
+                   _ request: NSFetchRequest<PO.CDClass>,
+                   _ cls: PO.Type) -> Observable<[PO.CDClass]>
+        where PO: HMCDPureObjectType
+    {
+        return fetch(context, request, cls.CDClass.self)
+    }
+    
+    /// Get data for a fetch request.
+    ///
     /// - Parameters request: A NSFetchRequest instance.
     /// - Returns: An Observable instance.
     func fetch<Val>(_ request: NSFetchRequest<Val>) -> Observable<[Val]> {
-        return fetch(base.mainObjectContext(), request)
+        return fetch(base.defaultFetchContext(), request)
     }
     
     /// Get data for a fetch request.
@@ -233,5 +248,18 @@ public extension Reactive where Base: HMCDManager {
     func fetch<Val>(_ request: NSFetchRequest<Val>,
                     _ cls: Val.Type) -> Observable<[Val]> {
         return fetch(request)
+    }
+    
+    /// Get data for a fetch request.
+    ///
+    /// - Parameters:
+    ///   - request: A NSFetchRequest instance.
+    ///   - cls: A PO class type.
+    /// - Returns: An Observable instance.
+    func fetch<PO>(_ request: NSFetchRequest<PO.CDClass>,
+                   _ cls: PO.Type) -> Observable<[PO.CDClass]>
+        where PO: HMCDPureObjectType
+    {
+        return fetch(request, cls.CDClass.self)
     }
 }

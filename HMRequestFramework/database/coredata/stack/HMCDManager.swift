@@ -61,7 +61,7 @@ public class HMCDManager {
 
 extension HMCDManager: HMCDManagerType {}
 
-extension HMCDManager: HMCDContextProviderType {
+extension HMCDManager {
 
     /// This context is used to store changes before saving to file.
     ///
@@ -78,5 +78,26 @@ extension HMCDManager: HMCDContextProviderType {
         let context = NSManagedObjectContext(concurrencyType: .privateQueueConcurrencyType)
         context.parent = mainContext
         return context
+    }
+    
+    /// Get the default context to fetch data.
+    ///
+    /// - Returns: A NSManagedObjectContext instance.
+    public func defaultFetchContext() -> NSManagedObjectContext {
+        return mainObjectContext()
+    }
+    
+    /// Get the default context to create data.
+    ///
+    /// - Returns: A NSManagedObjectContext instance.
+    public func defaultCreateContext() -> NSManagedObjectContext {
+        return disposableObjectContext()
+    }
+    
+    /// Get the default context to delete data.
+    ///
+    /// - Returns: A NSManagedObjectContext instance.
+    public func defaultDeleteContext() -> NSManagedObjectContext {
+        return disposableObjectContext()
     }
 }

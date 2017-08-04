@@ -86,4 +86,15 @@ public extension HMCDRequestType {
     {
         return try fetchRequest()
     }
+    
+    /// Get the associated fetch request.
+    ///
+    /// - Parameter cls: The PO class type.
+    /// - Returns: A NSFetchRequest instance.
+    /// - Throws: Exception if the request cannot be generated.
+    public func fetchRequest<PO>(_ cls: PO.Type) throws -> NSFetchRequest<PO.CDClass> where
+        PO: HMCDPureObjectType
+    {
+        return try fetchRequest(cls.CDClass.self)
+    }
 }
