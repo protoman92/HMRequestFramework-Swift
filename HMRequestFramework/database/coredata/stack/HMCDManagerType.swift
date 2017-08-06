@@ -44,7 +44,7 @@ public extension HMCDManagerType {
     ///
     /// - Parameter data: A Sequence of HMCDUpsertableType.
     /// - Returns: A NSPredicate instance.
-    func predicateForUpsertableFetch<S>(_ data: S) -> NSPredicate where
+    public func predicateForUpsertableFetch<S>(_ data: S) -> NSPredicate where
         S: Sequence, S.Iterator.Element == HMCDUpsertableType
     {
         return NSCompoundPredicate(orPredicateWithSubpredicates: data
@@ -58,7 +58,7 @@ public extension HMCDManagerType {
     ///
     /// - Parameter data: A Sequence of HMCDUpsertableType.
     /// - Returns: A NSPredicate instance.
-    func predicateForUpsertableFetch<S>(_ data: S) -> NSPredicate where
+    public func predicateForUpsertableFetch<S>(_ data: S) -> NSPredicate where
         S: Sequence, S.Iterator.Element: HMCDUpsertableType
     {
         return predicateForUpsertableFetch(data.map({$0 as HMCDUpsertableType}))
@@ -74,8 +74,8 @@ public extension HMCDManagerType {
     ///   - cls: A Val class type.
     /// - Returns: An Array of NSManagedObject.
     /// - Throws: Exception if the fetch fails.
-    func blockingFetch<Val>(_ request: NSFetchRequest<Val>,
-                            _ cls: Val.Type) throws -> [Val] {
+    public func blockingFetch<Val>(_ request: NSFetchRequest<Val>,
+                                   _ cls: Val.Type) throws -> [Val] {
         return try blockingFetch(request)
     }
     
@@ -86,8 +86,8 @@ public extension HMCDManagerType {
     ///   - request: A NSFetchRequest instance.
     /// - Returns: An Array of NSManagedObject.
     /// - Throws: Exception if the fetch fails.
-    func blockingFetch<Val>(_ context: NSManagedObjectContext,
-                            _ request: NSFetchRequest<Val>) throws
+    public func blockingFetch<Val>(_ context: NSManagedObjectContext,
+                                   _ request: NSFetchRequest<Val>) throws
         -> [Val]
     {
         return try context.fetch(request)
@@ -102,9 +102,9 @@ public extension HMCDManagerType {
     ///   - cls: A Val class type.
     /// - Returns: An Array of NSManagedObject.
     /// - Throws: Exception if the fetch fails
-    func blockingFetch<Val>(_ context: NSManagedObjectContext,
-                            _ request: NSFetchRequest<Val>,
-                            _ cls: Val.Type) throws -> [Val] {
+    public func blockingFetch<Val>(_ context: NSManagedObjectContext,
+                                   _ request: NSFetchRequest<Val>,
+                                   _ cls: Val.Type) throws -> [Val] {
         return try blockingFetch(context, request)
     }
     
@@ -117,12 +117,40 @@ public extension HMCDManagerType {
     ///   - cls: A PO class type.
     /// - Returns: An Array of NSManagedObject.
     /// - Throws: Exception if the fetch fails
-    func blockingFetch<PO>(_ context: NSManagedObjectContext,
-                           _ request: NSFetchRequest<PO.CDClass>,
-                           _ cls: PO.Type) throws -> [PO.CDClass]
+    public func blockingFetch<PO>(_ context: NSManagedObjectContext,
+                                  _ request: NSFetchRequest<PO.CDClass>,
+                                  _ cls: PO.Type) throws -> [PO.CDClass]
         where PO: HMCDPureObjectType
     {
         return try blockingFetch(context, request, cls.CDClass.self)
+    }
+    
+    /// Fetch objects from DB whose primary key values correspond to those
+    /// supplied by the specified upsertable objects.
+    ///
+    /// - Parameters:
+    ///   - context: A NSManagedObjectContext instance.
+    ///   - entityName: A String value representing the entity's name.
+    ///   - upsertables: A Sequence of HMCDUpsertableObject.
+    /// - Returns: An Array of NSManagedObject.
+    /// - Throws: Exception if the fetch fails.
+    public func blockingRefetch<U,S>(_ context: NSManagedObjectContext,
+                                     _ entityName: String,
+                                     _ upsertables: S) throws -> [U] where
+        U: HMCDUpsertableObject,
+        S: Sequence,
+        S.Iterator.Element == U
+    {
+        let data = upsertables.map({$0})
+        
+        if data.isNotEmpty {
+            let predicate = predicateForUpsertableFetch(data)
+            let request: NSFetchRequest<U> = NSFetchRequest(entityName: entityName)
+            request.predicate = predicate
+            return try blockingFetch(context, request)
+        } else {
+            return []
+        }
     }
 }
 
@@ -132,7 +160,7 @@ public extension HMCDManagerType {
     ///
     /// - Parameter context: A NSManagedObjectContext instance.
     /// - Throws: Exception if the save fails.
-    func saveUnsafely(_ context: NSManagedObjectContext) throws {
+    public func saveUnsafely(_ context: NSManagedObjectContext) throws {
         if context.hasChanges {
             try context.save()
         }
@@ -147,8 +175,8 @@ public extension HMCDManagerType {
     ///   - context: A NSManagedObjectContext instance.
     ///   - dataFn: A Sequence of HMCDPureObjectType.
     /// - Throws: Exception if the save fails.
-    func saveInMemoryUnsafely<S>(_ context: NSManagedObjectContext,
-                                 _ data: S) throws where
+    public func saveInMemoryUnsafely<S>(_ context: NSManagedObjectContext,
+                                        _ data: S) throws where
         // For some reasons, XCode 8 cannot compile if we define a separate
         // generics for S.Iterator.Element. Although this is longer, it works
         // for both XCode 8 and 9.
@@ -172,9 +200,9 @@ public extension HMCDManagerType {
     ///   - entityName: A String value representing the entity's name.
     ///   - data: A Sequence of NSManagedObject.
     /// - Throws: Exception if the delete fails.
-    func deleteFromMemoryUnsafely<NS,S>(_ context: NSManagedObjectContext,
-                                        _ entityName: String,
-                                        _ data: S) throws where
+    public func deleteFromMemoryUnsafely<NS,S>(_ context: NSManagedObjectContext,
+                                               _ entityName: String,
+                                               _ data: S) throws where
         NS: NSManagedObject, S: Sequence, S.Iterator.Element == NS
     {
         let data = data.map(eq)
@@ -202,20 +230,15 @@ public extension HMCDManagerType {
     ///   - entityName: A String value representing the entity's name.
     ///   - data: A Sequence of NSManagedObject.
     /// - Throws: Exception if the delete fails.
-    func deleteFromMemoryUnsafely<U,S>(_ context: NSManagedObjectContext,
-                                       _ entityName: String,
-                                       _ data: S) throws where
+    public func deleteFromMemoryUnsafely<U,S>(_ context: NSManagedObjectContext,
+                                              _ entityName: String,
+                                              _ data: S) throws where
         U: HMCDUpsertableObject, S: Sequence, S.Iterator.Element == U
     {
-        let data = data.map(eq)
+        let data = try blockingRefetch(context, entityName, data)
         
         if data.isNotEmpty {
-            let predicate = predicateForUpsertableFetch(data)
-            let request: NSFetchRequest<U> = NSFetchRequest(entityName: entityName)
-            request.predicate = predicate
-            
-            let upsertables = try context.fetch(request)
-            upsertables.forEach(context.delete)
+            data.forEach(context.delete)
             try saveUnsafely(context)
         }
     }

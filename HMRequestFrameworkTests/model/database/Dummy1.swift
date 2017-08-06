@@ -10,33 +10,36 @@ import CoreData
 @testable import HMRequestFramework
 
 public protocol Dummy1Type {
-    var id: String { get }
-    var int64: Int64 { get }
-    var date: Date { get }
-    var float: Float { get }
+    var id: String? { get }
+    var date: Date? { get }
+    var int64: NSNumber? { get }
+    var float: NSNumber? { get }
 }
 
 public final class Dummy1: HMCDUpsertableObject {
     fileprivate static var counter = 0
     
-    @NSManaged public var id: String
-    @NSManaged public var int64: Int64
-    @NSManaged public var date: Date
-    @NSManaged public var float: Float
+    @NSManaged public var id: String?
+    @NSManaged public var int64: NSNumber?
+    @NSManaged public var date: Date?
+    @NSManaged public var float: NSNumber?
     
     public override var description: String {
-        return "id: \(id), int64: \(int64)"
+        return "id: \(String(describing: id))"
     }
     
     public convenience init(_ context: NSManagedObjectContext) throws {
         let entity = try Dummy1.entityDescription(in: context)
         self.init(entity: entity, insertInto: context)
-        Dummy1.counter += 1
-        let counter = Dummy1.counter
-        id = "id-\(counter)"
-        int64 = Int64(counter)
-        date = Date()
-        float = Float(counter)
+        
+        if id == nil {
+            Dummy1.counter += 1
+            let counter = Dummy1.counter
+            id = "id-\(counter)"
+            date = Date()
+            int64 = Int64(counter) as NSNumber
+            float = Float(counter) as NSNumber
+        }
     }
     
     public override func primaryKey() -> String {
@@ -44,7 +47,7 @@ public final class Dummy1: HMCDUpsertableObject {
     }
     
     public override func primaryValue() -> String {
-        return id
+        return id!
     }
 }
 

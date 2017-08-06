@@ -19,7 +19,7 @@ public final class CoreDataRequestTest: XCTestCase {
     public typealias Req = HMCDRequestProcessor.Req
     fileprivate let timeout: TimeInterval = 1000
     fileprivate let iterationCount = 10
-    fileprivate let dummyCount = 1000
+    fileprivate let dummyCount = 10
     fileprivate let dummyTypeCount = 2
     fileprivate let generatorError = "Generator error!"
     fileprivate let processorError = "Processor error!"
@@ -196,6 +196,50 @@ public final class CoreDataRequestTest: XCTestCase {
         XCTAssertEqual(nextElements.count, 0)
     }
     
+    public func test_refetchUpsertables_shouldWork() {
+        /// Setup
+        let observer = scheduler.createObserver(Dummy1.self)
+        let expect = expectation(description: "Should have completed")
+        let manager = self.manager!
+        let context = manager.disposableObjectContext()
+        let dummyCount = self.dummyCount
+        let data = (0..<dummyCount).flatMap({_ in try? Dummy1(context)})
+        
+        let fetchRq: NSFetchRequest<Dummy1> = try! HMCDRequest.builder()
+            .with(representable: Dummy1.self)
+            .with(operation: .fetch)
+            .with(predicate: manager.predicateForUpsertableFetch(data))
+            .build()
+            .fetchRequest()
+        
+        let entityName = fetchRq.entityName!
+        
+        /// When
+        // Save data without persisting to DB.
+        manager.rx.save(context)
+            
+            // Persist data to DB.
+            .flatMap(manager.rx.persistAllChangesToFile)
+            
+            // Refetch based on upsertable objects. We expect the returned
+            // data to contain the same properties.
+            .flatMap({manager.rx.refetch(entityName, data)})
+            .doOnNext({XCTAssertEqual($0.count, dummyCount)})
+            .flatMap({Observable.from($0)})
+            .doOnDispose(expect.fulfill)
+            .subscribe(observer)
+            .disposed(by: disposeBag)
+        
+        waitForExpectations(timeout: timeout, handler: nil)
+        
+        /// Then
+        let nextElements = observer.nextElements()
+        
+        XCTAssertTrue(nextElements.all(satisfying: {dummy in
+            data.contains(where: {$0.id == dummy.id})
+        }))
+    }
+    
     public func test_insertAndDeleteUpsertables_shouldWork() {
         /// Setup
         let observer = scheduler.createObserver(Dummy1.self)
@@ -206,11 +250,11 @@ public final class CoreDataRequestTest: XCTestCase {
         let context1 = manager.disposableObjectContext()
         let context2 = manager.disposableObjectContext()
         let dummyCount = self.dummyCount
-        let data1 = (0..<dummyCount).map({_ in try! Dummy1(context1)})
+        let data1 = (0..<dummyCount).flatMap({_ in try? Dummy1(context1)})
         
-        let data2 = (0..<dummyCount).map({(i) -> Dummy1 in
-            let dummy = try! Dummy1(context2)
-            dummy.id = data1[i].id
+        let data2 = (0..<dummyCount).flatMap({(i) -> Dummy1? in
+            let dummy = try? Dummy1(context2)
+            dummy?.id = data1[i].id
             return dummy
         })
         
