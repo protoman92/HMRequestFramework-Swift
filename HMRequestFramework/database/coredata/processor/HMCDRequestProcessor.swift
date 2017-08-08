@@ -102,17 +102,19 @@ extension HMCDRequestProcessor: HMCDRequestProcessorType {
         }
     }
     
-    /// Perform a CoreData delete operation.
+    /// Perform a CoreData delete operation. This operation detects upsertable
+    /// objects and treat those objects differently.
     ///
     /// - Parameter request: A Req instance.
     /// - Returns: An Observable instance.
     /// - Throws: Exception if the execution fails.
     private func executeDelete(_ request: Req) throws -> Observable<Try<Void>> {
         let manager = coreDataManager()
-        let data = try request.dataToDelete()
         let entityName = try request.entityName()
+        let data = try request.dataToDelete()
         
-        return manager.rx.deleteFromMemory(entityName, data)
+        return manager.rx
+            .deleteFromMemory(data)
             .retry(request.retries())
             .map(Try.success)
             .catchErrorJustReturn(Try.failure)

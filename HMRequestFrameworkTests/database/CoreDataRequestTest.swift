@@ -109,14 +109,14 @@ public final class CoreDataRequestTest: XCTestCase {
     
     public func test_saveAndFetchBuildable_shouldWork() {
         /// Setup
-        let observer = scheduler.createObserver(HMCDDummy3.self)
+        let observer = scheduler.createObserver(CDDummy3.self)
         let expect = expectation(description: ("Should have completed"))
         let dummyCount = self.dummyCount
         let manager = self.manager!
         let mainContext = manager.mainContext
         let privateContext = manager.privateContext
         let dummies = (0..<dummyCount).map({_ in Dummy3()})
-        let fetchRq: NSFetchRequest<HMCDDummy3> = try! dummy3FetchRequest().fetchRequest()
+        let fetchRq: NSFetchRequest<CDDummy3> = try! dummy3FetchRequest().fetchRequest()
         XCTAssertTrue(mainContext.insertedObjects.isEmpty)
         XCTAssertTrue(privateContext.insertedObjects.isEmpty)
         
@@ -611,7 +611,7 @@ extension CoreDataRequestTest {
 extension CoreDataRequestTest {
     func dummy3FetchRequest() -> Req {
         return Req.builder()
-            .with(representable: HMCDDummy3.self)
+            .with(representable: CDDummy3.self)
             .with(operation: .fetch)
             .with(predicate: NSPredicate(value: true))
             .with(sortDescriptors: NSSortDescriptor(key: "id", ascending: true))

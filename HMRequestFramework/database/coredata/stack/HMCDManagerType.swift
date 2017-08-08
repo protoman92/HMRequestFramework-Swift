@@ -125,6 +125,23 @@ public extension HMCDManagerType {
         return try blockingFetch(context, request, cls.CDClass.self)
     }
     
+    /// Refetch some NSManagedObject from DB.
+    ///
+    /// - Parameters:
+    ///   - context: A NSManagedObjectContext instance.
+    ///   - data: A Sequence of NSManagedObject.
+    /// - Returns: An Array of NSManagedObject.
+    /// - Throws: Exception if the fetch fails.
+    public func blockingRefetch<NS,S>(_ context: NSManagedObjectContext,
+                                      _ data: S) throws
+        -> [NSManagedObject] where
+        NS: NSManagedObject,
+        S: Sequence,
+        S.Iterator.Element == NS
+    {
+        return try data.map({$0.objectID}).flatMap(context.existingObject)
+    }
+    
     /// Fetch objects from DB whose primary key values correspond to those
     /// supplied by the specified upsertable objects.
     ///
@@ -197,22 +214,16 @@ public extension HMCDManagerType {
     ///
     /// - Parameters:
     ///   - context: A NSManagedObjectContext instance.
-    ///   - entityName: A String value representing the entity's name.
     ///   - data: A Sequence of NSManagedObject.
     /// - Throws: Exception if the delete fails.
     public func deleteFromMemoryUnsafely<NS,S>(_ context: NSManagedObjectContext,
-                                               _ entityName: String,
                                                _ data: S) throws where
         NS: NSManagedObject, S: Sequence, S.Iterator.Element == NS
     {
         let data = data.map(eq)
         
         if data.isNotEmpty {
-            data.map({$0.objectID})
-                .map({try? context.existingObject(with: $0)})
-                .flatMap({$0})
-                .forEach(context.delete)
-            
+            try blockingRefetch(context, data).forEach(context.delete)
             try saveUnsafely(context)
         }
     }

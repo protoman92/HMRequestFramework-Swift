@@ -100,12 +100,11 @@ public extension Reactive where Base: HMCDManager {
     ///   - data: A Sequence of NSManagedObject.
     /// - Throws: Exception if the delete fails.
     public func deleteFromMemory<NS,S>(_ context: NSManagedObjectContext,
-                                       _ entityName: String,
                                        _ data: S) -> Observable<Void> where
         NS: NSManagedObject, S: Sequence, S.Iterator.Element == NS
     {
         return Observable.create(({(obs: AnyObserver<Void>) in
-            self.base.deleteFromMemory(context, entityName, data, obs)
+            self.base.deleteFromMemory(context, data, obs)
             return Disposables.create()
         }))
     }
@@ -117,11 +116,10 @@ public extension Reactive where Base: HMCDManager {
     ///   - entityName: A String value representing the entity's name.
     ///   - data: A Sequence of NSManagedObject.
     /// - Returns: An Observable instance.
-    public func deleteFromMemory<NS,S>(_ entityName: String, _ data: S)
-        -> Observable<Void> where
+    public func deleteFromMemory<NS,S>(_ data: S) -> Observable<Void> where
         NS: NSManagedObject, S: Sequence, S.Iterator.Element == NS
     {
-        return deleteFromMemory(base.defaultDeleteContext(), entityName, data)
+        return deleteFromMemory(base.defaultDeleteContext(), data)
     }
 }
 

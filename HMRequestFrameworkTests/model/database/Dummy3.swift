@@ -13,25 +13,25 @@ public protocol Dummy3Type {
     var id: String { get }
 }
 
-public class HMCDDummy3: NSManagedObject {
+public class CDDummy3: NSManagedObject {
     @NSManaged var id: String
     @NSManaged var count: Int64
     
     public convenience required init(_ context: NSManagedObjectContext) throws {
-        let entity = try HMCDDummy3.entityDescription(in: context)
+        let entity = try CDDummy3.entityDescription(in: context)
         self.init(entity: entity, insertInto: context)
     }
 }
 
-extension HMCDDummy3: HMCDRepresetableBuildableType {
+extension CDDummy3: HMCDRepresetableBuildableType {
     public static func builder(_ context: NSManagedObjectContext) throws -> Builder {
-        return try Builder(HMCDDummy3(context))
+        return try Builder(CDDummy3(context))
     }
     
     public final class Builder: HMCDRepresentableBuilderType {
         public typealias PureObject = Dummy3
         
-        private let cdo: HMCDDummy3
+        private let cdo: CDDummy3
         
         fileprivate init(_ cdo: PureObject.CDClass) {
             self.cdo = cdo
@@ -49,7 +49,7 @@ extension HMCDDummy3: HMCDRepresetableBuildableType {
     }
 }
 
-extension HMCDDummy3: HMCDRepresentableType {
+extension CDDummy3: HMCDRepresentableType {
     public static func cdAttributes() throws -> [NSAttributeDescription]? {
         return [
             NSAttributeDescription.builder()
@@ -67,7 +67,7 @@ extension HMCDDummy3: HMCDRepresentableType {
     }
 }
 
-extension HMCDDummy3: HMCDPureObjectConvertibleType {
+extension CDDummy3: HMCDPureObjectConvertibleType {
     public typealias PureObject = Dummy3
 }
 
@@ -97,7 +97,7 @@ extension Dummy3: Equatable {
 }
 
 extension Dummy3: HMCDPureObjectType {
-    public typealias CDClass = HMCDDummy3
+    public typealias CDClass = CDDummy3
 }
 
 extension Dummy3: HMCDPureObjectBuildableType {

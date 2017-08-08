@@ -76,12 +76,10 @@ public extension HMCDRxManagerType {
     ///
     /// - Parameters:
     ///   - context: A NSManagedObjectContext instance.
-    ///   - entityName: A String value representing the entity's name.
     ///   - data: A Sequence of NSManagedObject.
     ///   - obs: An ObserverType instance.
     /// - Throws: Exception if the delete fails.
     public func deleteFromMemory<NS,S,O>(_ context: NSManagedObjectContext,
-                                         _ entityName: String,
                                          _ data: S,
                                          _ obs: O) where
         NS: NSManagedObject,
@@ -90,7 +88,7 @@ public extension HMCDRxManagerType {
     {
         context.performAndWait {
             do {
-                try self.deleteFromMemoryUnsafely(context, entityName, data)
+                try self.deleteFromMemoryUnsafely(context, data)
                 obs.onNext()
                 obs.onCompleted()
             } catch let e {
