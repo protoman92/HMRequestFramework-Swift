@@ -18,7 +18,7 @@ import XCTest
 public final class CoreDataRequestTest: XCTestCase {
     public typealias Req = HMCDRequestProcessor.Req
     fileprivate let timeout: TimeInterval = 1000
-    fileprivate let iterationCount = 10
+    fileprivate let iterationCount = 100
     fileprivate let dummyCount = 100
     fileprivate let dummyTypeCount = 2
     fileprivate let generatorError = "Generator error!"

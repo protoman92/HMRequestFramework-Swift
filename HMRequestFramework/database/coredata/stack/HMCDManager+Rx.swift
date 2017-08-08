@@ -1,5 +1,5 @@
 //
-//  HMCDManagers.swift
+//  HMCDManager+Rx.swift
 //  HMRequestFramework
 //
 //  Created by Hai Pham on 7/24/17.
@@ -10,9 +10,152 @@ import CoreData
 import RxSwift
 import SwiftUtilities
 
-extension HMCDManager: HMCDRxManagerType {}
-extension HMCDManager: HMCDRxObjectConstructorType {}
+extension HMCDManager: HMCDBlockPerformerType {}
+extension HMCDManager: HMCDObjectConstructorType {}
 extension HMCDManager: ReactiveCompatible {}
+
+public extension HMCDManager {
+    
+    /// Construct CoreData objects from multiple pure objects and observe
+    /// the process.
+    ///
+    /// - Parameters:
+    ///   - context: A NSManagedObjectContext instance.
+    ///   - pureObjs: A Sequence of PO.
+    ///   - obs: An ObserverType instance.
+    /// - Throws: Exception if the construction fails.
+    public func construct<PO,S,O>(_ context: NSManagedObjectContext,
+                                  _ pureObjs: S,
+                                  _ obs: O) where
+        PO: HMCDPureObjectType,
+        PO.CDClass: HMCDObjectBuildableType,
+        PO.CDClass.Builder.PureObject == PO,
+        S: Sequence, S.Iterator.Element == PO,
+        O: ObserverType, O.E == [PO.CDClass]
+    {
+        performOnContextThread(context) {
+            do {
+                let data = try self.constructUnsafely(context, pureObjs)
+                obs.onNext(data)
+                obs.onCompleted()
+            } catch let e {
+                obs.onError(e)
+            }
+        }
+    }
+}
+
+public extension HMCDManager {
+    
+    /// Save context changes and observe the process.
+    ///
+    /// - Parameters:
+    ///   - context: A NSManagedObjectContext instance.
+    ///   - obs: An ObserverType instance.
+    public func save<O>(_ context: NSManagedObjectContext, _ obs: O)
+        where O: ObserverType, O.E == Void
+    {
+        performOnContextThread(context) {
+            do {
+                try self.saveUnsafely(context)
+                obs.onNext()
+                obs.onCompleted()
+            } catch let e {
+                obs.onError(e)
+            }
+        }
+    }
+}
+
+public extension HMCDManager {
+    
+    /// Construct a Sequence of CoreData from data objects, save it to the
+    /// database and observe the process.
+    ///
+    /// - Parameters:
+    ///   - context: A NSManagedObjectContext instance.
+    ///   - data: A Sequence of HMCDPureObjectType.
+    ///   - obs: An ObserverType instance.
+    /// - Throws: Exception if the save fails.
+    public func save<S,PO,O>(_ context: NSManagedObjectContext,
+                             _ data: S,
+                             _ obs: O) where
+        PO: HMCDPureObjectType,
+        PO.CDClass: HMCDObjectBuildableType,
+        PO.CDClass.Builder.PureObject == PO,
+        S: Sequence,
+        S.Iterator.Element == PO,
+        O: ObserverType,
+        O.E == Void
+    {
+        performOnContextThread(context) {
+            do {
+                try self.saveUnsafely(context, data)
+                obs.onNext()
+                obs.onCompleted()
+            } catch let e {
+                obs.onError(e)
+            }
+        }
+    }
+}
+
+public extension HMCDManager {
+    
+    /// Delete a Sequence of data from memory by refetching them using some
+    /// context and observe the process.
+    ///
+    /// - Parameters:
+    ///   - context: A NSManagedObjectContext instance.
+    ///   - data: A Sequence of NSManagedObject.
+    ///   - obs: An ObserverType instance.
+    /// - Throws: Exception if the delete fails.
+    public func delete<NS,S,O>(_ context: NSManagedObjectContext,
+                               _ data: S,
+                               _ obs: O) where
+        NS: NSManagedObject,
+        S: Sequence, S.Iterator.Element == NS,
+        O: ObserverType, O.E == Void
+    {
+        performOnContextThread(context) {
+            do {
+                try self.deleteUnsafely(context, data)
+                obs.onNext()
+                obs.onCompleted()
+            } catch let e {
+                obs.onError(e)
+            }
+        }
+    }
+    
+    /// Delete a Sequence of upsertable data from memory by refetching them
+    /// using some context and observe the process.
+    ///
+    /// - Parameters:
+    ///   - context: A NSManagedObjectContext instance.
+    ///   - entityName: A String value representing the entity's name.
+    ///   - data: A Sequence of HMCDUpsertableObject.
+    ///   - obs: An ObserverType instance.
+    /// - Throws: Exception if the delete fails.
+    public func delete<U,S,O>(_ context: NSManagedObjectContext,
+                              _ entityName: String,
+                              _ data: S,
+                              _ obs: O) where
+        U: HMCDUpsertableObject,
+        S: Sequence, S.Iterator.Element == U,
+        O: ObserverType, O.E == Void
+    {
+        performOnContextThread(context) {
+            do {
+                try self.deleteUnsafely(context, entityName, data)
+                obs.onNext()
+                obs.onCompleted()
+            } catch let e {
+                obs.onError(e)
+            }
+        }
+    }
+}
 
 public extension Reactive where Base: HMCDManager {
     
