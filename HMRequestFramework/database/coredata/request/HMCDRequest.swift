@@ -56,7 +56,7 @@ extension HMCDRequest: HMBuildableType {
         /// - Parameter representable: A HMCDRepresentableType class type.
         /// - Returns: The current Builder instance.
         @discardableResult
-        public func with<CDR>(representable: CDR.Type) -> Self where CDR: HMCDRepresentableType {
+        public func with<CDR>(representable: CDR.Type) -> Self where CDR: HMCDObjectType {
             return with(entityName: try? representable.entityName())
         }
         

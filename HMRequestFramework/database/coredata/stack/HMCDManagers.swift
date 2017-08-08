@@ -26,7 +26,7 @@ public extension Reactive where Base: HMCDManager {
     public func construct<PO,S>(_ context: NSManagedObjectContext, _ pureObjs: S)
         -> Observable<[PO.CDClass]> where
         PO: HMCDPureObjectType,
-        PO.CDClass: HMCDRepresetableBuildableType,
+        PO.CDClass: HMCDObjectBuildableType,
         PO.CDClass.Builder.PureObject == PO,
         S: Sequence, S.Iterator.Element == PO
     {
@@ -56,16 +56,16 @@ public extension Reactive where Base: HMCDManager {
     ///   - context: A NSManagedObjectContext instance.
     ///   - data: A Sequence of HMCDPureObjectType.
     /// - Returns: An Observable instance.
-    public func saveInMemory<S,PO>(_ context: NSManagedObjectContext,
-                                   _ data: S) -> Observable<Void> where
+    public func save<S,PO>(_ context: NSManagedObjectContext,
+                           _ data: S) -> Observable<Void> where
         PO: HMCDPureObjectType,
-        PO.CDClass: HMCDRepresetableBuildableType,
+        PO.CDClass: HMCDObjectBuildableType,
         PO.CDClass.Builder.PureObject == PO,
         S: Sequence,
         S.Iterator.Element == PO
     {
         return Observable.create(({(obs: AnyObserver<Void>) in
-            self.base.saveInMemory(context, data, obs)
+            self.base.save(context, data, obs)
             return Disposables.create()
         }))
     }
@@ -78,14 +78,14 @@ public extension Reactive where Base: HMCDManager {
     ///
     /// - Parameter data: A Sequence of HMCDPureObjectType.
     /// - Returns: An Observable instance.
-    public func saveInMemory<S,PO>(_ data: S) -> Observable<Void> where
+    public func save<S,PO>(_ data: S) -> Observable<Void> where
         PO: HMCDPureObjectType,
-        PO.CDClass: HMCDRepresetableBuildableType,
+        PO.CDClass: HMCDObjectBuildableType,
         PO.CDClass.Builder.PureObject == PO,
         S: Sequence,
         S.Iterator.Element == PO
     {
-        return saveInMemory(base.defaultCreateContext(), data)
+        return save(base.defaultCreateContext(), data)
     }
 }
 
@@ -99,12 +99,12 @@ public extension Reactive where Base: HMCDManager {
     ///   - entityName: A String value representing the entity's name.
     ///   - data: A Sequence of NSManagedObject.
     /// - Throws: Exception if the delete fails.
-    public func deleteFromMemory<NS,S>(_ context: NSManagedObjectContext,
-                                       _ data: S) -> Observable<Void> where
+    public func delete<NS,S>(_ context: NSManagedObjectContext, _ data: S)
+        -> Observable<Void> where
         NS: NSManagedObject, S: Sequence, S.Iterator.Element == NS
     {
         return Observable.create(({(obs: AnyObserver<Void>) in
-            self.base.deleteFromMemory(context, data, obs)
+            self.base.delete(context, data, obs)
             return Disposables.create()
         }))
     }
@@ -116,10 +116,10 @@ public extension Reactive where Base: HMCDManager {
     ///   - entityName: A String value representing the entity's name.
     ///   - data: A Sequence of NSManagedObject.
     /// - Returns: An Observable instance.
-    public func deleteFromMemory<NS,S>(_ data: S) -> Observable<Void> where
+    public func delete<NS,S>(_ data: S) -> Observable<Void> where
         NS: NSManagedObject, S: Sequence, S.Iterator.Element == NS
     {
-        return deleteFromMemory(base.defaultDeleteContext(), data)
+        return delete(base.defaultDeleteContext(), data)
     }
 }
 
@@ -133,13 +133,13 @@ public extension Reactive where Base: HMCDManager {
     ///   - entityName: A String value representing the entity's name.
     ///   - data: A Sequence of HMCDUpsertableObject.
     /// - Throws: Exception if the delete fails.
-    public func deleteFromMemory<U,S>(_ context: NSManagedObjectContext,
-                                      _ entityName: String,
-                                      _ data: S) -> Observable<Void> where
+    public func delete<U,S>(_ context: NSManagedObjectContext,
+                            _ entityName: String,
+                            _ data: S) -> Observable<Void> where
         U: HMCDUpsertableObject, S: Sequence, S.Iterator.Element == U
     {
         return Observable.create(({(obs: AnyObserver<Void>) in
-            self.base.deleteFromMemory(context, entityName, data, obs)
+            self.base.delete(context, entityName, data, obs)
             return Disposables.create()
         }))
     }
@@ -151,11 +151,11 @@ public extension Reactive where Base: HMCDManager {
     ///   - entityName: A String value representing the entity's name.
     ///   - data: A Sequence of HMCDUpsertableObject.
     /// - Returns: An Observable instance.
-    public func deleteFromMemory<U,S>(_ entityName: String, _ data: S)
+    public func delete<U,S>(_ entityName: String, _ data: S)
         -> Observable<Void> where
         U: HMCDUpsertableObject, S: Sequence, S.Iterator.Element == U
     {
-        return deleteFromMemory(base.defaultDeleteContext(), entityName, data)
+        return delete(base.defaultDeleteContext(), entityName, data)
     }
 }
 
@@ -166,7 +166,7 @@ public extension Reactive where Base: HMCDManager {
     /// need to save the former first.
     ///
     /// - Returns: An Observable instance.
-    public func persistAllChangesToFile() -> Observable<Void> {
+    public func persistLocally() -> Observable<Void> {
         let mainContext = base.mainContext
         let privateContext = base.privateContext
         

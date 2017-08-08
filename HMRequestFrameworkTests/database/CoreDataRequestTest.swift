@@ -19,7 +19,7 @@ public final class CoreDataRequestTest: XCTestCase {
     public typealias Req = HMCDRequestProcessor.Req
     fileprivate let timeout: TimeInterval = 1000
     fileprivate let iterationCount = 10
-    fileprivate let dummyCount = 10
+    fileprivate let dummyCount = 100
     fileprivate let dummyTypeCount = 2
     fileprivate let generatorError = "Generator error!"
     fileprivate let processorError = "Processor error!"
@@ -123,7 +123,7 @@ public final class CoreDataRequestTest: XCTestCase {
         /// When
         // Save the dummies in memory. Their NSManagedObject equivalents will
         // be constructed here.
-        manager.rx.saveInMemory(dummies)
+        manager.rx.save(dummies)
             
             // Perform a fetch to verify that the data have been inserted, but
             // not persisted.
@@ -134,7 +134,7 @@ public final class CoreDataRequestTest: XCTestCase {
             .map(toVoid)
             
             // Persist the data.
-            .flatMap(manager.rx.persistAllChangesToFile)
+            .flatMap(manager.rx.persistLocally)
             
             // Fetch the data and verify that they have been persisted.
             .flatMap({manager.rx.fetch(fetchRq)})
@@ -167,17 +167,17 @@ public final class CoreDataRequestTest: XCTestCase {
         manager.rx.save(context)
             
             // Persist the data to DB.
-            .flatMap(manager.rx.persistAllChangesToFile)
+            .flatMap(manager.rx.persistLocally)
             
             // Fetch to verify that the data have been persisted.
             .flatMap({_ in manager.rx.fetch(fetchRq)})
             .doOnNext({XCTAssertEqual($0.count, dummyCount)})
             
             // Delete the data from memory without persisting the changes.
-            .flatMap({_ in manager.rx.deleteFromMemory(entityName, dummies)})
+            .flatMap({_ in manager.rx.delete(entityName, dummies)})
             
             // Persist the changes.
-            .flatMap(manager.rx.persistAllChangesToFile)
+            .flatMap(manager.rx.persistLocally)
             
             // Fetch to verify that all data have been deleted.
             .flatMap({_ in manager.rx.fetch(fetchRq)})
@@ -219,7 +219,7 @@ public final class CoreDataRequestTest: XCTestCase {
         manager.rx.save(context)
             
             // Persist data to DB.
-            .flatMap(manager.rx.persistAllChangesToFile)
+            .flatMap(manager.rx.persistLocally)
             
             // Refetch based on upsertable objects. We expect the returned
             // data to contain the same properties.
@@ -273,7 +273,7 @@ public final class CoreDataRequestTest: XCTestCase {
             
             // Persist changes to DB. At this stage, data1 is the only set
             // of data within the DB.
-            .flatMap(manager.rx.persistAllChangesToFile)
+            .flatMap(manager.rx.persistLocally)
             
             // Fetch to verify that the DB only contains data1.
             .flatMap({manager.rx.fetch(fetchRq)})
@@ -281,10 +281,10 @@ public final class CoreDataRequestTest: XCTestCase {
             
             // Delete data2 from memory. data1 and data2 are two different
             // sets of data that only have the same primary key-value.
-            .flatMap({_ in manager.rx.deleteFromMemory(entityName, data2)})
+            .flatMap({_ in manager.rx.delete(entityName, data2)})
             
             // Persist changes to DB.
-            .flatMap(manager.rx.persistAllChangesToFile)
+            .flatMap(manager.rx.persistLocally)
             
             // Fetch to verify that the DB is now empty.
             .flatMap({manager.rx.fetch(fetchRq)})
@@ -307,7 +307,6 @@ public final class CoreDataRequestTest: XCTestCase {
         let manager = self.manager!
         let iterationCount = self.iterationCount
         let dummyCount = self.dummyCount
-        let entityName = try! Dummy1.entityName()
         let request: NSFetchRequest<Dummy1> = try! dummy1FetchRequest().fetchRequest()
         
         /// When
@@ -316,25 +315,34 @@ public final class CoreDataRequestTest: XCTestCase {
             // For each iteration, create a bunch of dummies in a disposable
             // context and save them in memory. The main context should then
             // own the changes.
-            .flatMap({(_) -> Observable<Void> in
-                let context = manager.disposableObjectContext()
-                let _ = self.randomDummies(Dummy1.self, context, dummyCount)
-                return manager.rx.save(context).subscribeOn(qos: .background)
+            .flatMap({(i) -> Observable<Void> in
+                print("Creating dummies, iteration \(i)")
+                let context = manager.defaultCreateContext()
+                
+                return Observable<Void>
+                    .create({
+                        self.randomDummies(Dummy1.self, context, dummyCount)
+                        $0.onNext(())
+                        $0.onCompleted()
+                        return Disposables.create()
+                    })
+                    .flatMap({manager.rx.save(context)})
+                    .subscribeOn(qos: .background)
             })
             .reduce((), accumulator: {_ in ()})
             
             // Persist all changes to DB.
-            .flatMap(manager.rx.persistAllChangesToFile)
+            .flatMap(manager.rx.persistLocally)
             
             // Fetch to verify that the data have been persisted.
-            .flatMap({manager.rx.fetch(request).subscribeOn(qos: .background)})
+            .flatMap({manager.rx.fetch(request)})
             .doOnNext({XCTAssertEqual($0.count, iterationCount * dummyCount)})
             
             // Delete from memory, but do not persist yet.
-            .flatMap({manager.rx.deleteFromMemory(entityName, $0)})
+            .flatMap({manager.rx.delete($0)})
             
             // Persist the changes.
-            .flatMap(manager.rx.persistAllChangesToFile)
+            .flatMap(manager.rx.persistLocally)
             
             // Fetch to verify that the data have been deleted.
             .flatMap({manager.rx.fetch(request).subscribeOn(qos: .background)})
@@ -562,6 +570,7 @@ public final class CoreDataRequestTest: XCTestCase {
 }
 
 extension CoreDataRequestTest {
+    @discardableResult
     func randomDummies<D>(_ dummyType: D.Type,
                           _ context: NSManagedObjectContext,
                           _ count: Int)

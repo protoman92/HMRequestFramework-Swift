@@ -1,5 +1,5 @@
 //
-//  HMCDRepresentableType.swift
+//  HMCDObjectType.swift
 //  HMRequestFramework
 //
 //  Created by Hai Pham on 7/25/17.
@@ -11,7 +11,7 @@ import SwiftUtilities
 
 /// Classes that implement this protocol should be able to construct the
 /// data needed to create a CoreData model description.
-public protocol HMCDRepresentableType: class {
+public protocol HMCDObjectType: class {
     
     /// Get the associated attributes.
     ///
@@ -27,7 +27,7 @@ public protocol HMCDRepresentableType: class {
     init(_ context: NSManagedObjectContext) throws
 }
 
-public extension HMCDRepresentableType {
+public extension HMCDObjectType {
     
     /// Get the associated entity description.
     ///
@@ -59,7 +59,7 @@ public extension HMCDRepresentableType {
     }
 }
 
-public extension HMCDRepresentableType where Self: NSManagedObject {
+public extension HMCDObjectType where Self: NSManagedObject {
     
     /// Get the associated entity name.
     ///
@@ -87,7 +87,7 @@ public extension HMCDRepresentableType where Self: NSManagedObject {
 ///
 /// The with(base:) method will copy all attributes from the pure data object
 /// into the newly constructor CoreData object.
-public protocol HMCDRepresentableBuilderType {
+public protocol HMCDObjectBuilderType {
     associatedtype PureObject: HMCDPureObjectType
     
     func with(pureObject: PureObject) -> Self
@@ -101,8 +101,8 @@ public protocol HMCDRepresentableBuilderType {
 ///
 /// This protocol is not related to HMBuildableType, because the initializer
 /// requirements are different.
-public protocol HMCDRepresetableBuildableType {
-    associatedtype Builder: HMCDRepresentableBuilderType
+public protocol HMCDObjectBuildableType {
+    associatedtype Builder: HMCDObjectBuilderType
     
     static func builder(_ context: NSManagedObjectContext) throws -> Builder
 }

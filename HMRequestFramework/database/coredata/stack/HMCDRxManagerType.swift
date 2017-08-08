@@ -12,7 +12,7 @@ import SwiftUtilities
 
 /// Classes that implement this protocol should be able to handle rx-specific
 /// CoreData operations.
-public protocol HMCDRxManagerType: HMCDManagerType {}
+public protocol HMCDRxManagerType: HMCDManagerType, HMCDBlockPerformerType {}
 
 public extension HMCDRxManagerType {
     
@@ -24,7 +24,7 @@ public extension HMCDRxManagerType {
     public func save<O>(_ context: NSManagedObjectContext, _ obs: O)
         where O: ObserverType, O.E == Void
     {
-        context.performAndWait {
+        performOnContextThread(context) {
             do {
                 try self.saveUnsafely(context)
                 obs.onNext()
@@ -46,20 +46,20 @@ public extension HMCDRxManagerType {
     ///   - data: A Sequence of HMCDPureObjectType.
     ///   - obs: An ObserverType instance.
     /// - Throws: Exception if the save fails.
-    public func saveInMemory<S,PO,O>(_ context: NSManagedObjectContext,
-                                     _ data: S,
-                                     _ obs: O) where
+    public func save<S,PO,O>(_ context: NSManagedObjectContext,
+                             _ data: S,
+                             _ obs: O) where
         PO: HMCDPureObjectType,
-        PO.CDClass: HMCDRepresetableBuildableType,
+        PO.CDClass: HMCDObjectBuildableType,
         PO.CDClass.Builder.PureObject == PO,
         S: Sequence,
         S.Iterator.Element == PO,
         O: ObserverType,
         O.E == Void
     {
-        context.performAndWait {
+        performOnContextThread(context) {
             do {
-                try self.saveInMemoryUnsafely(context, data)
+                try self.saveUnsafely(context, data)
                 obs.onNext()
                 obs.onCompleted()
             } catch let e {
@@ -79,16 +79,16 @@ public extension HMCDRxManagerType {
     ///   - data: A Sequence of NSManagedObject.
     ///   - obs: An ObserverType instance.
     /// - Throws: Exception if the delete fails.
-    public func deleteFromMemory<NS,S,O>(_ context: NSManagedObjectContext,
-                                         _ data: S,
-                                         _ obs: O) where
+    public func delete<NS,S,O>(_ context: NSManagedObjectContext,
+                               _ data: S,
+                               _ obs: O) where
         NS: NSManagedObject,
         S: Sequence, S.Iterator.Element == NS,
         O: ObserverType, O.E == Void
     {
-        context.performAndWait {
+        performOnContextThread(context) {
             do {
-                try self.deleteFromMemoryUnsafely(context, data)
+                try self.deleteUnsafely(context, data)
                 obs.onNext()
                 obs.onCompleted()
             } catch let e {
@@ -106,17 +106,17 @@ public extension HMCDRxManagerType {
     ///   - data: A Sequence of HMCDUpsertableObject.
     ///   - obs: An ObserverType instance.
     /// - Throws: Exception if the delete fails.
-    public func deleteFromMemory<U,S,O>(_ context: NSManagedObjectContext,
-                                        _ entityName: String,
-                                        _ data: S,
-                                        _ obs: O) where
+    public func delete<U,S,O>(_ context: NSManagedObjectContext,
+                              _ entityName: String,
+                              _ data: S,
+                              _ obs: O) where
         U: HMCDUpsertableObject,
         S: Sequence, S.Iterator.Element == U,
         O: ObserverType, O.E == Void
     {
-        context.performAndWait {
+        performOnContextThread(context) {
             do {
-                try self.deleteFromMemoryUnsafely(context, entityName, data)
+                try self.deleteUnsafely(context, entityName, data)
                 obs.onNext()
                 obs.onCompleted()
             } catch let e {

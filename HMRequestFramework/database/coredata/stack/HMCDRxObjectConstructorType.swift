@@ -9,7 +9,7 @@
 import CoreData
 import RxSwift
 
-public protocol HMCDRxObjectConstructorType: HMCDObjectConstructorType {}
+public protocol HMCDRxObjectConstructorType: HMCDObjectConstructorType, HMCDBlockPerformerType {}
 
 public extension HMCDRxObjectConstructorType {
     
@@ -25,12 +25,12 @@ public extension HMCDRxObjectConstructorType {
                                   _ pureObjs: S,
                                   _ obs: O) where
         PO: HMCDPureObjectType,
-        PO.CDClass: HMCDRepresetableBuildableType,
+        PO.CDClass: HMCDObjectBuildableType,
         PO.CDClass.Builder.PureObject == PO,
         S: Sequence, S.Iterator.Element == PO,
         O: ObserverType, O.E == [PO.CDClass]
     {
-        context.performAndWait {
+        performOnContextThread(context) {
             do {
                 let data = try self.constructUnsafely(context, pureObjs)
                 obs.onNext(data)

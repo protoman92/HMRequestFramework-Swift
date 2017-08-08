@@ -34,7 +34,7 @@ public extension HMCDObjectConstructorType {
                                _ pureObj: PO) throws
         -> PO.CDClass where
         PO: HMCDPureObjectType,
-        PO.CDClass: HMCDRepresetableBuildableType,
+        PO.CDClass: HMCDObjectBuildableType,
         PO.CDClass.Builder.PureObject == PO
     {
         return try PO.CDClass.builder(context).with(pureObject: pureObj).build()
@@ -51,7 +51,7 @@ public extension HMCDObjectConstructorType {
                                         _ pureObjs: S) throws
         -> [PO.CDClass] where
         PO: HMCDPureObjectType,
-        PO.CDClass: HMCDRepresetableBuildableType,
+        PO.CDClass: HMCDObjectBuildableType,
         PO.CDClass.Builder.PureObject == PO,
         S: Sequence, S.Iterator.Element == PO
     {

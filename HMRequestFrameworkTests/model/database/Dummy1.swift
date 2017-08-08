@@ -51,7 +51,7 @@ public final class Dummy1: HMCDUpsertableObject {
     }
 }
 
-extension Dummy1: HMCDRepresentableType {
+extension Dummy1: HMCDObjectType {
     public static func cdAttributes() throws -> [NSAttributeDescription]? {
         return [
             {(_) -> NSAttributeDescription in

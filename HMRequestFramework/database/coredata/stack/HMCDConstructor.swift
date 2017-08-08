@@ -115,7 +115,7 @@ extension HMCDConstructor: HMBuildableType {
         /// - Returns: The current Builder instance.
         @discardableResult
         public func with<S>(representables: S) -> Self where
-            S: Sequence, S.Iterator.Element == HMCDRepresentableType.Type
+            S: Sequence, S.Iterator.Element == HMCDObjectType.Type
         {
             do {
                 let model = NSManagedObjectModel()
@@ -131,7 +131,7 @@ extension HMCDConstructor: HMBuildableType {
         /// - Parameter representables: A varargs of HMCDRepresentableType subtype.
         /// - Returns: The current Builder instance.
         @discardableResult
-        public func with(representables: HMCDRepresentableType.Type...) -> Self {
+        public func with(representables: HMCDObjectType.Type...) -> Self {
             return with(representables: representables.map(eq))
         }
         

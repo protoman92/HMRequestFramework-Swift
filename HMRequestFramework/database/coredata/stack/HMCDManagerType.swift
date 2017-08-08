@@ -192,14 +192,14 @@ public extension HMCDManagerType {
     ///   - context: A NSManagedObjectContext instance.
     ///   - dataFn: A Sequence of HMCDPureObjectType.
     /// - Throws: Exception if the save fails.
-    public func saveInMemoryUnsafely<S>(_ context: NSManagedObjectContext,
-                                        _ data: S) throws where
+    public func saveUnsafely<S>(_ context: NSManagedObjectContext,
+                                _ data: S) throws where
         // For some reasons, XCode 8 cannot compile if we define a separate
         // generics for S.Iterator.Element. Although this is longer, it works
         // for both XCode 8 and 9.
         S: Sequence,
         S.Iterator.Element: HMCDPureObjectType,
-        S.Iterator.Element.CDClass: HMCDRepresetableBuildableType,
+        S.Iterator.Element.CDClass: HMCDObjectBuildableType,
         S.Iterator.Element.CDClass.Builder.PureObject == S.Iterator.Element
     {
         let _ = try data.map({try self.constructUnsafely(context, $0)})
@@ -216,8 +216,8 @@ public extension HMCDManagerType {
     ///   - context: A NSManagedObjectContext instance.
     ///   - data: A Sequence of NSManagedObject.
     /// - Throws: Exception if the delete fails.
-    public func deleteFromMemoryUnsafely<NS,S>(_ context: NSManagedObjectContext,
-                                               _ data: S) throws where
+    public func deleteUnsafely<NS,S>(_ context: NSManagedObjectContext,
+                                     _ data: S) throws where
         NS: NSManagedObject, S: Sequence, S.Iterator.Element == NS
     {
         let data = data.map(eq)
@@ -241,9 +241,9 @@ public extension HMCDManagerType {
     ///   - entityName: A String value representing the entity's name.
     ///   - data: A Sequence of NSManagedObject.
     /// - Throws: Exception if the delete fails.
-    public func deleteFromMemoryUnsafely<U,S>(_ context: NSManagedObjectContext,
-                                              _ entityName: String,
-                                              _ data: S) throws where
+    public func deleteUnsafely<U,S>(_ context: NSManagedObjectContext,
+                                    _ entityName: String,
+                                    _ data: S) throws where
         U: HMCDUpsertableObject, S: Sequence, S.Iterator.Element == U
     {
         let data = try blockingRefetch(context, entityName, data)

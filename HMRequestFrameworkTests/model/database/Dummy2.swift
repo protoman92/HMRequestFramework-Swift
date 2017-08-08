@@ -42,7 +42,7 @@ public final class Dummy2: NSManagedObject {
 
 extension Dummy2: DummyType {}
 
-extension Dummy2: HMCDRepresentableType {
+extension Dummy2: HMCDObjectType {
     public static func cdAttributes() throws -> [NSAttributeDescription]? {
         return (1...10).map({index in
             {(_) -> NSAttributeDescription in

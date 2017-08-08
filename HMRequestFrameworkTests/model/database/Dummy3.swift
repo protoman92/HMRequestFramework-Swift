@@ -23,12 +23,12 @@ public class CDDummy3: NSManagedObject {
     }
 }
 
-extension CDDummy3: HMCDRepresetableBuildableType {
+extension CDDummy3: HMCDObjectBuildableType {
     public static func builder(_ context: NSManagedObjectContext) throws -> Builder {
         return try Builder(CDDummy3(context))
     }
     
-    public final class Builder: HMCDRepresentableBuilderType {
+    public final class Builder: HMCDObjectBuilderType {
         public typealias PureObject = Dummy3
         
         private let cdo: CDDummy3
@@ -49,7 +49,7 @@ extension CDDummy3: HMCDRepresetableBuildableType {
     }
 }
 
-extension CDDummy3: HMCDRepresentableType {
+extension CDDummy3: HMCDObjectType {
     public static func cdAttributes() throws -> [NSAttributeDescription]? {
         return [
             NSAttributeDescription.builder()

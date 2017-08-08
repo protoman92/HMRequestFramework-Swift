@@ -114,7 +114,7 @@ extension HMCDRequestProcessor: HMCDRequestProcessorType {
         let data = try request.dataToDelete()
         
         return manager.rx
-            .deleteFromMemory(data)
+            .delete(data)
             .retry(request.retries())
             .map(Try.success)
             .catchErrorJustReturn(Try.failure)
@@ -143,7 +143,7 @@ extension HMCDRequestProcessor: HMCDRequestProcessorType {
     private func executePersistToFile(_ request: Req) throws -> Observable<Try<Void>> {
         let manager = coreDataManager()
         
-        return manager.rx.persistAllChangesToFile()
+        return manager.rx.persistLocally()
             .retry(request.retries())
             .map(Try.success)
             .catchErrorJustReturn(Try.failure)
@@ -165,7 +165,7 @@ extension HMCDRequestProcessor: HMCDRequestProcessorType {
             .concat(
                 // This will only delete objects that are already in the
                 // DB, so we can call it with all data.
-                manager.rx.deleteFromMemory(entityName, upsertables),
+                manager.rx.delete(entityName, upsertables),
                 manager.rx.save(context)
             )
             .reduce((), accumulator: {_ in ()})
