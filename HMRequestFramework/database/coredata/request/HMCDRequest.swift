@@ -51,22 +51,22 @@ extension HMCDRequest: HMBuildableType {
             return self
         }
         
-        /// Set the entityName using a HMCDRepresentableType subtype.
+        /// Set the entityName using a HMCDObjectType subtype.
         ///
-        /// - Parameter representable: A HMCDRepresentableType class type.
+        /// - Parameter cdType: A CD class type.
         /// - Returns: The current Builder instance.
         @discardableResult
-        public func with<CDR>(representable: CDR.Type) -> Self where CDR: HMCDObjectType {
-            return with(entityName: try? representable.entityName())
+        public func with<CD>(cdType: CD.Type) -> Self where CD: HMCDObjectType {
+            return with(entityName: try? cdType.entityName())
         }
         
         /// Set the entityName using a HMCDPureObjectType subtype.
         ///
-        /// - Parameter pureObject: A HMCDPureObjectType class type.
+        /// - Parameter poType: A PO class type.
         /// - Returns: The current Builder instance.
         @discardableResult
-        public func with<PO>(pureObject: PO.Type) -> Self where PO: HMCDPureObjectType {
-            return with(representable: pureObject.CDClass.self)
+        public func with<PO>(poType: PO.Type) -> Self where PO: HMCDPureObjectType {
+            return with(cdType: poType.CDClass.self)
         }
         
         /// Set the predicate.

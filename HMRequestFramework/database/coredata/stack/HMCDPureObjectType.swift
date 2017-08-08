@@ -28,11 +28,11 @@ public protocol HMCDPureObjectConvertibleType {
 }
 
 /// Pure object builders that implement this protocol must be able to copy
-/// properties from a HMCDRepresentableType object into the current pure object.
+/// properties from a HMCDObjectType object into the current pure object.
 public protocol HMCDPureObjectBuilderType: HMBuilderType {
     associatedtype Buildable: HMCDPureObjectType
     
-    func with(representable: Buildable.CDClass) -> Self
+    func with(cdObject: Buildable.CDClass) -> Self
 }
 
 /// Pure object classes that implement this protocol must have in-built Builder
@@ -49,6 +49,6 @@ public extension HMCDPureObjectConvertibleType where
     /// With the right protocol constraints, we can directly implement this
     /// method by default.
     public func asPureObject() -> PureObject {
-        return PureObject.builder().with(representable: self).build()
+        return PureObject.builder().with(cdObject: self).build()
     }
 }

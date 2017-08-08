@@ -108,31 +108,31 @@ extension HMCDConstructor: HMBuildableType {
             }
         }
         
-        /// Set the objectModel using a Sequence of HMCDRepresentableType
+        /// Set the objectModel using a Sequence of HMCDObjectType
         /// classes.
         ///
-        /// - Parameter representables: An Sequence of HMCDRepresentableType subtype.
+        /// - Parameter cdTypes: An Sequence of HMCDObjectType subtype.
         /// - Returns: The current Builder instance.
         @discardableResult
-        public func with<S>(representables: S) -> Self where
+        public func with<S>(cdTypes: S) -> Self where
             S: Sequence, S.Iterator.Element == HMCDObjectType.Type
         {
             do {
                 let model = NSManagedObjectModel()
-                model.entities = try representables.map({try $0.entityDescription()})
+                model.entities = try cdTypes.map({try $0.entityDescription()})
                 return with(objectModel: model)
             } catch {
                 return self
             }
         }
         
-        /// Set the objectModel using a varargs of HMCDRepresentableType classes.
+        /// Set the objectModel using a varargs of HMCDObjectType classes.
         ///
-        /// - Parameter representables: A varargs of HMCDRepresentableType subtype.
+        /// - Parameter cdTypes: A varargs of HMCDObjectType subtype.
         /// - Returns: The current Builder instance.
         @discardableResult
-        public func with(representables: HMCDObjectType.Type...) -> Self {
-            return with(representables: representables.map(eq))
+        public func with(cdTypes: HMCDObjectType.Type...) -> Self {
+            return with(cdTypes: cdTypes.map(eq))
         }
         
         /// Set the store settings using a Sequence of HMPersistentStoreSettings.

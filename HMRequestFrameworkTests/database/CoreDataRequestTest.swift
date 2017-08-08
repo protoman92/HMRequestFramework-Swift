@@ -206,7 +206,7 @@ public final class CoreDataRequestTest: XCTestCase {
         let data = (0..<dummyCount).flatMap({_ in try? Dummy1(context)})
         
         let fetchRq: NSFetchRequest<Dummy1> = try! HMCDRequest.builder()
-            .with(representable: Dummy1.self)
+            .with(cdType: Dummy1.self)
             .with(operation: .fetch)
             .with(predicate: manager.predicateForUpsertableFetch(data))
             .build()
@@ -259,7 +259,7 @@ public final class CoreDataRequestTest: XCTestCase {
         })
         
         let fetchRq: NSFetchRequest<Dummy1> = try! HMCDRequest.builder()
-            .with(representable: Dummy1.self)
+            .with(cdType: Dummy1.self)
             .with(operation: .fetch)
             .with(predicate: NSPredicate(value: true))
             .build()
@@ -466,14 +466,14 @@ public final class CoreDataRequestTest: XCTestCase {
         let upsertRq23 = Req.builder()
             .with(operation: .upsert)
             .with(contextToSave: context2)
-            .with(representable: Dummy1.self)
+            .with(cdType: Dummy1.self)
             .build()
 
         let generator2 = HMRequestGenerators.forceGenerateFn(upsertRq23, Any.self)
         let processor2: HMEQResultProcessor<Void> = HMResultProcessors.eqProcessor()
 
         let fetchRqAll = Req.builder()
-            .with(representable: Dummy1.self)
+            .with(cdType: Dummy1.self)
             .with(predicate: NSPredicate(value: true))
             .with(operation: .fetch)
             .build()
@@ -583,7 +583,7 @@ extension CoreDataRequestTest {
 extension CoreDataRequestTest {
     func dummy1FetchRequest() -> Req {
         return Req.builder()
-            .with(representable: Dummy1.self)
+            .with(cdType: Dummy1.self)
             .with(operation: .fetch)
             .with(predicate: NSPredicate(value: true))
             .with(sortDescriptors: NSSortDescriptor(key: "id", ascending: true))
@@ -602,7 +602,7 @@ extension CoreDataRequestTest {
 extension CoreDataRequestTest {
     func dummy2FetchRequest() -> Req {
         return Req.builder()
-            .with(representable: Dummy2.self)
+            .with(cdType: Dummy2.self)
             .with(operation: .fetch)
             .with(predicate: NSPredicate(value: true))
             .build()
@@ -620,7 +620,7 @@ extension CoreDataRequestTest {
 extension CoreDataRequestTest {
     func dummy3FetchRequest() -> Req {
         return Req.builder()
-            .with(representable: CDDummy3.self)
+            .with(cdType: CDDummy3.self)
             .with(operation: .fetch)
             .with(predicate: NSPredicate(value: true))
             .with(sortDescriptors: NSSortDescriptor(key: "id", ascending: true))

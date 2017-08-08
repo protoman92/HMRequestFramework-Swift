@@ -110,9 +110,9 @@ extension Dummy3: HMCDPureObjectBuildableType {
         
         private let dummy = Buildable()
         
-        public func with(representable: Buildable.CDClass) -> Self {
-            dummy.id = representable.id
-            dummy.count = representable.count
+        public func with(cdObject: Buildable.CDClass) -> Self {
+            dummy.id = cdObject.id
+            dummy.count = cdObject.count
             return self
         }
         

@@ -85,8 +85,8 @@ public extension HMCDObjectType where Self: NSManagedObject {
 /// we wish to save it to CoreData, we will have methods to implicitly convert
 /// the pure data class into a CoreData-compatible object.
 ///
-/// The with(base:) method will copy all attributes from the pure data object
-/// into the newly constructor CoreData object.
+/// The with(pureObject:) method will copy all attributes from the pure data
+/// object into the newly constructor CoreData object.
 public protocol HMCDObjectBuilderType {
     associatedtype PureObject: HMCDPureObjectType
     
@@ -96,8 +96,8 @@ public protocol HMCDObjectBuilderType {
 }
 
 /// Classes that implement this protocol are usually NSManagedObject that
-/// has in-built Builders that implement HMCDRepresentableBuilderType. It should
-/// also be convertible to a pure data object.
+/// has in-built Builders that implement HMCDObjectBuilderType. It should also
+/// be convertible to a pure data object.
 ///
 /// This protocol is not related to HMBuildableType, because the initializer
 /// requirements are different.
