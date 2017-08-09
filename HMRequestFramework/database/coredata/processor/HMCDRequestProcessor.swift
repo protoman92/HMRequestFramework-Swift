@@ -102,7 +102,7 @@ extension HMCDRequestProcessor: HMCDRequestProcessorType {
         }
     }
     
-    /// Perform a CoreData delete operation. This operation detects upsertable
+    /// Perform a CoreData delete operation. This operation detects identifiable
     /// objects and treat those objects differently.
     ///
     /// - Parameter request: A Req instance.
@@ -110,11 +110,20 @@ extension HMCDRequestProcessor: HMCDRequestProcessorType {
     /// - Throws: Exception if the execution fails.
     private func executeDelete(_ request: Req) throws -> Observable<Try<Void>> {
         let manager = coreDataManager()
-        let entityName = try request.entityName()
         let data = try request.deletedData()
+        let identifiables = data.flatMap({$0 as? HMCDIdentifiableObject})
         
-        return manager.rx
-            .delete(data)
+        let nonIdentifiables = data.filter({obj in
+            !identifiables.contains(where: {$0.objectID == obj.objectID})
+        })
+        
+        let entityName = try request.entityName()
+        
+        return Observable
+            .concat(
+                manager.rx.delete(entityName, identifiables),
+                manager.rx.delete(nonIdentifiables)
+            )
             .retry(request.retries())
             .map(Try.success)
             .catchErrorJustReturn(Try.failure)
@@ -158,14 +167,14 @@ extension HMCDRequestProcessor: HMCDRequestProcessorType {
         let manager = coreDataManager()
         let context = try request.saveContext()
         let data = context.insertedObjects
-        let upsertables = data.flatMap({$0 as? HMCDUpsertableObject})
+        let identifiables = data.flatMap({$0 as? HMCDIdentifiableObject})
         let entityName = try request.entityName()
         
         return Observable
             .concat(
                 // This will only delete objects that are already in the
                 // DB, so we can call it with all data.
-                manager.rx.delete(entityName, upsertables),
+                manager.rx.delete(entityName, identifiables),
                 manager.rx.save(context)
             )
             .reduce((), accumulator: {_ in ()})

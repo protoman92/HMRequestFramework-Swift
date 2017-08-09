@@ -96,7 +96,7 @@ public final class MiddlewareTest: XCTestCase {
             .with(retries: 10)
             .build()
         
-        let generator: HMRequestGenerator<Any,MockRequest> = {_ in
+        let generator: HMAnyRequestGenerator<MockRequest> = {_ in
             Observable.just(Try.success(request))
         }
         
@@ -141,7 +141,7 @@ public final class MiddlewareTest: XCTestCase {
             .shouldApplyMiddlewares()
             .build()
         
-        let generator: HMRequestGenerator<Any,HMNetworkRequest> = {_ in
+        let generator: HMAnyRequestGenerator<HMNetworkRequest> = {_ in
             Observable.just(Try.success(request))
         }
         

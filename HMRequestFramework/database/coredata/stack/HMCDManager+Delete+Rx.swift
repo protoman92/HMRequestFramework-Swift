@@ -31,7 +31,7 @@ public extension HMCDManager {
         }
     }
     
-    /// Delete a Sequence of upsertable data from memory by refetching them
+    /// Delete a Sequence of identifiable data from memory by refetching them
     /// using some context.
     ///
     /// This is different from the above operation because the predicate used
@@ -47,7 +47,7 @@ public extension HMCDManager {
     public func deleteUnsafely<U,S>(_ context: NSManagedObjectContext,
                                     _ entityName: String,
                                     _ data: S) throws where
-        U: HMCDUpsertableObject, S: Sequence, S.Iterator.Element == U
+        U: HMCDIdentifiableObject, S: Sequence, S.Iterator.Element == U
     {
         let data = try blockingRefetch(context, entityName, data)
         
@@ -86,7 +86,7 @@ public extension HMCDManager {
         }
     }
     
-    /// Delete a Sequence of upsertable data from memory by refetching them
+    /// Delete a Sequence of identifiable data from memory by refetching them
     /// using some context and observe the process.
     ///
     /// - Parameters:
@@ -99,7 +99,7 @@ public extension HMCDManager {
                               _ entityName: String,
                               _ data: S,
                               _ obs: O) where
-        U: HMCDUpsertableObject,
+        U: HMCDIdentifiableObject,
         S: Sequence, S.Iterator.Element == U,
         O: ObserverType, O.E == Void
     {
@@ -151,7 +151,7 @@ public extension Reactive where Base: HMCDManager {
 
 public extension Reactive where Base: HMCDManager {
     
-    /// Delete a Sequence of upsertable data from memory by refetching them
+    /// Delete a Sequence of identifiable data from memory by refetching them
     /// using some context.
     ///
     /// - Parameters:
@@ -162,7 +162,7 @@ public extension Reactive where Base: HMCDManager {
     public func delete<U,S>(_ context: NSManagedObjectContext,
                             _ entityName: String,
                             _ data: S) -> Observable<Void> where
-        U: HMCDUpsertableObject, S: Sequence, S.Iterator.Element == U
+        U: HMCDIdentifiableObject, S: Sequence, S.Iterator.Element == U
     {
         return Observable.create(({(obs: AnyObserver<Void>) in
             self.base.delete(context, entityName, data, obs)
@@ -170,7 +170,7 @@ public extension Reactive where Base: HMCDManager {
         }))
     }
     
-    /// Delete a Sequence of upsertable data from memory by refetching them
+    /// Delete a Sequence of identifiable data from memory by refetching them
     /// using some context.
     ///
     /// - Parameters:
@@ -179,7 +179,7 @@ public extension Reactive where Base: HMCDManager {
     /// - Returns: An Observable instance.
     public func delete<U,S>(_ entityName: String, _ data: S)
         -> Observable<Void> where
-        U: HMCDUpsertableObject, S: Sequence, S.Iterator.Element == U
+        U: HMCDIdentifiableObject, S: Sequence, S.Iterator.Element == U
     {
         return delete(base.defaultDeleteContext(), entityName, data)
     }

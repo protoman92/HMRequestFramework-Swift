@@ -9,6 +9,9 @@
 import RxSwift
 import SwiftUtilities
 
+/// Request generator for Any previous result.
+public typealias HMAnyRequestGenerator<Req> = HMRequestGenerator<Any,Req>
+
 /// Common request generators.
 public final class HMRequestGenerators {
     

@@ -13,29 +13,17 @@ import SwiftUtilities
 public extension HMCDManager {
     
     /// Get the predicate to search for records related to a Sequence of
-    /// upsertables. This predicate will be used to distinguish between
+    /// identifiables. This predicate will be used to distinguish between
     /// existing and new data.
     ///
     /// - Parameter data: A Sequence of HMCDUpsertableType.
     /// - Returns: A NSPredicate instance.
     public func predicateForUpsertableFetch<S>(_ data: S) -> NSPredicate where
-        S: Sequence, S.Iterator.Element == HMCDUpsertableType
+        S: Sequence, S.Iterator.Element: HMCDIdentifiableType
     {
         return NSCompoundPredicate(orPredicateWithSubpredicates: data
             .map({($0.primaryKey(), $0.primaryValue())})
             .map({NSPredicate(format: "%K == %@", $0.0, $0.1)}))
-    }
-    
-    /// Get the predicate to search for records related to a Sequence of
-    /// upsertables. This predicate will be used to distinguish between
-    /// existing and new data.
-    ///
-    /// - Parameter data: A Sequence of HMCDUpsertableType.
-    /// - Returns: A NSPredicate instance.
-    public func predicateForUpsertableFetch<S>(_ data: S) -> NSPredicate where
-        S: Sequence, S.Iterator.Element: HMCDUpsertableType
-    {
-        return predicateForUpsertableFetch(data.map({$0 as HMCDUpsertableType}))
     }
 }
 
@@ -126,22 +114,22 @@ public extension HMCDManager {
     }
     
     /// Fetch objects from DB whose primary key values correspond to those
-    /// supplied by the specified upsertable objects.
+    /// supplied by the specified identifiables objects.
     ///
     /// - Parameters:
     ///   - context: A NSManagedObjectContext instance.
     ///   - entityName: A String value representing the entity's name.
-    ///   - upsertables: A Sequence of HMCDUpsertableObject.
+    ///   - identifiables: A Sequence of HMCDUpsertableObject.
     /// - Returns: An Array of NSManagedObject.
     /// - Throws: Exception if the fetch fails.
     public func blockingRefetch<U,S>(_ context: NSManagedObjectContext,
                                      _ entityName: String,
-                                     _ upsertables: S) throws -> [U] where
-        U: HMCDUpsertableObject,
+                                     _ identifiables: S) throws -> [U] where
+        U: HMCDIdentifiableObject,
         S: Sequence,
         S.Iterator.Element == U
     {
-        let data = upsertables.map({$0})
+        let data = identifiables.map({$0})
         
         if data.isNotEmpty {
             let predicate = predicateForUpsertableFetch(data)
@@ -293,18 +281,18 @@ public extension Reactive where Base: HMCDManager {
         return fetch(request, cls.CDClass.self)
     }
     
-    /// Perform a refetch request for a Sequence of upsertable objects.
+    /// Perform a refetch request for a Sequence of identifiable objects.
     ///
     /// - Parameters:
     ///   - context: A NSManagedObjectContext instance.
     ///   - entityName: A String value representing the entity's name.
-    ///   - upsertables: A Sequence of HMCDUpsertableObject.
+    ///   - identifiables: A Sequence of HMCDUpsertableObject.
     /// - Returns: An Observable instance.
     public func refetch<U,S>(_ context: NSManagedObjectContext,
                              _ entityName: String,
-                             _ upsertables: S)
+                             _ identifiables: S)
         -> Observable<[U]> where
-        U: HMCDUpsertableObject,
+        U: HMCDIdentifiableObject,
         S: Sequence,
         S.Iterator.Element == U
     {
@@ -312,7 +300,7 @@ public extension Reactive where Base: HMCDManager {
         
         return Observable.create({(obs: AnyObserver<[U]>) in
             do {
-                let result = try base.blockingRefetch(context, entityName, upsertables)
+                let result = try base.blockingRefetch(context, entityName, identifiables)
                 obs.onNext(result)
                 obs.onCompleted()
             } catch let e {
@@ -323,19 +311,19 @@ public extension Reactive where Base: HMCDManager {
         })
     }
     
-    /// Perform a refetch request for a Sequence of upsertable objects, using
+    /// Perform a refetch request for a Sequence of identifiable objects, using
     /// the default fetch context.
     ///
     /// - Parameters:
     ///   - entityName: A String value representing the entity's name.
-    ///   - upsertables: A Sequence of HMCDUpsertableObject.
+    ///   - identifiables: A Sequence of HMCDUpsertableObject.
     /// - Returns: An Observable instance.
-    public func refetch<U,S>(_ entityName: String, _ upsertables: S)
+    public func refetch<U,S>(_ entityName: String, _ identifiables: S)
         -> Observable<[U]> where
-        U: HMCDUpsertableObject,
+        U: HMCDIdentifiableObject,
         S: Sequence,
         S.Iterator.Element == U
     {
-        return refetch(base.defaultFetchContext(), entityName, upsertables)
+        return refetch(base.defaultFetchContext(), entityName, identifiables)
     }
 }

@@ -10,17 +10,13 @@ import CoreData
 
 /// Classes that implement this protocol should extend from NSManagedObject
 /// and can be upserted.
-///
-/// This protocol also extends HMJSONConvertible so that we can dynamically
-/// set the properties on a NSManagedObject that already exists within the
-/// DB.
-public protocol HMCDUpsertableType: HMUpsertableType {}
+public protocol HMCDIdentifiableType: HMIdentifiableType {}
 
 /// Instead of inheriting from NSManagedObject, inherit from the class to
-/// access upsert-related properties.
-open class HMCDUpsertableObject: NSManagedObject {}
+/// access non-ObjectID identifiers.
+open class HMCDIdentifiableObject: NSManagedObject {}
 
-extension HMCDUpsertableObject: HMCDUpsertableType {
+extension HMCDIdentifiableObject: HMCDIdentifiableType {
     open func primaryKey() -> String {
         fatalError("Must override this")
     }

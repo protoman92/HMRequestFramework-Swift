@@ -10,15 +10,13 @@ import CoreData
 @testable import HMRequestFramework
 
 public protocol Dummy1Type {
-    var id: String? { get }
-    var date: Date? { get }
-    var int64: NSNumber? { get }
-    var float: NSNumber? { get }
+    var id: String? { get set }
+    var date: Date? { get set }
+    var int64: NSNumber? { get set }
+    var float: NSNumber? { get set }
 }
 
-public final class Dummy1: HMCDUpsertableObject {
-    fileprivate static var counter = 0
-    
+public final class CDDummy1: HMCDIdentifiableObject {
     @NSManaged public var id: String?
     @NSManaged public var int64: NSNumber?
     @NSManaged public var date: Date?
@@ -29,17 +27,8 @@ public final class Dummy1: HMCDUpsertableObject {
     }
     
     public convenience init(_ context: NSManagedObjectContext) throws {
-        let entity = try Dummy1.entityDescription(in: context)
+        let entity = try CDDummy1.entityDescription(in: context)
         self.init(entity: entity, insertInto: context)
-        
-        if id == nil {
-            Dummy1.counter += 1
-            let counter = Dummy1.counter
-            id = "id-\(counter)"
-            date = Date()
-            int64 = Int64(counter) as NSNumber
-            float = Float(counter) as NSNumber
-        }
     }
     
     public override func primaryKey() -> String {
@@ -51,53 +40,126 @@ public final class Dummy1: HMCDUpsertableObject {
     }
 }
 
-extension Dummy1: HMCDObjectType {
+public final class Dummy1 {
+    fileprivate static var counter = 0
+    
+    public var id: String?
+    public var int64: NSNumber?
+    public var date: Date?
+    public var float: NSNumber?
+    
+    public init() {
+        Dummy1.counter += 1
+        let counter = Dummy1.counter
+        id = "id-\(counter)"
+        date = Date()
+        int64 = Int64(counter) as NSNumber
+        float = Float(counter) as NSNumber
+    }
+}
+
+public class Dummy1Builder<D1: Dummy1Type> {
+    fileprivate var d1: D1
+    
+    fileprivate init(_ d1: D1) {
+        self.d1 = d1
+    }
+    
+    public func with(dummy1: Dummy1Type) -> Self {
+        d1.id = dummy1.id
+        d1.date = dummy1.date
+        d1.int64 = dummy1.int64
+        d1.float = dummy1.float
+        return self
+    }
+    
+    public func build() -> D1 {
+        return d1
+    }
+}
+
+extension CDDummy1: HMCDObjectType {
     public static func cdAttributes() throws -> [NSAttributeDescription]? {
         return [
-            {(_) -> NSAttributeDescription in
-                let attribute = NSAttributeDescription()
-                attribute.name = "id"
-                attribute.attributeType = .stringAttributeType
-                attribute.isOptional = false
-                return attribute
-            }(),
-            {(_) -> NSAttributeDescription in
-                let attribute = NSAttributeDescription()
-                attribute.name = "int64"
-                attribute.attributeType = .integer64AttributeType
-                attribute.isOptional = false
-                return attribute
-            }(),
-            {(_) -> NSAttributeDescription in
-                let attribute = NSAttributeDescription()
-                attribute.name = "date"
-                attribute.attributeType = .dateAttributeType
-                attribute.isOptional = false
-                return attribute
-            }(),
-            {(_) -> NSAttributeDescription in
-                let attribute = NSAttributeDescription()
-                attribute.name = "float"
-                attribute.attributeType = NSAttributeType.floatAttributeType
-                attribute.isOptional = false
-                return attribute
-            }()
+            NSAttributeDescription.builder()
+                .with(name: "id")
+                .with(type: .stringAttributeType)
+                .shouldNotBeOptional()
+                .build(),
+            
+            NSAttributeDescription.builder()
+                .with(name: "int64")
+                .with(type: .integer64AttributeType)
+                .shouldNotBeOptional()
+                .build(),
+            
+            NSAttributeDescription.builder()
+                .with(name: "date")
+                .with(type: .dateAttributeType)
+                .shouldNotBeOptional()
+                .build(),
+            
+            NSAttributeDescription.builder()
+                .with(name: "float")
+                .with(type: .floatAttributeType)
+                .shouldNotBeOptional()
+                .build()
         ]
     }
 }
 
-extension Dummy1: DummyType {}
+extension CDDummy1: Dummy1Type {}
 
-extension Dummy1: HMCDPureObjectType {
-    public typealias CDClass = Dummy1
+extension CDDummy1: HMCDPureObjectConvertibleType {
+    public typealias PureObject = Dummy1
 }
 
-extension Dummy1: HMProtocolConvertibleType {
-    public typealias PTCType = Dummy1Type
+extension CDDummy1: HMCDObjectBuildableType {
+    public static func builder(_ context: NSManagedObjectContext) throws -> Builder {
+        return try Builder(Dummy1.CDClass.init(context))
+    }
     
-    public func asProtocol() -> PTCType {
-        return self as PTCType
+    public final class Builder: Dummy1Builder<CDDummy1> {
+        fileprivate override init(_ cdo: PureObject.CDClass) {
+            super.init(cdo)
+        }
+    }
+}
+
+extension CDDummy1.Builder: HMCDObjectBuilderType {
+    public typealias PureObject = Dummy1
+    
+    public func with(pureObject: PureObject) -> Self {
+        return with(dummy1: pureObject)
     }
 }
 
 extension Dummy1: Dummy1Type {}
+
+extension Dummy1: HMCDPureObjectType {
+    public typealias CDClass = CDDummy1
+}
+
+extension Dummy1: HMCDPureObjectBuildableType {
+    public static func builder() -> Builder {
+        return Builder()
+    }
+    
+    public final class Builder: Dummy1Builder<Dummy1> {
+        fileprivate init() {
+            super.init(Dummy1())
+        }
+    }
+}
+
+extension Dummy1.Builder: HMCDPureObjectBuilderType {
+    public typealias Buildable = Dummy1
+    
+    public func with(cdObject: Buildable.CDClass) -> Self {
+        return with(dummy1: cdObject)
+    }
+    
+    public func with(buildable: Buildable) -> Self {
+        return with(dummy1: buildable)
+    }
+}

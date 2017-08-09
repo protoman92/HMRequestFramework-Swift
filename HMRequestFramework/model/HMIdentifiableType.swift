@@ -7,8 +7,8 @@
 //
 
 /// Classes that implement this protocol must provide the required information
-/// for an upsert request.
-public protocol HMUpsertableType {
+/// to identify its instances in a DB.
+public protocol HMIdentifiableType {
     
     /// Get a uniquely identifiable key to perform database lookup for existing
     /// records.

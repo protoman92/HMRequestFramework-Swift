@@ -36,7 +36,7 @@ public final class RequestTest: XCTestCase {
         let observer = scheduler.createObserver(Try<Any>.self)
         let expect = expectation(description: "Should have completed")
         
-        let generator: HMRequestGenerator<Any,MockRequest> = {
+        let generator: HMAnyRequestGenerator<MockRequest> = {
             _ in throw Exception(message)
         }
         
@@ -75,7 +75,7 @@ public final class RequestTest: XCTestCase {
             Observable.error("This error should be ignored")
         })
         
-        let generator2: HMRequestGenerator<Any,MockRequest> = {
+        let generator2: HMAnyRequestGenerator<MockRequest> = {
             _ in throw Exception(message)
         }
         
@@ -115,7 +115,7 @@ public final class RequestTest: XCTestCase {
         let expect = expectation(description: "Should have completed")
         
         // Multiple requests
-        let generator: HMRequestGenerator<Any,MockRequest> = {_ in
+        let generator: HMAnyRequestGenerator<MockRequest> = {_ in
             return Observable.range(start: 0, count: times)
                 .map({
                     if $0.isEven {
