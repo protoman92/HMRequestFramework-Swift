@@ -106,3 +106,37 @@ public protocol HMCDObjectBuildableType {
     
     static func builder(_ context: NSManagedObjectContext) throws -> Builder
 }
+
+public extension HMCDObjectBuildableType where
+    Self: HMCDPureObjectConvertibleType,
+    Builder.PureObject == Self.PureObject
+{
+    /// Clone the current CD Object and expose a Builder with the clone.
+    ///
+    /// - Parameter context: A NSManagedObjectContext instance.
+    /// - Returns: A Builder instance.
+    /// - Throws: Exception if the clone fails.
+    public func cloneBuilder(_ context: NSManagedObjectContext) throws -> Builder {
+        return try Self.builder(context).with(pureObject: asPureObject())
+    }
+}
+
+/// CoreData classes that implement this protocol must be able to transform
+/// into a pure object (that does not inherit from NSManagedObject).
+public protocol HMCDPureObjectConvertibleType {
+    associatedtype PureObject: HMCDPureObjectType
+    
+    func asPureObject() -> PureObject
+}
+
+public extension HMCDPureObjectConvertibleType where
+    PureObject: HMCDPureObjectBuildableType,
+    PureObject.Builder.Buildable.CDClass == Self,
+    PureObject.Builder.Buildable == PureObject
+{
+    /// With the right protocol constraints, we can directly implement this
+    /// method by default.
+    public func asPureObject() -> PureObject {
+        return PureObject.builder().with(cdObject: self).build()
+    }
+}

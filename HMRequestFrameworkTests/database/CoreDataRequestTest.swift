@@ -457,7 +457,7 @@ public final class CoreDataRequestTest: XCTestCase {
 
         let saveRq1 = Req.builder()
             .with(operation: .saveContext)
-            .with(contextToSave: context1)
+            .with(saveContext: context1)
             .build()
 
         let generator1 = HMRequestGenerators.forceGenerateFn(saveRq1, Any.self)
@@ -465,7 +465,7 @@ public final class CoreDataRequestTest: XCTestCase {
 
         let upsertRq23 = Req.builder()
             .with(operation: .upsert)
-            .with(contextToSave: context2)
+            .with(saveContext: context2)
             .with(cdType: Dummy1.self)
             .build()
 
@@ -561,7 +561,7 @@ public final class CoreDataRequestTest: XCTestCase {
         
         /// 4
         let request4 = checkError(request3.cloneBuilder()
-            .with(contextToSave: context)
+            .with(saveContext: context)
             .build(), false)
         
         /// End
@@ -632,7 +632,7 @@ extension CoreDataRequestTest {
     func dummySaveContextRequest(_ context: NSManagedObjectContext) -> Req {
         return Req.builder()
             .with(operation: .saveContext)
-            .with(contextToSave: context)
+            .with(saveContext: context)
             .build()
     }
     
@@ -663,7 +663,7 @@ extension CoreDataRequestTest {
     func dummyMemoryDeleteRequest(_ data: [NSManagedObject]) -> Req {
         return Req.builder()
             .with(operation: .delete)
-            .with(dataToDelete: data)
+            .with(deletedData: data)
             .build()
     }
     

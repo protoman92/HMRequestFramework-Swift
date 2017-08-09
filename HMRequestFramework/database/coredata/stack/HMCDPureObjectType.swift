@@ -19,14 +19,6 @@ public protocol HMCDPureObjectType {
     associatedtype CDClass: HMCDObjectType
 }
 
-/// CoreData classes that implement this protocol must be able to transform
-/// into a pure object (that does not inherit from NSManagedObject).
-public protocol HMCDPureObjectConvertibleType {
-    associatedtype PureObject: HMCDPureObjectType
-    
-    func asPureObject() -> PureObject
-}
-
 /// Pure object builders that implement this protocol must be able to copy
 /// properties from a HMCDObjectType object into the current pure object.
 public protocol HMCDPureObjectBuilderType: HMBuilderType {
@@ -39,16 +31,4 @@ public protocol HMCDPureObjectBuilderType: HMBuilderType {
 /// classes.
 public protocol HMCDPureObjectBuildableType: HMBuildableType {
     associatedtype Builder: HMCDPureObjectBuilderType
-}
-
-public extension HMCDPureObjectConvertibleType where
-    PureObject: HMCDPureObjectBuildableType,
-    PureObject.Builder.Buildable.CDClass == Self,
-    PureObject.Builder.Buildable == PureObject
-{
-    /// With the right protocol constraints, we can directly implement this
-    /// method by default.
-    public func asPureObject() -> PureObject {
-        return PureObject.builder().with(cdObject: self).build()
-    }
 }

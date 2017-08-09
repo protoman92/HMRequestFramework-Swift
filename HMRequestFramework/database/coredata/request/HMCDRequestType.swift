@@ -40,7 +40,7 @@ public protocol HMCDRequestType: HMDatabaseRequestType {
     ///
     /// - Returns: A NSManagedObjectContext instance.
     /// - Throws: Exception if the context is not available.
-    func contextToSave() throws -> NSManagedObjectContext
+    func saveContext() throws -> NSManagedObjectContext
     
     /// Get the data to be deleted. Only used for delete operations.
     ///
@@ -57,7 +57,7 @@ public protocol HMCDRequestType: HMDatabaseRequestType {
     ///
     /// - Returns: An Array of NSManagedObject.
     /// - Throws: Exception if the data is not available.
-    func dataToDelete() throws -> [NSManagedObject]
+    func deletedData() throws -> [NSManagedObject]
 }
 
 public extension HMCDRequestType {

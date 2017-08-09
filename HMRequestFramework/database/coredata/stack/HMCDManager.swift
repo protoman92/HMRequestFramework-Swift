@@ -7,6 +7,7 @@
 //
 
 import CoreData
+import RxSwift
 import SwiftUtilities
 
 public class HMCDManager {
@@ -21,7 +22,7 @@ public class HMCDManager {
     let mainContext: NSManagedObjectContext
     private let coordinator: NSPersistentStoreCoordinator
     
-    public required init(constructor: HMCDConstructorType) throws {
+    public init(constructor: HMCDConstructorType) throws {
         let coordinator = try constructor.persistentStoreCoordinator()
         let settings = try constructor.storeSettings()
         
@@ -41,25 +42,7 @@ public class HMCDManager {
         self.privateContext = privateContext
         self.mainContext = mainContext
     }
-    
-    /// Override this method to provide default implementation.
-    ///
-    /// - Throws: Exception if the save fails.
-    public func persistChangesToFileUnsafely() throws {
-        try saveUnsafely(privateContext)
-    }
-    
-    /// Override this method to provide default implementation.
-    ///
-    /// - Parameter request: A NSFetchRequest instance.
-    /// - Returns: An Array of NSManagedObject.
-    /// - Throws: Exception if the fetch fails.
-    public func blockingFetch<Val>(_ request: NSFetchRequest<Val>) throws -> [Val] {
-        return try blockingFetch(mainObjectContext(), request)
-    }
 }
-
-extension HMCDManager: HMCDManagerType {}
 
 extension HMCDManager {
 
@@ -101,3 +84,7 @@ extension HMCDManager {
         return disposableObjectContext()
     }
 }
+
+extension HMCDManager: HMCDBlockPerformerType {}
+extension HMCDManager: HMCDObjectConstructorType {}
+extension HMCDManager: ReactiveCompatible {}

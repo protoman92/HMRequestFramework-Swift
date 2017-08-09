@@ -15,15 +15,15 @@ public struct HMCDRequest {
     fileprivate var nsPredicate: NSPredicate?
     fileprivate var nsSortDescriptors: [NSSortDescriptor]
     fileprivate var cdOperation: CoreDataOperation?
-    fileprivate var cdContextToSave: NSManagedObjectContext?
-    fileprivate var cdDataToDelete: [NSManagedObject]
+    fileprivate var cdSaveContext: NSManagedObjectContext?
+    fileprivate var cdDeletedData: [NSManagedObject]
     fileprivate var retryCount: Int
     fileprivate var middlewaresEnabled: Bool
     fileprivate var rqDescription: String?
     
     fileprivate init() {
         nsSortDescriptors = []
-        cdDataToDelete = []
+        cdDeletedData = []
         retryCount = 1
         middlewaresEnabled = false
     }
@@ -135,24 +135,24 @@ extension HMCDRequest: HMBuildableType {
         
         /// Set the context to save.
         ///
-        /// - Parameter data: A NSManagedObject instance.
+        /// - Parameter saveContext: A NSManagedObjectContext instance.
         /// - Returns: The current Builder instance.
         @discardableResult
-        public func with(contextToSave: NSManagedObjectContext?) -> Self {
-            request.cdContextToSave = contextToSave
+        public func with(saveContext: NSManagedObjectContext?) -> Self {
+            request.cdSaveContext = saveContext
             return self
         }
         
         /// Set the data to delete.
         ///
-        /// - Parameter dataToDelete: A Sequence of NSManagedObject.
+        /// - Parameter deletedData: A Sequence of NSManagedObject.
         /// - Returns: The current Builder instance.
         @discardableResult
-        public func with<S>(dataToDelete: S?) -> Self where
+        public func with<S>(deletedData: S?) -> Self where
             S: Sequence, S.Iterator.Element == NSManagedObject
         {
-            if let data = dataToDelete {
-                request.cdDataToDelete.append(contentsOf: data)
+            if let data = deletedData {
+                request.cdDeletedData.append(contentsOf: data)
             }
             
             return self
@@ -160,13 +160,13 @@ extension HMCDRequest: HMBuildableType {
         
         /// Set the data to delete.
         ///
-        /// - Parameter dataToDelete: A Sequence of NSManagedObject.
+        /// - Parameter deletedData: A Sequence of NSManagedObject.
         /// - Returns: The current Builder instance.
         @discardableResult
-        public func with<S>(dataToDelete: S?) -> Self where
+        public func with<S>(deletedData: S?) -> Self where
             S: Sequence, S.Iterator.Element: NSManagedObject
         {
-            return with(dataToDelete: dataToDelete?.map({$0 as NSManagedObject}))
+            return with(deletedData: deletedData?.map({$0 as NSManagedObject}))
         }
     }
 }
@@ -192,8 +192,8 @@ extension HMCDRequest.Builder: HMProtocolConvertibleBuilderType {
             .with(entityName: try? generic.entityName())
             .with(predicate: try? generic.predicate())
             .with(sortDescriptors: try? generic.sortDescriptors())
-            .with(contextToSave: try? generic.contextToSave())
-            .with(dataToDelete: try? generic.dataToDelete())
+            .with(saveContext: try? generic.saveContext())
+            .with(deletedData: try? generic.deletedData())
             .with(retries: generic.retries())
             .with(applyMiddlewares: generic.applyMiddlewares())
             .with(requestDescription: generic.requestDescription())
@@ -278,16 +278,16 @@ extension HMCDRequest: HMCDRequestType {
         return nsSortDescriptors
     }
     
-    public func contextToSave() throws -> NSManagedObjectContext {
-        if let context = cdContextToSave {
+    public func saveContext() throws -> NSManagedObjectContext {
+        if let context = cdSaveContext {
             return context
         } else {
             throw Exception("Context to save cannot be nil")
         }
     }
     
-    public func dataToDelete() throws -> [NSManagedObject] {
-        return cdDataToDelete
+    public func deletedData() throws -> [NSManagedObject] {
+        return cdDeletedData
     }
     
     public func retries() -> Int {

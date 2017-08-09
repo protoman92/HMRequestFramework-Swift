@@ -111,7 +111,7 @@ extension HMCDRequestProcessor: HMCDRequestProcessorType {
     private func executeDelete(_ request: Req) throws -> Observable<Try<Void>> {
         let manager = coreDataManager()
         let entityName = try request.entityName()
-        let data = try request.dataToDelete()
+        let data = try request.deletedData()
         
         return manager.rx
             .delete(data)
@@ -127,7 +127,7 @@ extension HMCDRequestProcessor: HMCDRequestProcessorType {
     /// - Throws: Exception if the execution fails.
     private func executeSaveContext(_ request: Req) throws -> Observable<Try<Void>> {
         let manager = coreDataManager()
-        let context = try request.contextToSave()
+        let context = try request.saveContext()
             
         return manager.rx.save(context)
             .retry(request.retries())
@@ -156,7 +156,7 @@ extension HMCDRequestProcessor: HMCDRequestProcessorType {
     /// - Throws: Exception if the execution fails.
     private func executeUpsert(_ request: Req) throws -> Observable<Try<Void>> {
         let manager = coreDataManager()
-        let context = try request.contextToSave()
+        let context = try request.saveContext()
         let data = context.insertedObjects
         let upsertables = data.flatMap({$0 as? HMCDUpsertableObject})
         let entityName = try request.entityName()
