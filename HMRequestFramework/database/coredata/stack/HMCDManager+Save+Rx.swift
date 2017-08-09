@@ -159,7 +159,7 @@ public extension Reactive where Base: HMCDManager {
         S: Sequence,
         S.Iterator.Element == PO
     {
-        return save(base.defaultCreateContext(), data)
+        return save(base.disposableObjectContext(), data)
     }
 }
 

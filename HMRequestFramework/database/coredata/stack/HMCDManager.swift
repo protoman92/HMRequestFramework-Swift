@@ -62,27 +62,6 @@ extension HMCDManager {
         context.parent = mainContext
         return context
     }
-    
-    /// Get the default context to fetch data.
-    ///
-    /// - Returns: A NSManagedObjectContext instance.
-    public func defaultFetchContext() -> NSManagedObjectContext {
-        return mainObjectContext()
-    }
-    
-    /// Get the default context to create data.
-    ///
-    /// - Returns: A NSManagedObjectContext instance.
-    public func defaultCreateContext() -> NSManagedObjectContext {
-        return disposableObjectContext()
-    }
-    
-    /// Get the default context to delete data.
-    ///
-    /// - Returns: A NSManagedObjectContext instance.
-    public func defaultDeleteContext() -> NSManagedObjectContext {
-        return disposableObjectContext()
-    }
 }
 
 extension HMCDManager: HMCDBlockPerformerType {}

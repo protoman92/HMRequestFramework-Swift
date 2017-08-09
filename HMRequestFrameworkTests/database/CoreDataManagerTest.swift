@@ -28,7 +28,32 @@ public class CoreDataManagerTest: XCTestCase {
     
     override public func setUp() {
         super.setUp()
-        manager = Singleton.dummyCDManager()
+        let fileManager = FileManager.default
+        
+        let url = HMPersistentStoreURL.builder()
+            .with(fileManager: fileManager)
+            .withDocumentDirectory()
+            .withUserDomainMask()
+            .with(fileName: "HMRequestFramework")
+            .with(storeType: .SQLite)
+            .build()
+        
+        print("Creating store at \(try! url.storeURL())")
+        try? fileManager.removeItem(at: try! url.storeURL())
+        
+        let settings = [
+            HMPersistentStoreSettings.builder()
+                .with(storeType: .InMemory)
+                .with(persistentStoreURL: url)
+                .build()
+        ]
+        
+        let constructor = HMCDConstructor.builder()
+            .with(cdTypes: Dummy1.CDClass.self, Dummy2.CDClass.self)
+            .with(settings: settings)
+            .build()
+        
+        manager = try! HMCDManager(constructor: constructor)
         disposeBag = DisposeBag()
         scheduler = TestScheduler(initialClock: 0)
     }
@@ -58,7 +83,7 @@ public class CoreDataManagerTest: XCTestCase {
     
     public func test_saveAndFetchBuildable_shouldWork() {
         /// Setup
-        let observer = scheduler.createObserver(CDDummy2.self)
+        let observer = scheduler.createObserver(Dummy2.self)
         let expect = expectation(description: ("Should have completed"))
         let dummyCount = self.dummyCount
         let manager = self.manager!
@@ -78,6 +103,7 @@ public class CoreDataManagerTest: XCTestCase {
             // not persisted.
             .flatMap({manager.rx.fetch(fetchRq)})
             .doOnNext({XCTAssertEqual($0.count, dummyCount)})
+            .logNext({$0.map({$0.asPureObject()})})
             .doOnNext({_ in XCTAssertEqual(mainContext.insertedObjects.count, dummyCount)})
             .doOnNext({_ in XCTAssertTrue(privateContext.insertedObjects.isEmpty)})
             .map(toVoid)
@@ -87,6 +113,7 @@ public class CoreDataManagerTest: XCTestCase {
             
             // Fetch the data and verify that they have been persisted.
             .flatMap({manager.rx.fetch(fetchRq)})
+            .map({$0.map({$0.asPureObject()})})
             .flatMap({Observable.from($0)})
             .doOnDispose(expect.fulfill)
             .subscribe(observer)
@@ -97,16 +124,18 @@ public class CoreDataManagerTest: XCTestCase {
         /// Then
         let nextElements = observer.nextElements()
         XCTAssertEqual(nextElements.count, dummyCount)
+        XCTAssertTrue(nextElements.all(satisfying: dummies.contains))
     }
     
     public func test_refetchUpsertables_shouldWork() {
         /// Setup
-        let observer = scheduler.createObserver(Dummy1.CDClass.self)
+        let observer = scheduler.createObserver(Dummy1.self)
         let expect = expectation(description: "Should have completed")
         let manager = self.manager!
         let context = manager.disposableObjectContext()
         let dummyCount = self.dummyCount
-        let data = (0..<dummyCount).flatMap({_ in try! Dummy1.CDClass(context)})
+        let poData = (0..<dummyCount).flatMap({_ in Dummy1()})
+        let data = try! manager.constructUnsafely(context, poData)
         let entityName = try! Dummy1.CDClass.entityName()
         
         /// When
@@ -119,7 +148,7 @@ public class CoreDataManagerTest: XCTestCase {
             // Refetch based on identifiable objects. We expect the returned
             // data to contain the same properties.
             .flatMap({manager.rx.refetch(entityName, data)})
-            .doOnNext({XCTAssertEqual($0.count, dummyCount)})
+            .map({$0.map({$0.asPureObject()})})
             .flatMap({Observable.from($0)})
             .doOnDispose(expect.fulfill)
             .subscribe(observer)
@@ -129,10 +158,8 @@ public class CoreDataManagerTest: XCTestCase {
         
         /// Then
         let nextElements = observer.nextElements()
-        
-        XCTAssertTrue(nextElements.all(satisfying: {dummy in
-            data.contains(where: {$0.id == dummy.id})
-        }))
+        XCTAssertEqual(nextElements.count, dummyCount)
+        XCTAssertTrue(nextElements.all(satisfying: poData.contains))
     }
     
     public func test_insertAndDeleteUpsertables_shouldWork() {
@@ -145,13 +172,16 @@ public class CoreDataManagerTest: XCTestCase {
         let context1 = manager.disposableObjectContext()
         let context2 = manager.disposableObjectContext()
         let dummyCount = self.dummyCount
-        let data1 = (0..<dummyCount).flatMap({_ in try? Dummy1.CDClass.init(context1)})
+        let poData1 = (0..<dummyCount).map({_ in Dummy1()})
         
-        let data2 = (0..<dummyCount).flatMap({(i) -> Dummy1.CDClass? in
-            let dummy = try? Dummy1.CDClass.init(context2)
-            dummy?.id = data1[i].id
+        let poData2 = (0..<dummyCount).flatMap({(i) -> Dummy1 in
+            let dummy = Dummy1()
+            dummy.id = poData1[i].id
             return dummy
         })
+        
+        let data1 = try! manager.constructUnsafely(context1, poData1)
+        let data2 = try! manager.constructUnsafely(context2, poData2)
         
         let fetchRq = try! HMCDRequest.builder()
             .with(poType: Dummy1.self)
@@ -172,6 +202,8 @@ public class CoreDataManagerTest: XCTestCase {
             
             // Fetch to verify that the DB only contains data1.
             .flatMap({manager.rx.fetch(fetchRq)})
+            .map({$0.map({$0.asPureObject()})})
+            .doOnNext({XCTAssertTrue($0.all(satisfying: poData1.contains))})
             .doOnNext({XCTAssertEqual($0.count, dummyCount)})
             
             // Delete data2 from memory. data1 and data2 are two different
@@ -213,11 +245,12 @@ public class CoreDataManagerTest: XCTestCase {
             // own the changes.
             .flatMap({(i) -> Observable<Void> in
                 print("Creating dummies, iteration \(i)")
-                let context = manager.defaultCreateContext()
+                let context = manager.disposableObjectContext()
                 
                 return Observable<Void>
                     .create({
-                        _ = (0..<dummyCount).map({_ in try! Dummy1.CDClass.init(context)})
+                        let poData = (0..<dummyCount).map({_ in Dummy1()})
+                        _ = try! manager.constructUnsafely(context, poData)
                         $0.onNext(())
                         $0.onCompleted()
                         return Disposables.create()
@@ -233,8 +266,9 @@ public class CoreDataManagerTest: XCTestCase {
             // Fetch to verify that the data have been persisted.
             .flatMap({manager.rx.fetch(request)})
             .doOnNext({XCTAssertEqual($0.count, iterationCount * dummyCount)})
+            .doOnNext({XCTAssertTrue($0.flatMap({$0.id}).count > 0)})
             .map({$0.map({$0.asPureObject()})})
-            .flatMap({manager.rx.construct(manager.defaultDeleteContext(), $0)})
+            .flatMap({manager.rx.construct(manager.disposableObjectContext(), $0)})
             
             // Delete from memory, but do not persist yet.
             .flatMap({manager.rx.delete(entityName, $0)})
@@ -259,7 +293,7 @@ public class CoreDataManagerTest: XCTestCase {
     public func test_predicateForUpsertFetch_shouldWork() {
         /// Setup
         let times = 1000
-        let context = manager.defaultCreateContext()
+        let context = manager.disposableObjectContext()
         let pureObjs = (0..<times).map({_ in Dummy1()})
         let objs = try! manager.constructUnsafely(context, pureObjs)
         

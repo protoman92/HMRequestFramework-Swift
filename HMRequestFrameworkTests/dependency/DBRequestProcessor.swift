@@ -1,5 +1,5 @@
 //
-//  DatabaseRequestProcessor.swift
+//  DBRequestProcessor.swift
 //  HMRequestFrameworkTests
 //
 //  Created by Hai Pham on 21/7/17.
@@ -11,7 +11,7 @@ import RxSwift
 import SwiftUtilities
 @testable import HMRequestFramework
 
-public struct DatabaseRequestProcessor {
+public struct DBRequestProcessor {
     public let processor: HMCDRequestProcessor
     
     public init(processor: HMCDRequestProcessor) {
@@ -19,7 +19,7 @@ public struct DatabaseRequestProcessor {
     }
 }
 
-extension DatabaseRequestProcessor: HMCDRequestProcessorType {
+extension DBRequestProcessor: HMCDRequestProcessorType {
     public typealias Req = HMCDRequestProcessor.Req
     
     public func requestMiddlewareManager() -> HMMiddlewareManager<Req>? {

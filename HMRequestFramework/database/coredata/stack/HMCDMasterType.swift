@@ -38,3 +38,15 @@ public protocol HMCDPureObjectMasterType:
 public protocol HMCDPureObjectBuilderMasterType: HMCDPureObjectBuilderType {
     associatedtype Buildable: HMCDPureObjectMasterType
 }
+
+/// Versionable classes should implement this protocol to guarantee conformance
+/// to required sub-protocols.
+public protocol HMCDVersionableMasterType: HMCDVersionableType, HMCDVersionBuildableType {
+    associatedtype Builder: HMCDVersionableBuilderMasterType
+}
+
+/// Versionable Builders should implement this protocol to guarantee conformance
+/// to required sub-protocols.
+public protocol HMCDVersionableBuilderMasterType: HMCDVersionBuilderType {
+    associatedtype Buildable: HMCDVersionableMasterType
+}

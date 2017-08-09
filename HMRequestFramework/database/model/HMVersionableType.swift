@@ -14,12 +14,12 @@ public protocol HMVersionableType {
     /// Get the current version.
     ///
     /// - Returns: A String value.
-    func currentVersion() -> String
+    func currentVersion() -> String?
     
     /// Get the version that is one level up the current one.
     ///
     /// - Returns: A String value.
-    func oneVersionHigher() -> String
+    func oneVersionHigher() -> String?
 }
 
 /// Classes that implement this protocol should be buildable with a builder that
@@ -37,7 +37,7 @@ public protocol HMVersionBuilderType: HMBuilderType {
     ///
     /// - Parameter version: A String value denoting the version.
     /// - Returns: The current Builder instance.
-    func with(version: String) -> Self
+    func with(version: String?) -> Self
 }
 
 public extension HMVersionBuildableType where Self: HMVersionableType, Builder.Buildable == Self {

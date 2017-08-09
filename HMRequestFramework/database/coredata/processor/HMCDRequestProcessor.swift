@@ -68,7 +68,7 @@ extension HMCDRequestProcessor: HMCDRequestProcessorType {
         where Val: NSFetchRequestResult
     {
         let manager = coreDataManager()
-        let cdRequest: NSFetchRequest<Val> = try request.fetchRequest()
+        let cdRequest = try request.fetchRequest(Val.self)
     
         return manager.rx.fetch(cdRequest)
             .retry(request.retries())

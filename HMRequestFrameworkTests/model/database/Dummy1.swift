@@ -14,6 +14,7 @@ public protocol Dummy1Type {
     var date: Date? { get set }
     var int64: NSNumber? { get set }
     var float: NSNumber? { get set }
+    var version: String? { get set }
 }
 
 public final class CDDummy1: HMCDIdentifiableObject {
@@ -21,10 +22,7 @@ public final class CDDummy1: HMCDIdentifiableObject {
     @NSManaged public var int64: NSNumber?
     @NSManaged public var date: Date?
     @NSManaged public var float: NSNumber?
-    
-    public override var description: String {
-        return "id: \(String(describing: id))"
-    }
+    @NSManaged public var version: String?
     
     public convenience init(_ context: NSManagedObjectContext) throws {
         let entity = try CDDummy1.entityDescription(in: context)
@@ -47,6 +45,7 @@ public final class Dummy1 {
     public var int64: NSNumber?
     public var date: Date?
     public var float: NSNumber?
+    public var version: String?
     
     public init() {
         Dummy1.counter += 1
@@ -55,6 +54,7 @@ public final class Dummy1 {
         date = Date()
         int64 = Int64(counter) as NSNumber
         float = Float(counter) as NSNumber
+        version = UUID().uuidString
     }
 }
 
@@ -70,6 +70,7 @@ public class Dummy1Builder<D1: Dummy1Type> {
         d1.date = dummy1.date
         d1.int64 = dummy1.int64
         d1.float = dummy1.float
+        d1.version = dummy1.version
         return self
     }
     
@@ -105,6 +106,12 @@ extension CDDummy1: HMCDObjectMasterType {
                 .with(name: "float")
                 .with(type: .floatAttributeType)
                 .shouldNotBeOptional()
+                .build(),
+            
+            NSAttributeDescription.builder()
+                .with(name: "version")
+                .with(type: .stringAttributeType)
+                .shouldNotBeOptional()
                 .build()
         ]
     }
@@ -122,6 +129,16 @@ extension CDDummy1: HMCDObjectMasterType {
 
 extension CDDummy1: Dummy1Type {}
 
+extension CDDummy1: HMCDVersionableMasterType {
+    public func currentVersion() -> String? {
+        return version
+    }
+    
+    public func oneVersionHigher() -> String? {
+        return UUID().uuidString
+    }
+}
+
 extension CDDummy1.Builder: HMCDObjectBuilderMasterType {
     public typealias PureObject = Dummy1
     
@@ -130,16 +147,32 @@ extension CDDummy1.Builder: HMCDObjectBuilderMasterType {
     }
 }
 
+extension CDDummy1.Builder: HMCDVersionableBuilderMasterType {
+    public typealias Buildable = CDDummy1
+    
+    public func with(version: String?) -> Self {
+        d1.version = version
+        return self
+    }
+}
+
 extension Dummy1: Equatable {
     public static func ==(lhs: Dummy1, rhs: Dummy1) -> Bool {
         return lhs.id == rhs.id &&
             lhs.date == rhs.date &&
             lhs.int64 == rhs.int64 &&
-            lhs.float == rhs.float
+            lhs.float == rhs.float &&
+            lhs.version == rhs.version
     }
 }
 
 extension Dummy1: Dummy1Type {}
+
+extension Dummy1: CustomStringConvertible {
+    public var description: String {
+        return "PureObject \(String(describing: id))"
+    }
+}
 
 extension Dummy1: HMCDPureObjectMasterType {
     public typealias CDClass = CDDummy1

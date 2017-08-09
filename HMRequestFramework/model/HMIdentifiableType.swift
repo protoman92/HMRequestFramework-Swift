@@ -19,5 +19,5 @@ public protocol HMIdentifiableType {
     /// Get the corresponding value for the primary key.
     ///
     /// - Returns: A String value.
-    func primaryValue() -> String
+    func primaryValue() -> String?
 }

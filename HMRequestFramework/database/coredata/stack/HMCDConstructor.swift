@@ -108,8 +108,7 @@ extension HMCDConstructor: HMBuildableType {
             }
         }
         
-        /// Set the objectModel using a Sequence of HMCDObjectType
-        /// classes.
+        /// Set the objectModel using a Sequence of HMCDObjectType classes.
         ///
         /// - Parameter cdTypes: An Sequence of HMCDObjectType subtype.
         /// - Returns: The current Builder instance.

@@ -16,7 +16,7 @@ import CoreData
 /// These objects should simply contain data that mirror their NSManagedObject
 /// counterparts.
 public protocol HMCDPureObjectType {
-    associatedtype CDClass: HMCDObjectType
+    associatedtype CDClass: NSManagedObject, HMCDObjectType
 }
 
 /// Pure object builders that implement this protocol must be able to copy

@@ -21,7 +21,7 @@ public final class CoreDataRequestTest: CoreDataManagerTest {
     let processorError = "Processor error!"
     var rqMiddlewareManager: HMMiddlewareManager<Req>!
     var cdProcessor: HMCDRequestProcessor!
-    var dbProcessor: DatabaseRequestProcessor!
+    var dbProcessor: DBRequestProcessor!
     
     override public func setUp() {
         super.setUp()
@@ -32,7 +32,7 @@ public final class CoreDataRequestTest: CoreDataManagerTest {
             .with(rqMiddlewareManager: rqMiddlewareManager)
             .build()
         
-        dbProcessor = DatabaseRequestProcessor(processor: cdProcessor)
+        dbProcessor = DBRequestProcessor(processor: cdProcessor)
     }
     
     /// This test represents the upper layer (API user). We are trying to prove
@@ -143,8 +143,8 @@ public final class CoreDataRequestTest: CoreDataManagerTest {
         // should the operations share a disposable context.
         let context1 = manager.disposableObjectContext()
         let context2 = manager.disposableObjectContext()
-        let times1 = 1000
-        let times2 = 2000
+        let times1 = 1
+        let times2 = 2
         let poData1 = (0..<times1).map({_ in Dummy1()})
         let poData2 = (0..<times2).map({_ in Dummy1()})
 
@@ -155,50 +155,66 @@ public final class CoreDataRequestTest: CoreDataManagerTest {
         })
 
         let poData23 = [poData2, poData3].flatMap({$0})
-        _ = try! manager.constructUnsafely(context1, poData1)
-        _ = try! manager.constructUnsafely(context2, poData23)
+        let data1 = try! manager.constructUnsafely(context1, poData1)
+        let data23 = try! manager.constructUnsafely(context2, poData23)
 
-        let saveRq1 = Req.builder()
+        let saveRq = Req.builder()
             .with(operation: .saveContext)
             .with(saveContext: context1)
             .build()
 
-        let generator1 = HMRequestGenerators.forceGenerateFn(saveRq1, Any.self)
-        let processor1: HMEQResultProcessor<Void> = HMResultProcessors.eqProcessor()
+        let saveGn = HMRequestGenerators.forceGenerateFn(saveRq, Any.self)
+        let savePs = HMResultProcessors.eqProcessor(Void.self)
+        let persistGn = dummyPersistRgn()
+        let persistPs = dummyPersistRps()
 
-        let upsertRq23 = Req.builder()
+        let upsertRq = Req.builder()
             .with(operation: .upsert)
             .with(saveContext: context2)
-            .with(cdType: Dummy1.CDClass.self)
+            .with(poType: Dummy1.self)
             .build()
 
-        let generator2 = HMRequestGenerators.forceGenerateFn(upsertRq23, Any.self)
-        let processor2: HMEQResultProcessor<Void> = HMResultProcessors.eqProcessor()
+        let upsertGn = HMRequestGenerators.forceGenerateFn(upsertRq, Any.self)
+        let upsertPs: HMEQResultProcessor<Void> = HMResultProcessors.eqProcessor()
 
         let fetchRqAll = Req.builder()
-            .with(cdType: Dummy1.CDClass.self)
+            .with(poType: Dummy1.self)
             .with(predicate: NSPredicate(value: true))
             .with(operation: .fetch)
             .build()
 
-        let generator3 = HMRequestGenerators.forceGenerateFn(fetchRqAll, Any.self)
-        let processor3 = HMResultProcessors.eqProcessor(Dummy1.CDClass.self)
+        let fetchGn = HMRequestGenerators.forceGenerateFn(fetchRqAll, Any.self)
 
         /// When
         // Insert the first set of data.
-        dbProcessor.process(dummy, generator1, processor1)
+        dbProcessor.process(dummy, saveGn, savePs)
+            .map({$0.map({$0 as Any})})
+            .doOnNext({_ in
+                print(try! manager.blockingFetch(fetchRqAll.fetchRequest(Dummy1.self)).map({$0.asPureObject()}))
+            })
+            
+            // Persist changes to DB.
+            .flatMap({dbProcessor.process($0, persistGn, persistPs)})
+            .map({$0.map({$0 as Any})})
+            
+            .flatMap({dbProcessor.process($0, fetchGn, Dummy1.self)})
+            .logNext()
+            .doOnNext({XCTAssertEqual($0.value?.count, times1)})
             .map({$0.map({$0 as Any})})
 
             // Upsert the second set of data. This set of data contains some
             // data with the same ids as the first set of data.
-            .flatMap({dbProcessor.process($0, generator2, processor2)})
+            .flatMap({dbProcessor.process($0, upsertGn, upsertPs)})
+            .map({$0.map({$0 as Any})})
+            
+            // Persist changes to DB.
+            .flatMap({dbProcessor.process($0, persistGn, persistPs)})
             .map({$0.map({$0 as Any})})
 
             // Fetch all data to check that the upsert was successful.
-            .flatMap({dbProcessor.process($0, generator3, processor3)})
+            .flatMap({dbProcessor.process($0, fetchGn, Dummy1.self)})
             .map({try $0.getOrThrow()})
             .flatMap({Observable.from($0)})
-            .map({$0.map({$0.asPureObject()})})
             .doOnDispose(expect.fulfill)
             .subscribe(observer)
             .disposed(by: disposeBag)

@@ -24,7 +24,7 @@ public protocol HMCDVersionBuilderType: HMCDObjectBuilderType {
     ///
     /// - Parameter version: A String value denoting the version.
     /// - Returns: The current Builder instance.
-    func with(version: String) -> Self
+    func with(version: String?) -> Self
 }
 
 public extension HMCDVersionBuildableType where

@@ -21,7 +21,23 @@ extension HMCDIdentifiableObject: HMCDIdentifiableType {
         fatalError("Must override this")
     }
     
-    open func primaryValue() -> String {
+    open func primaryValue() -> String? {
         fatalError("Must override this")
+    }
+    
+    /// Check whether the current object is identifiable as some other NSManagedObject
+    /// instance.
+    ///
+    /// - Parameter object: A NSManagedObject instance.
+    /// - Returns: A Bool value.
+    public func identifiable(as object: NSManagedObject) -> Bool {
+        let key = self.primaryKey()
+        let value = self.primaryValue()
+        
+        if let oValue = object.value(forKey: key) {
+            return value == String(describing: oValue)
+        } else {
+            return false
+        }
     }
 }

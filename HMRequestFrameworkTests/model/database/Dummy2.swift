@@ -97,6 +97,12 @@ extension CDDummy2.Builder: HMCDObjectBuilderMasterType {
 
 extension Dummy2: Dummy2Type {}
 
+extension Dummy2: CustomStringConvertible {
+    public var description: String {
+        return "id: \(id)-count: \(count)"
+    }
+}
+
 extension Dummy2: Equatable {
     public static func ==(lhs: Dummy2, rhs: Dummy2) -> Bool {
         return lhs.id == rhs.id && lhs.count == rhs.count

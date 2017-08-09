@@ -110,13 +110,15 @@ public extension HMCDManager {
     ///
     /// - Parameters:
     ///   - context: A NSManagedObjectContext instance.
-    ///   - editedObjects: A Sequence of versioned objects.
+    ///   - entityName: A String value representing the entity's name.
+    ///   - identifiables: A Sequence of versioned objects.
     ///   - obs: An ObserverType instance.
     /// - Throws: Exception if the operation fails.
     public func updateVersion<VC,S,O>(_ context: NSManagedObjectContext,
-                                      _ editedObjects: S,
-                                      _ obs: O) throws where
-        VC: NSManagedObject,
+                                      _ entityName: String,
+                                      _ identifiables: S,
+                                      _ obs: O) where
+        VC: HMCDIdentifiableObject,
         VC: HMCDPureObjectConvertibleType,
         VC: HMCDVersionableType & HMCDVersionBuildableType,
         VC.PureObject == VC.Builder.PureObject,
@@ -124,14 +126,167 @@ public extension HMCDManager {
         S: Sequence,
         S.Iterator.Element == VC,
         O: ObserverType,
-        O.E == Try<Void>
+        O.E == [Try<Void>]
     {
         performOnContextThread(mainContext) {
-            for edited in editedObjects {
-                do {
-                    
+            do {
+                let originals = try self.blockingRefetch(context, entityName, identifiables)
+                var results: [Try<Void>] = []
+                let tempContext = self.disposableObjectContext()
+                
+                for edited in identifiables {
+                    if let original = originals.first(where: edited.identifiable) {
+                        do {
+                            try self.updateVersionUnsafely(tempContext, original, edited)
+                            results.append(Try.success(()))
+                        } catch let e {
+                            results.append(Try.failure(e))
+                        }
+                    }
                 }
+                
+                obs.onNext(results)
+                obs.onCompleted()
+            } catch let e {
+                obs.onError(e)
             }
         }
+    }
+    
+    /// Update a Sequence of versioned pure objects, save to memory and observe
+    /// the process.
+    ///
+    /// - Parameters:
+    ///   - context: A NSManagedObjectContext instance.
+    ///   - entityName: A String value representing the entity's name.
+    ///   - pureObjects: A Sequence of pure objects.
+    ///   - obs: An ObserverType instance.
+    /// - Throws: Exception if the operation fails.
+    public func updateVersion<S,PO,VC,O>(_ context: NSManagedObjectContext,
+                                         _ entityName: String,
+                                         _ pureObjects: S,
+                                         _ obs: O) where
+        VC: HMCDIdentifiableObject,
+        VC: HMCDPureObjectConvertibleType,
+        VC: HMCDVersionableType & HMCDVersionBuildableType,
+        VC.PureObject == VC.Builder.PureObject,
+        VC.Builder.Buildable == VC,
+        PO.CDClass == VC,
+        PO.CDClass.Builder.PureObject == PO,
+        S: Sequence,
+        S.Iterator.Element == PO,
+        O: ObserverType,
+        O.E == [Try<Void>]
+    {
+        performOnContextThread(mainContext) {
+            do {
+                let vc = try self.constructUnsafely(context, pureObjects)
+                let tempContext = self.disposableObjectContext()
+                self.updateVersion(tempContext, entityName, vc, obs)
+            } catch let e {
+                obs.onError(e)
+            }
+        }
+    }
+}
+
+extension Reactive where Base: HMCDManager {
+    
+    /// Update a Sequence of versioned objects and save to memory.
+    ///
+    /// - Parameters:
+    ///   - context: A NSManagedObjectContext instance.
+    ///   - entityName: A String value representing the entity's name.
+    ///   - identifiables: A Sequence of versioned objects.
+    /// - Return: An Observable instance.
+    /// - Throws: Exception if the operation fails.
+    public func updateVersion<VC,S>(_ context: NSManagedObjectContext,
+                                    _ entityName: String,
+                                    _ identifiables: S)
+        -> Observable<[Try<Void>]> where
+        VC: HMCDIdentifiableObject,
+        VC: HMCDPureObjectConvertibleType,
+        VC: HMCDVersionableType & HMCDVersionBuildableType,
+        VC.PureObject == VC.Builder.PureObject,
+        VC.Builder.Buildable == VC,
+        S: Sequence,
+        S.Iterator.Element == VC
+    {
+        return Observable<[Try<Void>]>.create({
+            self.base.updateVersion(context, entityName, identifiables, $0)
+            return Disposables.create()
+        })
+    }
+    
+    /// Update a Sequence of versioned objects and save to memory with a default
+    /// context.
+    ///
+    /// - Parameters:
+    ///   - entityName: A String value representing the entity's name.
+    ///   - identifiables: A Sequence of versioned objects.
+    /// - Return: An Observable instance.
+    /// - Throws: Exception if the operation fails.
+    public func updateVersion<VC,S>(_ entityName: String, _ identifiables: S)
+        -> Observable<[Try<Void>]> where
+        VC: HMCDIdentifiableObject,
+        VC: HMCDPureObjectConvertibleType,
+        VC: HMCDVersionableType & HMCDVersionBuildableType,
+        VC.PureObject == VC.Builder.PureObject,
+        VC.Builder.Buildable == VC,
+        S: Sequence,
+        S.Iterator.Element == VC
+    {
+        let context = base.disposableObjectContext()
+        return updateVersion(context, entityName, identifiables)
+    }
+    
+    /// Update a Sequence of versioned pure objects and save to memory.
+    ///
+    /// - Parameters:
+    ///   - context: A NSManagedObjectContext instance.
+    ///   - entityName: A String value representing the entity's name.
+    ///   - pureObjects: A Sequence of pure objects.
+    /// - Throws: Exception if the operation fails.
+    public func updateVersion<S,PO,VC>(_ context: NSManagedObjectContext,
+                                       _ entityName: String,
+                                       _ pureObjects: S)
+        -> Observable<[Try<Void>]> where
+        VC: HMCDIdentifiableObject,
+        VC: HMCDPureObjectConvertibleType,
+        VC: HMCDVersionableType & HMCDVersionBuildableType,
+        VC.PureObject == VC.Builder.PureObject,
+        VC.Builder.Buildable == VC,
+        PO.CDClass == VC,
+        PO.CDClass.Builder.PureObject == PO,
+        S: Sequence,
+        S.Iterator.Element == PO
+    {
+        return Observable<[Try<Void>]>.create({
+            self.base.updateVersion(context, entityName, pureObjects, $0)
+            return Disposables.create()
+        })
+    }
+    
+    /// Update a Sequence of versioned pure objects and save to memory using
+    /// a default context.
+    ///
+    /// - Parameters:
+    ///   - entityName: A String value representing the entity's name.
+    ///   - pureObjects: A Sequence of pure objects.
+    /// - Throws: Exception if the operation fails.
+    public func updateVersion<S,PO,VC>(_ entityName: String, _ pureObjects: S)
+        -> Observable<[Try<Void>]> where
+        VC: HMCDIdentifiableObject,
+        VC: HMCDPureObjectConvertibleType,
+        VC: HMCDVersionableType & HMCDVersionBuildableType,
+        VC.PureObject == VC.Builder.PureObject,
+        VC.Builder.Buildable == VC,
+        PO.CDClass == VC,
+        PO.CDClass.Builder.PureObject == PO,
+        S: Sequence,
+        S.Iterator.Element == PO
+    {
+        let context = base.disposableObjectContext()
+        return updateVersion(context, entityName, pureObjects)
     }
 }

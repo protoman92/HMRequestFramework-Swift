@@ -23,7 +23,8 @@ public extension HMCDManager {
     {
         return NSCompoundPredicate(orPredicateWithSubpredicates: data
             .map({($0.primaryKey(), $0.primaryValue())})
-            .map({NSPredicate(format: "%K == %@", $0.0, $0.1)}))
+            .filter({$0.1 != nil})
+            .map({NSPredicate(format: "%K == %@", $0.0, $0.1 ?? "")}))
     }
 }
 
@@ -254,7 +255,7 @@ public extension Reactive where Base: HMCDManager {
     /// - Parameters request: A NSFetchRequest instance.
     /// - Returns: An Observable instance.
     public func fetch<Val>(_ request: NSFetchRequest<Val>) -> Observable<[Val]> {
-        return fetch(base.defaultFetchContext(), request)
+        return fetch(base.disposableObjectContext(), request)
     }
     
     /// Get data for a fetch request.
@@ -324,6 +325,6 @@ public extension Reactive where Base: HMCDManager {
         S: Sequence,
         S.Iterator.Element == U
     {
-        return refetch(base.defaultFetchContext(), entityName, identifiables)
+        return refetch(base.disposableObjectContext(), entityName, identifiables)
     }
 }

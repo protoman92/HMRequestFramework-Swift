@@ -46,21 +46,50 @@ public extension HMCDRequestProcessorType {
         _ previous: Try<Prev>,
         _ generator: @escaping HMRequestGenerator<Prev,Req>,
         _ processor: @escaping HMResultProcessor<Val,Res>)
-        -> Observable<Try<[Try<Res>]>>
-        where Val: NSFetchRequestResult
+        -> Observable<Try<[Try<Res>]>> where
+        Val: NSFetchRequestResult
     {
         return execute(previous, generator, executeTyped)
             .map({try $0.getOrThrow()})
             .flatMap({(vals: [Val]) -> Observable<[Try<Res>]> in
-                Observable.from(vals)
-                    .flatMap({Observable.just($0)
-                        .flatMap({try processor($0)})
-                        .catchErrorJustReturn(Try.failure)
-                    })
+                // We need to process the CoreData objects right within the
+                // vals Array, instead of using Observable.from and process
+                // each emission individually, because it could lead to properties
+                // being reset to nil (ARC-releated).
+                return Observable
+                    .from(vals.map({(val) -> Observable<Try<Res>> in
+                        do {
+                            return try processor(val)
+                        } catch let e {
+                            return Observable.just(Try.failure(e))
+                        }
+                    }))
+                    .flatMap({$0})
+                    .catchErrorJustReturn(Try.failure)
                     .toArray()
             })
             .map(Try.success)
             .catchErrorJustReturn(Try.failure)
+    }
+    
+    /// Perform a CoreData get request and process the result into a pure object.
+    ///
+    /// - Parameters:
+    ///   - previous: The result of the upstream request.
+    ///   - generator: Generator function to create the current request.
+    ///   - poCls: The PureObject class type.
+    /// - Returns: An Observable instance.
+    public func process<Prev,PO>(
+        _ previous: Try<Prev>,
+        _ generator: @escaping HMRequestGenerator<Prev,Req>,
+        _ poCls: PO.Type)
+        -> Observable<Try<[Try<PO>]>> where
+        PO: HMCDPureObjectType,
+        PO.CDClass: HMCDPureObjectConvertibleType,
+        PO.CDClass.PureObject == PO
+    {
+        let processor = HMCDResultProcessors.pureObjectProcessor(poCls)
+        return process(previous, generator, processor)
     }
     
     /// Override this method to provide default implementation.

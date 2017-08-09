@@ -145,7 +145,7 @@ public extension Reactive where Base: HMCDManager {
     public func delete<NS,S>(_ data: S) -> Observable<Void> where
         NS: NSManagedObject, S: Sequence, S.Iterator.Element == NS
     {
-        return delete(base.defaultDeleteContext(), data)
+        return delete(base.disposableObjectContext(), data)
     }
 }
 
@@ -181,6 +181,6 @@ public extension Reactive where Base: HMCDManager {
         -> Observable<Void> where
         U: HMCDIdentifiableObject, S: Sequence, S.Iterator.Element == U
     {
-        return delete(base.defaultDeleteContext(), entityName, data)
+        return delete(base.disposableObjectContext(), entityName, data)
     }
 }
