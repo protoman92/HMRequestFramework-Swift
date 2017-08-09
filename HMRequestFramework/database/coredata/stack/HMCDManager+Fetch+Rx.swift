@@ -18,13 +18,16 @@ public extension HMCDManager {
     ///
     /// - Parameter data: A Sequence of HMCDUpsertableType.
     /// - Returns: A NSPredicate instance.
-    public func predicateForUpsertableFetch<S>(_ data: S) -> NSPredicate where
+    public func predicateForUpsertableFetch<S>(_ identifiables: S)
+        -> NSPredicate where
         S: Sequence, S.Iterator.Element: HMCDIdentifiableType
     {
-        return NSCompoundPredicate(orPredicateWithSubpredicates: data
-            .map({($0.primaryKey(), $0.primaryValue())})
-            .filter({$0.1 != nil})
-            .map({NSPredicate(format: "%K == %@", $0.0, $0.1 ?? "")}))
+        return NSCompoundPredicate(orPredicateWithSubpredicates:
+            identifiables
+                .map({($0.primaryKey(), $0.primaryValue())})
+                .filter({$0.1 != nil})
+                .map({NSPredicate(format: "%K == %@", $0.0, $0.1 ?? "")})
+        )
     }
 }
 
@@ -120,7 +123,7 @@ public extension HMCDManager {
     /// - Parameters:
     ///   - context: A NSManagedObjectContext instance.
     ///   - entityName: A String value representing the entity's name.
-    ///   - identifiables: A Sequence of HMCDUpsertableObject.
+    ///   - identifiables: A Sequence of HMCDIdentifiableObject.
     /// - Returns: An Array of NSManagedObject.
     /// - Throws: Exception if the fetch fails.
     public func blockingRefetch<U,S>(_ context: NSManagedObjectContext,
@@ -287,7 +290,7 @@ public extension Reactive where Base: HMCDManager {
     /// - Parameters:
     ///   - context: A NSManagedObjectContext instance.
     ///   - entityName: A String value representing the entity's name.
-    ///   - identifiables: A Sequence of HMCDUpsertableObject.
+    ///   - identifiables: A Sequence of HMCDIdentifiableObject.
     /// - Returns: An Observable instance.
     public func refetch<U,S>(_ context: NSManagedObjectContext,
                              _ entityName: String,
@@ -317,7 +320,7 @@ public extension Reactive where Base: HMCDManager {
     ///
     /// - Parameters:
     ///   - entityName: A String value representing the entity's name.
-    ///   - identifiables: A Sequence of HMCDUpsertableObject.
+    ///   - identifiables: A Sequence of HMCDIdentifiableObject.
     /// - Returns: An Observable instance.
     public func refetch<U,S>(_ entityName: String, _ identifiables: S)
         -> Observable<[U]> where

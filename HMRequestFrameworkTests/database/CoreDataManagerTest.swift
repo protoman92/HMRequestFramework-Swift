@@ -20,7 +20,6 @@ public class CoreDataManagerTest: XCTestCase {
     let timeout: TimeInterval = 1000
     let iterationCount = 100
     let dummyCount = 100
-    let dummyTypeCount = 2
     let dummy: Try<Any> = Try.success(1)
     var manager: HMCDManager!
     var disposeBag: DisposeBag!

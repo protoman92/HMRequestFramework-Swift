@@ -65,13 +65,43 @@ public class Dummy1Builder<D1: Dummy1Type> {
         self.d1 = d1
     }
     
-    public func with(dummy1: Dummy1Type) -> Self {
-        d1.id = dummy1.id
-        d1.date = dummy1.date
-        d1.int64 = dummy1.int64
-        d1.float = dummy1.float
-        d1.version = dummy1.version
+    @discardableResult
+    public func with(id: String?) -> Self {
+        d1.id = id
         return self
+    }
+    
+    @discardableResult
+    public func with(date: Date?) -> Self {
+        d1.date = date
+        return self
+    }
+    
+    @discardableResult
+    public func with(int64: NSNumber?) -> Self {
+        d1.int64 = int64
+        return self
+    }
+    
+    @discardableResult
+    public func with(float: NSNumber?) -> Self {
+        d1.float = float
+        return self
+    }
+    
+    @discardableResult
+    public func with(version: String?) -> Self {
+        d1.version = version
+        return self
+    }
+    
+    public func with(dummy1: Dummy1Type) -> Self {
+        return self
+            .with(id: dummy1.id)
+            .with(date: dummy1.date)
+            .with(int64: dummy1.int64)
+            .with(float: dummy1.float)
+            .with(version: dummy1.version)
     }
     
     public func build() -> D1 {
@@ -149,11 +179,6 @@ extension CDDummy1.Builder: HMCDObjectBuilderMasterType {
 
 extension CDDummy1.Builder: HMCDVersionableBuilderMasterType {
     public typealias Buildable = CDDummy1
-    
-    public func with(version: String?) -> Self {
-        d1.version = version
-        return self
-    }
 }
 
 extension Dummy1: Equatable {
@@ -170,7 +195,7 @@ extension Dummy1: Dummy1Type {}
 
 extension Dummy1: CustomStringConvertible {
     public var description: String {
-        return "PureObject \(String(describing: id))"
+        return "PureObject - id: \(String(describing: id)), version: \(String(describing: version))"
     }
 }
 
