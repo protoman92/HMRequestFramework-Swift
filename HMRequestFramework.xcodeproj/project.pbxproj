@@ -62,6 +62,7 @@
 		D3922E0A1F26334A004A49B9 /* HMPersistentStoreURL.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3922E091F26334A004A49B9 /* HMPersistentStoreURL.swift */; };
 		D398B7951F265CAC00DCE4D8 /* HMCDObjectType.swift in Sources */ = {isa = PBXBuildFile; fileRef = D398B7941F265CAC00DCE4D8 /* HMCDObjectType.swift */; };
 		D3B54E071F283BAE006A46E9 /* HMRequestFramework.podspec in Resources */ = {isa = PBXBuildFile; fileRef = D3B54E061F283BAE006A46E9 /* HMRequestFramework.podspec */; };
+		D3C043DD1F3B35CC005948B9 /* HMCDMasterType.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3C043DC1F3B35CC005948B9 /* HMCDMasterType.swift */; };
 		D3C128D41F39F2B5009BCB21 /* HMCDBlockPerformerType.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3C128D31F39F2B5009BCB21 /* HMCDBlockPerformerType.swift */; };
 		D3EBB70C1F2BB6C6003CEB5F /* HMNetworkRequestProcessorType.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3EBB70B1F2BB6C6003CEB5F /* HMNetworkRequestProcessorType.swift */; };
 		D3FBDC151F2AF4D50052A94A /* Dummy2.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3FBDC141F2AF4D50052A94A /* Dummy2.swift */; };
@@ -148,6 +149,7 @@
 		D3922E091F26334A004A49B9 /* HMPersistentStoreURL.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HMPersistentStoreURL.swift; sourceTree = "<group>"; };
 		D398B7941F265CAC00DCE4D8 /* HMCDObjectType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HMCDObjectType.swift; sourceTree = "<group>"; };
 		D3B54E061F283BAE006A46E9 /* HMRequestFramework.podspec */ = {isa = PBXFileReference; lastKnownFileType = text; path = HMRequestFramework.podspec; sourceTree = "<group>"; };
+		D3C043DC1F3B35CC005948B9 /* HMCDMasterType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMCDMasterType.swift; sourceTree = "<group>"; };
 		D3C128D31F39F2B5009BCB21 /* HMCDBlockPerformerType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMCDBlockPerformerType.swift; sourceTree = "<group>"; };
 		D3EBB70B1F2BB6C6003CEB5F /* HMNetworkRequestProcessorType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMNetworkRequestProcessorType.swift; sourceTree = "<group>"; };
 		D3FBDC141F2AF4D50052A94A /* Dummy2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Dummy2.swift; sourceTree = "<group>"; };
@@ -467,15 +469,16 @@
 				D3C128D31F39F2B5009BCB21 /* HMCDBlockPerformerType.swift */,
 				D37D0BCA1F25F5A90032C6AB /* HMCDConstructor.swift */,
 				D37D0BC81F25F2EE0032C6AB /* HMCDConstructorType.swift */,
+				D3FC6E7F1F2F0C7F007471E2 /* HMCDIdentifiableType.swift */,
 				D37D0BCE1F25F7600032C6AB /* HMCDManager.swift */,
 				D352E2981F3AD7F0001FD55E /* HMCDManager+Delete+Rx.swift */,
 				D352E29A1F3AD820001FD55E /* HMCDManager+Fetch+Rx.swift */,
 				D352E2961F3AD7C3001FD55E /* HMCDManager+Save+Rx.swift */,
 				D352E2941F3AD700001FD55E /* HMCDManager+Version+Rx.swift */,
+				D3C043DC1F3B35CC005948B9 /* HMCDMasterType.swift */,
 				D3FBDC161F2AFA080052A94A /* HMCDObjectConstructorType.swift */,
 				D398B7941F265CAC00DCE4D8 /* HMCDObjectType.swift */,
 				D37D0B711F25E1BE0032C6AB /* HMCDPureObjectType.swift */,
-				D3FC6E7F1F2F0C7F007471E2 /* HMCDIdentifiableType.swift */,
 				D352E29C1F3AF226001FD55E /* HMCDVersionableType.swift */,
 				D3922E071F262B41004A49B9 /* HMPersistentStoreSettings.swift */,
 				D3922E091F26334A004A49B9 /* HMPersistentStoreURL.swift */,
@@ -761,6 +764,7 @@
 				D37D0BA71F25E3A00032C6AB /* HMCDRequestProcessorType.swift in Sources */,
 				D34DF2941F2C323A0076D6B1 /* HMMiddlewareManager.swift in Sources */,
 				D37D0BA81F25E3A00032C6AB /* HMCDResultProcessor.swift in Sources */,
+				D3C043DD1F3B35CC005948B9 /* HMCDMasterType.swift in Sources */,
 				D34DF2921F2C2D740076D6B1 /* HMMiddlewares.swift in Sources */,
 				D37D0BA91F25E3A00032C6AB /* CoreDataOperation.swift in Sources */,
 				D37D0BCB1F25F5A90032C6AB /* HMCDConstructor.swift in Sources */,

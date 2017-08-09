@@ -107,15 +107,7 @@ public class CoreDataManagerTest: XCTestCase {
         let context = manager.disposableObjectContext()
         let dummyCount = self.dummyCount
         let data = (0..<dummyCount).flatMap({_ in try! Dummy1.CDClass(context)})
-        
-        let fetchRq = try! HMCDRequest.builder()
-            .with(poType: Dummy1.self)
-            .with(operation: .fetch)
-            .with(predicate: manager.predicateForUpsertableFetch(data))
-            .build()
-            .fetchRequest(Dummy1.CDClass.self)
-        
-        let entityName = fetchRq.entityName!
+        let entityName = try! Dummy1.CDClass.entityName()
         
         /// When
         // Save data without persisting to DB.

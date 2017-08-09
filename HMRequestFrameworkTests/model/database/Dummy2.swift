@@ -57,21 +57,9 @@ public class Dummy2Builder<D2: Dummy2Type> {
 
 extension CDDummy2: Dummy2Type {}
 
-extension CDDummy2: HMCDObjectBuildableType {
-    public static func builder(_ context: NSManagedObjectContext) throws -> Builder {
-        return try Builder(CDDummy2(context))
-    }
+extension CDDummy2: HMCDObjectMasterType {
+    public typealias PureObject = Dummy2
     
-    public final class Builder: Dummy2Builder<CDDummy2> {
-        public typealias PureObject = Dummy2
-        
-        fileprivate override init(_ cdo: PureObject.CDClass) {
-            super.init(cdo)
-        }
-    }
-}
-
-extension CDDummy2: HMCDObjectType {
     public static func cdAttributes() throws -> [NSAttributeDescription]? {
         return [
             NSAttributeDescription.builder()
@@ -87,13 +75,21 @@ extension CDDummy2: HMCDObjectType {
                 .build()
         ]
     }
+    
+    public static func builder(_ context: NSManagedObjectContext) throws -> Builder {
+        return try Builder(CDDummy2(context))
+    }
+    
+    public final class Builder: Dummy2Builder<CDDummy2> {
+        fileprivate override init(_ cdo: PureObject.CDClass) {
+            super.init(cdo)
+        }
+    }
 }
 
-extension CDDummy2: HMCDPureObjectConvertibleType {
+extension CDDummy2.Builder: HMCDObjectBuilderMasterType {
     public typealias PureObject = Dummy2
-}
-
-extension CDDummy2.Builder: HMCDObjectBuilderType {
+    
     public func with(pureObject: PureObject) -> Self {
         return with(dummy2: pureObject)
     }
@@ -107,11 +103,9 @@ extension Dummy2: Equatable {
     }
 }
 
-extension Dummy2: HMCDPureObjectType {
+extension Dummy2: HMCDPureObjectMasterType {
     public typealias CDClass = CDDummy2
-}
 
-extension Dummy2: HMCDPureObjectBuildableType {
     public static func builder() -> Builder {
         return Builder()
     }
@@ -123,7 +117,7 @@ extension Dummy2: HMCDPureObjectBuildableType {
     }
 }
 
-extension Dummy2.Builder: HMCDPureObjectBuilderType {
+extension Dummy2.Builder: HMCDPureObjectBuilderMasterType {
     public typealias Buildable = Dummy2
     
     public func with(cdObject: Buildable.CDClass) -> Self {

@@ -78,7 +78,9 @@ public class Dummy1Builder<D1: Dummy1Type> {
     }
 }
 
-extension CDDummy1: HMCDObjectType {
+extension CDDummy1: HMCDObjectMasterType {
+    public typealias PureObject = Dummy1
+    
     public static func cdAttributes() throws -> [NSAttributeDescription]? {
         return [
             NSAttributeDescription.builder()
@@ -106,15 +108,7 @@ extension CDDummy1: HMCDObjectType {
                 .build()
         ]
     }
-}
-
-extension CDDummy1: Dummy1Type {}
-
-extension CDDummy1: HMCDPureObjectConvertibleType {
-    public typealias PureObject = Dummy1
-}
-
-extension CDDummy1: HMCDObjectBuildableType {
+    
     public static func builder(_ context: NSManagedObjectContext) throws -> Builder {
         return try Builder(Dummy1.CDClass.init(context))
     }
@@ -126,7 +120,9 @@ extension CDDummy1: HMCDObjectBuildableType {
     }
 }
 
-extension CDDummy1.Builder: HMCDObjectBuilderType {
+extension CDDummy1: Dummy1Type {}
+
+extension CDDummy1.Builder: HMCDObjectBuilderMasterType {
     public typealias PureObject = Dummy1
     
     public func with(pureObject: PureObject) -> Self {
@@ -134,13 +130,20 @@ extension CDDummy1.Builder: HMCDObjectBuilderType {
     }
 }
 
-extension Dummy1: Dummy1Type {}
-
-extension Dummy1: HMCDPureObjectType {
-    public typealias CDClass = CDDummy1
+extension Dummy1: Equatable {
+    public static func ==(lhs: Dummy1, rhs: Dummy1) -> Bool {
+        return lhs.id == rhs.id &&
+            lhs.date == rhs.date &&
+            lhs.int64 == rhs.int64 &&
+            lhs.float == rhs.float
+    }
 }
 
-extension Dummy1: HMCDPureObjectBuildableType {
+extension Dummy1: Dummy1Type {}
+
+extension Dummy1: HMCDPureObjectMasterType {
+    public typealias CDClass = CDDummy1
+
     public static func builder() -> Builder {
         return Builder()
     }
@@ -152,7 +155,7 @@ extension Dummy1: HMCDPureObjectBuildableType {
     }
 }
 
-extension Dummy1.Builder: HMCDPureObjectBuilderType {
+extension Dummy1.Builder: HMCDPureObjectBuilderMasterType {
     public typealias Buildable = Dummy1
     
     public func with(cdObject: Buildable.CDClass) -> Self {
