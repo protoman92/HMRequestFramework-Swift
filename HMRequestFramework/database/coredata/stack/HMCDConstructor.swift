@@ -98,11 +98,8 @@ extension HMCDConstructor: HMBuildableType {
         public func with(modelName: String) -> Self {
             let bundle = Bundle(for: HMCDManager.self)
             
-            if
-                let modelURL = bundle.url(forResource: modelName, withExtension: "momd"),
-                let model = NSManagedObjectModel(contentsOf: modelURL)
-            {
-                return with(objectModel: model)
+            if let modelURL = bundle.url(forResource: modelName, withExtension: "momd") {
+                return with(objectModel: NSManagedObjectModel(contentsOf: modelURL))
             } else {
                 return self
             }

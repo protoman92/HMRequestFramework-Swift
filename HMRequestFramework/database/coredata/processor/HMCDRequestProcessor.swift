@@ -114,7 +114,7 @@ extension HMCDRequestProcessor: HMCDRequestProcessorType {
         let identifiables = data.flatMap({$0 as? HMCDIdentifiableObject})
         
         let nonIdentifiables = data.filter({obj in
-            !identifiables.contains(where: {$0.objectID == obj.objectID})
+            identifiables.contains(where: {$0.objectID == obj.objectID})
         })
         
         let entityName = try request.entityName()

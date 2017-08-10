@@ -27,10 +27,7 @@ public final class HMCDResultProcessors {
         PO.CDClass: HMCDPureObjectConvertibleType,
         PO.CDClass.PureObject == PO
     {
-        return {
-            print("ASPUREOBJECT", $0, $0.asPureObject())
-            return Observable.just($0.asPureObject()).map(Try.success)
-        }
+        return {Observable.just($0.asPureObject()).map(Try.success)}
     }
     
     /// Result processor that converts a CoreData object into a Pure Object.
