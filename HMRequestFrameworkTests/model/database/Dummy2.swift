@@ -93,6 +93,10 @@ extension CDDummy2.Builder: HMCDObjectBuilderMasterType {
     public func with(pureObject: PureObject) -> Self {
         return with(dummy2: pureObject)
     }
+    
+    public func with(buildable: Buildable) -> Self {
+        return with(dummy2: buildable)
+    }
 }
 
 extension Dummy2: Dummy2Type {}

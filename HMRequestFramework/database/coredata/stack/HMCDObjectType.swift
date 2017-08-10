@@ -89,10 +89,21 @@ public extension HMCDObjectType where Self: NSManagedObject {
 /// object into the newly constructor CoreData object.
 public protocol HMCDObjectBuilderType {
     associatedtype PureObject: HMCDPureObjectType
+    typealias Buildable = PureObject.CDClass
     
+    /// Copy properties from a PureObject.
+    ///
+    /// - Parameter pureObject: A PureObject instance.
+    /// - Return: The current Builder instance.
     func with(pureObject: PureObject) -> Self
     
-    func build() -> PureObject.CDClass
+    /// Copy properties from a Buildable.
+    ///
+    /// - Parameter buildable: A Buildable instance.
+    /// - Return: The current Builder instance.
+    func with(buildable: Buildable) -> Self
+    
+    func build() -> Buildable
 }
 
 /// Classes that implement this protocol are usually NSManagedObject that
@@ -107,17 +118,14 @@ public protocol HMCDObjectBuildableType {
     static func builder(_ context: NSManagedObjectContext) throws -> Builder
 }
 
-public extension HMCDObjectBuildableType where
-    Self: HMCDPureObjectConvertibleType,
-    Builder.PureObject == Self.PureObject
-{
+public extension HMCDObjectBuildableType where Builder.Buildable == Self {
     /// Clone the current CD Object and expose a Builder with the clone.
     ///
     /// - Parameter context: A NSManagedObjectContext instance.
     /// - Returns: A Builder instance.
     /// - Throws: Exception if the clone fails.
     public func cloneBuilder(_ context: NSManagedObjectContext) throws -> Builder {
-        return try Self.builder(context).with(pureObject: asPureObject())
+        return try Self.builder(context).with(buildable: self)
     }
 }
 

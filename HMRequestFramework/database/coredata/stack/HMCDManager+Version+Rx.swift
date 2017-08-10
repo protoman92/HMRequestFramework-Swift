@@ -30,10 +30,10 @@ public extension HMCDManager {
                                             _ strategy: VersionConflict.Strategy)
         throws where
         VC: HMCDObjectAliasType,
-        VC: HMCDPureObjectConvertibleType,
-        VC: HMCDVersionableType & HMCDVersionBuildableType,
+        VC: HMCDVersionableType,
+        VC: HMCDVersionBuildableType,
         VC.Builder: HMCDVersionBuilderType,
-        VC.PureObject == VC.Builder.PureObject
+        VC.Builder.Buildable == VC
     {
         switch strategy {
         case .error:
@@ -62,16 +62,15 @@ public extension HMCDManager {
                                    _ original: VC,
                                    _ edited: VC) throws where
         VC: HMCDObjectAliasType,
-        VC: HMCDPureObjectConvertibleType,
-        VC: HMCDVersionableType & HMCDVersionBuildableType,
+        VC: HMCDVersionableType,
+        VC: HMCDVersionBuildableType,
         VC.Builder: HMCDVersionBuilderType,
-        VC.PureObject == VC.Builder.PureObject
+        VC.Builder.Buildable == VC
     {
         // The original object should be managed by the parameter context,
         // or this will raise an error.
         context.delete(original.asManagedObject())
         try edited.cloneAndBumpVersion(context)
-        try saveUnsafely(context)
     }
     
     /// Update some object with version bump. Resolve any conflict if necessary.
@@ -89,10 +88,10 @@ public extension HMCDManager {
                                    _ strategy: VersionConflict.Strategy)
         throws where
         VC: HMCDObjectAliasType,
-        VC: HMCDPureObjectConvertibleType,
-        VC: HMCDVersionableType & HMCDVersionBuildableType,
+        VC: HMCDVersionableType,
+        VC: HMCDVersionBuildableType,
         VC.Builder: HMCDVersionBuilderType,
-        VC.PureObject == VC.Builder.PureObject
+        VC.Builder.Buildable == VC
     {
         let originalVersion = original.currentVersion()
         let editedVersion = edited.currentVersion()
@@ -118,17 +117,16 @@ public extension HMCDManager {
     ///   - strategyFn: A strategy producer.
     ///   - obs: An ObserverType instance.
     /// - Throws: Exception if the operation fails.
-    public func updateVersion<VC,S,O>(_ context: NSManagedObjectContext,
-                                      _ entityName: String,
-                                      _ identifiables: S,
-                                      _ strategyFn: @escaping StrategyFn<VC>,
-                                      _ obs: O) where
+    func updateVersion<VC,S,O>(_ context: NSManagedObjectContext,
+                               _ entityName: String,
+                               _ identifiables: S,
+                               _ strategyFn: @escaping StrategyFn<VC>,
+                               _ obs: O) where
         VC: HMCDIdentifiableType,
-        VC: HMCDPureObjectConvertibleType,
         VC: HMCDVersionableType,
         VC: HMCDVersionBuildableType,
         VC.Builder: HMCDVersionBuilderType,
-        VC.PureObject == VC.Builder.PureObject,
+        VC.Builder.Buildable == VC,
         S: Sequence,
         S.Iterator.Element == VC,
         O: ObserverType,
@@ -151,6 +149,7 @@ public extension HMCDManager {
                     }
                 }
                 
+                try self.saveUnsafely(context)
                 obs.onNext(results)
                 obs.onCompleted()
             } catch let e {
@@ -177,10 +176,10 @@ public extension HMCDManager {
                                       _ strategy: VersionConflict.Strategy,
                                       _ obs: O) where
         VC: HMCDIdentifiableType,
-        VC: HMCDPureObjectConvertibleType,
-        VC: HMCDVersionableType & HMCDVersionBuildableType,
+        VC: HMCDVersionableType,
+        VC: HMCDVersionBuildableType,
         VC.Builder: HMCDVersionBuilderType,
-        VC.PureObject == VC.Builder.PureObject,
+        VC.Builder.Buildable == VC,
         S: Sequence,
         S.Iterator.Element == VC,
         O: ObserverType,
@@ -207,10 +206,10 @@ extension Reactive where Base: HMCDManager {
                                     _ strategyFn: @escaping StrategyFn<VC>)
         -> Observable<[Try<Void>]> where
         VC: HMCDIdentifiableType,
-        VC: HMCDPureObjectConvertibleType,
-        VC: HMCDVersionableType & HMCDVersionBuildableType,
+        VC: HMCDVersionableType,
+        VC: HMCDVersionBuildableType,
         VC.Builder: HMCDVersionBuilderType,
-        VC.PureObject == VC.Builder.PureObject,
+        VC.Builder.Buildable == VC,
         S: Sequence,
         S.Iterator.Element == VC
     {
@@ -234,10 +233,10 @@ extension Reactive where Base: HMCDManager {
                                     _ strategyFn: @escaping StrategyFn<VC>)
         -> Observable<[Try<Void>]> where
         VC: HMCDIdentifiableType,
-        VC: HMCDPureObjectConvertibleType,
-        VC: HMCDVersionableType & HMCDVersionBuildableType,
+        VC: HMCDVersionableType,
+        VC: HMCDVersionBuildableType,
         VC.Builder: HMCDVersionBuilderType,
-        VC.PureObject == VC.Builder.PureObject,
+        VC.Builder.Buildable == VC,
         S: Sequence,
         S.Iterator.Element == VC
     {
@@ -264,10 +263,10 @@ extension Reactive where Base: HMCDManager {
                                     _ strategy: VersionConflict.Strategy)
         -> Observable<[Try<Void>]> where
         VC: HMCDIdentifiableType,
-        VC: HMCDPureObjectConvertibleType,
-        VC: HMCDVersionableType & HMCDVersionBuildableType,
+        VC: HMCDVersionableType,
+        VC: HMCDVersionBuildableType,
         VC.Builder: HMCDVersionBuilderType,
-        VC.PureObject == VC.Builder.PureObject,
+        VC.Builder.Buildable == VC,
         S: Sequence,
         S.Iterator.Element == VC
     {
@@ -288,10 +287,10 @@ extension Reactive where Base: HMCDManager {
                                     _ strategy: VersionConflict.Strategy)
         -> Observable<[Try<Void>]> where
         VC: HMCDIdentifiableType,
-        VC: HMCDPureObjectConvertibleType,
-        VC: HMCDVersionableType & HMCDVersionBuildableType,
+        VC: HMCDVersionableType,
+        VC: HMCDVersionBuildableType,
         VC.Builder: HMCDVersionBuilderType,
-        VC.PureObject == VC.Builder.PureObject,
+        VC.Builder.Buildable == VC,
         S: Sequence,
         S.Iterator.Element == VC
     {

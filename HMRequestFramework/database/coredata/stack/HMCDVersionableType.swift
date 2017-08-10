@@ -26,9 +26,8 @@ public protocol HMCDVersionBuilderType: HMCDObjectBuilderType {
 
 public extension HMCDVersionBuildableType where
     Self: HMCDVersionableType,
-    Self: HMCDPureObjectConvertibleType,
     Builder: HMCDVersionBuilderType,
-    Builder.PureObject == Self.PureObject
+    Builder.Buildable == Self
 {
     /// Clone the current object and bump version to one level higher.
     ///

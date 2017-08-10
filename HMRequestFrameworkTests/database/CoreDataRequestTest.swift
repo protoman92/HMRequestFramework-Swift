@@ -15,7 +15,7 @@ import SwiftUtilitiesTests
 import XCTest
 @testable import HMRequestFramework
 
-public final class CoreDataRequestTest: CoreDataManagerTest {
+public final class CoreDataRequestTest: CoreDataRootTest {
     public typealias Req = HMCDRequestProcessor.Req
     let generatorError = "Generator error!"
     let processorError = "Processor error!"

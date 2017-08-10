@@ -15,7 +15,7 @@ import SwiftUtilitiesTests
 import XCTest
 @testable import HMRequestFramework
 
-public final class CoreDataVersionTest: CoreDataManagerTest {
+public final class CoreDataVersionTest: CoreDataRootTest {
     fileprivate var poData1: [Dummy1]!
     fileprivate var poData2: [Dummy1]!
     fileprivate var poData3: [Dummy1]!
@@ -24,7 +24,7 @@ public final class CoreDataVersionTest: CoreDataManagerTest {
     fileprivate var ignoreCount: Int!
     fileprivate var fetchRq: NSFetchRequest<Dummy1.CDClass>!
     fileprivate var entityName: String!
-    fileprivate var updateCount = 1000
+    fileprivate var updateCount = 100
     
     override public func setUp() {
         super.setUp()
@@ -54,7 +54,7 @@ public final class CoreDataVersionTest: CoreDataManagerTest {
         entityName = try! Dummy1.CDClass.entityName()
     }
     
-    public func test_versionControlWithErrorStrategy_shouldWork() {
+    public func test_versionControl_shouldWork() {
         /// Setup
         let observer = scheduler.createObserver(Dummy1.self)
         let expect = expectation(description: "Should have completed")
@@ -99,7 +99,7 @@ public final class CoreDataVersionTest: CoreDataManagerTest {
         for element in nextElements {
             if poData3.contains(element) {
                 resultErrorCount += 1
-            } else if poData2.contains(element) {
+            } else {
                 resultIgnoreCount += 1
             }
         }

@@ -175,6 +175,10 @@ extension CDDummy1.Builder: HMCDObjectBuilderMasterType {
     public func with(pureObject: PureObject) -> Self {
         return with(dummy1: pureObject)
     }
+    
+    public func with(buildable: Buildable) -> Self {
+        return with(dummy1: buildable)
+    }
 }
 
 extension CDDummy1.Builder: HMCDVersionableBuilderMasterType {
