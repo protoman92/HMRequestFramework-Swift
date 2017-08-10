@@ -23,7 +23,7 @@ public extension HMCDManager {
                                      _ data: S) throws where
         NS: NSManagedObject, S: Sequence, S.Iterator.Element == NS
     {
-        let data = data.map(eq)
+        let data = data.map({$0})
         
         if data.isNotEmpty {
             try blockingRefetch(context, data).forEach(context.delete)
@@ -65,17 +65,16 @@ public extension HMCDManager {
     /// context and observe the process.
     ///
     /// - Parameters:
-    ///   - context: A NSManagedObjectContext instance.
     ///   - data: A Sequence of NSManagedObject.
     ///   - obs: An ObserverType instance.
     /// - Throws: Exception if the delete fails.
-    public func delete<NS,S,O>(_ context: NSManagedObjectContext,
-                               _ data: S,
-                               _ obs: O) where
+    public func delete<NS,S,O>(_ data: S, _ obs: O) where
         NS: NSManagedObject,
         S: Sequence, S.Iterator.Element == NS,
         O: ObserverType, O.E == Void
     {
+        let context = disposableObjectContext()
+        
         performOnContextThread(context) {
             do {
                 try self.deleteUnsafely(context, data)
@@ -96,14 +95,15 @@ public extension HMCDManager {
     ///   - identifiables: A Sequence of HMCDIdentifiableType.
     ///   - obs: An ObserverType instance.
     /// - Throws: Exception if the delete fails.
-    public func delete<U,S,O>(_ context: NSManagedObjectContext,
-                              _ entityName: String,
+    public func delete<U,S,O>(_ entityName: String,
                               _ identifiables: S,
                               _ obs: O) where
         U: HMCDIdentifiableType,
         S: Sequence, S.Iterator.Element == U,
         O: ObserverType, O.E == Void
     {
+        let context = disposableObjectContext()
+        
         performOnContextThread(context) {
             do {
                 try self.deleteUnsafely(context, entityName, identifiables)
@@ -122,31 +122,16 @@ public extension Reactive where Base: HMCDManager {
     /// context.
     ///
     /// - Parameters:
-    ///   - context: A NSManagedObjectContext instance.
-    ///   - entityName: A String value representing the entity's name.
-    ///   - data: A Sequence of NSManagedObject.
-    /// - Throws: Exception if the delete fails.
-    public func delete<S>(_ context: NSManagedObjectContext, _ data: S)
-        -> Observable<Void> where
-        S: Sequence, S.Iterator.Element: NSManagedObject
-    {
-        return Observable.create(({(obs: AnyObserver<Void>) in
-            self.base.delete(context, data, obs)
-            return Disposables.create()
-        }))
-    }
-    
-    /// Delete a Sequence of data from memory by refetching them using some
-    /// context using a disposable context.
-    ///
-    /// - Parameters:
     ///   - entityName: A String value representing the entity's name.
     ///   - data: A Sequence of NSManagedObject.
     /// - Throws: Exception if the delete fails.
     public func delete<S>(_ data: S) -> Observable<Void> where
         S: Sequence, S.Iterator.Element: NSManagedObject
     {
-        return delete(base.disposableObjectContext(), data)
+        return Observable.create(({(obs: AnyObserver<Void>) in
+            self.base.delete(data, obs)
+            return Disposables.create()
+        }))
     }
 }
 
@@ -160,28 +145,13 @@ public extension Reactive where Base: HMCDManager {
     ///   - entityName: A String value representing the entity's name.
     ///   - identifiables: A Sequence of HMCDIdentifiableType.
     /// - Throws: Exception if the delete fails.
-    public func delete<U,S>(_ context: NSManagedObjectContext,
-                            _ entityName: String,
-                            _ identifiables: S) -> Observable<Void> where
-        U: HMCDIdentifiableType, S: Sequence, S.Iterator.Element == U
-    {
-        return Observable.create(({(obs: AnyObserver<Void>) in
-            self.base.delete(context, entityName, identifiables, obs)
-            return Disposables.create()
-        }))
-    }
-    
-    /// Delete a Sequence of identifiable data from memory by refetching them
-    /// using some context.
-    ///
-    /// - Parameters:
-    ///   - entityName: A String value representing the entity's name.
-    ///   - identifiables: A Sequence of HMCDIdentifiableType.
-    /// - Returns: An Observable instance.
     public func delete<U,S>(_ entityName: String, _ identifiables: S)
         -> Observable<Void> where
         U: HMCDIdentifiableType, S: Sequence, S.Iterator.Element == U
     {
-        return delete(base.disposableObjectContext(), entityName, identifiables)
+        return Observable.create(({(obs: AnyObserver<Void>) in
+            self.base.delete(entityName, identifiables, obs)
+            return Disposables.create()
+        }))
     }
 }

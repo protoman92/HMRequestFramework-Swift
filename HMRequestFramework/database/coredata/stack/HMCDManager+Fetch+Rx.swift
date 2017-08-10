@@ -17,7 +17,7 @@ public extension HMCDManager {
     ///
     /// - Parameter data: A Sequence of HMCDIdentifiableType.
     /// - Returns: A NSPredicate instance.
-    public func predicateForUpsertableFetch<S>(_ identifiables: S)
+    public func predicateForIdentifiableFetch<S>(_ identifiables: S)
         -> NSPredicate where
         S: Sequence, S.Iterator.Element: HMCDIdentifiableType
     {
@@ -38,7 +38,7 @@ public extension HMCDManager {
     /// - Returns: An Array of NSManagedObject.
     /// - Throws: Exception if the fetch fails.
     public func blockingFetch<Val>(_ request: NSFetchRequest<Val>) throws -> [Val] {
-        return try blockingFetch(mainObjectContext(), request)
+        return try blockingFetch(disposableObjectContext(), request)
     }
     
     /// Fetch data using a request and a specified Val class. This operation blocks.
@@ -133,7 +133,7 @@ public extension HMCDManager {
         let data = identifiables.map({$0})
         
         if data.isNotEmpty {
-            let predicate = predicateForUpsertableFetch(data)
+            let predicate = predicateForIdentifiableFetch(data)
             let request: NSFetchRequest<U> = NSFetchRequest(entityName: entityName)
             request.predicate = predicate
             return try blockingFetch(context, request)

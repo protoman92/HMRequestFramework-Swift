@@ -128,7 +128,7 @@ extension HMCDConstructor: HMBuildableType {
         /// - Returns: The current Builder instance.
         @discardableResult
         public func with(cdTypes: HMCDObjectType.Type...) -> Self {
-            return with(cdTypes: cdTypes.map(eq))
+            return with(cdTypes: cdTypes.map({$0}))
         }
         
         /// Set the store settings using a Sequence of HMPersistentStoreSettings.

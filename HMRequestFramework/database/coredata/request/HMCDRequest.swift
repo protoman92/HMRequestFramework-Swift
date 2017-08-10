@@ -102,7 +102,7 @@ extension HMCDRequest: HMBuildableType {
         public func with<S>(sortDescriptors: S?) -> Self where
             S: Sequence, S.Iterator.Element: NSSortDescriptor
         {
-            return with(sortDescriptors: sortDescriptors?.map(eq))
+            return with(sortDescriptors: sortDescriptors?.map({$0}))
         }
         
         /// Set the sort descriptors.
@@ -111,7 +111,7 @@ extension HMCDRequest: HMBuildableType {
         /// - Returns: The current Builder instance.
         @discardableResult
         public func with(sortDescriptors: NSSortDescriptor...) -> Self {
-            return with(sortDescriptors: sortDescriptors.map(eq))
+            return with(sortDescriptors: sortDescriptors.map({$0}))
         }
         
         /// Set the sort descriptors.
@@ -120,7 +120,7 @@ extension HMCDRequest: HMBuildableType {
         /// - Returns: The current Builder instance.
         @discardableResult
         public func with<SD>(sortDescriptors: SD...) -> Self where SD: NSSortDescriptor {
-            return with(sortDescriptors: sortDescriptors.map(eq))
+            return with(sortDescriptors: sortDescriptors.map({$0 as NSSortDescriptor}))
         }
         
         /// Set the operation.

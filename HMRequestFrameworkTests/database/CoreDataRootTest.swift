@@ -18,8 +18,7 @@ import XCTest
 public class CoreDataRootTest: XCTestCase {
     public typealias Req = HMCDRequestProcessor.Req
     let timeout: TimeInterval = 1000
-    let iterationCount = 100
-    let dummyCount = 100
+    let dummyCount = 1000
     let dummy: Try<Any> = Try.success(1)
     var manager: HMCDManager!
     var disposeBag: DisposeBag!

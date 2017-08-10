@@ -24,10 +24,12 @@ public final class VersionConflict {
     /// Specify the strategy to apply when a version conflict is encountered.
     ///
     /// - error: Throw an Error.
-    /// - ignore: Ignore and continue the update.
+    /// - overwrite: Ignore and continue the update.
+    /// - takePreferable: Take the ones with preferable versions.
     public enum Strategy {
         case error
-        case ignore
+        case overwrite
+        case takePreferable
     }
     
     private init() {}

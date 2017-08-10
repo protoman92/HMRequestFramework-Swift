@@ -7,6 +7,7 @@
 //
 
 import CoreData
+import SwiftUtilities
 @testable import HMRequestFramework
 
 public protocol Dummy1Type {
@@ -14,7 +15,7 @@ public protocol Dummy1Type {
     var date: Date? { get set }
     var int64: NSNumber? { get set }
     var float: NSNumber? { get set }
-    var version: String? { get set }
+    var version: NSNumber? { get set }
 }
 
 public final class CDDummy1: HMCDIdentifiableObject {
@@ -22,7 +23,7 @@ public final class CDDummy1: HMCDIdentifiableObject {
     @NSManaged public var int64: NSNumber?
     @NSManaged public var date: Date?
     @NSManaged public var float: NSNumber?
-    @NSManaged public var version: String?
+    @NSManaged public var version: NSNumber?
     
     public convenience init(_ context: NSManagedObjectContext) throws {
         let entity = try CDDummy1.entityDescription(in: context)
@@ -45,7 +46,7 @@ public final class Dummy1 {
     public var int64: NSNumber?
     public var date: Date?
     public var float: NSNumber?
-    public var version: String?
+    public var version: NSNumber?
     
     public init() {
         Dummy1.counter += 1
@@ -54,7 +55,7 @@ public final class Dummy1 {
         date = Date()
         int64 = Int64(counter) as NSNumber
         float = Float(counter) as NSNumber
-        version = UUID().uuidString
+        version = 1
     }
 }
 
@@ -90,9 +91,18 @@ public class Dummy1Builder<D1: Dummy1Type> {
     }
     
     @discardableResult
-    public func with(version: String?) -> Self {
+    public func with(version: NSNumber?) -> Self {
         d1.version = version
         return self
+    }
+    
+    @discardableResult
+    public func with(version: String?) -> Self {
+        if let version = version, let dbl = Double(version) {
+            return with(version: NSNumber(value: dbl).intValue as NSNumber)
+        } else {
+            return self
+        }
     }
     
     public func with(dummy1: Dummy1Type) -> Self {
@@ -140,7 +150,7 @@ extension CDDummy1: HMCDObjectMasterType {
             
             NSAttributeDescription.builder()
                 .with(name: "version")
-                .with(type: .stringAttributeType)
+                .with(type: .integer16AttributeType)
                 .shouldNotBeOptional()
                 .build()
         ]
@@ -159,13 +169,29 @@ extension CDDummy1: HMCDObjectMasterType {
 
 extension CDDummy1: Dummy1Type {}
 
-extension CDDummy1: HMCDVersionableMasterType {
+extension CDDummy1: HMCDVersionableMasterType {    
     public func currentVersion() -> String? {
-        return version
+        if let version = self.version {
+            return String(describing: version)
+        } else {
+            return nil
+        }
     }
     
     public func oneVersionHigher() -> String? {
-        return UUID().uuidString
+        if let version = self.version {
+            return String(describing: version.intValue + 1)
+        } else {
+            return nil
+        }
+    }
+    
+    public func hasPreferableVersion(over obj: CDDummy1) throws -> Bool {
+        if let v1 = self.version, let v2 = obj.version {
+            return v1.intValue >= v2.intValue
+        } else {
+            throw Exception("Version not available")
+        }
     }
 }
 
@@ -187,11 +213,13 @@ extension CDDummy1.Builder: HMCDVersionableBuilderMasterType {
 
 extension Dummy1: Equatable {
     public static func ==(lhs: Dummy1, rhs: Dummy1) -> Bool {
+        // We don't compare the version here because it will be bumped when
+        // an update is successful. During testing, we only compare the other
+        // properties to make sure that the updated object is the same as this.
         return lhs.id == rhs.id &&
             lhs.date == rhs.date &&
             lhs.int64 == rhs.int64 &&
-            lhs.float == rhs.float &&
-            lhs.version == rhs.version
+            lhs.float == rhs.float
     }
 }
 

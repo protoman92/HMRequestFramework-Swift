@@ -10,8 +10,16 @@ import CoreData
 import RxSwift
 import SwiftUtilities
 
-/// Produce a strategy based on some inputs.
-public typealias StrategyFn<T> = (Int, T) throws -> VersionConflict.Strategy
+public extension HMVersionUpdateRequest where VC: HMCDIdentifiableType {
+    
+    /// Check if the current request possesses an edited object.
+    ///
+    /// - Parameter obj: A VC instance.
+    /// - Returns: A Bool value.
+    public func ownsEditedObject(_ obj: VC) throws -> Bool {
+        return try editedVC().identifiable(as: obj)
+    }
+}
 
 public extension HMCDManager {
     
@@ -20,30 +28,33 @@ public extension HMCDManager {
     ///
     /// - Parameters:
     ///   - context: A NSManagedObjectContext instance.
-    ///   - original: The original object as persisted in the DB.
-    ///   - edited: The edited object to be updated.
-    ///   - strategy: A Version conflict strategy instance.
+    ///   - request: A HMVersionUpdateRequest instance.
     /// - Throws: Exception if the operation fails.
-    func resolveVersionConflictUnsafely<VC>(_ context: NSManagedObjectContext,
-                                            _ original: VC,
-                                            _ edited: VC,
-                                            _ strategy: VersionConflict.Strategy)
-        throws where
-        VC: HMCDObjectAliasType,
+    func resolveVersionConflictUnsafely<VC>(
+        _ context: NSManagedObjectContext,
+        _ request: HMVersionUpdateRequest<VC>) throws where
         VC: HMCDVersionableType,
         VC: HMCDVersionBuildableType,
         VC.Builder: HMCDVersionBuilderType,
         VC.Builder.Buildable == VC
     {
-        switch strategy {
+        let original = try request.originalVC()
+        let edited = try request.editedVC()
+        
+        switch request.conflictStrategy() {
         case .error:
             throw VersionConflict.Exception.builder()
                 .with(existingVersion: original.currentVersion())
                 .with(conflictVersion: edited.currentVersion())
                 .build()
             
-        case .ignore:
-            try updateVersionUnsafely(context, original, edited)
+        case .overwrite:
+            try attempVersionUpdateUnsafely(context, request)
+            
+        case .takePreferable:
+            if try edited.hasPreferableVersion(over: original) {
+                try attempVersionUpdateUnsafely(context, request)
+            }
         }
     }
     
@@ -53,20 +64,21 @@ public extension HMCDManager {
     ///
     /// This operation is not thread-safe.
     ///
+    /// - Parameters:
     ///   - context: A NSManagedObjectContext instance.
-    ///   - original: The original object as persisted in the DB.
-    ///   - edited: The edited object to be updated.
-    ///   - strategy: A Version conflict strategy instance.
+    ///   - request: A HMVersionUpdateRequest instance.
     /// - Throws: Exception if the operation fails.
-    func updateVersionUnsafely<VC>(_ context: NSManagedObjectContext,
-                                   _ original: VC,
-                                   _ edited: VC) throws where
-        VC: HMCDObjectAliasType,
+    func attempVersionUpdateUnsafely<VC>(
+        _ context: NSManagedObjectContext,
+        _ request: HMVersionUpdateRequest<VC>) throws where
         VC: HMCDVersionableType,
         VC: HMCDVersionBuildableType,
         VC.Builder: HMCDVersionBuilderType,
         VC.Builder.Buildable == VC
     {
+        let original = try request.originalVC()
+        let edited = try request.editedVC()
+        
         // The original object should be managed by the parameter context,
         // or this will raise an error.
         context.delete(original.asManagedObject())
@@ -78,28 +90,23 @@ public extension HMCDManager {
     ///
     /// - Parameters:
     ///   - context: A NSManagedObjectContext instance.
-    ///   - original: The original object as persisted in the DB.
-    ///   - edited: The edited object to be updated.
-    ///   - strategy: A Version conflict strategy instance.
+    ///   - request: A HMVersionUpdateRequest instance.
     /// - Throws: Exception if the operation fails.
-    func updateVersionUnsafely<VC>(_ context: NSManagedObjectContext,
-                                   _ original: VC,
-                                   _ edited: VC,
-                                   _ strategy: VersionConflict.Strategy)
-        throws where
-        VC: HMCDObjectAliasType,
+    func updateVersionUnsafely<VC>(
+        _ context: NSManagedObjectContext,
+        _ request: HMVersionUpdateRequest<VC>) throws where
         VC: HMCDVersionableType,
         VC: HMCDVersionBuildableType,
         VC.Builder: HMCDVersionBuilderType,
         VC.Builder.Buildable == VC
     {
-        let originalVersion = original.currentVersion()
-        let editedVersion = edited.currentVersion()
+        let originalVersion = try request.originalVC().currentVersion()
+        let editedVersion = try request.editedVC().currentVersion()
         
         if originalVersion == editedVersion {
-            try updateVersionUnsafely(context, original, edited)
+            try attempVersionUpdateUnsafely(context, request)
         } else {
-            try resolveVersionConflictUnsafely(context, original, edited, strategy)
+            try resolveVersionConflictUnsafely(context, request)
         }
     }
 }
@@ -113,14 +120,12 @@ public extension HMCDManager {
     /// - Parameters:
     ///   - context: A NSManagedObjectContext instance.
     ///   - entityName: A String value representing the entity's name.
-    ///   - identifiables: A Sequence of versioned objects.
-    ///   - strategyFn: A strategy producer.
+    ///   - requests: A Sequence of HMVersionUpdateRequest.
     ///   - obs: An ObserverType instance.
     /// - Throws: Exception if the operation fails.
     func updateVersion<VC,S,O>(_ context: NSManagedObjectContext,
                                _ entityName: String,
-                               _ identifiables: S,
-                               _ strategyFn: @escaping StrategyFn<VC>,
+                               _ requests: S,
                                _ obs: O) where
         VC: HMCDIdentifiableType,
         VC: HMCDVersionableType,
@@ -128,24 +133,39 @@ public extension HMCDManager {
         VC.Builder: HMCDVersionBuilderType,
         VC.Builder.Buildable == VC,
         S: Sequence,
-        S.Iterator.Element == VC,
+        S.Iterator.Element == HMVersionUpdateRequest<VC>,
         O: ObserverType,
-        O.E == [Try<Void>]
+        O.E == [HMResult<VC>]
     {
         performOnContextThread(mainContext) {
             do {
+                // It's ok for these requests not to have the original object.
+                // We will get them right below.
+                let identifiables = requests.flatMap({try? $0.editedVC()})
                 let originals = try self.blockingRefetch(context, entityName, identifiables)
-                var results: [Try<Void>] = []
+                var results: [HMResult<VC>] = []
                 
-                for (index, id) in identifiables.enumerated() {
-                    if let o = originals.first(where: id.identifiable) {
+                for id in identifiables {
+                    if
+                        let original = originals.first(where: id.identifiable),
+                        let request = requests.first(where: {
+                            (try? $0.ownsEditedObject(id)) ?? false
+                        })
+                    {
+                        let result: HMResult<VC>
+                        let cloned = request.cloneBuilder().with(original: original).build()
+                        
                         do {
-                            let strategy = try strategyFn(index, id)
-                            try self.updateVersionUnsafely(context, o, id, strategy)
-                            results.append(Try.success(()))
+                            try self.updateVersionUnsafely(context, cloned)
+                            result = HMResult<VC>.builder().with(object: id).build()
                         } catch let e {
-                            results.append(Try.failure(e))
+                            result = HMResult<VC>.builder()
+                                .with(object: id)
+                                .with(error: e)
+                                .build()
                         }
+                        
+                        results.append(result)
                     }
                 }
                 
@@ -159,36 +179,6 @@ public extension HMCDManager {
     }
 }
 
-public extension HMCDManager {
-    /// Update a Sequence of versioned objects using a specified strategy and
-    /// save to memory.
-    ///
-    /// - Parameters:
-    ///   - context: A NSManagedObjectContext instance.
-    ///   - entityName: A String value representing the entity's name.
-    ///   - identifiables: A Sequence of versioned objects.
-    ///   - strategy: A Strategy instance.
-    ///   - obs: An ObserverType instance.
-    /// - Throws: Exception if the operation fails.
-    public func updateVersion<VC,S,O>(_ context: NSManagedObjectContext,
-                                      _ entityName: String,
-                                      _ identifiables: S,
-                                      _ strategy: VersionConflict.Strategy,
-                                      _ obs: O) where
-        VC: HMCDIdentifiableType,
-        VC: HMCDVersionableType,
-        VC: HMCDVersionBuildableType,
-        VC.Builder: HMCDVersionBuilderType,
-        VC.Builder.Buildable == VC,
-        S: Sequence,
-        S.Iterator.Element == VC,
-        O: ObserverType,
-        O.E == [Try<Void>]
-    {
-        updateVersion(context, entityName, identifiables, {_ in strategy}, obs)
-    }
-}
-
 extension Reactive where Base: HMCDManager {
     
     /// Update a Sequence of versioned objects and save to memory.
@@ -196,25 +186,23 @@ extension Reactive where Base: HMCDManager {
     /// - Parameters:
     ///   - context: A NSManagedObjectContext instance.
     ///   - entityName: A String value representing the entity's name.
-    ///   - identifiables: A Sequence of versioned objects.
-    ///   - strategyFn: A strategy producer.
+    ///   - requests: A Sequence of HMVersionUpdateRequest.
     /// - Return: An Observable instance.
     /// - Throws: Exception if the operation fails.
     public func updateVersion<VC,S>(_ context: NSManagedObjectContext,
                                     _ entityName: String,
-                                    _ identifiables: S,
-                                    _ strategyFn: @escaping StrategyFn<VC>)
-        -> Observable<[Try<Void>]> where
+                                    _ requests: S)
+        -> Observable<[HMResult<VC>]> where
         VC: HMCDIdentifiableType,
         VC: HMCDVersionableType,
         VC: HMCDVersionBuildableType,
         VC.Builder: HMCDVersionBuilderType,
         VC.Builder.Buildable == VC,
         S: Sequence,
-        S.Iterator.Element == VC
+        S.Iterator.Element == HMVersionUpdateRequest<VC>
     {
-        return Observable<[Try<Void>]>.create({
-            self.base.updateVersion(context, entityName, identifiables, strategyFn, $0)
+        return Observable<[HMResult<VC>]>.create({
+            self.base.updateVersion(context, entityName, requests, $0)
             return Disposables.create()
         })
     }
@@ -224,76 +212,21 @@ extension Reactive where Base: HMCDManager {
     ///
     /// - Parameters:
     ///   - entityName: A String value representing the entity's name.
-    ///   - identifiables: A Sequence of versioned objects.
+    ///   - requests: A Sequence of HMVersionUpdateRequest.
     ///   - strategyFn: A strategy producer.
     /// - Return: An Observable instance.
     /// - Throws: Exception if the operation fails.
-    public func updateVersion<VC,S>(_ entityName: String,
-                                    _ identifiables: S,
-                                    _ strategyFn: @escaping StrategyFn<VC>)
-        -> Observable<[Try<Void>]> where
+    public func updateVersion<VC,S>(_ entityName: String, _ requests: S)
+        -> Observable<[HMResult<VC>]> where
         VC: HMCDIdentifiableType,
         VC: HMCDVersionableType,
         VC: HMCDVersionBuildableType,
         VC.Builder: HMCDVersionBuilderType,
         VC.Builder.Buildable == VC,
         S: Sequence,
-        S.Iterator.Element == VC
+        S.Iterator.Element == HMVersionUpdateRequest<VC>
     {
         let context = base.disposableObjectContext()
-        return updateVersion(context, entityName, identifiables, strategyFn)
-    }
-}
-
-extension Reactive where Base: HMCDManager {
-    
-    /// Update a Sequence of versioned objects using a specified strategy and
-    /// save to memory.
-    ///
-    /// - Parameters:
-    ///   - context: A NSManagedObjectContext instance.
-    ///   - entityName: A String value representing the entity's name.
-    ///   - identifiables: A Sequence of versioned objects.
-    ///   - strategy: A Strategy instance.
-    /// - Return: An Observable instance.
-    /// - Throws: Exception if the operation fails.
-    public func updateVersion<VC,S>(_ context: NSManagedObjectContext,
-                                    _ entityName: String,
-                                    _ identifiables: S,
-                                    _ strategy: VersionConflict.Strategy)
-        -> Observable<[Try<Void>]> where
-        VC: HMCDIdentifiableType,
-        VC: HMCDVersionableType,
-        VC: HMCDVersionBuildableType,
-        VC.Builder: HMCDVersionBuilderType,
-        VC.Builder.Buildable == VC,
-        S: Sequence,
-        S.Iterator.Element == VC
-    {
-        return updateVersion(context, entityName, identifiables, {_ in strategy})
-    }
-    
-    /// Update a Sequence of versioned objects using a specified strategy and
-    /// save to memory with a default context.
-    ///
-    /// - Parameters:
-    ///   - entityName: A String value representing the entity's name.
-    ///   - identifiables: A Sequence of versioned objects.
-    ///   - strategy: A Strategy producer.
-    /// - Return: An Observable instance.
-    /// - Throws: Exception if the operation fails.
-    public func updateVersion<VC,S>(_ entityName: String,
-                                    _ identifiables: S,
-                                    _ strategy: VersionConflict.Strategy)
-        -> Observable<[Try<Void>]> where
-        VC: HMCDIdentifiableType,
-        VC: HMCDVersionableType,
-        VC: HMCDVersionBuildableType,
-        VC.Builder: HMCDVersionBuilderType,
-        VC.Builder.Buildable == VC,
-        S: Sequence,
-        S.Iterator.Element == VC
-    {
-        return updateVersion(entityName, identifiables, {_ in strategy})
+        return updateVersion(context, entityName, requests)
     }
 }

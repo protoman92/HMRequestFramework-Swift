@@ -190,8 +190,8 @@ public final class CoreDataManagerTest: CoreDataRootTest {
         let observer = scheduler.createObserver(Dummy1.CDClass.self)
         let expect = expectation(description: "Should have completed")
         let manager = self.manager!
-        let iterationCount = self.iterationCount
-        let dummyCount = self.dummyCount
+        let iterationCount = 100
+        let dummyCount = 100
         let request = try! dummy1FetchRequest().fetchRequest(Dummy1.CDClass.self)
         let entityName = request.entityName!
         
@@ -256,7 +256,7 @@ public final class CoreDataManagerTest: CoreDataRootTest {
         let objs = try! manager.constructUnsafely(context, pureObjs)
         
         /// When
-        let predicate = manager.predicateForUpsertableFetch(objs)
+        let predicate = manager.predicateForIdentifiableFetch(objs)
         
         /// Then
         let description = predicate.description
@@ -264,5 +264,41 @@ public final class CoreDataManagerTest: CoreDataRootTest {
         let dummyValues = objs.map({$0.primaryValue()})
         XCTAssertEqual(dComponents.filter({$0 == "OR"}).count, times - 1)
         XCTAssertTrue(dummyValues.all(satisfying: description.contains))
+    }
+}
+
+public extension CoreDataManagerTest {
+    public func test_saveConvertiblesToDB_shouldWork() {
+        /// Setup
+        let observer = scheduler.createObserver(Dummy1.self)
+        let expect = expectation(description: "Should have completed")
+        let manager = self.manager!
+        let context = manager.disposableObjectContext()
+        let dummyCount = self.dummyCount
+        let poData = (0..<dummyCount).map({_ in Dummy1()})
+        let data = try! manager.constructUnsafely(context, poData)
+        let fetchRq = try! dummy1FetchRequest().fetchRequest(Dummy1.self)
+        
+        /// When
+        // The convertible objects should be converted into their NSManagedObject
+        // counterparts here. Even if we do not have access to the context that
+        // created these objects, we can reconstruct them and insert into another
+        // context of choice.
+        manager.rx.save(data)
+            .doOnNext({XCTAssertTrue($0.all(satisfying: {$0.isSuccess()}))})
+            .flatMap({_ in manager.rx.persistLocally()})
+            .flatMap({manager.rx.fetch(fetchRq)})
+            .map({$0.map({$0.asPureObject()})})
+            .flatMap({Observable.from($0)})
+            .doOnDispose(expect.fulfill)
+            .subscribe(observer)
+            .disposed(by: disposeBag)
+        
+        waitForExpectations(timeout: timeout, handler: nil)
+        
+        /// Then
+        let nextElements = observer.nextElements()
+        XCTAssertEqual(nextElements.count, poData.count)
+        XCTAssertTrue(poData.all(satisfying: nextElements.contains))
     }
 }
