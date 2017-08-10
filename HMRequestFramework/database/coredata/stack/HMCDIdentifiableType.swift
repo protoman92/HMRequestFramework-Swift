@@ -1,5 +1,5 @@
 //
-//  HMCDUpsertableType.swift
+//  HMCDIdentifiableType.swift
 //  HMRequestFramework
 //
 //  Created by Hai Pham on 31/7/17.
@@ -9,24 +9,13 @@
 import CoreData
 
 /// Classes that implement this protocol should extend from NSManagedObject
-/// and can be upserted.
-public protocol HMCDIdentifiableType: HMIdentifiableType {}
+/// and can be identified without using ObjectID.
+public protocol HMCDIdentifiableType: HMIdentifiableType, HMCDObjectAliasType {}
 
-/// Instead of inheriting from NSManagedObject, inherit from the class to
-/// access non-ObjectID identifiers.
-open class HMCDIdentifiableObject: NSManagedObject {}
-
-extension HMCDIdentifiableObject: HMCDIdentifiableType {
-    open func primaryKey() -> String {
-        fatalError("Must override this")
-    }
+public extension HMCDIdentifiableType {
     
-    open func primaryValue() -> String? {
-        fatalError("Must override this")
-    }
-    
-    /// Check whether the current object is identifiable as some other NSManagedObject
-    /// instance.
+    /// Check whether the current object is identifiable as some other 
+    /// NSManagedObject instance.
     ///
     /// - Parameter object: A NSManagedObject instance.
     /// - Returns: A Bool value.
@@ -40,4 +29,28 @@ extension HMCDIdentifiableObject: HMCDIdentifiableType {
             return false
         }
     }
+    
+    /// Check whether the current object is identifiable as some other 
+    /// NSManagedObject instance.
+    ///
+    /// - Parameter object: A HMCDObjectAliasType instance.
+    /// - Returns: A Bool value.
+    public func identifiable<I>(as object: I) -> Bool where I: HMCDObjectAliasType {
+        return identifiable(as: object.asManagedObject())
+    }
 }
+
+/// Instead of inheriting from NSManagedObject, inherit from the class to
+/// access non-ObjectID identifiers.
+open class HMCDIdentifiableObject: NSManagedObject {}
+
+extension HMCDIdentifiableObject: HMCDIdentifiableType {
+    open func primaryKey() -> String {
+        fatalError("Must override this")
+    }
+    
+    open func primaryValue() -> String? {
+        fatalError("Must override this")
+    }
+}
+

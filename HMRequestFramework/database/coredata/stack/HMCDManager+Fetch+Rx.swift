@@ -13,10 +13,9 @@ import SwiftUtilities
 public extension HMCDManager {
     
     /// Get the predicate to search for records related to a Sequence of
-    /// identifiables. This predicate will be used to distinguish between
-    /// existing and new data.
+    /// identifiables.
     ///
-    /// - Parameter data: A Sequence of HMCDUpsertableType.
+    /// - Parameter data: A Sequence of HMCDIdentifiableType.
     /// - Returns: A NSPredicate instance.
     public func predicateForUpsertableFetch<S>(_ identifiables: S)
         -> NSPredicate where
@@ -107,12 +106,10 @@ public extension HMCDManager {
     ///   - data: A Sequence of NSManagedObject.
     /// - Returns: An Array of NSManagedObject.
     /// - Throws: Exception if the fetch fails.
-    public func blockingRefetch<NS,S>(_ context: NSManagedObjectContext,
-                                      _ data: S) throws
+    public func blockingRefetch<S>(_ context: NSManagedObjectContext,
+                                   _ data: S) throws
         -> [NSManagedObject] where
-        NS: NSManagedObject,
-        S: Sequence,
-        S.Iterator.Element == NS
+        S: Sequence, S.Iterator.Element: NSManagedObject
     {
         return try data.map({$0.objectID}).flatMap(context.existingObject)
     }
@@ -123,13 +120,13 @@ public extension HMCDManager {
     /// - Parameters:
     ///   - context: A NSManagedObjectContext instance.
     ///   - entityName: A String value representing the entity's name.
-    ///   - identifiables: A Sequence of HMCDIdentifiableObject.
+    ///   - identifiables: A Sequence of HMCDIdentifiableType.
     /// - Returns: An Array of NSManagedObject.
     /// - Throws: Exception if the fetch fails.
     public func blockingRefetch<U,S>(_ context: NSManagedObjectContext,
                                      _ entityName: String,
                                      _ identifiables: S) throws -> [U] where
-        U: HMCDIdentifiableObject,
+        U: HMCDIdentifiableType,
         S: Sequence,
         S.Iterator.Element == U
     {
@@ -290,13 +287,13 @@ public extension Reactive where Base: HMCDManager {
     /// - Parameters:
     ///   - context: A NSManagedObjectContext instance.
     ///   - entityName: A String value representing the entity's name.
-    ///   - identifiables: A Sequence of HMCDIdentifiableObject.
+    ///   - identifiables: A Sequence of HMCDIdentifiableType.
     /// - Returns: An Observable instance.
     public func refetch<U,S>(_ context: NSManagedObjectContext,
                              _ entityName: String,
                              _ identifiables: S)
         -> Observable<[U]> where
-        U: HMCDIdentifiableObject,
+        U: HMCDIdentifiableType,
         S: Sequence,
         S.Iterator.Element == U
     {
@@ -320,11 +317,11 @@ public extension Reactive where Base: HMCDManager {
     ///
     /// - Parameters:
     ///   - entityName: A String value representing the entity's name.
-    ///   - identifiables: A Sequence of HMCDIdentifiableObject.
+    ///   - identifiables: A Sequence of HMCDIdentifiableType.
     /// - Returns: An Observable instance.
     public func refetch<U,S>(_ entityName: String, _ identifiables: S)
         -> Observable<[U]> where
-        U: HMCDIdentifiableObject,
+        U: HMCDIdentifiableType,
         S: Sequence,
         S.Iterator.Element == U
     {

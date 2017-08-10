@@ -11,7 +11,7 @@ import SwiftUtilities
 
 /// Classes that implement this protocol should be able to construct the
 /// data needed to create a CoreData model description.
-public protocol HMCDObjectType: class {
+public protocol HMCDObjectType: class, HMCDObjectAliasType {
     
     /// Get the associated attributes.
     ///

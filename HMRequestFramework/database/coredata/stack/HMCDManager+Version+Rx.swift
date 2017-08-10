@@ -29,7 +29,7 @@ public extension HMCDManager {
                                             _ edited: VC,
                                             _ strategy: VersionConflict.Strategy)
         throws where
-        VC: NSManagedObject,
+        VC: HMCDObjectAliasType,
         VC: HMCDPureObjectConvertibleType,
         VC: HMCDVersionableType & HMCDVersionBuildableType,
         VC.Builder: HMCDVersionBuilderType,
@@ -61,7 +61,7 @@ public extension HMCDManager {
     func updateVersionUnsafely<VC>(_ context: NSManagedObjectContext,
                                    _ original: VC,
                                    _ edited: VC) throws where
-        VC: NSManagedObject,
+        VC: HMCDObjectAliasType,
         VC: HMCDPureObjectConvertibleType,
         VC: HMCDVersionableType & HMCDVersionBuildableType,
         VC.Builder: HMCDVersionBuilderType,
@@ -69,7 +69,7 @@ public extension HMCDManager {
     {
         // The original object should be managed by the parameter context,
         // or this will raise an error.
-        context.delete(original)
+        context.delete(original.asManagedObject())
         try edited.cloneAndBumpVersion(context)
         try saveUnsafely(context)
     }
@@ -88,7 +88,7 @@ public extension HMCDManager {
                                    _ edited: VC,
                                    _ strategy: VersionConflict.Strategy)
         throws where
-        VC: NSManagedObject,
+        VC: HMCDObjectAliasType,
         VC: HMCDPureObjectConvertibleType,
         VC: HMCDVersionableType & HMCDVersionBuildableType,
         VC.Builder: HMCDVersionBuilderType,
@@ -123,9 +123,10 @@ public extension HMCDManager {
                                       _ identifiables: S,
                                       _ strategyFn: @escaping StrategyFn<VC>,
                                       _ obs: O) where
-        VC: HMCDIdentifiableObject,
+        VC: HMCDIdentifiableType,
         VC: HMCDPureObjectConvertibleType,
-        VC: HMCDVersionableType & HMCDVersionBuildableType,
+        VC: HMCDVersionableType,
+        VC: HMCDVersionBuildableType,
         VC.Builder: HMCDVersionBuilderType,
         VC.PureObject == VC.Builder.PureObject,
         S: Sequence,
@@ -175,7 +176,7 @@ public extension HMCDManager {
                                       _ identifiables: S,
                                       _ strategy: VersionConflict.Strategy,
                                       _ obs: O) where
-        VC: HMCDIdentifiableObject,
+        VC: HMCDIdentifiableType,
         VC: HMCDPureObjectConvertibleType,
         VC: HMCDVersionableType & HMCDVersionBuildableType,
         VC.Builder: HMCDVersionBuilderType,
@@ -205,7 +206,7 @@ extension Reactive where Base: HMCDManager {
                                     _ identifiables: S,
                                     _ strategyFn: @escaping StrategyFn<VC>)
         -> Observable<[Try<Void>]> where
-        VC: HMCDIdentifiableObject,
+        VC: HMCDIdentifiableType,
         VC: HMCDPureObjectConvertibleType,
         VC: HMCDVersionableType & HMCDVersionBuildableType,
         VC.Builder: HMCDVersionBuilderType,
@@ -232,7 +233,7 @@ extension Reactive where Base: HMCDManager {
                                     _ identifiables: S,
                                     _ strategyFn: @escaping StrategyFn<VC>)
         -> Observable<[Try<Void>]> where
-        VC: HMCDIdentifiableObject,
+        VC: HMCDIdentifiableType,
         VC: HMCDPureObjectConvertibleType,
         VC: HMCDVersionableType & HMCDVersionBuildableType,
         VC.Builder: HMCDVersionBuilderType,
@@ -262,7 +263,7 @@ extension Reactive where Base: HMCDManager {
                                     _ identifiables: S,
                                     _ strategy: VersionConflict.Strategy)
         -> Observable<[Try<Void>]> where
-        VC: HMCDIdentifiableObject,
+        VC: HMCDIdentifiableType,
         VC: HMCDPureObjectConvertibleType,
         VC: HMCDVersionableType & HMCDVersionBuildableType,
         VC.Builder: HMCDVersionBuilderType,
@@ -286,7 +287,7 @@ extension Reactive where Base: HMCDManager {
                                     _ identifiables: S,
                                     _ strategy: VersionConflict.Strategy)
         -> Observable<[Try<Void>]> where
-        VC: HMCDIdentifiableObject,
+        VC: HMCDIdentifiableType,
         VC: HMCDPureObjectConvertibleType,
         VC: HMCDVersionableType & HMCDVersionBuildableType,
         VC.Builder: HMCDVersionBuilderType,
