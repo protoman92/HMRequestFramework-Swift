@@ -24,14 +24,11 @@ public protocol HMVersionableType {
 
 /// Classes that implement this protocol should be buildable with a builder that
 /// exposes methods to bump versions.
-public protocol HMVersionBuildableType: HMBuildableType {
-    associatedtype Builder: HMVersionBuilderType
-}
+public protocol HMVersionBuildableType: HMBuildableType {}
 
 /// Builders that implement this protocol must be able to bump versions for
 /// the associated Buildable. The version here is kept as a String for simplicity.
 public protocol HMVersionBuilderType: HMBuilderType {
-    associatedtype Buildable: HMVersionBuildableType
     
     /// Set the version.
     ///
@@ -40,8 +37,11 @@ public protocol HMVersionBuilderType: HMBuilderType {
     func with(version: String?) -> Self
 }
 
-public extension HMVersionBuildableType where Self: HMVersionableType, Builder.Buildable == Self {
-    
+public extension HMVersionBuildableType where
+    Self: HMVersionableType,
+    Builder: HMVersionBuilderType,
+    Builder.Buildable == Self
+{
     /// Clone the current object and bump version to one level higher.
     ///
     /// - Returns: The current versionable object.

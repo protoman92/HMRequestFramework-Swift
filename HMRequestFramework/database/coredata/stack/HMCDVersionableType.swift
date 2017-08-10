@@ -12,13 +12,10 @@ import CoreData
 public protocol HMCDVersionableType: HMVersionableType {}
 
 /// Similar to HMVersionBuildableType, customized for CoreData.
-public protocol HMCDVersionBuildableType: HMCDObjectBuildableType {
-    associatedtype Builder: HMCDVersionBuilderType
-}
+public protocol HMCDVersionBuildableType: HMCDObjectBuildableType {}
 
 /// Similar to HMVersionBuilderType, customized for CoreData.
 public protocol HMCDVersionBuilderType: HMCDObjectBuilderType {
-    associatedtype Buildable: HMCDVersionBuildableType
     
     /// Set the version.
     ///
@@ -28,7 +25,9 @@ public protocol HMCDVersionBuilderType: HMCDObjectBuilderType {
 }
 
 public extension HMCDVersionBuildableType where
-    Self: HMCDVersionableType & HMCDPureObjectConvertibleType,
+    Self: HMCDVersionableType,
+    Self: HMCDPureObjectConvertibleType,
+    Builder: HMCDVersionBuilderType,
     Builder.PureObject == Self.PureObject
 {
     /// Clone the current object and bump version to one level higher.

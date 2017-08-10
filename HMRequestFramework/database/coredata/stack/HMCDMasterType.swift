@@ -11,42 +11,27 @@
 public protocol HMCDObjectMasterType:
     HMCDObjectType,
     HMCDObjectBuildableType,
-    HMCDPureObjectConvertibleType
-{
-    associatedtype Builder: HMCDObjectBuilderMasterType
-    associatedtype PureObject: HMCDPureObjectMasterType
-}
+    HMCDPureObjectConvertibleType {}
 
 /// CoreData object Builders should implement this protocol to guarantee conformance
 /// to required sub-protocols.
-public protocol HMCDObjectBuilderMasterType: HMCDObjectBuilderType {
-    associatedtype PureObject: HMCDPureObjectMasterType
-}
+public protocol HMCDObjectBuilderMasterType: HMCDObjectBuilderType {}
 
 /// PureObject classes should implement this protocol to guarantee conformance
 /// to required sub-protocols.
 public protocol HMCDPureObjectMasterType:
     HMCDPureObjectType,
     HMCDPureObjectBuildableType
-{
-    associatedtype CDClass: HMCDObjectMasterType
-    associatedtype Builder: HMCDPureObjectBuilderMasterType
-}
+{}
 
 /// PureObject Builders should implement this protocol to guarantee conformance
 /// to required sub-protocols.
-public protocol HMCDPureObjectBuilderMasterType: HMCDPureObjectBuilderType {
-    associatedtype Buildable: HMCDPureObjectMasterType
-}
+public protocol HMCDPureObjectBuilderMasterType: HMCDPureObjectBuilderType {}
 
 /// Versionable classes should implement this protocol to guarantee conformance
 /// to required sub-protocols.
-public protocol HMCDVersionableMasterType: HMCDVersionableType, HMCDVersionBuildableType {
-    associatedtype Builder: HMCDVersionableBuilderMasterType
-}
+public protocol HMCDVersionableMasterType: HMCDVersionableType, HMCDVersionBuildableType {}
 
 /// Versionable Builders should implement this protocol to guarantee conformance
 /// to required sub-protocols.
-public protocol HMCDVersionableBuilderMasterType: HMCDVersionBuilderType {
-    associatedtype Buildable: HMCDVersionableMasterType
-}
+public protocol HMCDVersionableBuilderMasterType: HMCDVersionBuilderType {}

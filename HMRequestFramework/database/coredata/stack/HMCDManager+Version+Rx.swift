@@ -32,8 +32,8 @@ public extension HMCDManager {
         VC: NSManagedObject,
         VC: HMCDPureObjectConvertibleType,
         VC: HMCDVersionableType & HMCDVersionBuildableType,
-        VC.PureObject == VC.Builder.PureObject,
-        VC.Builder.Buildable == VC
+        VC.Builder: HMCDVersionBuilderType,
+        VC.PureObject == VC.Builder.PureObject
     {
         switch strategy {
         case .error:
@@ -64,8 +64,8 @@ public extension HMCDManager {
         VC: NSManagedObject,
         VC: HMCDPureObjectConvertibleType,
         VC: HMCDVersionableType & HMCDVersionBuildableType,
-        VC.PureObject == VC.Builder.PureObject,
-        VC.Builder.Buildable == VC
+        VC.Builder: HMCDVersionBuilderType,
+        VC.PureObject == VC.Builder.PureObject
     {
         // The original object should be managed by the parameter context,
         // or this will raise an error.
@@ -91,8 +91,8 @@ public extension HMCDManager {
         VC: NSManagedObject,
         VC: HMCDPureObjectConvertibleType,
         VC: HMCDVersionableType & HMCDVersionBuildableType,
-        VC.PureObject == VC.Builder.PureObject,
-        VC.Builder.Buildable == VC
+        VC.Builder: HMCDVersionBuilderType,
+        VC.PureObject == VC.Builder.PureObject
     {
         let originalVersion = original.currentVersion()
         let editedVersion = edited.currentVersion()
@@ -126,8 +126,8 @@ public extension HMCDManager {
         VC: HMCDIdentifiableObject,
         VC: HMCDPureObjectConvertibleType,
         VC: HMCDVersionableType & HMCDVersionBuildableType,
+        VC.Builder: HMCDVersionBuilderType,
         VC.PureObject == VC.Builder.PureObject,
-        VC.Builder.Buildable == VC,
         S: Sequence,
         S.Iterator.Element == VC,
         O: ObserverType,
@@ -157,44 +157,6 @@ public extension HMCDManager {
             }
         }
     }
-    
-    /// Update a Sequence of versioned pure objects, save to memory and observe
-    /// the process.
-    ///
-    /// - Parameters:
-    ///   - context: A NSManagedObjectContext instance.
-    ///   - entityName: A String value representing the entity's name.
-    ///   - pureObjects: A Sequence of pure objects.
-    ///   - strategyFn: A strategy producer.
-    ///   - obs: An ObserverType instance.
-    /// - Throws: Exception if the operation fails.
-    public func updateVersion<S,PO,VC,O>(_ context: NSManagedObjectContext,
-                                         _ entityName: String,
-                                         _ pureObjects: S,
-                                         _ strategyFn: @escaping StrategyFn<VC>,
-                                         _ obs: O) where
-        VC: HMCDIdentifiableObject,
-        VC: HMCDPureObjectConvertibleType,
-        VC: HMCDVersionableType & HMCDVersionBuildableType,
-        VC.PureObject == VC.Builder.PureObject,
-        VC.Builder.Buildable == VC,
-        PO.CDClass == VC,
-        PO.CDClass.Builder.PureObject == PO,
-        S: Sequence,
-        S.Iterator.Element == PO,
-        O: ObserverType,
-        O.E == [Try<Void>]
-    {
-        performOnContextThread(mainContext) {
-            do {
-                let vc = try self.constructUnsafely(context, pureObjects)
-                let tempContext = self.disposableObjectContext()
-                self.updateVersion(tempContext, entityName, vc, strategyFn, obs)
-            } catch let e {
-                obs.onError(e)
-            }
-        }
-    }
 }
 
 public extension HMCDManager {
@@ -216,44 +178,14 @@ public extension HMCDManager {
         VC: HMCDIdentifiableObject,
         VC: HMCDPureObjectConvertibleType,
         VC: HMCDVersionableType & HMCDVersionBuildableType,
+        VC.Builder: HMCDVersionBuilderType,
         VC.PureObject == VC.Builder.PureObject,
-        VC.Builder.Buildable == VC,
         S: Sequence,
         S.Iterator.Element == VC,
         O: ObserverType,
         O.E == [Try<Void>]
     {
         updateVersion(context, entityName, identifiables, {_ in strategy}, obs)
-    }
-    
-    /// Update a Sequence of versioned pure objects using one provided strategy,
-    /// save to memory and observe the process.
-    ///
-    /// - Parameters:
-    ///   - context: A NSManagedObjectContext instance.
-    ///   - entityName: A String value representing the entity's name.
-    ///   - pureObjects: A Sequence of pure objects.
-    ///   - strategy: A Strategy instance.
-    ///   - obs: An ObserverType instance.
-    /// - Throws: Exception if the operation fails.
-    public func updateVersion<S,PO,VC,O>(_ context: NSManagedObjectContext,
-                                         _ entityName: String,
-                                         _ pureObjects: S,
-                                         _ strategy: VersionConflict.Strategy,
-                                         _ obs: O) where
-        VC: HMCDIdentifiableObject,
-        VC: HMCDPureObjectConvertibleType,
-        VC: HMCDVersionableType & HMCDVersionBuildableType,
-        VC.PureObject == VC.Builder.PureObject,
-        VC.Builder.Buildable == VC,
-        PO.CDClass == VC,
-        PO.CDClass.Builder.PureObject == PO,
-        S: Sequence,
-        S.Iterator.Element == PO,
-        O: ObserverType,
-        O.E == [Try<Void>]
-    {
-        updateVersion(context, entityName, pureObjects, {_ in strategy}, obs)
     }
 }
 
@@ -276,8 +208,8 @@ extension Reactive where Base: HMCDManager {
         VC: HMCDIdentifiableObject,
         VC: HMCDPureObjectConvertibleType,
         VC: HMCDVersionableType & HMCDVersionBuildableType,
+        VC.Builder: HMCDVersionBuilderType,
         VC.PureObject == VC.Builder.PureObject,
-        VC.Builder.Buildable == VC,
         S: Sequence,
         S.Iterator.Element == VC
     {
@@ -303,68 +235,13 @@ extension Reactive where Base: HMCDManager {
         VC: HMCDIdentifiableObject,
         VC: HMCDPureObjectConvertibleType,
         VC: HMCDVersionableType & HMCDVersionBuildableType,
+        VC.Builder: HMCDVersionBuilderType,
         VC.PureObject == VC.Builder.PureObject,
-        VC.Builder.Buildable == VC,
         S: Sequence,
         S.Iterator.Element == VC
     {
         let context = base.disposableObjectContext()
         return updateVersion(context, entityName, identifiables, strategyFn)
-    }
-    
-    /// Update a Sequence of versioned pure objects and save to memory.
-    ///
-    /// - Parameters:
-    ///   - context: A NSManagedObjectContext instance.
-    ///   - entityName: A String value representing the entity's name.
-    ///   - pureObjects: A Sequence of pure objects.
-    ///   - strategyFn: A strategy producer.
-    /// - Throws: Exception if the operation fails.
-    public func updateVersion<S,PO,VC>(_ context: NSManagedObjectContext,
-                                       _ entityName: String,
-                                       _ pureObjects: S,
-                                       _ strategyFn: @escaping StrategyFn<VC>)
-        -> Observable<[Try<Void>]> where
-        VC: HMCDIdentifiableObject,
-        VC: HMCDPureObjectConvertibleType,
-        VC: HMCDVersionableType & HMCDVersionBuildableType,
-        VC.PureObject == VC.Builder.PureObject,
-        VC.Builder.Buildable == VC,
-        PO.CDClass == VC,
-        PO.CDClass.Builder.PureObject == PO,
-        S: Sequence,
-        S.Iterator.Element == PO
-    {
-        return Observable<[Try<Void>]>.create({
-            self.base.updateVersion(context, entityName, pureObjects, strategyFn, $0)
-            return Disposables.create()
-        })
-    }
-    
-    /// Update a Sequence of versioned pure objects and save to memory using
-    /// a default context.
-    ///
-    /// - Parameters:
-    ///   - entityName: A String value representing the entity's name.
-    ///   - pureObjects: A Sequence of pure objects.
-    ///   - strategyFn: A strategy producer.
-    /// - Throws: Exception if the operation fails.
-    public func updateVersion<S,PO,VC>(_ entityName: String,
-                                       _ pureObjects: S,
-                                       _ strategyFn: @escaping StrategyFn<VC>)
-        -> Observable<[Try<Void>]> where
-        VC: HMCDIdentifiableObject,
-        VC: HMCDPureObjectConvertibleType,
-        VC: HMCDVersionableType & HMCDVersionBuildableType,
-        VC.PureObject == VC.Builder.PureObject,
-        VC.Builder.Buildable == VC,
-        PO.CDClass == VC,
-        PO.CDClass.Builder.PureObject == PO,
-        S: Sequence,
-        S.Iterator.Element == PO
-    {
-        let context = base.disposableObjectContext()
-        return updateVersion(context, entityName, pureObjects, strategyFn)
     }
 }
 
@@ -388,8 +265,8 @@ extension Reactive where Base: HMCDManager {
         VC: HMCDIdentifiableObject,
         VC: HMCDPureObjectConvertibleType,
         VC: HMCDVersionableType & HMCDVersionBuildableType,
+        VC.Builder: HMCDVersionBuilderType,
         VC.PureObject == VC.Builder.PureObject,
-        VC.Builder.Buildable == VC,
         S: Sequence,
         S.Iterator.Element == VC
     {
@@ -412,63 +289,11 @@ extension Reactive where Base: HMCDManager {
         VC: HMCDIdentifiableObject,
         VC: HMCDPureObjectConvertibleType,
         VC: HMCDVersionableType & HMCDVersionBuildableType,
+        VC.Builder: HMCDVersionBuilderType,
         VC.PureObject == VC.Builder.PureObject,
-        VC.Builder.Buildable == VC,
         S: Sequence,
         S.Iterator.Element == VC
     {
         return updateVersion(entityName, identifiables, {_ in strategy})
-    }
-    
-    /// Update a Sequence of versioned pure objects using a specified strategy and
-    /// save to memory.
-    ///
-    /// - Parameters:
-    ///   - context: A NSManagedObjectContext instance.
-    ///   - entityName: A String value representing the entity's name.
-    ///   - pureObjects: A Sequence of pure objects.
-    ///   - strategy: A Strategy producer.
-    /// - Throws: Exception if the operation fails.
-    public func updateVersion<S,PO,VC>(_ context: NSManagedObjectContext,
-                                       _ entityName: String,
-                                       _ pureObjects: S,
-                                       _ strategy: VersionConflict.Strategy)
-        -> Observable<[Try<Void>]> where
-        VC: HMCDIdentifiableObject,
-        VC: HMCDPureObjectConvertibleType,
-        VC: HMCDVersionableType & HMCDVersionBuildableType,
-        VC.PureObject == VC.Builder.PureObject,
-        VC.Builder.Buildable == VC,
-        PO.CDClass == VC,
-        PO.CDClass.Builder.PureObject == PO,
-        S: Sequence,
-        S.Iterator.Element == PO
-    {
-        return updateVersion(context, entityName, pureObjects, {_ in strategy})
-    }
-    
-    /// Update a Sequence of versioned pure objects using a specified strategy
-    /// and save to memory using a default context.
-    ///
-    /// - Parameters:
-    ///   - entityName: A String value representing the entity's name.
-    ///   - pureObjects: A Sequence of pure objects.
-    ///   - strategy: A Strategy producer.
-    /// - Throws: Exception if the operation fails.
-    public func updateVersion<S,PO,VC>(_ entityName: String,
-                                       _ pureObjects: S,
-                                       _ strategy: VersionConflict.Strategy)
-        -> Observable<[Try<Void>]> where
-        VC: HMCDIdentifiableObject,
-        VC: HMCDPureObjectConvertibleType,
-        VC: HMCDVersionableType & HMCDVersionBuildableType,
-        VC.PureObject == VC.Builder.PureObject,
-        VC.Builder.Buildable == VC,
-        PO.CDClass == VC,
-        PO.CDClass.Builder.PureObject == PO,
-        S: Sequence,
-        S.Iterator.Element == PO
-    {
-        return updateVersion(entityName, pureObjects, {_ in strategy})
     }
 }
