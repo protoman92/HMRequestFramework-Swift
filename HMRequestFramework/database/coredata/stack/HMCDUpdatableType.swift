@@ -15,7 +15,7 @@ public protocol HMCDUpdatableType {
     /// Update inner properties based on those of another object.
     ///
     /// - Parameter obj: A HMCDUpdatableType instance.
-    func update(from obj: Self)
+    func update(from obj: Self) throws
 }
 
 /// Classes that implement this protocol should be able to update its properties
@@ -38,7 +38,7 @@ public protocol HMCDKeyValueUpdatableType: HMCDUpdatableType {
     /// Update inner properties using a Dictionary.
     ///
     /// - Parameter dict: A Dictionary instance.
-    func update(with dict: [String : Any?])
+    func update(with dict: [String : Any?]) throws
 }
 
 public extension HMCDKeyValueUpdatableType {
@@ -47,8 +47,8 @@ public extension HMCDKeyValueUpdatableType {
     /// assumes that this object does not need to validate the incoming updates.
     ///
     /// - Parameter obj: A HMCDKeyValueUpdatableType instance.
-    public func update(from obj: Self) {
-        update(with: obj.updateDictionary())
+    public func update(from obj: Self) throws {
+        try update(with: obj.updateDictionary())
     }
 }
 
@@ -64,7 +64,7 @@ public extension HMCDKeyValueUpdatableType where Self: NSManagedObject {
         return dict
     }
     
-    public func update(with dict: [String : Any?]) {
+    public func update(with dict: [String : Any?]) throws {
         for (key, value) in dict {
             setValue(value, forKey: key)
         }

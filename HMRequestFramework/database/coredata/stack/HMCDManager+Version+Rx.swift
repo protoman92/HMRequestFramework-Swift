@@ -88,8 +88,8 @@ public extension HMCDManager {
         // The original object should be managed by the parameter context.
         // We update the original object by mutating it - under other circumstances,
         // this is not recommended.
-        original.update(from: edited)
-        original.updateVersion(newVersion)
+        try original.update(from: edited)
+        try original.updateVersion(newVersion)
     }
     
     /// Update some object with version bump. Resolve any conflict if necessary.

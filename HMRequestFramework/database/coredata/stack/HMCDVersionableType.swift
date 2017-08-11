@@ -18,7 +18,7 @@ public protocol HMCDVersionUpdatableType {
     /// Update the version by mutating property.
     ///
     /// - Parameter version: A String value.
-    func updateVersion(_ version: String?)
+    func updateVersion(_ version: String?) throws
 }
 
 /// Similar to HMVersionBuildableType, customized for CoreData.

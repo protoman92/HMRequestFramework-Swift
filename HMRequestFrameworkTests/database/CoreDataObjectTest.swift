@@ -22,7 +22,9 @@ public final class CoreDataObjectTest: CoreDataRootTest {
         let cdObjects2 = try! manager.constructUnsafely(context, pureObjects2)
         
         /// When
-        cdObjects2.enumerated().forEach({$0.element.update(from: cdObjects1[$0.offset])})
+        cdObjects2.enumerated().forEach({
+            try! $0.element.update(from: cdObjects1[$0.offset])
+        })
         
         /// Then
         let reconverted2 = cdObjects2.map({$0.asPureObject()})
