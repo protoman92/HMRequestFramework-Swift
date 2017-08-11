@@ -1,5 +1,5 @@
 //
-//  HMCDUpdatableType.swift
+//  HMCDKeyValueUpdatableType.swift
 //  HMRequestFramework
 //
 //  Created by Hai Pham on 11/8/17.
@@ -8,22 +8,12 @@
 
 import CoreData
 
-/// Classes that implement this protocol should be able to update properties
-/// using instances of the same types.
-public protocol HMCDUpdatableType {
-    
-    /// Update inner properties based on those of another object.
-    ///
-    /// - Parameter obj: A HMCDUpdatableType instance.
-    func update(from obj: Self) throws
-}
-
 /// Classes that implement this protocol should be able to update its properties
 /// using some keys. Strictly for NSManagedObject.
 ///
 /// This protocol implies mutation. Therefore, we should try not to use it
 /// as much as possible.
-public protocol HMCDKeyValueUpdatableType: HMCDUpdatableType {
+public protocol HMCDKeyValueUpdatableType {
     
     /// Get the keys to be used to access inner properties.
     ///
@@ -43,7 +33,7 @@ public protocol HMCDKeyValueUpdatableType: HMCDUpdatableType {
 
 public extension HMCDKeyValueUpdatableType {
     
-    /// Update inner properties using another HMCDUpdatableType. This method
+    /// Update inner properties using another HMCDKeyValueUpdatableType. This method
     /// assumes that this object does not need to validate the incoming updates.
     ///
     /// - Parameter obj: A HMCDKeyValueUpdatableType instance.

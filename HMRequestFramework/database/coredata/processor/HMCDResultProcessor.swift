@@ -15,9 +15,6 @@ import SwiftUtilities
 public typealias HMCDTypedResultProcessor<Res: HMCDPureObjectType> =
     HMResultProcessor<Res.CDClass,Res>
 
-public typealias HMCDConvertibleResultProcessor<Res> =
-    HMResultProcessor<HMResult<HMCDConvertibleType>,Res>
-
 /// Common CoreData result processors.
 public final class HMCDResultProcessors {
     

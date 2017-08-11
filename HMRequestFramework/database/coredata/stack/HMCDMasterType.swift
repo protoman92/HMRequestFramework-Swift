@@ -33,7 +33,7 @@ public protocol HMCDPureObjectBuilderMasterType: HMCDPureObjectBuilderType {}
 /// to required sub-protocols.
 public protocol HMCDVersionableMasterType:
     HMCDObjectMasterType,
-    HMCDUpdatableType,
+    HMCDKeyValueUpdatableType,
     HMCDVersionableType,
     HMCDVersionUpdatableType,
     HMCDVersionBuildableType {}

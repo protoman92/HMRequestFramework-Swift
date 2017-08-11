@@ -15,8 +15,8 @@ public struct HMCDRequest {
     fileprivate var nsPredicate: NSPredicate?
     fileprivate var nsSortDescriptors: [NSSortDescriptor]
     fileprivate var cdOperation: CoreDataOperation?
-    fileprivate var cdSaveContext: NSManagedObjectContext?
     fileprivate var cdInsertedData: [HMCDConvertibleType]
+    fileprivate var cdUpsertedData: [HMCDUpsertableType]
     fileprivate var cdDeletedData: [NSManagedObject]
     fileprivate var retryCount: Int
     fileprivate var middlewaresEnabled: Bool
@@ -24,6 +24,7 @@ public struct HMCDRequest {
     
     fileprivate init() {
         cdInsertedData = []
+        cdUpsertedData = []
         cdDeletedData = []
         nsSortDescriptors = []
         retryCount = 1
@@ -135,16 +136,6 @@ extension HMCDRequest: HMBuildableType {
             return self
         }
         
-        /// Set the context to save.
-        ///
-        /// - Parameter saveContext: A NSManagedObjectContext instance.
-        /// - Returns: The current Builder instance.
-        @discardableResult
-        public func with(saveContext: NSManagedObjectContext?) -> Self {
-            request.cdSaveContext = saveContext
-            return self
-        }
-        
         /// Set the data to insert.
         ///
         /// - Parameter insertedData: A Sequence of HMCDConvertibleType.
@@ -169,6 +160,32 @@ extension HMCDRequest: HMBuildableType {
             S: Sequence, S.Iterator.Element: HMCDConvertibleType
         {
             return with(insertedData: insertedData?.map({$0 as HMCDConvertibleType}))
+        }
+        
+        /// Set the data to upsert.
+        ///
+        /// - Parameter upsertedData: A Sequence of HMCDConvertibleType.
+        /// - Returns: The current Builder instance.
+        @discardableResult
+        public func with<S>(upsertedData: S?) -> Self where
+            S: Sequence, S.Iterator.Element == HMCDUpsertableType
+        {
+            if let data = upsertedData {
+                request.cdUpsertedData.append(contentsOf: data)
+            }
+            
+            return self
+        }
+        
+        /// Set the data to upsert.
+        ///
+        /// - Parameter upsertedData: A Sequence of HMCDConvertibleType.
+        /// - Returns: The current Builder instance.
+        @discardableResult
+        public func with<S>(upsertedData: S?) -> Self where
+            S: Sequence, S.Iterator.Element: HMCDUpsertableType
+        {
+            return with(upsertedData: upsertedData?.map({$0 as HMCDUpsertableType}))
         }
         
         /// Set the data to delete.
@@ -220,8 +237,8 @@ extension HMCDRequest.Builder: HMProtocolConvertibleBuilderType {
             .with(entityName: try? generic.entityName())
             .with(predicate: try? generic.predicate())
             .with(sortDescriptors: try? generic.sortDescriptors())
-            .with(saveContext: try? generic.saveContext())
             .with(insertedData: try? generic.insertedData())
+            .with(upsertedData: try? generic.upsertedData())
             .with(deletedData: try? generic.deletedData())
             .with(retries: generic.retries())
             .with(applyMiddlewares: generic.applyMiddlewares())
@@ -307,16 +324,12 @@ extension HMCDRequest: HMCDRequestType {
         return nsSortDescriptors
     }
     
-    public func saveContext() throws -> NSManagedObjectContext {
-        if let context = cdSaveContext {
-            return context
-        } else {
-            throw Exception("Context to save cannot be nil")
-        }
-    }
-    
     public func insertedData() throws -> [HMCDConvertibleType] {
         return cdInsertedData
+    }
+    
+    public func upsertedData() throws -> [HMCDUpsertableType] {
+        return cdUpsertedData
     }
     
     public func deletedData() throws -> [NSManagedObject] {

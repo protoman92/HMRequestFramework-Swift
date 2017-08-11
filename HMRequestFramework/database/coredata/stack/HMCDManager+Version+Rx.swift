@@ -34,7 +34,7 @@ public extension HMCDManager {
     func resolveVersionConflictUnsafely<VC>(
         _ context: NSManagedObjectContext,
         _ request: HMVersionUpdateRequest<VC>) throws where
-        VC: HMCDUpdatableType,
+        VC: HMCDKeyValueUpdatableType,
         VC: HMCDVersionableType,
         VC: HMCDVersionUpdatableType,
         VC: HMCDVersionBuildableType,
@@ -74,7 +74,7 @@ public extension HMCDManager {
     func attempVersionUpdateUnsafely<VC>(
         _ context: NSManagedObjectContext,
         _ request: HMVersionUpdateRequest<VC>) throws where
-        VC: HMCDUpdatableType,
+        VC: HMCDKeyValueUpdatableType,
         VC: HMCDVersionableType,
         VC: HMCDVersionUpdatableType,
         VC: HMCDVersionBuildableType,
@@ -102,7 +102,7 @@ public extension HMCDManager {
     func updateVersionUnsafely<VC>(
         _ context: NSManagedObjectContext,
         _ request: HMVersionUpdateRequest<VC>) throws where
-        VC: HMCDUpdatableType,
+        VC: HMCDKeyValueUpdatableType,
         VC: HMCDVersionableType,
         VC: HMCDVersionUpdatableType,
         VC: HMCDVersionBuildableType,
@@ -138,7 +138,7 @@ public extension HMCDManager {
                                _ obs: O) where
         VC: HMCDConvertibleType,
         VC: HMCDIdentifiableType,
-        VC: HMCDUpdatableType,
+        VC: HMCDKeyValueUpdatableType,
         VC: HMCDVersionableType,
         VC: HMCDVersionUpdatableType,
         VC: HMCDVersionBuildableType,
@@ -147,7 +147,7 @@ public extension HMCDManager {
         S: Sequence,
         S.Iterator.Element == HMVersionUpdateRequest<VC>,
         O: ObserverType,
-        O.E == [HMResult<VC>]
+        O.E == [HMResult]
     {
         performOnContextThread(mainContext) {
             do {
@@ -155,7 +155,7 @@ public extension HMCDManager {
                 // We will get them right below.
                 let identifiables = requests.flatMap({try? $0.editedVC()})
                 let originals = try self.blockingRefetch(context, entityName, identifiables)
-                var results: [HMResult<VC>] = []
+                var results: [HMResult] = []
                 
                 // We also need an Array of VC to store items that cannot be
                 // found in the DB yet.
@@ -170,13 +170,13 @@ public extension HMCDManager {
                             .with(edited: item)
                             .build()
                     {
-                        let result: HMResult<VC>
+                        let result: HMResult
                         
                         do {
                             try self.updateVersionUnsafely(context, request)
-                            result = HMResult<VC>.builder().with(object: item).build()
+                            result = HMResult.just(item)
                         } catch let e {
-                            result = HMResult<VC>.builder()
+                            result = HMResult.builder()
                                 .with(object: item)
                                 .with(error: e)
                                 .build()
@@ -219,10 +219,10 @@ extension Reactive where Base: HMCDManager {
     public func updateVersion<VC,S>(_ context: NSManagedObjectContext,
                                     _ entityName: String,
                                     _ requests: S)
-        -> Observable<[HMResult<VC>]> where
+        -> Observable<[HMResult]> where
         VC: HMCDConvertibleType,
         VC: HMCDIdentifiableType,
-        VC: HMCDUpdatableType,
+        VC: HMCDKeyValueUpdatableType,
         VC: HMCDVersionableType,
         VC: HMCDVersionUpdatableType,
         VC: HMCDVersionBuildableType,
@@ -231,7 +231,7 @@ extension Reactive where Base: HMCDManager {
         S: Sequence,
         S.Iterator.Element == HMVersionUpdateRequest<VC>
     {
-        return Observable<[HMResult<VC>]>.create({
+        return Observable<[HMResult]>.create({
             self.base.updateVersion(context, entityName, requests, $0)
             return Disposables.create()
         })
@@ -247,10 +247,10 @@ extension Reactive where Base: HMCDManager {
     /// - Return: An Observable instance.
     /// - Throws: Exception if the operation fails.
     public func updateVersion<VC,S>(_ entityName: String, _ requests: S)
-        -> Observable<[HMResult<VC>]> where
+        -> Observable<[HMResult]> where
         VC: HMCDConvertibleType,
         VC: HMCDIdentifiableType,
-        VC: HMCDUpdatableType,
+        VC: HMCDKeyValueUpdatableType,
         VC: HMCDVersionableType,
         VC: HMCDVersionUpdatableType,
         VC: HMCDVersionBuildableType,

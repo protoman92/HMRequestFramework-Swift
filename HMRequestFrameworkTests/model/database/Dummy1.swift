@@ -197,7 +197,7 @@ extension CDDummy1: HMCDKeyValueUpdatableType {
     }
 }
 
-extension CDDummy1: HMCDIdentifiableType {
+extension CDDummy1: HMCDUpsertableType {
     public func primaryKey() -> String {
         return "id"
     }

@@ -22,15 +22,30 @@ public extension HMCDManager {
         }
     }
     
-    /// Save changes to file. This operation is not thread-safe.
+    /// Persist all changes to DB.
     ///
-    /// This method should be the only one that uses the private context to
-    /// save to the local DB file. All other operations should use the main
-    /// context.
-    ///
-    /// - Throws: Exception if the save fails.
+    /// - Throws: Exception if the operation fails.
     func persistChangesUnsafely() throws {
+        try saveUnsafely(mainContext)
         try saveUnsafely(privateContext)
+    }
+}
+
+public extension HMCDManager {
+    
+    /// Persist all changes to DB and observe the process.
+    ///
+    /// - Parameter obs: An ObserverType instance.
+    func persistChanges<O>(_ obs: O) where O: ObserverType, O.E == Void {
+        performOnContextThread(mainContext) {
+            do {
+                try self.persistChangesUnsafely()
+                obs.onNext(())
+                obs.onCompleted()
+            } catch let e {
+                obs.onError(e)
+            }
+        }
     }
 }
 
@@ -89,28 +104,21 @@ public extension HMCDManager {
     ///   - convertibles: A Sequence of HMCDConvertibleType.
     /// - Returns: An Array of HMResult.
     /// - Throws: Exception if the operation fails.
-    func convert<S>(_ context: NSManagedObjectContext, _ convertibles: S)
-        -> [HMResult<S.Iterator.Element>] where
+    func convert<S>(_ context: NSManagedObjectContext,
+                    _ convertibles: S) -> [HMResult] where
         S: Sequence, S.Iterator.Element == HMCDConvertibleType
     {
-        var results: [HMResult<S.Iterator.Element>] = []
+        var results: [HMResult] = []
         
         for item in convertibles {
-            let result: HMResult<S.Iterator.Element>
+            let result: HMResult
             
             do {
                 _ = try item.asManagedObject(context)
                 
-                result = HMResult<S.Iterator.Element>
-                    .builder()
-                    .with(object: item)
-                    .build()
+                result = HMResult.just(item)
             } catch let e {
-                result = HMResult<S.Iterator.Element>
-                    .builder()
-                    .with(object: item)
-                    .with(error: e)
-                    .build()
+                result = HMResult.builder().with(object: item).with(error: e).build()
             }
             
             results.append(result)
@@ -128,12 +136,10 @@ public extension HMCDManager {
     /// - Returns: An Array of HMResult.
     /// - Throws: Exception if the operation fails.
     func convert<U,S>(_ context: NSManagedObjectContext,
-                      _ convertibles: S) -> [HMResult<U>] where
+                      _ convertibles: S) -> [HMResult] where
         U: HMCDConvertibleType, S: Sequence, S.Iterator.Element == U
     {
         return convert(context, convertibles.map({$0 as HMCDConvertibleType}))
-            .map({$0.map({$0 as? U})})
-            .filter({$0.appliedObject() == nil})
     }
     
     /// Save a Sequence of convertible objects to memory and observe the process.
@@ -145,7 +151,7 @@ public extension HMCDManager {
     ///   - obs: An ObserverType instance.
     func save<S,O>(_ convertibles: S, _ obs: O) where
         S: Sequence, S.Iterator.Element == HMCDConvertibleType,
-        O: ObserverType, O.E == [HMResult<S.Iterator.Element>]
+        O: ObserverType, O.E == [HMResult]
     {
         let context = disposableObjectContext()
         
@@ -170,21 +176,9 @@ public extension HMCDManager {
     func save<U,S,O>(_ convertibles: S, _ obs: O) where
         U: HMCDConvertibleType,
         S: Sequence, S.Iterator.Element == U,
-        O: ObserverType, O.E == [HMResult<U>]
+        O: ObserverType, O.E == [HMResult]
     {
-        let context = disposableObjectContext()
-        
-        performOnContextThread(context) {
-            let results = self.convert(context, convertibles)
-            
-            do {
-                try self.saveUnsafely(context)
-                obs.onNext(results)
-                obs.onCompleted()
-            } catch let e {
-                obs.onError(e)
-            }
-        }
+        return save(convertibles.map({$0 as HMCDConvertibleType}), obs)
     }
 }
 
@@ -253,10 +247,10 @@ public extension Reactive where Base: HMCDManager {
     ///
     /// - Parameters convertibles: A Sequence of HMCDConvertibleType.
     /// - Return: An Observable instance.
-    func save<S>(_ convertibles: S) -> Observable<[HMResult<S.Iterator.Element>]> where
+    func save<S>(_ convertibles: S) -> Observable<[HMResult]> where
         S: Sequence, S.Iterator.Element == HMCDConvertibleType
     {
-        return Observable<[HMResult<S.Iterator.Element>]>.create({
+        return Observable<[HMResult]>.create({
             self.base.save(convertibles, $0)
             return Disposables.create()
         })
@@ -267,7 +261,7 @@ public extension Reactive where Base: HMCDManager {
     /// - Parameters convertibles: A Sequence of HMCDConvertibleType.
     /// - Return: An Observable instance.
     func save<S,OC>(_ convertibles: S)
-        -> Observable<[HMResult<HMCDConvertibleType>]> where
+        -> Observable<[HMResult]> where
         OC: HMCDConvertibleType,
         S: Sequence, S.Iterator.Element == OC
     {
@@ -283,11 +277,9 @@ public extension Reactive where Base: HMCDManager {
     ///
     /// - Returns: An Observable instance.
     public func persistLocally() -> Observable<Void> {
-        let mainContext = base.mainContext
-        let privateContext = base.privateContext
-        
-        return Observable
-            .concat(save(mainContext), save(privateContext))
-            .reduce((), accumulator: {_ in ()})
+        return Observable<Void>.create({
+            self.base.persistChanges($0)
+            return Disposables.create()
+        })
     }
 }

@@ -52,7 +52,7 @@ extension HMCDRequestProcessor: HMCDRequestProcessorType {
             return try executeFetch(request, Val.self)
             
         default:
-            throw Exception("Please use normal execute for void return values")
+            throw Exception("Please use normal execute for \(operation)")
         }
     }
     
@@ -81,15 +81,18 @@ extension HMCDRequestProcessor: HMCDRequestProcessorType {
     /// - Parameter request: A Req instance.
     /// - Returns: An Observable instance.
     /// - Throws: Exception if the operation fails.
-    public func executeConvertible(_ request: Req) throws
-        -> Observable<Try<[HMResult<HMCDConvertibleType>]>>
-    {
-        switch try request.operation() {
+    public func executeTyped(_ request: Req) throws -> Observable<Try<[HMResult]>> {
+        let operation = try request.operation()
+        
+        switch operation {
         case .saveData:
             return try executeSaveData(request)
             
+        case .upsert:
+            return try executeUpsert(request)
+            
         default:
-            throw Exception("Please use normal execute for void return values")
+            throw Exception("Please use normal execute for \(operation)")
         }
     }
     
@@ -99,14 +102,15 @@ extension HMCDRequestProcessor: HMCDRequestProcessorType {
     /// - Returns: An Observable instance.
     /// - Throws: Exception if the execution fails.
     private func executeSaveData(_ request: Req) throws
-        -> Observable<Try<[HMResult<HMCDConvertibleType>]>> {
-            let manager = coreDataManager()
-            let insertedData = try request.insertedData()
-            
-            return manager.rx.save(insertedData)
-                .retry(request.retries())
-                .map(Try.success)
-                .catchErrorJustReturn(Try.failure)
+        -> Observable<Try<[HMResult]>>
+    {
+        let manager = coreDataManager()
+        let insertedData = try request.insertedData()
+        
+        return manager.rx.save(insertedData)
+            .retry(request.retries())
+            .map(Try.success)
+            .catchErrorJustReturn(Try.failure)
     }
     
     /// Override this method to provide default implementation.
@@ -118,20 +122,14 @@ extension HMCDRequestProcessor: HMCDRequestProcessorType {
         let operation = try request.operation()
         
         switch operation {
-        case .saveContext:
-            return try executeSaveContext(request)
-            
         case .delete:
             return try executeDelete(request)
             
-        case .persistToFile:
+        case .persistLocally:
             return try executePersistToFile(request)
             
-        case .upsert:
-            return try executeUpsert(request)
-            
-        case .fetch, .saveData:
-            throw Exception("Please use typed execute for typed return values")
+        case .fetch, .saveData, .upsert:
+            throw Exception("Please use typed execute for \(operation)")
         }
     }
     
@@ -164,21 +162,6 @@ extension HMCDRequestProcessor: HMCDRequestProcessorType {
             .catchErrorJustReturn(Try.failure)
     }
     
-    /// Perform a CoreData context save operation.
-    ///
-    /// - Parameter request: A Req instance.
-    /// - Returns: An Observable instance.
-    /// - Throws: Exception if the execution fails.
-    private func executeSaveContext(_ request: Req) throws -> Observable<Try<Void>> {
-        let manager = coreDataManager()
-        let context = try request.saveContext()
-            
-        return manager.rx.save(context)
-            .retry(request.retries())
-            .map(Try.success)
-            .catchErrorJustReturn(Try.failure)
-    }
-    
     /// Perform a CoreData data persistence operation.
     ///
     /// - Parameter request: A Req instance.
@@ -198,21 +181,18 @@ extension HMCDRequestProcessor: HMCDRequestProcessorType {
     /// - Parameter request: A Req instance.
     /// - Returns: An Observable instance.
     /// - Throws: Exception if the execution fails.
-    private func executeUpsert(_ request: Req) throws -> Observable<Try<Void>> {
+    private func executeUpsert(_ request: Req) throws
+        -> Observable<Try<[HMResult]>>
+    {
         let manager = coreDataManager()
-        let context = try request.saveContext()
-        let data = context.insertedObjects
-        let identifiables = data.flatMap({$0 as? HMCDIdentifiableType})
+        let data = try request.upsertedData()
         let entityName = try request.entityName()
         
         return Observable
             .concat(
-                // This will only delete objects that are already in the
-                // DB, so we can call it with all data.
-                manager.rx.delete(entityName, identifiables),
-                manager.rx.save(context)
+                manager.rx.upsert(entityName, data)
             )
-            .reduce((), accumulator: {_ in ()})
+            .reduce([], accumulator: +)
             .map(Try.success)
             .catchErrorJustReturn(Try.failure)
     }

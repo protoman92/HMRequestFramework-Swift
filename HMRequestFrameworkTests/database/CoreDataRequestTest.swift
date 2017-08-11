@@ -83,8 +83,8 @@ public final class CoreDataRequestTest: CoreDataRootTest {
         let dummyCount = self.dummyCount
         let pureObjects = (0..<dummyCount).map({_ in Dummy1()})
         let cdObjects = try! manager.constructUnsafely(context, pureObjects)
-        let saveContextGn = dummySaveContextRgn(context)
-        let saveContextPs = dummyPersistRps()
+        let insertGn = dummy1InsertRgn(cdObjects)
+        let insertPs = dummy1InsertRps()
         let persistGn = dummyPersistRgn()
         let persistPs = dummyPersistRps()
         let deleteGn = dummyMemoryDeleteRgn(cdObjects)
@@ -94,7 +94,7 @@ public final class CoreDataRequestTest: CoreDataRootTest {
 
         /// When
         // Save the changes in the disposable context.
-        cdProcessor.process(dummy, saveContextGn, saveContextPs)
+        cdProcessor.process(dummy, insertGn, insertPs)
             .map({$0.map({$0 as Any})})
 
             // Persist changes to DB.
@@ -154,48 +154,28 @@ public final class CoreDataRequestTest: CoreDataRootTest {
             return dummy
         })
 
-        let pureObjectsToBeSaved = [pureObjects2, pureObjects3].flatMap({$0})
-        _ = try! manager.constructUnsafely(context1, pureObjects1)
-        _ = try! manager.constructUnsafely(context2, pureObjectsToBeSaved)
+        let pureObjects23 = [pureObjects2, pureObjects3].flatMap({$0})
+        let cdObjects1 = try! manager.constructUnsafely(context1, pureObjects1)
+        let cdObjects23 = try! manager.constructUnsafely(context2, pureObjects23)
 
-        let saveRq = Req.builder()
-            .with(operation: .saveContext)
-            .with(saveContext: context1)
-            .build()
-
-        let saveGn = HMRequestGenerators.forceGenerateFn(saveRq, Any.self)
-        let savePs = HMResultProcessors.eqProcessor(Void.self)
+        let insertGn = dummy1InsertRgn(cdObjects1)
+        let insertPs = dummy1UpsertRps()
         let persistGn = dummyPersistRgn()
         let persistPs = dummyPersistRps()
-
-        let upsertRq = Req.builder()
-            .with(operation: .upsert)
-            .with(saveContext: context2)
-            .with(poType: Dummy1.self)
-            .build()
-
-        let upsertGn = HMRequestGenerators.forceGenerateFn(upsertRq, Any.self)
-        let upsertPs: HMEQResultProcessor<Void> = HMResultProcessors.eqProcessor()
-
-        let fetchRqAll = Req.builder()
-            .with(poType: Dummy1.self)
-            .with(predicate: NSPredicate(value: true))
-            .with(operation: .fetch)
-            .build()
-
-        let fetchGn = HMRequestGenerators.forceGenerateFn(fetchRqAll, Any.self)
+        let upsertGn = dummy1UpsertRgn(cdObjects23)
+        let upsertPs = dummy1UpsertRps()
+        let fetchGn = dummy1FetchRgn()
 
         /// When
         // Insert the first set of data.
-        dbProcessor.process(dummy, saveGn, savePs)
+        dbProcessor.process(dummy, insertGn, insertPs)
             .map({$0.map({$0 as Any})})
-            
+
             // Persist changes to DB.
             .flatMap({dbProcessor.process($0, persistGn, persistPs)})
             .map({$0.map({$0 as Any})})
-            
+
             .flatMap({dbProcessor.process($0, fetchGn, Dummy1.self)})
-            .logNext()
             .doOnNext({XCTAssertEqual($0.value?.count, times1)})
             .map({$0.map({$0 as Any})})
 
@@ -203,7 +183,7 @@ public final class CoreDataRequestTest: CoreDataRootTest {
             // data with the same ids as the first set of data.
             .flatMap({dbProcessor.process($0, upsertGn, upsertPs)})
             .map({$0.map({$0 as Any})})
-            
+
             // Persist changes to DB.
             .flatMap({dbProcessor.process($0, persistGn, persistPs)})
             .map({$0.map({$0 as Any})})
@@ -221,8 +201,8 @@ public final class CoreDataRequestTest: CoreDataRootTest {
         /// Then
         let nextElements = observer.nextElements()
         let nextDummies = nextElements.flatMap({$0.value})
-        XCTAssertEqual(nextElements.count, pureObjectsToBeSaved.count)
-        XCTAssertTrue(pureObjectsToBeSaved.all(satisfying: nextDummies.contains))
+        XCTAssertEqual(nextElements.count, pureObjects23.count)
+        XCTAssertTrue(pureObjects23.all(satisfying: nextDummies.contains))
         XCTAssertFalse(pureObjects1.any(satisfying: nextDummies.contains))
     }
     
@@ -237,13 +217,8 @@ public final class CoreDataRequestTest: CoreDataRootTest {
         let pureObjects = (0..<dummyCount).map({_ in Dummy1()})
         let cdObjects = try! manager.constructUnsafely(context, pureObjects)
         
-        let insertRq = HMCDRequest.builder()
-            .with(operation: .saveData)
-            .with(insertedData: cdObjects)
-            .build()
-        
-        let insertGn = HMRequestGenerators.forceGenerateFn(insertRq, Any.self)
-        let insertPs = dummyConvertibleInsertRps()
+        let insertGn = dummy1InsertRgn(cdObjects)
+        let insertPs = dummy1InsertRps()
         let persistGn = dummyPersistRgn()
         let persistPs = dummyPersistRps()
         let fetchGn = dummy1FetchRgn()
@@ -272,7 +247,6 @@ public final class CoreDataRequestTest: CoreDataRootTest {
     
     public func test_cdNonTypedRequestObject_shouldThrowErrorsIfNecessary() {
         var currentCheck = 0
-        let context = manager.mainObjectContext()
         let processor = cdProcessor!
         
         let checkError: (Req, Bool) -> Req = {
@@ -301,20 +275,46 @@ public final class CoreDataRequestTest: CoreDataRootTest {
         
         /// 3
         let request3 = checkError(request2.cloneBuilder()
-            .with(operation: .persistToFile)
+            .with(operation: .persistLocally)
             .build(), true)
         
-        /// 4
-        let request4 = checkError(request3.cloneBuilder()
-            .with(saveContext: context)
-            .build(), false)
-        
         /// End
-        _ = request4
+        _ = request3
     }
 }
 
 extension CoreDataRequestTest {
+    func dummy1InsertRequest(_ data: [Dummy1.CDClass]) -> Req {
+        return HMCDRequest.builder()
+            .with(operation: .saveData)
+            .with(insertedData: data)
+            .build()
+    }
+    
+    func dummy1InsertRgn(_ data: [Dummy1.CDClass]) -> HMAnyRequestGenerator<Req> {
+        return HMRequestGenerators.forceGenerateFn(dummy1InsertRequest(data))
+    }
+    
+    func dummy1InsertRps() -> HMResultProcessor<HMResult,Void> {
+        return {Observable.just($0).map(toVoid).map(Try.success)}
+    }
+    
+    func dummy1UpsertRequest(_ data: [Dummy1.CDClass]) -> Req {
+        return HMCDRequest.builder()
+            .with(operation: .upsert)
+            .with(poType: Dummy1.self)
+            .with(upsertedData: data)
+            .build()
+    }
+    
+    func dummy1UpsertRgn(_ data: [Dummy1.CDClass]) -> HMAnyRequestGenerator<Req> {
+        return HMRequestGenerators.forceGenerateFn(dummy1UpsertRequest(data), Any.self)
+    }
+    
+    func dummy1UpsertRps() -> HMResultProcessor<HMResult,Void> {
+        return {Observable.just($0).map(toVoid).map(Try.success)}
+    }
+
     func dummy1FetchRgn() -> HMRequestGenerator<Any,Req> {
         return HMRequestGenerators.forceGenerateFn(dummy1FetchRequest())
     }
@@ -322,32 +322,9 @@ extension CoreDataRequestTest {
     func dummy1FetchRps() -> HMCDTypedResultProcessor<Dummy1> {
         return {Observable.just(Try.success($0.asPureObject()))}
     }
-}
 
-extension CoreDataRequestTest {
-    func dummySaveContextRequest(_ context: NSManagedObjectContext) -> Req {
-        return Req.builder()
-            .with(operation: .saveContext)
-            .with(saveContext: context)
-            .build()
-    }
-
-    func dummySaveContextRgn(_ context: NSManagedObjectContext) -> HMRequestGenerator<Any,Req> {
-        return HMRequestGenerators.forceGenerateFn(dummySaveContextRequest(context))
-    }
-
-    func dummySaveContextRps() -> HMEQResultProcessor<Void> {
-        return HMResultProcessors.eqProcessor()
-    }
-    
-    func dummyConvertibleInsertRps() -> HMCDConvertibleResultProcessor<Void> {
-        return {Observable.just($0).map(toVoid).map(Try.success)}
-    }
-}
-
-extension CoreDataRequestTest {
     func dummyPersistRequest() -> Req {
-        return Req.builder().with(operation: .persistToFile).build()
+        return Req.builder().with(operation: .persistLocally).build()
     }
 
     func dummyPersistRgn() -> HMRequestGenerator<Any,Req> {
@@ -357,9 +334,7 @@ extension CoreDataRequestTest {
     func dummyPersistRps() -> HMEQResultProcessor<Void> {
         return HMResultProcessors.eqProcessor()
     }
-}
 
-extension CoreDataRequestTest {
     func dummyMemoryDeleteRequest(_ data: [NSManagedObject]) -> Req {
         return Req.builder()
             .with(operation: .delete)

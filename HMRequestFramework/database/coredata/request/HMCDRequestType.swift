@@ -32,17 +32,7 @@ public protocol HMCDRequestType: HMDatabaseRequestType {
     /// - Returns: A CoreDataOperation instance.
     func operation() throws -> CoreDataOperation
     
-    /// Get the context to perform a save operation. The context should contain
-    /// changes to be modified from memory.
-    ///
-    /// It is crucial that this context is a newly created disposable one (to
-    /// avoid shared state in the main context).
-    ///
-    /// - Returns: A NSManagedObjectContext instance.
-    /// - Throws: Exception if the context is not available.
-    func saveContext() throws -> NSManagedObjectContext
-    
-    /// Get the data to be inserted/upserted. Only used for save operations
+    /// Get the data to be inserted. Only used for save operations
     ///
     /// NSManagedObject will first be reconstructed using a disposable context,
     /// and then saved. This is essentially "passing objects among contexts",
@@ -52,6 +42,13 @@ public protocol HMCDRequestType: HMDatabaseRequestType {
     /// - Returns: An Array of HMCDConvertibleType.
     /// - Throws: Exception if the data is not available.
     func insertedData() throws -> [HMCDConvertibleType]
+    
+    /// Get the data to be upserted. Upsert works similarly to how insertion
+    /// does, but it will also check for version-controlled objects if present.
+    ///
+    /// - Returns: An Array of HMCDConvertibleType.
+    /// - Throws: Exception if the data is not available.
+    func upsertedData() throws -> [HMCDUpsertableType]
     
     /// Get the data to be deleted. Only used for delete operations.
     ///

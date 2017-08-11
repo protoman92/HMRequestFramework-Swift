@@ -72,9 +72,7 @@ public extension HMCDManager {
     /// - Returns: An Array of NSManagedObject.
     /// - Throws: Exception if the fetch fails.
     func blockingFetch<Val>(_ context: NSManagedObjectContext,
-                            _ request: NSFetchRequest<Val>) throws
-        -> [Val]
-    {
+                            _ request: NSFetchRequest<Val>) throws -> [Val] {
         return try context.fetch(request)
     }
     
@@ -110,7 +108,7 @@ public extension HMCDManager {
         return try blockingFetch(context, request, cls.CDClass.self)
     }
     
-    /// Refetch some NSManagedObject from DB.
+    /// Refetch some NSManagedObject from DB. This operation blocks.
     ///
     /// - Parameters:
     ///   - context: A NSManagedObjectContext instance.

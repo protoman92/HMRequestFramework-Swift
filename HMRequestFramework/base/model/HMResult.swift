@@ -6,31 +6,27 @@
 //  Copyright © 2017 Holmusk. All rights reserved.
 //
 
+import SwiftUtilities
+
 /// Use this class to represent the result of some operation that is applied
 /// to multiple items (e.g. in an Array), for which the result of each application
 /// could be relevant to downstream flow.
-public struct HMResult<Val> {
-    fileprivate var object: Val?
+public struct HMResult {
+    public static func just(_ obj: Any) -> HMResult {
+        return HMResult.builder().with(object: obj).build()
+    }
+    
+    fileprivate var object: Any?
     fileprivate var error: Error?
     
     fileprivate init() {}
     
-    public func appliedObject() -> Val? {
+    public func appliedObject() -> Any? {
         return object
     }
     
     public func operationError() -> Error? {
         return error
-    }
-    
-    public func map<Val1>(_ f: (Val?) -> Val1?) -> HMResult<Val1> {
-        let object = appliedObject()
-        let object1 = f(object)
-        
-        return HMResult<Val1>.builder()
-            .with(object: object1)
-            .with(error: operationError())
-            .build()
     }
 }
 
@@ -50,10 +46,10 @@ extension HMResult: HMBuildableType {
     }
     
     public final class Builder {
-        fileprivate var result: HMResult<Val>
+        fileprivate var result: HMResult
         
         fileprivate init() {
-            result = HMResult<Val>()
+            result = HMResult()
         }
         
         /// Set the object to which the operation was applied.
@@ -61,7 +57,7 @@ extension HMResult: HMBuildableType {
         /// - Parameter object: A Val instance.
         /// - Returns: The current Builder instance.
         @discardableResult
-        public func with(object: Val?) -> Self {
+        public func with(object: Any?) -> Self {
             result.object = object
             return self
         }
@@ -79,7 +75,7 @@ extension HMResult: HMBuildableType {
 }
 
 extension HMResult.Builder: HMBuilderType {
-    public typealias Buildable = HMResult<Val>
+    public typealias Buildable = HMResult
     
     public func with(buildable: Buildable) -> Self {
         return self
