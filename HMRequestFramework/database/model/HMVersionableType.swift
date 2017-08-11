@@ -49,9 +49,18 @@ public extension HMVersionBuildableType where
     Builder: HMVersionBuilderType,
     Builder.Buildable == Self
 {
+    
+    /// Clone the current object and set a specified version.
+    ///
+    /// - Parameter version: A String value.
+    /// - Returns: A versionable object.
+    public func cloneWithVersion(_ version: String) -> Self {
+        return cloneBuilder().with(version: version).build()
+    }
+    
     /// Clone the current object and bump version to one level higher.
     ///
-    /// - Returns: The current versionable object.
+    /// - Returns: A versionable object.
     public func cloneAndBumpVersion() -> Self {
         return cloneBuilder().with(version: oneVersionHigher()).build()
     }

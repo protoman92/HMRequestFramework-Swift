@@ -22,6 +22,16 @@ public struct HMResult<Val> {
     public func operationError() -> Error? {
         return error
     }
+    
+    public func map<Val1>(_ f: (Val?) -> Val1?) -> HMResult<Val1> {
+        let object = appliedObject()
+        let object1 = f(object)
+        
+        return HMResult<Val1>.builder()
+            .with(object: object1)
+            .with(error: operationError())
+            .build()
+    }
 }
 
 public extension HMResult {

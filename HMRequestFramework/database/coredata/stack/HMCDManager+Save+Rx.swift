@@ -81,9 +81,75 @@ public extension HMCDManager {
 
 public extension HMCDManager {
     
+    /// Save a Sequence of convertible objects to memory. These objects will
+    /// first be converted to a NSManagedObject and inserted into the specified
+    /// context.
+    ///
+    /// - Parameters:
+    ///   - context: A NSManagedObjectContext instance.
+    ///   - convertibles: A Sequence of HMCDConvertibleType.
+    /// - Returns: An Array of HMResult.
+    /// - Throws: Exception if the operation fails.
+    func saveUnsafely<S>(_ context: NSManagedObjectContext, _ convertibles: S)
+        -> [HMResult<S.Iterator.Element>] where
+        S: Sequence, S.Iterator.Element == HMCDConvertibleType
+    {
+        var results: [HMResult<S.Iterator.Element>] = []
+        
+        for item in convertibles {
+            let result: HMResult<S.Iterator.Element>
+            
+            do {
+                _ = try item.asManagedObject(context)
+                
+                result = HMResult<S.Iterator.Element>
+                    .builder()
+                    .with(object: item)
+                    .build()
+            } catch let e {
+                result = HMResult<S.Iterator.Element>
+                    .builder()
+                    .with(object: item)
+                    .with(error: e)
+                    .build()
+            }
+            
+            results.append(result)
+        }
+        
+        return results
+    }
+    
+    /// Save a Sequence of convertible objects to memory. The result will be
+    /// cast to some HMCDConvertibleType subtype.
+    ///
+    /// - Parameters:
+    ///   - context: A NSManagedObjectContext instance.
+    ///   - convertibles: A Sequence of HMCDConvertibleType.
+    /// - Returns: An Array of HMResult.
+    /// - Throws: Exception if the operation fails.
+    func saveUnsafely<U,S>(_ context: NSManagedObjectContext,
+                           _ convertibles: S) -> [HMResult<U>] where
+        U: HMCDConvertibleType, S: Sequence, S.Iterator.Element == U
+    {
+        return saveUnsafely(context, convertibles.map({$0 as HMCDConvertibleType}))
+            .map({$0.map({$0 as? U})})
+            .filter({$0.appliedObject() == nil})
+    }
+    
+    /// Save a Sequence of convertible objects to memory using a default context.
+    ///
+    /// - Parameters convertibles: A Sequence of HMCDConvertibleType.
+    /// - Returns: An Array of HMResult.
+    /// - Throws: Exception if the operation fails.
+    func saveUnsafely<U,S>(_ convertibles: S) -> [HMResult<U>] where
+        U: HMCDConvertibleType, S: Sequence, S.Iterator.Element == U
+    {
+        let context = disposableObjectContext()
+        return saveUnsafely(context, convertibles)
+    }
+    
     /// Save a Sequence of convertible objects to memory and observe the process.
-    /// These objects will first be converted to a NSManagedObject and inserted
-    /// into the specified context.
     ///
     /// - Parameters:
     ///   - convertibles: A Sequence of HMCDConvertibleType.
@@ -95,29 +161,34 @@ public extension HMCDManager {
         let context = disposableObjectContext()
         
         performOnContextThread(context) {
+            let results = self.saveUnsafely(context, convertibles)
+            
             do {
-                var results: [HMResult<S.Iterator.Element>] = []
-                
-                for item in convertibles {
-                    let result: HMResult<S.Iterator.Element>
-                    
-                    do {
-                        _ = try item.asManagedObject(context)
-                        result = HMResult<S.Iterator.Element>
-                            .builder()
-                            .with(object: item)
-                            .build()
-                    } catch let e {
-                        result = HMResult<S.Iterator.Element>
-                            .builder()
-                            .with(object: item)
-                            .with(error: e)
-                            .build()
-                    }
-                    
-                    results.append(result)
-                }
-                
+                try self.saveUnsafely(context)
+                obs.onNext(results)
+                obs.onCompleted()
+            } catch let e {
+                obs.onError(e)
+            }
+        }
+    }
+    
+    /// Save a Sequence of convertible objects to memory and observe the process.
+    ///
+    /// - Parameters:
+    ///   - convertibles: A Sequence of HMCDConvertibleType.
+    ///   - obs: An ObserverType instance.
+    func save<U,S,O>(_ convertibles: S, _ obs: O) where
+        U: HMCDConvertibleType,
+        S: Sequence, S.Iterator.Element == U,
+        O: ObserverType, O.E == [HMResult<U>]
+    {
+        let context = disposableObjectContext()
+        
+        performOnContextThread(context) {
+            let results = self.saveUnsafely(context, convertibles)
+            
+            do {
                 try self.saveUnsafely(context)
                 obs.onNext(results)
                 obs.onCompleted()

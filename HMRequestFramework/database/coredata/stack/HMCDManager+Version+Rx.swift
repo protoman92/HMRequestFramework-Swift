@@ -10,14 +10,15 @@ import CoreData
 import RxSwift
 import SwiftUtilities
 
-public extension HMVersionUpdateRequest where VC: HMCDIdentifiableType {
+// Just a bit of utility here, not going to expose publicly.
+fileprivate extension HMVersionUpdateRequest where VC: HMCDIdentifiableType {
     
     /// Check if the current request possesses an edited object.
     ///
     /// - Parameter obj: A VC instance.
     /// - Returns: A Bool value.
-    public func ownsEditedObject(_ obj: VC) throws -> Bool {
-        return try editedVC().identifiable(as: obj)
+    fileprivate func ownsEditedVC(_ obj: VC) -> Bool {
+        return (try? editedVC().identifiable(as: obj)) ?? false
     }
 }
 
@@ -127,6 +128,7 @@ public extension HMCDManager {
                                _ entityName: String,
                                _ requests: S,
                                _ obs: O) where
+        VC: HMCDConvertibleType,
         VC: HMCDIdentifiableType,
         VC: HMCDVersionableType,
         VC: HMCDVersionBuildableType,
@@ -145,18 +147,23 @@ public extension HMCDManager {
                 let originals = try self.blockingRefetch(context, entityName, identifiables)
                 var results: [HMResult<VC>] = []
                 
+                // We also need an Array of VC to store items that cannot be
+                // found in the DB yet.
+                var nonExisting: [VC] = []
+                
                 for id in identifiables {
                     if
                         let original = originals.first(where: id.identifiable),
-                        let request = requests.first(where: {
-                            (try? $0.ownsEditedObject(id)) ?? false
-                        })
+                        let request = requests.first(where: {($0.ownsEditedVC(id))})?
+                            .cloneBuilder()
+                            .with(original: original)
+                            .with(edited: id)
+                            .build()
                     {
                         let result: HMResult<VC>
-                        let cloned = request.cloneBuilder().with(original: original).build()
                         
                         do {
-                            try self.updateVersionUnsafely(context, cloned)
+                            try self.updateVersionUnsafely(context, request)
                             result = HMResult<VC>.builder().with(object: id).build()
                         } catch let e {
                             result = HMResult<VC>.builder()
@@ -166,10 +173,18 @@ public extension HMCDManager {
                         }
                         
                         results.append(result)
+                    } else {
+                        nonExisting.append(id)
                     }
                 }
                 
                 try self.saveUnsafely(context)
+                
+                // For items that do not exist in the DB yet, simply save them.
+                // Since these objects are convertible, we can reconstruct them
+                // as NSManagedObject instances and insert into a disposable
+                // context.
+                results.append(contentsOf: self.saveUnsafely(nonExisting))
                 obs.onNext(results)
                 obs.onCompleted()
             } catch let e {
@@ -193,6 +208,7 @@ extension Reactive where Base: HMCDManager {
                                     _ entityName: String,
                                     _ requests: S)
         -> Observable<[HMResult<VC>]> where
+        VC: HMCDConvertibleType,
         VC: HMCDIdentifiableType,
         VC: HMCDVersionableType,
         VC: HMCDVersionBuildableType,
@@ -218,6 +234,7 @@ extension Reactive where Base: HMCDManager {
     /// - Throws: Exception if the operation fails.
     public func updateVersion<VC,S>(_ entityName: String, _ requests: S)
         -> Observable<[HMResult<VC>]> where
+        VC: HMCDConvertibleType,
         VC: HMCDIdentifiableType,
         VC: HMCDVersionableType,
         VC: HMCDVersionBuildableType,

@@ -143,8 +143,8 @@ public final class CoreDataRequestTest: CoreDataRootTest {
         // should the operations share a disposable context.
         let context1 = manager.disposableObjectContext()
         let context2 = manager.disposableObjectContext()
-        let times1 = 1
-        let times2 = 2
+        let times1 = 1000
+        let times2 = 2000
         let poData1 = (0..<times1).map({_ in Dummy1()})
         let poData2 = (0..<times2).map({_ in Dummy1()})
 
@@ -155,8 +155,8 @@ public final class CoreDataRequestTest: CoreDataRootTest {
         })
 
         let poData23 = [poData2, poData3].flatMap({$0})
-        let data1 = try! manager.constructUnsafely(context1, poData1)
-        let data23 = try! manager.constructUnsafely(context2, poData23)
+        _ = try! manager.constructUnsafely(context1, poData1)
+        _ = try! manager.constructUnsafely(context2, poData23)
 
         let saveRq = Req.builder()
             .with(operation: .saveContext)
