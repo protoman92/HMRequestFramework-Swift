@@ -119,7 +119,9 @@ public class Dummy1Builder<D1: Dummy1Type> {
     }
 }
 
-extension CDDummy1: HMCDObjectMasterType {
+extension CDDummy1: Dummy1Type {}
+
+extension CDDummy1: HMCDVersionableMasterType {
     public typealias PureObject = Dummy1
     
     public static func cdAttributes() throws -> [NSAttributeDescription]? {
@@ -156,20 +158,6 @@ extension CDDummy1: HMCDObjectMasterType {
         ]
     }
     
-    public static func builder(_ context: NSManagedObjectContext) throws -> Builder {
-        return try Builder(Dummy1.CDClass.init(context))
-    }
-    
-    public final class Builder: Dummy1Builder<CDDummy1> {
-        fileprivate override init(_ cdo: PureObject.CDClass) {
-            super.init(cdo)
-        }
-    }
-}
-
-extension CDDummy1: Dummy1Type {}
-
-extension CDDummy1: HMCDVersionableMasterType {    
     public func currentVersion() -> String? {
         if let version = self.version {
             return String(describing: version)
@@ -193,9 +181,31 @@ extension CDDummy1: HMCDVersionableMasterType {
             throw Exception("Version not available")
         }
     }
+    
+    public func updateVersion(_ version: String?) {
+        if let version = version, let dbl = Double(version) {
+            self.version = NSNumber(value: dbl).intValue as NSNumber
+        }
+    }
+    
+    public static func builder(_ context: NSManagedObjectContext) throws -> Builder {
+        return try Builder(Dummy1.CDClass.init(context))
+    }
+    
+    public final class Builder: Dummy1Builder<CDDummy1> {
+        fileprivate override init(_ cdo: PureObject.CDClass) {
+            super.init(cdo)
+        }
+    }
 }
 
-extension CDDummy1.Builder: HMCDObjectBuilderMasterType {
+extension CDDummy1: HMCDKeyValueUpdatableType {
+    public func updateKeys() -> [String] {
+        return ["id", "date", "int64", "float", "version"]
+    }
+}
+
+extension CDDummy1.Builder: HMCDVersionableBuilderMasterType {
     public typealias PureObject = Dummy1
     
     public func with(pureObject: PureObject) -> Self {
@@ -205,10 +215,6 @@ extension CDDummy1.Builder: HMCDObjectBuilderMasterType {
     public func with(buildable: Buildable) -> Self {
         return with(dummy1: buildable)
     }
-}
-
-extension CDDummy1.Builder: HMCDVersionableBuilderMasterType {
-    public typealias Buildable = CDDummy1
 }
 
 extension Dummy1: Equatable {

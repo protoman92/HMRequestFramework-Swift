@@ -65,5 +65,4 @@ extension HMCDManager {
 }
 
 extension HMCDManager: HMCDBlockPerformerType {}
-extension HMCDManager: HMCDObjectConstructorType {}
 extension HMCDManager: ReactiveCompatible {}

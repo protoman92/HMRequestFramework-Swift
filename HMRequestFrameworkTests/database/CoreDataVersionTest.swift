@@ -113,6 +113,7 @@ public final class CoreDataVersionTest: CoreDataRootTest {
             }
         }
         
+        XCTAssertEqual(nextElements.count, dummyCount)
         XCTAssertEqual(resultOverwriteCount, overwriteCount)
         XCTAssertEqual(otherCount, errorCount + takePreferableCount)
     }
@@ -161,6 +162,7 @@ public final class CoreDataVersionTest: CoreDataRootTest {
         
         /// Then
         let nextElements = observer.nextElements()
+        XCTAssertEqual(nextElements.count, toBeSaved.count)
         XCTAssertTrue(toBeSaved.all(satisfying: nextElements.contains))
     }
 }

@@ -12,7 +12,7 @@ import SwiftUtilities
 
 /// Classes that implement this protocol must be able to perform CoreData
 /// requests and process the result.
-public protocol HMCDRequestProcessorType: HMRequestHandlerType, HMCDObjectConstructorType {
+public protocol HMCDRequestProcessorType: HMRequestHandlerType {
     
     /// Perform a CoreData get request with required dependencies. This method
     /// should be used for CoreData operations whose results are constrained

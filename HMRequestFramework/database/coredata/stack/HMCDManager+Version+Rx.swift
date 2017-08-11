@@ -34,7 +34,9 @@ public extension HMCDManager {
     func resolveVersionConflictUnsafely<VC>(
         _ context: NSManagedObjectContext,
         _ request: HMVersionUpdateRequest<VC>) throws where
+        VC: HMCDUpdatableType,
         VC: HMCDVersionableType,
+        VC: HMCDVersionUpdatableType,
         VC: HMCDVersionBuildableType,
         VC.Builder: HMCDVersionBuilderType,
         VC.Builder.Buildable == VC
@@ -72,22 +74,22 @@ public extension HMCDManager {
     func attempVersionUpdateUnsafely<VC>(
         _ context: NSManagedObjectContext,
         _ request: HMVersionUpdateRequest<VC>) throws where
+        VC: HMCDUpdatableType,
         VC: HMCDVersionableType,
+        VC: HMCDVersionUpdatableType,
         VC: HMCDVersionBuildableType,
         VC.Builder: HMCDVersionBuilderType,
         VC.Builder.Buildable == VC
     {
         let original = try request.originalVC()
         let edited = try request.editedVC()
+        let newVersion = edited.oneVersionHigher()
         
-        // The original object should be managed by the parameter context,
-        // or this will raise an error.
-        context.delete(original.asManagedObject())
-        
-        // When we call this method, we bump the edited object's version and
-        // insert the new clone in the specified context. Calling context.save()
-        // will propagate this clone upwards.
-        try edited.cloneAndBumpVersion(context)
+        // The original object should be managed by the parameter context.
+        // We update the original object by mutating it - under other circumstances,
+        // this is not recommended.
+        original.update(from: edited)
+        original.updateVersion(newVersion)
     }
     
     /// Update some object with version bump. Resolve any conflict if necessary.
@@ -100,7 +102,9 @@ public extension HMCDManager {
     func updateVersionUnsafely<VC>(
         _ context: NSManagedObjectContext,
         _ request: HMVersionUpdateRequest<VC>) throws where
+        VC: HMCDUpdatableType,
         VC: HMCDVersionableType,
+        VC: HMCDVersionUpdatableType,
         VC: HMCDVersionBuildableType,
         VC.Builder: HMCDVersionBuilderType,
         VC.Builder.Buildable == VC
@@ -134,7 +138,9 @@ public extension HMCDManager {
                                _ obs: O) where
         VC: HMCDConvertibleType,
         VC: HMCDIdentifiableType,
+        VC: HMCDUpdatableType,
         VC: HMCDVersionableType,
+        VC: HMCDVersionUpdatableType,
         VC: HMCDVersionBuildableType,
         VC.Builder: HMCDVersionBuilderType,
         VC.Builder.Buildable == VC,
@@ -216,7 +222,9 @@ extension Reactive where Base: HMCDManager {
         -> Observable<[HMResult<VC>]> where
         VC: HMCDConvertibleType,
         VC: HMCDIdentifiableType,
+        VC: HMCDUpdatableType,
         VC: HMCDVersionableType,
+        VC: HMCDVersionUpdatableType,
         VC: HMCDVersionBuildableType,
         VC.Builder: HMCDVersionBuilderType,
         VC.Builder.Buildable == VC,
@@ -242,7 +250,9 @@ extension Reactive where Base: HMCDManager {
         -> Observable<[HMResult<VC>]> where
         VC: HMCDConvertibleType,
         VC: HMCDIdentifiableType,
+        VC: HMCDUpdatableType,
         VC: HMCDVersionableType,
+        VC: HMCDVersionUpdatableType,
         VC: HMCDVersionBuildableType,
         VC.Builder: HMCDVersionBuilderType,
         VC.Builder.Buildable == VC,

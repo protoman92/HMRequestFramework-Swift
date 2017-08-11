@@ -31,8 +31,15 @@ public protocol HMCDPureObjectBuilderMasterType: HMCDPureObjectBuilderType {}
 
 /// Versionable classes should implement this protocol to guarantee conformance
 /// to required sub-protocols.
-public protocol HMCDVersionableMasterType: HMCDVersionableType, HMCDVersionBuildableType {}
+public protocol HMCDVersionableMasterType:
+    HMCDObjectMasterType,
+    HMCDUpdatableType,
+    HMCDVersionableType,
+    HMCDVersionUpdatableType,
+    HMCDVersionBuildableType {}
 
 /// Versionable Builders should implement this protocol to guarantee conformance
 /// to required sub-protocols.
-public protocol HMCDVersionableBuilderMasterType: HMCDVersionBuilderType {}
+public protocol HMCDVersionableBuilderMasterType:
+    HMCDObjectBuilderMasterType,
+    HMCDVersionBuilderType {}
