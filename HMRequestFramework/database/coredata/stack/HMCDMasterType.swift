@@ -10,7 +10,7 @@
 /// required sub-protocols.
 public protocol HMCDObjectMasterType:
     HMCDObjectType,
-    HMCDObjectConvertibleType,
+    HMCDConvertibleType,
     HMCDObjectBuildableType,
     HMCDPureObjectConvertibleType {}
 

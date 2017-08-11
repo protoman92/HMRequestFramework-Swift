@@ -42,6 +42,17 @@ public protocol HMCDRequestType: HMDatabaseRequestType {
     /// - Throws: Exception if the context is not available.
     func saveContext() throws -> NSManagedObjectContext
     
+    /// Get the data to be inserted/upserted. Only used for save operations
+    ///
+    /// NSManagedObject will first be reconstructed using a disposable context,
+    /// and then saved. This is essentially "passing objects among contexts",
+    /// but we do so with the help of Builders. There is no risk of bad access
+    /// this way.
+    ///
+    /// - Returns: An Array of HMCDConvertibleType.
+    /// - Throws: Exception if the data is not available.
+    func insertedData() throws -> [HMCDConvertibleType]
+    
     /// Get the data to be deleted. Only used for delete operations.
     ///
     /// The reason why we can specify exactly the data to delete (instead of

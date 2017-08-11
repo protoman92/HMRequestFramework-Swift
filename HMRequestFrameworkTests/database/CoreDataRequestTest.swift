@@ -45,7 +45,7 @@ public final class CoreDataRequestTest: CoreDataRootTest {
         /// Setup
         let observer = scheduler.createObserver(Try<Any>.self)
         let expect = expectation(description: "Should have completed")
-        let dbProcessor = self.dbProcessor!
+        let dbProcessor = self.dbProcessor!.processor
         let generator = errorDBRgn()
         let processor = errorDBRps()
         
@@ -136,7 +136,7 @@ public final class CoreDataRequestTest: CoreDataRootTest {
         let observer = scheduler.createObserver(Try<Dummy1>.self)
         let expect = expectation(description: "Should have completed")
         let manager = self.manager!
-        let dbProcessor = self.dbProcessor!
+        let dbProcessor = self.dbProcessor!.processor
 
         // We need 2 contexts here because we will perform 2 operations:
         // persist data1 to DB, and upsert data23. Under no circumstances

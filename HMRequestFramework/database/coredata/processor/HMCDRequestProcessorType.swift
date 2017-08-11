@@ -20,8 +20,19 @@ public protocol HMCDRequestProcessorType: HMRequestHandlerType, HMCDObjectConstr
     ///
     /// - Parameter request: A Req instance.
     /// - Returns: An Observable instance.
+    /// - Throws: Exception if the operation fails.
     func executeTyped<Val>(_ request: Req) throws -> Observable<Try<[Val]>>
         where Val: NSFetchRequestResult
+    
+    /// Perform a CoreData save request with required dependencies. This
+    /// method returns an Observable that emits the success/failure status of
+    /// each item that is saved.
+    ///
+    /// - Parameter request: A Req instance.
+    /// - Returns: An Observable instance.
+    /// - Throws: Exception if the operation fails.
+    func executeConvertible(_ request: Req) throws
+        -> Observable<Try<[HMResult<HMCDConvertibleType>]>>
     
     /// Perform a CoreData request with required dependencies.
     ///
@@ -34,22 +45,24 @@ public protocol HMCDRequestProcessorType: HMRequestHandlerType, HMCDObjectConstr
 }
 
 public extension HMCDRequestProcessorType {
-
-    /// Perform a CoreData get request and process the result.
+    
+    /// Perform a CoreData typed request, which returns an Observable that emits
+    /// a Try containing an Array of some result, and process the result.
     ///
     /// - Parameters:
     ///   - previous: The result of the upstream request.
     ///   - generator: Generator function to create the current request.
+    ///   - perform: Perform function to execute the request.
     ///   - processor: Processor function to process the request result.
     /// - Returns: An Observable instance.
-    public func process<Prev,Val,Res>(
+    private func process<Prev,Val,Res>(
         _ previous: Try<Prev>,
         _ generator: @escaping HMRequestGenerator<Prev,Req>,
+        _ perform: @escaping (Req) throws -> Observable<Try<[Val]>>,
         _ processor: @escaping HMResultProcessor<Val,Res>)
-        -> Observable<Try<[Try<Res>]>> where
-        Val: NSFetchRequestResult
+        -> Observable<Try<[Try<Res>]>>
     {
-        return execute(previous, generator, executeTyped)
+        return execute(previous, generator, perform)
             .map({try $0.getOrThrow()})
             .flatMap({(vals: [Val]) -> Observable<[Try<Res>]> in
                 // We need to process the CoreData objects right within the
@@ -70,6 +83,40 @@ public extension HMCDRequestProcessorType {
             })
             .map(Try.success)
             .catchErrorJustReturn(Try.failure)
+    }
+
+    /// Perform a CoreData get request and process the result.
+    ///
+    /// - Parameters:
+    ///   - previous: The result of the upstream request.
+    ///   - generator: Generator function to create the current request.
+    ///   - processor: Processor function to process the request result.
+    /// - Returns: An Observable instance.
+    public func process<Prev,Val,Res>(
+        _ previous: Try<Prev>,
+        _ generator: @escaping HMRequestGenerator<Prev,Req>,
+        _ processor: @escaping HMResultProcessor<Val,Res>)
+        -> Observable<Try<[Try<Res>]>> where
+        Val: NSFetchRequestResult
+    {
+        return process(previous, generator, executeTyped, processor)
+    }
+    
+    /// Perform a CoreData save data request and process the result.
+    ///
+    /// - Parameters:
+    ///   - previous: The result of the upstream request.
+    ///   - generator: Generator function to create the current request.
+    ///   - processor: Processor function to process the request result.
+    /// - Returns: An Observable instance.
+    public func process<Prev,Res>(
+        _ previous: Try<Prev>,
+        _ generator: @escaping HMRequestGenerator<Prev,Req>,
+        _ processor: @escaping HMResultProcessor<HMResult<HMCDConvertibleType>,Res>)
+        -> Observable<Try<[Try<Res>]>>
+    {
+        return process(previous, generator, executeConvertible, processor)
+
     }
     
     /// Perform a CoreData get request and process the result into a pure object.

@@ -16,14 +16,16 @@ public struct HMCDRequest {
     fileprivate var nsSortDescriptors: [NSSortDescriptor]
     fileprivate var cdOperation: CoreDataOperation?
     fileprivate var cdSaveContext: NSManagedObjectContext?
+    fileprivate var cdInsertedData: [HMCDConvertibleType]
     fileprivate var cdDeletedData: [NSManagedObject]
     fileprivate var retryCount: Int
     fileprivate var middlewaresEnabled: Bool
     fileprivate var rqDescription: String?
     
     fileprivate init() {
-        nsSortDescriptors = []
+        cdInsertedData = []
         cdDeletedData = []
+        nsSortDescriptors = []
         retryCount = 1
         middlewaresEnabled = false
     }
@@ -102,7 +104,7 @@ extension HMCDRequest: HMBuildableType {
         public func with<S>(sortDescriptors: S?) -> Self where
             S: Sequence, S.Iterator.Element: NSSortDescriptor
         {
-            return with(sortDescriptors: sortDescriptors?.map({$0}))
+            return with(sortDescriptors: sortDescriptors?.map({$0 as NSSortDescriptor}))
         }
         
         /// Set the sort descriptors.
@@ -141,6 +143,32 @@ extension HMCDRequest: HMBuildableType {
         public func with(saveContext: NSManagedObjectContext?) -> Self {
             request.cdSaveContext = saveContext
             return self
+        }
+        
+        /// Set the data to insert.
+        ///
+        /// - Parameter insertedData: A Sequence of HMCDConvertibleType.
+        /// - Returns: The current Builder instance.
+        @discardableResult
+        public func with<S>(insertedData: S?) -> Self where
+            S: Sequence, S.Iterator.Element == HMCDConvertibleType
+        {
+            if let data = insertedData {
+                request.cdInsertedData.append(contentsOf: data)
+            }
+            
+            return self
+        }
+        
+        /// Set the data to insert.
+        ///
+        /// - Parameter insertedData: A Sequence of HMCDConvertibleType.
+        /// - Returns: The current Builder instance.
+        @discardableResult
+        public func with<S>(insertedData: S?) -> Self where
+            S: Sequence, S.Iterator.Element: HMCDConvertibleType
+        {
+            return with(insertedData: insertedData?.map({$0 as HMCDConvertibleType}))
         }
         
         /// Set the data to delete.
@@ -193,6 +221,7 @@ extension HMCDRequest.Builder: HMProtocolConvertibleBuilderType {
             .with(predicate: try? generic.predicate())
             .with(sortDescriptors: try? generic.sortDescriptors())
             .with(saveContext: try? generic.saveContext())
+            .with(insertedData: try? generic.insertedData())
             .with(deletedData: try? generic.deletedData())
             .with(retries: generic.retries())
             .with(applyMiddlewares: generic.applyMiddlewares())
@@ -284,6 +313,10 @@ extension HMCDRequest: HMCDRequestType {
         } else {
             throw Exception("Context to save cannot be nil")
         }
+    }
+    
+    public func insertedData() throws -> [HMCDConvertibleType] {
+        return cdInsertedData
     }
     
     public func deletedData() throws -> [NSManagedObject] {

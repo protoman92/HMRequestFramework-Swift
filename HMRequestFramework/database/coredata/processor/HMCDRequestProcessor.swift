@@ -76,6 +76,39 @@ extension HMCDRequestProcessor: HMCDRequestProcessorType {
             .catchErrorJustReturn(Try.failure)
     }
     
+    /// Overwrite this method to provide default implementation.
+    ///
+    /// - Parameter request: A Req instance.
+    /// - Returns: An Observable instance.
+    /// - Throws: Exception if the operation fails.
+    public func executeConvertible(_ request: Req) throws
+        -> Observable<Try<[HMResult<HMCDConvertibleType>]>>
+    {
+        switch try request.operation() {
+        case .saveData:
+            return try executeSaveData(request)
+            
+        default:
+            throw Exception("Please use normal execute for void return values")
+        }
+    }
+    
+    /// Perform a CoreData saveData operation.
+    ///
+    /// - Parameter request: A Req instance.
+    /// - Returns: An Observable instance.
+    /// - Throws: Exception if the execution fails.
+    private func executeSaveData(_ request: Req) throws
+        -> Observable<Try<[HMResult<HMCDConvertibleType>]>> {
+            let manager = coreDataManager()
+            let insertedData = try request.insertedData()
+            
+            return manager.rx.save(insertedData)
+                .retry(request.retries())
+                .map(Try.success)
+                .catchErrorJustReturn(Try.failure)
+    }
+    
     /// Override this method to provide default implementation.
     ///
     /// - Parameter request: A Req instance.
@@ -97,7 +130,7 @@ extension HMCDRequestProcessor: HMCDRequestProcessorType {
         case .upsert:
             return try executeUpsert(request)
             
-        case .fetch:
+        case .fetch, .saveData:
             throw Exception("Please use typed execute for typed return values")
         }
     }

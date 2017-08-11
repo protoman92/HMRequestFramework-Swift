@@ -86,10 +86,10 @@ public extension HMCDManager {
     /// into the specified context.
     ///
     /// - Parameters:
-    ///   - convertibles: A Sequence of HMCDObjectConvertibleType.
+    ///   - convertibles: A Sequence of HMCDConvertibleType.
     ///   - obs: An ObserverType instance.
     func save<S,O>(_ convertibles: S, _ obs: O) where
-        S: Sequence, S.Iterator.Element == HMCDObjectConvertibleType,
+        S: Sequence, S.Iterator.Element == HMCDConvertibleType,
         O: ObserverType, O.E == [HMResult<S.Iterator.Element>]
     {
         let context = disposableObjectContext()
@@ -191,10 +191,10 @@ public extension Reactive where Base: HMCDManager {
     
     /// Save a Sequence of convertible objects to memory and observe the process.
     ///
-    /// - Parameters convertibles: A Sequence of HMCDObjectConvertibleType.
+    /// - Parameters convertibles: A Sequence of HMCDConvertibleType.
     /// - Return: An Observable instance.
     func save<S>(_ convertibles: S) -> Observable<[HMResult<S.Iterator.Element>]> where
-        S: Sequence, S.Iterator.Element == HMCDObjectConvertibleType
+        S: Sequence, S.Iterator.Element == HMCDConvertibleType
     {
         return Observable<[HMResult<S.Iterator.Element>]>.create({
             self.base.save(convertibles, $0)
@@ -204,14 +204,14 @@ public extension Reactive where Base: HMCDManager {
     
     /// Save a Sequence of convertible objects to memory and observe the process.
     ///
-    /// - Parameters convertibles: A Sequence of HMCDObjectConvertibleType.
+    /// - Parameters convertibles: A Sequence of HMCDConvertibleType.
     /// - Return: An Observable instance.
     func save<S,OC>(_ convertibles: S)
-        -> Observable<[HMResult<HMCDObjectConvertibleType>]> where
-        OC: HMCDObjectConvertibleType,
+        -> Observable<[HMResult<HMCDConvertibleType>]> where
+        OC: HMCDConvertibleType,
         S: Sequence, S.Iterator.Element == OC
     {
-        return save(convertibles.map({$0 as HMCDObjectConvertibleType}))
+        return save(convertibles.map({$0 as HMCDConvertibleType}))
     }
 }
 

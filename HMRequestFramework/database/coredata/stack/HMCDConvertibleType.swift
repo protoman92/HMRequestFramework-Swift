@@ -1,5 +1,5 @@
 //
-//  HMCDObjectConvertibleType.swift
+//  HMCDConvertibleType.swift
 //  HMRequestFramework
 //
 //  Created by Hai Pham on 10/8/17.
@@ -10,7 +10,7 @@ import CoreData
 
 /// Classes that implement this protocol must be able to convert itself into
 /// a NSManagedObject.
-public protocol HMCDObjectConvertibleType {
+public protocol HMCDConvertibleType {
     
     /// Convert the current object into a NSManagedObject. If this is already
     /// a NSManagedObject, clone it and insert the clone into the specified
@@ -23,7 +23,7 @@ public protocol HMCDObjectConvertibleType {
     func asManagedObject(_ context: NSManagedObjectContext) throws -> NSManagedObject
 }
 
-public extension HMCDObjectConvertibleType where
+public extension HMCDConvertibleType where
     Self: HMCDObjectBuildableType,
     Self.Builder.Buildable == Self
 {
