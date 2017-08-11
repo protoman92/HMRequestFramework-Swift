@@ -29,11 +29,25 @@ public extension HMCDVersionBuildableType where
     Builder: HMCDVersionBuilderType,
     Builder.Buildable == Self
 {
+    
+    /// Clone the current object and assign a specified version to it.
+    ///
+    /// - Parameters:
+    ///   - context: A NSManagedObjectContext instance.
+    ///   - version: A String value.
+    /// - Returns: The current Buildable instance.
+    /// - Throws: Exception if the operation fails.
+    public func cloneWithVersion(_ context: NSManagedObjectContext,
+                                 _ version: String?) throws -> Self {
+        return try cloneBuilder(context).with(version: version).build()
+    }
+    
     /// Clone the current object and bump version to one level higher.
     ///
-    /// - Returns: The current versionable object.
+    /// - Parameters context: A NSManagedObjectContext instance.
+    /// - Returns: The current Buildable instance.
     @discardableResult
-    public func cloneAndBumpVersion(_ context: NSManagedObjectContext) throws -> Builder {
-        return try cloneBuilder(context).with(version: oneVersionHigher())
+    public func cloneAndBumpVersion(_ context: NSManagedObjectContext) throws -> Self {
+        return try cloneBuilder(context).with(version: oneVersionHigher()).build()
     }
 }

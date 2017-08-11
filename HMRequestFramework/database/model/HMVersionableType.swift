@@ -54,7 +54,7 @@ public extension HMVersionBuildableType where
     ///
     /// - Parameter version: A String value.
     /// - Returns: A versionable object.
-    public func cloneWithVersion(_ version: String) -> Self {
+    public func cloneWithVersion(_ version: String?) -> Self {
         return cloneBuilder().with(version: version).build()
     }
     

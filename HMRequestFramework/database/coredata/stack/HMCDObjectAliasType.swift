@@ -9,7 +9,7 @@
 import CoreData
 
 /// CoreData classes must implement this protocol.
-public protocol HMCDObjectAliasType: NSFetchRequestResult {
+public protocol HMCDObjectAliasType {
     
     /// Convert the current alias into NSManagedObject.
     ///

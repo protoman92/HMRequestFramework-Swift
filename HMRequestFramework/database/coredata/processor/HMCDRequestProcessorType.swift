@@ -112,7 +112,7 @@ public extension HMCDRequestProcessorType {
     public func process<Prev,Res>(
         _ previous: Try<Prev>,
         _ generator: @escaping HMRequestGenerator<Prev,Req>,
-        _ processor: @escaping HMResultProcessor<HMResult<HMCDConvertibleType>,Res>)
+        _ processor: @escaping HMCDConvertibleResultProcessor<Res>)
         -> Observable<Try<[Try<Res>]>>
     {
         return process(previous, generator, executeConvertible, processor)

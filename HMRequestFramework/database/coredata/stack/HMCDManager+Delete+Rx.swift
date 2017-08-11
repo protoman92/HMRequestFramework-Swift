@@ -47,7 +47,10 @@ public extension HMCDManager {
     public func deleteUnsafely<U,S>(_ context: NSManagedObjectContext,
                                     _ entityName: String,
                                     _ identifiables: S) throws where
-        U: HMCDIdentifiableType, S: Sequence, S.Iterator.Element == U
+        U: NSFetchRequestResult,
+        U: HMCDIdentifiableType,
+        S: Sequence,
+        S.Iterator.Element == U
     {
         let data = try blockingRefetch(context, entityName, identifiables)
             .map({$0.asManagedObject()})
@@ -98,6 +101,7 @@ public extension HMCDManager {
     public func delete<U,S,O>(_ entityName: String,
                               _ identifiables: S,
                               _ obs: O) where
+        U: NSFetchRequestResult,
         U: HMCDIdentifiableType,
         S: Sequence, S.Iterator.Element == U,
         O: ObserverType, O.E == Void
@@ -147,7 +151,10 @@ public extension Reactive where Base: HMCDManager {
     /// - Throws: Exception if the delete fails.
     public func delete<U,S>(_ entityName: String, _ identifiables: S)
         -> Observable<Void> where
-        U: HMCDIdentifiableType, S: Sequence, S.Iterator.Element == U
+        U: NSFetchRequestResult,
+        U: HMCDIdentifiableType,
+        S: Sequence,
+        S.Iterator.Element == U
     {
         return Observable.create(({(obs: AnyObserver<Void>) in
             self.base.delete(entityName, identifiables, obs)

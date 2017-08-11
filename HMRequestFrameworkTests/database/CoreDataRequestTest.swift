@@ -73,7 +73,7 @@ public final class CoreDataRequestTest: CoreDataRootTest {
         XCTAssertEqual(first.error!.localizedDescription, generatorError)
     }
     
-    public func test_insertAndDeleteRandomDummiesWithProcessor_shouldWork() {
+    public func test_insertAndDeleteRandomDummies_shouldWork() {
         /// Setup
         let observer = scheduler.createObserver(Try<Any>.self)
         let expect = expectation(description: "Should have completed")
@@ -189,9 +189,6 @@ public final class CoreDataRequestTest: CoreDataRootTest {
         // Insert the first set of data.
         dbProcessor.process(dummy, saveGn, savePs)
             .map({$0.map({$0 as Any})})
-            .doOnNext({_ in
-                print(try! manager.blockingFetch(fetchRqAll.fetchRequest(Dummy1.self)).map({$0.asPureObject()}))
-            })
             
             // Persist changes to DB.
             .flatMap({dbProcessor.process($0, persistGn, persistPs)})
@@ -227,6 +224,50 @@ public final class CoreDataRequestTest: CoreDataRootTest {
         XCTAssertEqual(nextElements.count, poData23.count)
         XCTAssertTrue(poData23.all(satisfying: nextDummies.contains))
         XCTAssertFalse(poData1.any(satisfying: nextDummies.contains))
+    }
+    
+    public func test_saveConvertibleData_shouldWork() {
+        /// Setup
+        let observer = scheduler.createObserver(Try<Dummy1>.self)
+        let expect = expectation(description: "Should have completed")
+        let dbProcessor = self.dbProcessor!.processor
+        let manager = self.manager!
+        let context = manager.disposableObjectContext()
+        let dummyCount = self.dummyCount
+        let poDummies = (0..<dummyCount).map({_ in Dummy1()})
+        let dummies = try! manager.constructUnsafely(context, poDummies)
+        
+        let insertRq = HMCDRequest.builder()
+            .with(operation: .saveData)
+            .with(insertedData: dummies)
+            .build()
+        
+        let insertGn = HMRequestGenerators.forceGenerateFn(insertRq, Any.self)
+        let insertPs = dummyConvertibleInsertRps()
+        let persistGn = dummyPersistRgn()
+        let persistPs = dummyPersistRps()
+        let fetchGn = dummy1FetchRgn()
+        let fetchPs = dummy1FetchRps()
+        
+        /// When
+        dbProcessor.process(dummy, insertGn, insertPs)
+            .map({$0.map({$0 as Any})})
+            .flatMap({dbProcessor.process($0, persistGn, persistPs)})
+            .map({$0.map({$0 as Any})})
+            .flatMap({dbProcessor.process($0, fetchGn, fetchPs)})
+            .map({try $0.getOrThrow()})
+            .flatMap({Observable.from($0)})
+            .doOnDispose(expect.fulfill)
+            .subscribe(observer)
+            .disposed(by: disposeBag)
+        
+        waitForExpectations(timeout: timeout, handler: nil)
+        
+        /// Then
+        let nextElements = observer.nextElements()
+        let unwrapped = nextElements.flatMap({$0.value})
+        XCTAssertEqual(unwrapped.count, poDummies.count)
+        XCTAssertTrue(poDummies.all(satisfying: unwrapped.contains))
     }
     
     public func test_cdNonTypedRequestObject_shouldThrowErrorsIfNecessary() {
@@ -297,6 +338,10 @@ extension CoreDataRequestTest {
 
     func dummySaveContextRps() -> HMEQResultProcessor<Void> {
         return HMResultProcessors.eqProcessor()
+    }
+    
+    func dummyConvertibleInsertRps() -> HMCDConvertibleResultProcessor<Void> {
+        return {Observable.just($0).map(toVoid).map(Try.success)}
     }
 }
 

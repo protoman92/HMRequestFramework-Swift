@@ -126,6 +126,7 @@ public extension HMCDManager {
     public func blockingRefetch<U,S>(_ context: NSManagedObjectContext,
                                      _ entityName: String,
                                      _ identifiables: S) throws -> [U] where
+        U: NSFetchRequestResult,
         U: HMCDIdentifiableType,
         S: Sequence,
         S.Iterator.Element == U
@@ -293,6 +294,7 @@ public extension Reactive where Base: HMCDManager {
                              _ entityName: String,
                              _ identifiables: S)
         -> Observable<[U]> where
+        U: NSFetchRequestResult,
         U: HMCDIdentifiableType,
         S: Sequence,
         S.Iterator.Element == U
@@ -321,6 +323,7 @@ public extension Reactive where Base: HMCDManager {
     /// - Returns: An Observable instance.
     public func refetch<U,S>(_ entityName: String, _ identifiables: S)
         -> Observable<[U]> where
+        U: NSFetchRequestResult,
         U: HMCDIdentifiableType,
         S: Sequence,
         S.Iterator.Element == U
