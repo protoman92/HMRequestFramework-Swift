@@ -18,7 +18,7 @@ public protocol Dummy1Type {
     var version: NSNumber? { get set }
 }
 
-public final class CDDummy1: HMCDIdentifiableObject {
+public final class CDDummy1: NSManagedObject {
     @NSManaged public var id: String?
     @NSManaged public var int64: NSNumber?
     @NSManaged public var date: Date?
@@ -28,14 +28,6 @@ public final class CDDummy1: HMCDIdentifiableObject {
     public convenience init(_ context: NSManagedObjectContext) throws {
         let entity = try CDDummy1.entityDescription(in: context)
         self.init(entity: entity, insertInto: context)
-    }
-    
-    public override func primaryKey() -> String {
-        return "id"
-    }
-    
-    public override func primaryValue() -> String {
-        return id!
     }
 }
 
@@ -202,6 +194,16 @@ extension CDDummy1: HMCDVersionableMasterType {
 extension CDDummy1: HMCDKeyValueUpdatableType {
     public func updateKeys() -> [String] {
         return ["id", "date", "int64", "float", "version"]
+    }
+}
+
+extension CDDummy1: HMCDIdentifiableType {
+    public func primaryKey() -> String {
+        return "id"
+    }
+    
+    public func primaryValue() -> String? {
+        return id
     }
 }
 

@@ -82,3 +82,49 @@ public extension HMCDManager {
         }
     }
 }
+
+extension Reactive where Base: HMCDManager {
+    
+    /// Perform an upsert request on a Sequence of upsertable objects.
+    ///
+    /// - Parameters:
+    ///   - context: A NSManagedObjectContext instance.
+    ///   - entityName: A String value. representing the entity's name.
+    ///   - upsertables: A Sequence of upsertable objects.
+    /// - Returns: An Observable instane.
+    func upsert<U,S>(_ context: NSManagedObjectContext,
+                     _ entityName: String,
+                     _ upsertables: S)
+        -> Observable<[HMResult<U>]> where
+        U: NSFetchRequestResult,
+        U: HMCDIdentifiableType,
+        U: HMCDConvertibleType,
+        U: HMCDUpdatableType,
+        S: Sequence,
+        S.Iterator.Element == U
+    {
+        return Observable<[HMResult<U>]>.create({
+            self.base.upsert(context, entityName, upsertables, $0)
+            return Disposables.create()
+        })
+    }
+    
+    /// Perform an upsert request on a Sequence of upsertable objects with a
+    /// disposable context.
+    ///
+    /// - Parameters:
+    ///   - entityName: A String value. representing the entity's name.
+    ///   - upsertables: A Sequence of upsertable objects.
+    /// - Returns: An Observable instane.
+    public func upsert<U,S>(_ entityName: String, _ upsertables: S)
+        -> Observable<[HMResult<U>]> where
+        U: NSFetchRequestResult,
+        U: HMCDIdentifiableType,
+        U: HMCDConvertibleType,
+        U: HMCDUpdatableType,
+        S: Sequence,
+        S.Iterator.Element == U
+    {
+        return upsert(base.disposableObjectContext(), entityName, upsertables)
+    }
+}

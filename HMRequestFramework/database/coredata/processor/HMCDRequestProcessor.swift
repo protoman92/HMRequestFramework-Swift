@@ -144,10 +144,12 @@ extension HMCDRequestProcessor: HMCDRequestProcessorType {
     private func executeDelete(_ request: Req) throws -> Observable<Try<Void>> {
         let manager = coreDataManager()
         let data = try request.deletedData()
-        let identifiables = data.flatMap({$0 as? HMCDIdentifiableObject})
+        let identifiables = data.flatMap({$0 as? HMCDIdentifiableType})
         
         let nonIdentifiables = data.filter({obj in
-            identifiables.contains(where: {$0.objectID == obj.objectID})
+            identifiables.contains(where: {
+                $0.asManagedObject().objectID == obj.objectID
+            })
         })
         
         let entityName = try request.entityName()
@@ -200,7 +202,7 @@ extension HMCDRequestProcessor: HMCDRequestProcessorType {
         let manager = coreDataManager()
         let context = try request.saveContext()
         let data = context.insertedObjects
-        let identifiables = data.flatMap({$0 as? HMCDIdentifiableObject})
+        let identifiables = data.flatMap({$0 as? HMCDIdentifiableType})
         let entityName = try request.entityName()
         
         return Observable

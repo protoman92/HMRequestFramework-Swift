@@ -17,9 +17,8 @@ public extension HMCDManager {
     ///
     /// - Parameter data: A Sequence of HMCDIdentifiableType.
     /// - Returns: A NSPredicate instance.
-    public func predicateForIdentifiableFetch<S>(_ identifiables: S)
-        -> NSPredicate where
-        S: Sequence, S.Iterator.Element: HMCDIdentifiableType
+    func predicateForIdentifiableFetch<S>(_ identifiables: S) -> NSPredicate where
+        S: Sequence, S.Iterator.Element == HMCDIdentifiableType
     {
         return NSCompoundPredicate(orPredicateWithSubpredicates:
             identifiables
@@ -27,6 +26,18 @@ public extension HMCDManager {
                 .filter({$0.1 != nil})
                 .map({NSPredicate(format: "%K == %@", $0.0, $0.1 ?? "")})
         )
+    }
+    
+    /// Get the predicate to search for records related to a Sequence of
+    /// identifiables.
+    ///
+    /// - Parameter data: A Sequence of HMCDIdentifiableType.
+    /// - Returns: A NSPredicate instance.
+    func predicateForIdentifiableFetch<S>(_ identifiables: S) -> NSPredicate where
+        S: Sequence, S.Iterator.Element: HMCDIdentifiableType
+    {
+        let identifiables = identifiables.map({$0 as HMCDIdentifiableType})
+        return predicateForIdentifiableFetch(identifiables)
     }
 }
 
@@ -37,7 +48,7 @@ public extension HMCDManager {
     /// - Parameter request: A NSFetchRequest instance.
     /// - Returns: An Array of NSManagedObject.
     /// - Throws: Exception if the fetch fails.
-    public func blockingFetch<Val>(_ request: NSFetchRequest<Val>) throws -> [Val] {
+    func blockingFetch<Val>(_ request: NSFetchRequest<Val>) throws -> [Val] {
         return try blockingFetch(disposableObjectContext(), request)
     }
     
@@ -48,8 +59,8 @@ public extension HMCDManager {
     ///   - cls: A Val class type.
     /// - Returns: An Array of NSManagedObject.
     /// - Throws: Exception if the fetch fails.
-    public func blockingFetch<Val>(_ request: NSFetchRequest<Val>,
-                                   _ cls: Val.Type) throws -> [Val] {
+    func blockingFetch<Val>(_ request: NSFetchRequest<Val>,
+                            _ cls: Val.Type) throws -> [Val] {
         return try blockingFetch(request)
     }
     
@@ -60,8 +71,8 @@ public extension HMCDManager {
     ///   - request: A NSFetchRequest instance.
     /// - Returns: An Array of NSManagedObject.
     /// - Throws: Exception if the fetch fails.
-    public func blockingFetch<Val>(_ context: NSManagedObjectContext,
-                                   _ request: NSFetchRequest<Val>) throws
+    func blockingFetch<Val>(_ context: NSManagedObjectContext,
+                            _ request: NSFetchRequest<Val>) throws
         -> [Val]
     {
         return try context.fetch(request)
@@ -76,9 +87,9 @@ public extension HMCDManager {
     ///   - cls: A Val class type.
     /// - Returns: An Array of NSManagedObject.
     /// - Throws: Exception if the fetch fails
-    public func blockingFetch<Val>(_ context: NSManagedObjectContext,
-                                   _ request: NSFetchRequest<Val>,
-                                   _ cls: Val.Type) throws -> [Val] {
+    func blockingFetch<Val>(_ context: NSManagedObjectContext,
+                            _ request: NSFetchRequest<Val>,
+                            _ cls: Val.Type) throws -> [Val] {
         return try blockingFetch(context, request)
     }
     
@@ -91,9 +102,9 @@ public extension HMCDManager {
     ///   - cls: A PO class type.
     /// - Returns: An Array of NSManagedObject.
     /// - Throws: Exception if the fetch fails
-    public func blockingFetch<PO>(_ context: NSManagedObjectContext,
-                                  _ request: NSFetchRequest<PO.CDClass>,
-                                  _ cls: PO.Type) throws -> [PO.CDClass]
+    func blockingFetch<PO>(_ context: NSManagedObjectContext,
+                           _ request: NSFetchRequest<PO.CDClass>,
+                           _ cls: PO.Type) throws -> [PO.CDClass]
         where PO: HMCDPureObjectType
     {
         return try blockingFetch(context, request, cls.CDClass.self)
@@ -106,16 +117,113 @@ public extension HMCDManager {
     ///   - data: A Sequence of NSManagedObject.
     /// - Returns: An Array of NSManagedObject.
     /// - Throws: Exception if the fetch fails.
-    public func blockingRefetch<S>(_ context: NSManagedObjectContext,
-                                   _ data: S) throws
+    func blockingRefetch<S>(_ context: NSManagedObjectContext, _ data: S) throws
         -> [NSManagedObject] where
         S: Sequence, S.Iterator.Element: NSManagedObject
     {
         return try data.map({$0.objectID}).flatMap(context.existingObject)
     }
+}
+
+public extension HMCDManager {
     
     /// Fetch objects from DB whose primary key values correspond to those
     /// supplied by the specified identifiables objects.
+    ///
+    /// This method is defined to support many different generics. To specify
+    /// the generics, simply declare another method that uses this method and
+    /// specify class types for iCls and rCls.
+    ///
+    /// For example, the Sequence Element could be HMCDIdentifiableType or
+    /// one of its subtype.
+    ///
+    /// - Parameters:
+    ///   - context: A NSManagedObjectContext instance.
+    ///   - entityName: A String value representing the entity's name.
+    ///   - identifiables: A Sequence of HMCDIdentifiableType.
+    ///   - predicate: The NSPredicate instance to query the identifiables.
+    ///   - iCls: The identifiable class type.
+    ///   - rCls: The type to cast the results to.
+    /// - Returns: An Array of NSManagedObject.
+    /// - Throws: Exception if the fetch fails.
+    private func blockingRefetch<S,ID,FR>(_ context: NSManagedObjectContext,
+                                          _ entityName: String,
+                                          _ identifiables: S,
+                                          _ predicate: NSPredicate,
+                                          _ iCls: ID.Type,
+                                          _ rCls: FR.Type) throws -> [FR] where
+        FR: NSFetchRequestResult,
+        S: Sequence,
+        S.Iterator.Element == ID
+    {
+        let data = identifiables.map({$0})
+        
+        if data.isNotEmpty {
+            let request: NSFetchRequest<FR> = NSFetchRequest(entityName: entityName)
+            request.predicate = predicate
+            return try blockingFetch(context, request)
+        } else {
+            return []
+        }
+    }
+    
+    /// Fetch objects from DB whose primary key values correspond to those
+    /// supplied by the specified identifiables objects. The Sequence Element
+    /// is HMCDIdentifiableType.
+    ///
+    /// - Parameters:
+    ///   - context: A NSManagedObjectContext instance.
+    ///   - entityName: A String value representing the entity's name.
+    ///   - identifiables: A Sequence of HMCDIdentifiableType.
+    ///   - rCls: The type to cast the results to.
+    /// - Returns: An Array of NSManagedObject.
+    /// - Throws: Exception if the fetch fails.
+    private func blockingRefetch<S,FR>(_ context: NSManagedObjectContext,
+                                       _ entityName: String,
+                                       _ identifiables: S,
+                                       _ rCls: FR.Type) throws -> [FR] where
+        FR: NSFetchRequestResult,
+        S: Sequence,
+        S.Iterator.Element == HMCDIdentifiableType
+    {
+        let predicate = predicateForIdentifiableFetch(identifiables)
+        
+        return try blockingRefetch(
+            context,
+            entityName,
+            identifiables,
+            predicate,
+            HMCDIdentifiableType.self,
+            rCls
+        )
+    }
+    
+    /// Fetch objects from DB whose primary key values correspond to those
+    /// supplied by the specified identifiables objects. The Sequence Element
+    /// is a HMCDIdentifiableType subtype.
+    ///
+    /// - Parameters:
+    ///   - context: A NSManagedObjectContext instance.
+    ///   - entityName: A String value representing the entity's name.
+    ///   - identifiables: A Sequence of HMCDIdentifiableType.
+    ///   - rCls: The type to cast the results to.
+    /// - Returns: An Array of NSManagedObject.
+    /// - Throws: Exception if the fetch fails.
+    private func blockingRefetch<U,S,FR>(_ context: NSManagedObjectContext,
+                                         _ entityName: String,
+                                         _ identifiables: S,
+                                         _ rCls: FR.Type) throws -> [FR] where
+        U: HMCDIdentifiableType,
+        FR: NSFetchRequestResult,
+        S: Sequence,
+        S.Iterator.Element == U
+    {
+        let identifiables = identifiables.map({$0 as HMCDIdentifiableType})
+        return try blockingRefetch(context, entityName, identifiables, rCls)
+    }
+    
+    /// Fetch objects from DB based on the specified identifiables objects. The
+    /// result is then cast to the same type as that belonging to the identifiables.
     ///
     /// - Parameters:
     ///   - context: A NSManagedObjectContext instance.
@@ -123,24 +231,55 @@ public extension HMCDManager {
     ///   - identifiables: A Sequence of HMCDIdentifiableType.
     /// - Returns: An Array of NSManagedObject.
     /// - Throws: Exception if the fetch fails.
-    public func blockingRefetch<U,S>(_ context: NSManagedObjectContext,
-                                     _ entityName: String,
-                                     _ identifiables: S) throws -> [U] where
+    func blockingRefetch<U,S>(_ context: NSManagedObjectContext,
+                              _ entityName: String,
+                              _ identifiables: S) throws -> [U] where
         U: NSFetchRequestResult,
         U: HMCDIdentifiableType,
         S: Sequence,
         S.Iterator.Element == U
     {
-        let data = identifiables.map({$0})
-        
-        if data.isNotEmpty {
-            let predicate = predicateForIdentifiableFetch(data)
-            let request: NSFetchRequest<U> = NSFetchRequest(entityName: entityName)
-            request.predicate = predicate
-            return try blockingFetch(context, request)
-        } else {
-            return []
-        }
+        return try blockingRefetch(context, entityName, identifiables, U.self)
+    }
+    
+    /// Fetch objects from DB based on the specified identifiables objects. The
+    /// result is then cast to NSManagedObject.
+    ///
+    /// - Parameters:
+    ///   - context: A NSManagedObjectContext instance.
+    ///   - entityName: A String value representing the entity's name.
+    ///   - identifiables: A Sequence of HMCDIdentifiableType.
+    /// - Returns: An Array of NSManagedObject.
+    /// - Throws: Exception if the fetch fails.
+    func blockingRefetch<U,S>(_ context: NSManagedObjectContext,
+                              _ entityName: String,
+                              _ identifiables: S) throws
+        -> [NSManagedObject] where
+        U: HMCDIdentifiableType,
+        S: Sequence,
+        S.Iterator.Element == U
+    {
+        let rCls = NSManagedObject.self
+        return try blockingRefetch(context, entityName, identifiables, rCls)
+    }
+    
+    /// Fetch objects from DB based on the specified identifiables objects. The
+    /// result is then cast to NSManagedObject.
+    ///
+    /// - Parameters:
+    ///   - context: A NSManagedObjectContext instance.
+    ///   - entityName: A String value representing the entity's name.
+    ///   - identifiables: A Sequence of HMCDIdentifiableType.
+    /// - Returns: An Array of NSManagedObject.
+    /// - Throws: Exception if the fetch fails.
+    func blockingRefetch<S>(_ context: NSManagedObjectContext,
+                            _ entityName: String,
+                            _ identifiables: S) throws
+        -> [NSManagedObject] where
+        S: Sequence, S.Iterator.Element == HMCDIdentifiableType
+    {
+        let rCls = NSManagedObject.self
+        return try blockingRefetch(context, entityName, identifiables, rCls)
     }
 }
 

@@ -40,17 +40,3 @@ public extension HMCDIdentifiableType {
     }
 }
 
-/// Instead of inheriting from NSManagedObject, inherit from the class to
-/// access non-ObjectID identifiers.
-open class HMCDIdentifiableObject: NSManagedObject {}
-
-extension HMCDIdentifiableObject: HMCDIdentifiableType {
-    open func primaryKey() -> String {
-        fatalError("Must override this")
-    }
-    
-    open func primaryValue() -> String? {
-        fatalError("Must override this")
-    }
-}
-

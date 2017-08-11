@@ -92,20 +92,20 @@ public final class CoreDataManagerTest: CoreDataRootTest {
         let manager = self.manager!
         let context = manager.disposableObjectContext()
         let dummyCount = self.dummyCount
-        let poData = (0..<dummyCount).flatMap({_ in Dummy1()})
-        let data = try! manager.constructUnsafely(context, poData)
+        let pureObjects = (0..<dummyCount).flatMap({_ in Dummy1()})
+        let cdObjects = try! manager.constructUnsafely(context, pureObjects)
         let entityName = try! Dummy1.CDClass.entityName()
         
         /// When
         // Save data without persisting to DB.
-        manager.rx.save(context)
+        manager.rx.save(cdObjects)
             
             // Persist data to DB.
-            .flatMap(manager.rx.persistLocally)
+            .flatMap({_ in manager.rx.persistLocally()})
             
             // Refetch based on identifiable objects. We expect the returned
             // data to contain the same properties.
-            .flatMap({manager.rx.refetch(entityName, data)})
+            .flatMap({manager.rx.refetch(entityName, cdObjects)})
             .map({$0.map({$0.asPureObject()})})
             .flatMap({Observable.from($0)})
             .doOnDispose(expect.fulfill)
@@ -117,7 +117,7 @@ public final class CoreDataManagerTest: CoreDataRootTest {
         /// Then
         let nextElements = observer.nextElements()
         XCTAssertEqual(nextElements.count, dummyCount)
-        XCTAssertTrue(nextElements.all(satisfying: poData.contains))
+        XCTAssertTrue(nextElements.all(satisfying: pureObjects.contains))
     }
     
     public func test_insertAndDeleteUpsertables_shouldWork() {
@@ -263,7 +263,8 @@ public final class CoreDataManagerTest: CoreDataRootTest {
         /// Then
         let description = predicate.description
         let dComponents = description.components(separatedBy: " ")
-        let dummyValues = objs.map({$0.primaryValue()})
+        let dummyValues = objs.flatMap({$0.primaryValue()})
+        XCTAssertEqual(dummyValues.count, times)
         XCTAssertEqual(dComponents.filter({$0 == "OR"}).count, times - 1)
         XCTAssertTrue(dummyValues.all(satisfying: description.contains))
     }
@@ -302,5 +303,50 @@ public extension CoreDataManagerTest {
         let nextElements = observer.nextElements()
         XCTAssertEqual(nextElements.count, pureObjects.count)
         XCTAssertTrue(pureObjects.all(satisfying: nextElements.contains))
+    }
+    
+    public func test_upsertConvertibles_shouldWork() {
+        /// Setup
+        let observer = scheduler.createObserver(Dummy1.self)
+        let expect = expectation(description: "Should have completed")
+        let manager = self.manager!
+        let context = manager.disposableObjectContext()
+        let dummyCount = self.dummyCount
+        let pureObjects1 = (0..<dummyCount).map({_ in Dummy1()})
+        
+        let pureObjects2 = (0..<dummyCount).map({(i) -> Dummy1 in
+            let dummy = Dummy1()
+            dummy.id = pureObjects1[i].id
+            return dummy
+        })
+        
+        let pureObjects3 = (0..<dummyCount).map({_ in Dummy1()})
+        let pureObjects23 = [pureObjects2, pureObjects3].flatMap({$0})
+        let cdObjects1 = try! manager.constructUnsafely(context, pureObjects1)
+        let cdObjects23 = try! manager.constructUnsafely(context, pureObjects23)
+        let fetchRq = try! dummy1FetchRequest().fetchRequest(Dummy1.self)
+        let entityName = fetchRq.entityName!
+        
+        /// When
+        manager.rx.save(cdObjects1)
+            .flatMap({_ in manager.rx.persistLocally()})
+            
+            // We expect the edited data to overwrite, while new data will
+            // simply be inserted.
+            .flatMap({_ in manager.rx.upsert(entityName, cdObjects23)})
+            .flatMap({_ in manager.rx.persistLocally()})
+            .flatMap({manager.rx.fetch(fetchRq)})
+            .map({$0.map({$0.asPureObject()})})
+            .flatMap({Observable.from($0)})
+            .doOnDispose(expect.fulfill)
+            .subscribe(observer)
+            .disposed(by: disposeBag)
+        
+        waitForExpectations(timeout: timeout, handler: nil)
+        
+        /// Then
+        let nextElements = observer.nextElements()
+        XCTAssertEqual(nextElements.count, pureObjects23.count)
+        XCTAssertTrue(pureObjects23.all(satisfying: nextElements.contains))
     }
 }

@@ -39,7 +39,6 @@ public extension HMCDVersionBuildableType where
     Builder: HMCDVersionBuilderType,
     Builder.Buildable == Self
 {
-    
     /// Clone the current object and assign a specified version to it.
     ///
     /// - Parameters:
