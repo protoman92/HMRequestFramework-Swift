@@ -83,6 +83,10 @@ public extension HMCDManager {
         // The original object should be managed by the parameter context,
         // or this will raise an error.
         context.delete(original.asManagedObject())
+        
+        // When we call this method, we bump the edited object's version and
+        // insert the new clone in the specified context. Calling context.save()
+        // will propagate this clone upwards.
         try edited.cloneAndBumpVersion(context)
     }
     
@@ -151,40 +155,42 @@ public extension HMCDManager {
                 // found in the DB yet.
                 var nonExisting: [VC] = []
                 
-                for id in identifiables {
+                for item in identifiables {
                     if
-                        let original = originals.first(where: id.identifiable),
-                        let request = requests.first(where: {($0.ownsEditedVC(id))})?
+                        let original = originals.first(where: item.identifiable),
+                        let request = requests.first(where: {($0.ownsEditedVC(item))})?
                             .cloneBuilder()
                             .with(original: original)
-                            .with(edited: id)
+                            .with(edited: item)
                             .build()
                     {
                         let result: HMResult<VC>
                         
                         do {
                             try self.updateVersionUnsafely(context, request)
-                            result = HMResult<VC>.builder().with(object: id).build()
+                            result = HMResult<VC>.builder().with(object: item).build()
                         } catch let e {
                             result = HMResult<VC>.builder()
-                                .with(object: id)
+                                .with(object: item)
                                 .with(error: e)
                                 .build()
                         }
                         
                         results.append(result)
                     } else {
-                        nonExisting.append(id)
+                        nonExisting.append(item)
                     }
                 }
                 
-                try self.saveUnsafely(context)
-                
                 // For items that do not exist in the DB yet, simply save them.
                 // Since these objects are convertible, we can reconstruct them
-                // as NSManagedObject instances and insert into a disposable
+                // as NSManagedObject instances and insert into the specified
                 // context.
-                results.append(contentsOf: self.saveUnsafely(nonExisting))
+                results.append(contentsOf: self.convert(context, nonExisting))
+                
+                // When we save this context, the updates and insertions will
+                // be committed to upstream.
+                try self.saveUnsafely(context)
                 obs.onNext(results)
                 obs.onCompleted()
             } catch let e {

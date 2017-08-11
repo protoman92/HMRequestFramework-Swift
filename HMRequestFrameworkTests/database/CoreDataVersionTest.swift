@@ -116,6 +116,53 @@ public final class CoreDataVersionTest: CoreDataRootTest {
         XCTAssertEqual(resultOverwriteCount, overwriteCount)
         XCTAssertEqual(otherCount, errorCount + takePreferableCount)
     }
+    
+    public func test_versionControlWithNonExistingItem_shouldWork() {
+        /// Setup
+        let observer = scheduler.createObserver(Dummy1.self)
+        let expect = expectation(description: "Should have completed")
+        let manager = self.manager!
+        let context = manager.disposableObjectContext()
+        let dummyCount = self.updateCount
+        let poData2 = self.poData2!
+        let poData3 = self.poData3!
+        let poData4 = (0..<dummyCount).map({_ in Dummy1()})
+        let poData24 = [poData2, poData4].flatMap({$0})
+        let data3 = try! manager.constructUnsafely(context, poData3)
+        let data24 = try! manager.constructUnsafely(context, poData24)
+        
+        let requests24 = data24.map({
+            HMVersionUpdateRequest<Dummy1.CDClass>.builder()
+                .with(edited: $0)
+                .with(strategy: .overwrite)
+                .build()
+        })
+        
+        let entityName = try! Dummy1.CDClass.entityName()
+        
+        /// When
+        // Save data3 to simulate version conflicts.
+        manager.rx.save(data3)
+            .flatMap({_ in manager.rx.persistLocally()})
+            
+            // Since strategy is overwrite, we expect all updates to succeed.
+            // Items that are not in the DB yet will be inserted.
+            .flatMap({manager.rx.updateVersion(entityName, requests24)})
+            .doOnNext({XCTAssertTrue($0.all(satisfying: {$0.isSuccess()}))})
+            .flatMap({_ in manager.rx.persistLocally()})
+            .flatMap({manager.rx.fetch(self.fetchRq)})
+            .map({$0.map({$0.asPureObject()})})
+            .flatMap({Observable.from($0)})
+            .doOnDispose(expect.fulfill)
+            .subscribe(observer)
+            .disposed(by: disposeBag)
+        
+        waitForExpectations(timeout: timeout, handler: nil)
+        
+        /// Then
+        let nextElements = observer.nextElements()
+        XCTAssertTrue(poData24.all(satisfying: nextElements.contains))
+    }
 }
 
 public extension CoreDataVersionTest {

@@ -81,16 +81,15 @@ public extension HMCDManager {
 
 public extension HMCDManager {
     
-    /// Save a Sequence of convertible objects to memory. These objects will
-    /// first be converted to a NSManagedObject and inserted into the specified
-    /// context.
+    /// Convert a Sequence of convertible objects into their NSManagedObject
+    /// representations.
     ///
     /// - Parameters:
     ///   - context: A NSManagedObjectContext instance.
     ///   - convertibles: A Sequence of HMCDConvertibleType.
     /// - Returns: An Array of HMResult.
     /// - Throws: Exception if the operation fails.
-    func saveUnsafely<S>(_ context: NSManagedObjectContext, _ convertibles: S)
+    func convert<S>(_ context: NSManagedObjectContext, _ convertibles: S)
         -> [HMResult<S.Iterator.Element>] where
         S: Sequence, S.Iterator.Element == HMCDConvertibleType
     {
@@ -120,36 +119,26 @@ public extension HMCDManager {
         return results
     }
     
-    /// Save a Sequence of convertible objects to memory. The result will be
-    /// cast to some HMCDConvertibleType subtype.
+    /// Convert a Sequence of convertible objects into their NSManagedObject
+    /// representations. The result will be cast to some HMCDConvertibleType subtype.
     ///
     /// - Parameters:
     ///   - context: A NSManagedObjectContext instance.
     ///   - convertibles: A Sequence of HMCDConvertibleType.
     /// - Returns: An Array of HMResult.
     /// - Throws: Exception if the operation fails.
-    func saveUnsafely<U,S>(_ context: NSManagedObjectContext,
-                           _ convertibles: S) -> [HMResult<U>] where
+    func convert<U,S>(_ context: NSManagedObjectContext,
+                      _ convertibles: S) -> [HMResult<U>] where
         U: HMCDConvertibleType, S: Sequence, S.Iterator.Element == U
     {
-        return saveUnsafely(context, convertibles.map({$0 as HMCDConvertibleType}))
+        return convert(context, convertibles.map({$0 as HMCDConvertibleType}))
             .map({$0.map({$0 as? U})})
             .filter({$0.appliedObject() == nil})
     }
     
-    /// Save a Sequence of convertible objects to memory using a default context.
-    ///
-    /// - Parameters convertibles: A Sequence of HMCDConvertibleType.
-    /// - Returns: An Array of HMResult.
-    /// - Throws: Exception if the operation fails.
-    func saveUnsafely<U,S>(_ convertibles: S) -> [HMResult<U>] where
-        U: HMCDConvertibleType, S: Sequence, S.Iterator.Element == U
-    {
-        let context = disposableObjectContext()
-        return saveUnsafely(context, convertibles)
-    }
-    
     /// Save a Sequence of convertible objects to memory and observe the process.
+    /// These objects will first be converted to a NSManagedObject and inserted
+    /// into the specified context.
     ///
     /// - Parameters:
     ///   - convertibles: A Sequence of HMCDConvertibleType.
@@ -161,7 +150,7 @@ public extension HMCDManager {
         let context = disposableObjectContext()
         
         performOnContextThread(context) {
-            let results = self.saveUnsafely(context, convertibles)
+            let results = self.convert(context, convertibles)
             
             do {
                 try self.saveUnsafely(context)
@@ -186,7 +175,7 @@ public extension HMCDManager {
         let context = disposableObjectContext()
         
         performOnContextThread(context) {
-            let results = self.saveUnsafely(context, convertibles)
+            let results = self.convert(context, convertibles)
             
             do {
                 try self.saveUnsafely(context)
