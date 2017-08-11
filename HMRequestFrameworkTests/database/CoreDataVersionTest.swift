@@ -17,8 +17,8 @@ import XCTest
 
 public final class CoreDataVersionTest: CoreDataRootTest {
     fileprivate var poData1: [Dummy1]!
-    fileprivate var poData2: [Dummy1]!
-    fileprivate var poData3: [Dummy1]!
+    fileprivate var editedPureObjects: [Dummy1]!
+    fileprivate var serverPureObjects: [Dummy1]!
     fileprivate var strategies: [VersionConflict.Strategy]!
     fileprivate var errorCount: Int!
     fileprivate var overwriteCount: Int!
@@ -38,7 +38,7 @@ public final class CoreDataVersionTest: CoreDataRootTest {
         
         // poData2 have the same version while poData3 differ.
         
-        poData2 = (0..<dummyCount).map({(i) -> Dummy1 in
+        editedPureObjects = (0..<dummyCount).map({(i) -> Dummy1 in
             let dummy = Dummy1()
             let previous = poData1[i]
             dummy.id = previous.id
@@ -46,7 +46,7 @@ public final class CoreDataVersionTest: CoreDataRootTest {
             return dummy
         })
         
-        poData3 = (0..<dummyCount).map({(i) -> Dummy1 in
+        serverPureObjects = (0..<dummyCount).map({(i) -> Dummy1 in
             let dummy = Dummy1()
             let previous = poData1[i]
             dummy.id = previous.id
@@ -69,10 +69,10 @@ public final class CoreDataVersionTest: CoreDataRootTest {
         let overwriteCount = self.overwriteCount!
         let takePreferableCount = self.takePreferableCount!
         let context = manager.disposableObjectContext()
-        let data2 = try! manager.constructUnsafely(context, poData2)
-        let data3 = try! manager.constructUnsafely(context, poData3)
+        let editedCDObjects = try! manager.constructUnsafely(context, editedPureObjects)
+        let serverCDObjects = try! manager.constructUnsafely(context, serverPureObjects)
         
-        let requests2 = data2.enumerated().map({
+        let updateRequests = editedCDObjects.enumerated().map({
             HMVersionUpdateRequest<Dummy1.CDClass>.builder()
                 .with(edited: $0.element)
                 .with(strategy: strategies[$0.offset])
@@ -83,12 +83,12 @@ public final class CoreDataVersionTest: CoreDataRootTest {
         // When we save data3, we are simulating the scenario whereby an edit
         // is happening when some other processes from another thread update
         // the DB to overwrite data.
-        manager.rx.save(data3)
+        manager.rx.save(serverCDObjects)
             .flatMap({_ in manager.rx.persistLocally()})
             
             // When we update the versioned objects, we apply random conflict
             // strategies to the Array.
-            .flatMap({manager.rx.updateVersion(entityName, requests2)})
+            .flatMap({manager.rx.updateVersion(entityName, updateRequests)})
             .doOnNext({XCTAssertEqual($0.filter({$0.isFailure()}).count, errorCount)})
             .flatMap({_ in manager.rx.persistLocally()})
             .flatMap({_ in manager.rx.fetch(self.fetchRq)})
@@ -106,9 +106,9 @@ public final class CoreDataVersionTest: CoreDataRootTest {
         var otherCount = 0
         
         for element in nextElements {
-            if poData2.contains(element) {
+            if editedPureObjects.contains(element) {
                 resultOverwriteCount += 1
-            } else if poData3.contains(element) {
+            } else if serverPureObjects.contains(element) {
                 otherCount += 1
             }
         }
@@ -124,14 +124,14 @@ public final class CoreDataVersionTest: CoreDataRootTest {
         let manager = self.manager!
         let context = manager.disposableObjectContext()
         let dummyCount = self.updateCount
-        let poData2 = self.poData2!
-        let poData3 = self.poData3!
-        let poData4 = (0..<dummyCount).map({_ in Dummy1()})
-        let poData24 = [poData2, poData4].flatMap({$0})
-        let data3 = try! manager.constructUnsafely(context, poData3)
-        let data24 = try! manager.constructUnsafely(context, poData24)
+        let editedPureObjects = self.editedPureObjects!
+        let serverPureObjects = self.serverPureObjects!
+        let newPureObjects = (0..<dummyCount).map({_ in Dummy1()})
+        let toBeSaved = [editedPureObjects, newPureObjects].flatMap({$0})
+        let serverCDObjects = try! manager.constructUnsafely(context, serverPureObjects)
+        let toBeSavedCDObjects = try! manager.constructUnsafely(context, toBeSaved)
         
-        let requests24 = data24.map({
+        let updateRequests = toBeSavedCDObjects.map({
             HMVersionUpdateRequest<Dummy1.CDClass>.builder()
                 .with(edited: $0)
                 .with(strategy: .overwrite)
@@ -142,12 +142,12 @@ public final class CoreDataVersionTest: CoreDataRootTest {
         
         /// When
         // Save data3 to simulate version conflicts.
-        manager.rx.save(data3)
+        manager.rx.save(serverCDObjects)
             .flatMap({_ in manager.rx.persistLocally()})
-            
+
             // Since strategy is overwrite, we expect all updates to succeed.
             // Items that are not in the DB yet will be inserted.
-            .flatMap({manager.rx.updateVersion(entityName, requests24)})
+            .flatMap({manager.rx.updateVersion(entityName, updateRequests)})
             .doOnNext({XCTAssertTrue($0.all(satisfying: {$0.isSuccess()}))})
             .flatMap({_ in manager.rx.persistLocally()})
             .flatMap({manager.rx.fetch(self.fetchRq)})
@@ -161,7 +161,7 @@ public final class CoreDataVersionTest: CoreDataRootTest {
         
         /// Then
         let nextElements = observer.nextElements()
-        XCTAssertTrue(poData24.all(satisfying: nextElements.contains))
+        XCTAssertTrue(toBeSaved.all(satisfying: nextElements.contains))
     }
 }
 

@@ -81,13 +81,13 @@ public final class CoreDataRequestTest: CoreDataRootTest {
         let manager = self.manager!
         let context = manager.disposableObjectContext()
         let dummyCount = self.dummyCount
-        let poDummies = (0..<dummyCount).map({_ in Dummy1()})
-        let dummies = try! manager.constructUnsafely(context, poDummies)
+        let pureObjects = (0..<dummyCount).map({_ in Dummy1()})
+        let cdObjects = try! manager.constructUnsafely(context, pureObjects)
         let saveContextGn = dummySaveContextRgn(context)
         let saveContextPs = dummyPersistRps()
         let persistGn = dummyPersistRgn()
         let persistPs = dummyPersistRps()
-        let deleteGn = dummyMemoryDeleteRgn(dummies)
+        let deleteGn = dummyMemoryDeleteRgn(cdObjects)
         let deletePs = dummyMemoryDeleteRps()
         let fetchGn = dummy1FetchRgn()
         let fetchPs = dummy1FetchRps()
@@ -145,18 +145,18 @@ public final class CoreDataRequestTest: CoreDataRootTest {
         let context2 = manager.disposableObjectContext()
         let times1 = 1000
         let times2 = 2000
-        let poData1 = (0..<times1).map({_ in Dummy1()})
-        let poData2 = (0..<times2).map({_ in Dummy1()})
+        let pureObjects1 = (0..<times1).map({_ in Dummy1()})
+        let pureObjects2 = (0..<times2).map({_ in Dummy1()})
 
-        let poData3 = (0..<times1).map({(index) -> Dummy1 in
+        let pureObjects3 = (0..<times1).map({(index) -> Dummy1 in
             let dummy = Dummy1()
-            dummy.id = poData1[index].id
+            dummy.id = pureObjects1[index].id
             return dummy
         })
 
-        let poData23 = [poData2, poData3].flatMap({$0})
-        _ = try! manager.constructUnsafely(context1, poData1)
-        _ = try! manager.constructUnsafely(context2, poData23)
+        let pureObjectsToBeSaved = [pureObjects2, pureObjects3].flatMap({$0})
+        _ = try! manager.constructUnsafely(context1, pureObjects1)
+        _ = try! manager.constructUnsafely(context2, pureObjectsToBeSaved)
 
         let saveRq = Req.builder()
             .with(operation: .saveContext)
@@ -221,9 +221,9 @@ public final class CoreDataRequestTest: CoreDataRootTest {
         /// Then
         let nextElements = observer.nextElements()
         let nextDummies = nextElements.flatMap({$0.value})
-        XCTAssertEqual(nextElements.count, poData23.count)
-        XCTAssertTrue(poData23.all(satisfying: nextDummies.contains))
-        XCTAssertFalse(poData1.any(satisfying: nextDummies.contains))
+        XCTAssertEqual(nextElements.count, pureObjectsToBeSaved.count)
+        XCTAssertTrue(pureObjectsToBeSaved.all(satisfying: nextDummies.contains))
+        XCTAssertFalse(pureObjects1.any(satisfying: nextDummies.contains))
     }
     
     public func test_saveConvertibleData_shouldWork() {
@@ -234,12 +234,12 @@ public final class CoreDataRequestTest: CoreDataRootTest {
         let manager = self.manager!
         let context = manager.disposableObjectContext()
         let dummyCount = self.dummyCount
-        let poDummies = (0..<dummyCount).map({_ in Dummy1()})
-        let dummies = try! manager.constructUnsafely(context, poDummies)
+        let pureObjects = (0..<dummyCount).map({_ in Dummy1()})
+        let cdObjects = try! manager.constructUnsafely(context, pureObjects)
         
         let insertRq = HMCDRequest.builder()
             .with(operation: .saveData)
-            .with(insertedData: dummies)
+            .with(insertedData: cdObjects)
             .build()
         
         let insertGn = HMRequestGenerators.forceGenerateFn(insertRq, Any.self)
@@ -266,8 +266,8 @@ public final class CoreDataRequestTest: CoreDataRootTest {
         /// Then
         let nextElements = observer.nextElements()
         let unwrapped = nextElements.flatMap({$0.value})
-        XCTAssertEqual(unwrapped.count, poDummies.count)
-        XCTAssertTrue(poDummies.all(satisfying: unwrapped.contains))
+        XCTAssertEqual(unwrapped.count, pureObjects.count)
+        XCTAssertTrue(pureObjects.all(satisfying: unwrapped.contains))
     }
     
     public func test_cdNonTypedRequestObject_shouldThrowErrorsIfNecessary() {

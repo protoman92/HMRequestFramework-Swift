@@ -33,7 +33,7 @@ public final class Dummy2 {
     init() {
         Dummy2.counter += 1
         id = "\(Dummy2.counter)"
-        count = Int64(Int.random(0, 100))
+        count = Int64(Int.random(0, 10000))
     }
 }
 

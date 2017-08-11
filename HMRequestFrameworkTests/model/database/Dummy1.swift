@@ -53,8 +53,8 @@ public final class Dummy1 {
         let counter = Dummy1.counter
         id = "id-\(counter)"
         date = Date()
-        int64 = Int64(counter) as NSNumber
-        float = Float(counter) as NSNumber
+        int64 = Int64(Int.randomBetween(0, 10000)) as NSNumber
+        float = Float(Int.randomBetween(0, 10000)) as NSNumber
         version = 1
     }
 }

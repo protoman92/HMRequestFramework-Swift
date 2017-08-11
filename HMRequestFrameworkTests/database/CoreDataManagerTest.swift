@@ -130,16 +130,16 @@ public final class CoreDataManagerTest: CoreDataRootTest {
         let context1 = manager.disposableObjectContext()
         let context2 = manager.disposableObjectContext()
         let dummyCount = self.dummyCount
-        let poData1 = (0..<dummyCount).map({_ in Dummy1()})
+        let pureObjects1 = (0..<dummyCount).map({_ in Dummy1()})
         
-        let poData2 = (0..<dummyCount).flatMap({(i) -> Dummy1 in
+        let pureObjects2 = (0..<dummyCount).flatMap({(i) -> Dummy1 in
             let dummy = Dummy1()
-            dummy.id = poData1[i].id
+            dummy.id = pureObjects1[i].id
             return dummy
         })
         
-        let data1 = try! manager.constructUnsafely(context1, poData1)
-        let data2 = try! manager.constructUnsafely(context2, poData2)
+        let cdObjects1 = try! manager.constructUnsafely(context1, pureObjects1)
+        let cdObjects2 = try! manager.constructUnsafely(context2, pureObjects2)
         
         let fetchRq = try! HMCDRequest.builder()
             .with(poType: Dummy1.self)
@@ -161,12 +161,12 @@ public final class CoreDataManagerTest: CoreDataRootTest {
             // Fetch to verify that the DB only contains data1.
             .flatMap({manager.rx.fetch(fetchRq)})
             .map({$0.map({$0.asPureObject()})})
-            .doOnNext({XCTAssertTrue($0.all(satisfying: poData1.contains))})
+            .doOnNext({XCTAssertTrue($0.all(satisfying: pureObjects1.contains))})
             .doOnNext({XCTAssertEqual($0.count, dummyCount)})
             
             // Delete data2 from memory. data1 and data2 are two different
             // sets of data that only have the same primary key-value.
-            .flatMap({_ in manager.rx.delete(entityName, data2)})
+            .flatMap({_ in manager.rx.delete(entityName, cdObjects2)})
             
             // Persist changes to DB.
             .flatMap(manager.rx.persistLocally)
@@ -197,43 +197,45 @@ public final class CoreDataManagerTest: CoreDataRootTest {
         
         /// When
         Observable.from(0..<iterationCount)
-            
+
             // For each iteration, create a bunch of dummies in a disposable
             // context and save them in memory. The main context should then
             // own the changes.
             .flatMap({(i) -> Observable<Void> in
-                print("Creating dummies, iteration \(i)")
+                // Always beware that if we don't keep a reference to the
+                // context, CD objects may lose their data.
                 let context = manager.disposableObjectContext()
                 
-                return Observable<Void>
+                return Observable<[Dummy1.CDClass]>
                     .create({
-                        let poData = (0..<dummyCount).map({_ in Dummy1()})
-                        _ = try! manager.constructUnsafely(context, poData)
-                        $0.onNext(())
+                        let pureObjects = (0..<dummyCount).map({_ in Dummy1()})
+                        let cdObjects = try! manager.constructUnsafely(context, pureObjects)
+                        $0.onNext(cdObjects)
                         $0.onCompleted()
                         return Disposables.create()
                     })
-                    .flatMap({manager.rx.save(context)})
+                    .flatMap(manager.rx.save)
+                    .map(toVoid)
                     .subscribeOn(qos: .background)
             })
             .reduce((), accumulator: {_ in ()})
-            
+
             // Persist all changes to DB.
             .flatMap(manager.rx.persistLocally)
-            
+
             // Fetch to verify that the data have been persisted.
             .flatMap({manager.rx.fetch(request)})
             .doOnNext({XCTAssertEqual($0.count, iterationCount * dummyCount)})
             .doOnNext({XCTAssertTrue($0.flatMap({$0.id}).count > 0)})
             .map({$0.map({$0.asPureObject()})})
             .flatMap({manager.rx.construct(manager.disposableObjectContext(), $0)})
-            
+
             // Delete from memory, but do not persist yet.
             .flatMap({manager.rx.delete(entityName, $0)})
-            
+
             // Persist the changes.
             .flatMap(manager.rx.persistLocally)
-            
+
             // Fetch to verify that the data have been deleted.
             .flatMap({manager.rx.fetch(request).subscribeOn(qos: .background)})
             .flatMap({Observable.from($0)})
@@ -275,8 +277,8 @@ public extension CoreDataManagerTest {
         let manager = self.manager!
         let context = manager.disposableObjectContext()
         let dummyCount = self.dummyCount
-        let poData = (0..<dummyCount).map({_ in Dummy1()})
-        let data = try! manager.constructUnsafely(context, poData)
+        let pureObjects = (0..<dummyCount).map({_ in Dummy1()})
+        let convertibles = try! manager.constructUnsafely(context, pureObjects)
         let fetchRq = try! dummy1FetchRequest().fetchRequest(Dummy1.self)
         
         /// When
@@ -284,7 +286,7 @@ public extension CoreDataManagerTest {
         // counterparts here. Even if we do not have access to the context that
         // created these objects, we can reconstruct them and insert into another
         // context of choice.
-        manager.rx.save(data)
+        manager.rx.save(convertibles)
             .doOnNext({XCTAssertTrue($0.all(satisfying: {$0.isSuccess()}))})
             .flatMap({_ in manager.rx.persistLocally()})
             .flatMap({manager.rx.fetch(fetchRq)})
@@ -298,7 +300,7 @@ public extension CoreDataManagerTest {
         
         /// Then
         let nextElements = observer.nextElements()
-        XCTAssertEqual(nextElements.count, poData.count)
-        XCTAssertTrue(poData.all(satisfying: nextElements.contains))
+        XCTAssertEqual(nextElements.count, pureObjects.count)
+        XCTAssertTrue(pureObjects.all(satisfying: nextElements.contains))
     }
 }
