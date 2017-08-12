@@ -166,9 +166,11 @@ extension CDDummy1: HMCDVersionableMasterType {
         }
     }
     
-    public func hasPreferableVersion(over obj: CDDummy1) throws -> Bool {
-        if let v1 = self.version, let v2 = obj.version {
-            return v1.intValue >= v2.intValue
+    public func hasPreferableVersion<U>(over obj: U) throws -> Bool where
+        U: HMVersionableType
+    {
+        if let v1 = self.currentVersion(), let v2 = obj.currentVersion() {
+            return v1 >= v2
         } else {
             throw Exception("Version not available")
         }

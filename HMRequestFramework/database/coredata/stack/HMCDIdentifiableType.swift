@@ -35,7 +35,7 @@ public extension HMCDIdentifiableType {
     ///
     /// - Parameter object: A HMCDObjectAliasType instance.
     /// - Returns: A Bool value.
-    public func identifiable<I>(as object: I) -> Bool where I: HMCDObjectAliasType {
+    public func identifiable(as object: HMCDObjectAliasType) -> Bool {
         return identifiable(as: object.asManagedObject())
     }
 }

@@ -10,6 +10,8 @@ import CoreData
 import RxSwift
 import SwiftUtilities
 
+public typealias HMCDVersionUpdateRequest = HMVersionUpdateRequest<HMCDVersionableType>
+
 // Just a bit of utility here, not going to expose publicly.
 fileprivate extension HMVersionUpdateRequest where VC: HMCDIdentifiableType {
     
@@ -118,8 +120,6 @@ public extension HMCDManager {
     func convert<VC,S>(_ context: NSManagedObjectContext,
                        _ entityName: String,
                        _ requests: S) throws -> [HMResult] where
-        VC: HMCDConvertibleType,
-        VC: HMCDIdentifiableType,
         VC: HMCDVersionableType,
         S: Sequence,
         S.Iterator.Element == HMVersionUpdateRequest<VC>
@@ -183,8 +183,6 @@ public extension HMCDManager {
                                _ entityName: String,
                                _ requests: S,
                                _ obs: O) where
-        VC: HMCDConvertibleType,
-        VC: HMCDIdentifiableType,
         VC: HMCDVersionableType,
         S: Sequence,
         S.Iterator.Element == HMVersionUpdateRequest<VC>,
@@ -218,8 +216,6 @@ extension Reactive where Base: HMCDManager {
                                     _ entityName: String,
                                     _ requests: S)
         -> Observable<[HMResult]> where
-        VC: HMCDConvertibleType,
-        VC: HMCDIdentifiableType,
         VC: HMCDVersionableType,
         S: Sequence,
         S.Iterator.Element == HMVersionUpdateRequest<VC>
@@ -241,8 +237,6 @@ extension Reactive where Base: HMCDManager {
     /// - Throws: Exception if the operation fails.
     public func updateVersion<VC,S>(_ entityName: String, _ requests: S)
         -> Observable<[HMResult]> where
-        VC: HMCDConvertibleType,
-        VC: HMCDIdentifiableType,
         VC: HMCDVersionableType,
         S: Sequence,
         S.Iterator.Element == HMVersionUpdateRequest<VC>

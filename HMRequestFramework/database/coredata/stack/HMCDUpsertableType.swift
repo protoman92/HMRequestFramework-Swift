@@ -11,7 +11,7 @@ import CoreData
 /// Classes that implement this protocol must define certain properties to be
 /// used in an upsert operation.
 public protocol HMCDUpsertableType:
-    NSFetchRequestResult,
-    HMCDIdentifiableType,
-    HMCDConvertibleType,
-    HMCDKeyValueUpdatableType {}
+    NSFetchRequestResult,           // Type can be retained in a fetch ops.
+    HMCDIdentifiableType,           // Reconstructible from a refetch.
+    HMCDConvertibleType,            // Identifiable in DB.
+    HMCDKeyValueUpdatableType {}    // Updatable using key-value pairs.

@@ -22,11 +22,13 @@ public protocol HMVersionableType {
     func oneVersionHigher() -> String?
     
     /// Check if this object's version is preferable over that of another object.
+    /// We do not use Self here because we want to refer to this protocol
+    /// directly without Self attachment.
     ///
     /// - Parameter obj: A HMVersionableType instance.
     /// - Returns: A Bool value.
     /// - Throws: Exception if the operation fails.
-    func hasPreferableVersion(over obj: Self) throws -> Bool
+    func hasPreferableVersion<V>(over obj: V) throws -> Bool where V: HMVersionableType
 }
 
 /// Classes that implement this protocol should be buildable with a builder that

@@ -66,6 +66,12 @@ public protocol HMCDRequestType: HMDatabaseRequestType {
     /// - Returns: An Array of NSManagedObject.
     /// - Throws: Exception if the data is not available.
     func deletedData() throws -> [NSManagedObject]
+    
+    /// Get the conflict strategy to be used in an update operation/
+    ///
+    /// - Returns: A Strategy instance.
+    /// - Throws: Exception if the data is not available.
+    func versionConflictStrategy() throws -> VersionConflict.Strategy
 }
 
 public extension HMCDRequestType {

@@ -10,7 +10,7 @@ import CoreData
 import SwiftUtilities
 
 /// This request object is only used for update requests.
-public struct HMVersionUpdateRequest<VC: HMVersionableType> {
+public struct HMVersionUpdateRequest<VC> {
     fileprivate var original: VC?
     fileprivate var edited: VC?
     fileprivate var strategy: VersionConflict.Strategy

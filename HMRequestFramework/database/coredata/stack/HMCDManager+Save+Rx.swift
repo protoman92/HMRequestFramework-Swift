@@ -115,7 +115,6 @@ public extension HMCDManager {
             
             do {
                 _ = try item.asManagedObject(context)
-                
                 result = HMResult.just(item)
             } catch let e {
                 result = HMResult.builder().with(object: item).with(error: e).build()

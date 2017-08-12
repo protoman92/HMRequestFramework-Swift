@@ -8,14 +8,17 @@
 
 import CoreData
 
-/// Similar to HMVersionableType, customized for CoreData. They should also
-/// support updating inner values and version (mutating own properties).
+/// Similar to HMVersionableType, customized for CoreData. They should be
+/// identifiable without ObjectID (e.g. by having some other combination of
+/// primary key/value), and also support updating inner values and version.
 /// However, we should avoid such mutations as much as we can.
 public protocol HMCDVersionableType:
-    NSFetchRequestResult,
-    HMVersionableType,
-    HMCDKeyValueUpdatableType,
-    HMCDVersionUpdatableType {}
+    NSFetchRequestResult,           // Type can be retained in a fetch ops.
+    HMVersionableType,              // Minimally versionable.
+    HMCDConvertibleType,            // Reconstructible from a refetch.
+    HMCDIdentifiableType,           // Identifiable in DB.
+    HMCDKeyValueUpdatableType,      // Updatable using key-value pairs.
+    HMCDVersionUpdatableType {}     // Updatable w.r.t version.
 
 /// Classes that implement this protocol must be able to update version. Since
 /// this protocol implies mutation, we should avoid using it as much as possible.

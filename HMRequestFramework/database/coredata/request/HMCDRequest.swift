@@ -18,6 +18,7 @@ public struct HMCDRequest {
     fileprivate var cdInsertedData: [HMCDConvertibleType]
     fileprivate var cdUpsertedData: [HMCDUpsertableType]
     fileprivate var cdDeletedData: [NSManagedObject]
+    fileprivate var cdVCStrategy: VersionConflict.Strategy?
     fileprivate var retryCount: Int
     fileprivate var middlewaresEnabled: Bool
     fileprivate var rqDescription: String?
@@ -213,6 +214,15 @@ extension HMCDRequest: HMBuildableType {
         {
             return with(deletedData: deletedData?.map({$0 as NSManagedObject}))
         }
+        
+        /// Set the version conflict strategy.
+        ///
+        /// - Parameter vcStrategy: A VersionConflict.Strategy instance.
+        /// - Returns: The current Builder instance.
+        public func with(vcStrategy: VersionConflict.Strategy?) -> Self {
+            request.cdVCStrategy = vcStrategy
+            return self
+        }
     }
 }
 
@@ -240,6 +250,7 @@ extension HMCDRequest.Builder: HMProtocolConvertibleBuilderType {
             .with(insertedData: try? generic.insertedData())
             .with(upsertedData: try? generic.upsertedData())
             .with(deletedData: try? generic.deletedData())
+            .with(vcStrategy: try? generic.versionConflictStrategy())
             .with(retries: generic.retries())
             .with(applyMiddlewares: generic.applyMiddlewares())
             .with(requestDescription: generic.requestDescription())
@@ -334,6 +345,14 @@ extension HMCDRequest: HMCDRequestType {
     
     public func deletedData() throws -> [NSManagedObject] {
         return cdDeletedData
+    }
+    
+    public func versionConflictStrategy() throws -> VersionConflict.Strategy {
+        if let strategy = cdVCStrategy {
+            return strategy
+        } else {
+            throw Exception("Version conflict strategy must not be nil")
+        }
     }
     
     public func retries() -> Int {

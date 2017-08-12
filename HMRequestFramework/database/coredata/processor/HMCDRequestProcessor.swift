@@ -141,16 +141,14 @@ extension HMCDRequestProcessor: HMCDRequestProcessorType {
     /// - Throws: Exception if the execution fails.
     private func executeDelete(_ request: Req) throws -> Observable<Try<Void>> {
         let manager = coreDataManager()
-        let data = try request.deletedData()
-        let identifiables = data.flatMap({$0 as? HMCDIdentifiableType})
-        
-        let nonIdentifiables = data.filter({obj in
-            identifiables.contains(where: {
-                $0.asManagedObject().objectID == obj.objectID
-            })
-        })
-        
         let entityName = try request.entityName()
+        let data = try request.deletedData()
+        
+        // We deal with identifiables and normal managed objects differently.
+        // For identifiables, we need to fetch their counterparts in the DB
+        // first before deleting.
+        let identifiables = data.flatMap({$0 as? HMCDIdentifiableType})
+        let nonIdentifiables = data.filter({!($0 is HMCDIdentifiableType)})
         
         return Observable
             .concat(
@@ -188,8 +186,13 @@ extension HMCDRequestProcessor: HMCDRequestProcessorType {
         let data = try request.upsertedData()
         let entityName = try request.entityName()
         
+        // If the data requires versioning, we call updateVersionn.
+        let versionables = data.flatMap({$0 as? HMCDVersionableType})
+        let nonVersionables = data.filter({!($0 is HMCDVersionableType)})
+        
         return Observable
             .concat(
+//                manager.rx.updateVersion(entityName, versionables),
                 manager.rx.upsert(entityName, data)
             )
             .reduce([], accumulator: +)
