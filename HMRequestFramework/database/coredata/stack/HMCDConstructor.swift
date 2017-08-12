@@ -12,7 +12,7 @@ import SwiftUtilities
 /// CoreData dependency constructor that uses a file.
 public struct HMCDConstructor {
     fileprivate var cdObjectModel: NSManagedObjectModel?
-    fileprivate var cdStoreSettings: [HMPersistentStoreSettings]
+    fileprivate var cdStoreSettings: [HMCDPersistentStoreSettings]
     
     fileprivate init() {
         cdStoreSettings = []
@@ -37,7 +37,7 @@ extension HMCDConstructor: HMCDConstructorType {
     ///
     /// - Returns: An Array of HMPersistentStoreSettings.
     /// - Throws: Exception if the settings are not available.
-    public func storeSettings() throws -> [HMPersistentStoreSettings] {
+    public func storeSettings() throws -> [HMCDPersistentStoreSettings] {
         return cdStoreSettings
     }
 }
@@ -137,7 +137,7 @@ extension HMCDConstructor: HMBuildableType {
         /// - Returns: The current Builder instance.
         @discardableResult
         public func with<S>(settings: S?) -> Self where
-            S: Sequence, S.Iterator.Element == HMPersistentStoreSettings
+            S: Sequence, S.Iterator.Element == HMCDPersistentStoreSettings
         {
             if let settings = settings {
                 constructor.cdStoreSettings.append(contentsOf: settings)

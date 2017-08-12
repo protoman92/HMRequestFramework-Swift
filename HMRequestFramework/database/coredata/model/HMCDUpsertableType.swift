@@ -12,6 +12,5 @@ import CoreData
 /// used in an upsert operation.
 public protocol HMCDUpsertableType:
     NSFetchRequestResult,           // Type can be retained in a fetch ops.
-    HMCDIdentifiableType,           // Reconstructible from a refetch.
-    HMCDConvertibleType,            // Identifiable in DB.
+    HMCDIdentifiableType,           // Identifiable in DB.
     HMCDKeyValueUpdatableType {}    // Updatable using key-value pairs.

@@ -13,11 +13,8 @@ import CoreData
 /// primary key/value), and also support updating inner values and version.
 /// However, we should avoid such mutations as much as we can.
 public protocol HMCDVersionableType:
-    NSFetchRequestResult,           // Type can be retained in a fetch ops.
     HMVersionableType,              // Minimally versionable.
-    HMCDConvertibleType,            // Reconstructible from a refetch.
-    HMCDIdentifiableType,           // Identifiable in DB.
-    HMCDKeyValueUpdatableType,      // Updatable using key-value pairs.
+    HMCDUpsertableType,             // Upsertable in DB.
     HMCDVersionUpdatableType {}     // Updatable w.r.t version.
 
 /// Classes that implement this protocol must be able to update version. Since

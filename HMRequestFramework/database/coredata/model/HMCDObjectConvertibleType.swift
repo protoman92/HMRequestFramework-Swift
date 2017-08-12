@@ -10,7 +10,7 @@ import CoreData
 
 /// Classes that implement this protocol must be able to convert itself into
 /// a NSManagedObject.
-public protocol HMCDConvertibleType {
+public protocol HMCDObjectConvertibleType {
     
     /// Convert the current object into a NSManagedObject. If this is already
     /// a NSManagedObject, clone it and insert the clone into the specified
@@ -23,7 +23,7 @@ public protocol HMCDConvertibleType {
     func asManagedObject(_ context: NSManagedObjectContext) throws -> NSManagedObject
 }
 
-public extension HMCDConvertibleType where
+public extension HMCDObjectConvertibleType where
     Self: HMCDObjectBuildableType,
     Self.Builder.Buildable == Self
 {

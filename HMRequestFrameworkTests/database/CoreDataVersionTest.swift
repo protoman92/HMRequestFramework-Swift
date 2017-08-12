@@ -73,7 +73,7 @@ public final class CoreDataVersionTest: CoreDataRootTest {
         let serverCDObjects = try! manager.constructUnsafely(context, serverPureObjects)
 
         let updateRequests = editedCDObjects.enumerated().map({
-            HMVersionUpdateRequest<Dummy1.CDClass>.builder()
+            HMCDVersionUpdateRequest.builder()
                 .with(edited: $0.element)
                 .with(strategy: strategies[$0.offset])
                 .build()
@@ -133,7 +133,7 @@ public final class CoreDataVersionTest: CoreDataRootTest {
         let toBeSavedCDObjects = try! manager.constructUnsafely(context, toBeSaved)
 
         let updateRequests = toBeSavedCDObjects.map({
-            HMVersionUpdateRequest<Dummy1.CDClass>.builder()
+            HMCDVersionUpdateRequest.builder()
                 .with(edited: $0)
                 .with(strategy: .overwrite)
                 .build()

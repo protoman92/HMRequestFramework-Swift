@@ -61,7 +61,6 @@ public final class CoreDataManagerTest: CoreDataRootTest {
             // not persisted.
             .flatMap({manager.rx.fetch(fetchRq)})
             .doOnNext({XCTAssertEqual($0.count, dummyCount)})
-            .logNext({$0.map({$0.asPureObject()})})
             .doOnNext({_ in XCTAssertEqual(mainContext.insertedObjects.count, dummyCount)})
             .doOnNext({_ in XCTAssertTrue(privateContext.insertedObjects.isEmpty)})
             .map(toVoid)
@@ -187,12 +186,12 @@ public final class CoreDataManagerTest: CoreDataRootTest {
     
     public func test_insertAndDeleteManyRandomDummies_shouldWork() {
         /// Setup
-        let observer = scheduler.createObserver(Dummy1.CDClass.self)
+        let observer = scheduler.createObserver(Any.self)
         let expect = expectation(description: "Should have completed")
         let manager = self.manager!
         let iterationCount = 100
         let dummyCount = 100
-        let request = try! dummy1FetchRequest().fetchRequest(Dummy1.CDClass.self)
+        let request = try! dummy1FetchRequest().fetchRequest(Dummy1.self)
         let entityName = request.entityName!
         
         /// When
@@ -228,17 +227,23 @@ public final class CoreDataManagerTest: CoreDataRootTest {
             .doOnNext({XCTAssertEqual($0.count, iterationCount * dummyCount)})
             .doOnNext({XCTAssertTrue($0.flatMap({$0.id}).count > 0)})
             .map({$0.map({$0.asPureObject()})})
-            .flatMap({manager.rx.construct(manager.disposableObjectContext(), $0)})
-
-            // Delete from memory, but do not persist yet.
-            .flatMap({manager.rx.delete(entityName, $0)})
+            .flatMap({(objects) -> Observable<Void> in
+                let context = manager.disposableObjectContext()
+                
+                return manager.rx.construct(context, objects)
+                    
+                    // Delete from memory, but do not persist yet.
+                    .flatMap({manager.rx.delete(entityName, $0)})
+            })
 
             // Persist the changes.
             .flatMap(manager.rx.persistLocally)
 
             // Fetch to verify that the data have been deleted.
             .flatMap({manager.rx.fetch(request).subscribeOn(qos: .background)})
+            .map({$0.map({$0.asPureObject()})})
             .flatMap({Observable.from($0)})
+            .cast(to: Any.self)
             .doOnDispose(expect.fulfill)
             .subscribe(observer)
             .disposed(by: disposeBag)

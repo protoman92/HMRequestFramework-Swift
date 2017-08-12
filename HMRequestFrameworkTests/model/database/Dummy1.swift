@@ -166,9 +166,7 @@ extension CDDummy1: HMCDVersionableMasterType {
         }
     }
     
-    public func hasPreferableVersion<U>(over obj: U) throws -> Bool where
-        U: HMVersionableType
-    {
+    public func hasPreferableVersion(over obj: HMVersionableType) throws -> Bool {
         if let v1 = self.currentVersion(), let v2 = obj.currentVersion() {
             return v1 >= v2
         } else {
@@ -209,7 +207,7 @@ extension CDDummy1: HMCDUpsertableType {
     }
 }
 
-extension CDDummy1.Builder: HMCDVersionableBuilderMasterType {
+extension CDDummy1.Builder: HMCDObjectBuilderMasterType {
     public typealias PureObject = Dummy1
     
     public func with(pureObject: PureObject) -> Self {

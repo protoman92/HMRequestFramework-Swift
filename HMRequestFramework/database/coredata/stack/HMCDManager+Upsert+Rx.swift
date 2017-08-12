@@ -46,7 +46,7 @@ public extension HMCDManager {
         
         // We need an Array here to keep track of the objects that do
         // not exist in DB yet.
-        var nonExisting: [HMCDConvertibleType] = []
+        var nonExisting: [HMCDObjectConvertibleType] = []
         
         for upsertable in upsertables {
             if let item = existing.first(where: upsertable.identifiable) {

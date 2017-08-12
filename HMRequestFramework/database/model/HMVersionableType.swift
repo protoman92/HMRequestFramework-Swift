@@ -28,7 +28,7 @@ public protocol HMVersionableType {
     /// - Parameter obj: A HMVersionableType instance.
     /// - Returns: A Bool value.
     /// - Throws: Exception if the operation fails.
-    func hasPreferableVersion<V>(over obj: V) throws -> Bool where V: HMVersionableType
+    func hasPreferableVersion(over obj: HMVersionableType) throws -> Bool
 }
 
 /// Classes that implement this protocol should be buildable with a builder that

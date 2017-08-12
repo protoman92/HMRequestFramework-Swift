@@ -9,7 +9,8 @@
 import CoreData
 import SwiftUtilities
 
-/// This request object is only used for update requests.
+/// This request object is only used for update requests. The generics represent
+/// the type of object being updated.
 public struct HMVersionUpdateRequest<VC> {
     fileprivate var original: VC?
     fileprivate var edited: VC?

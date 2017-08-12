@@ -15,7 +15,7 @@ public struct HMCDRequest {
     fileprivate var nsPredicate: NSPredicate?
     fileprivate var nsSortDescriptors: [NSSortDescriptor]
     fileprivate var cdOperation: CoreDataOperation?
-    fileprivate var cdInsertedData: [HMCDConvertibleType]
+    fileprivate var cdInsertedData: [HMCDObjectConvertibleType]
     fileprivate var cdUpsertedData: [HMCDUpsertableType]
     fileprivate var cdDeletedData: [NSManagedObject]
     fileprivate var cdVCStrategy: VersionConflict.Strategy?
@@ -143,7 +143,7 @@ extension HMCDRequest: HMBuildableType {
         /// - Returns: The current Builder instance.
         @discardableResult
         public func with<S>(insertedData: S?) -> Self where
-            S: Sequence, S.Iterator.Element == HMCDConvertibleType
+            S: Sequence, S.Iterator.Element == HMCDObjectConvertibleType
         {
             if let data = insertedData {
                 request.cdInsertedData.append(contentsOf: data)
@@ -158,9 +158,9 @@ extension HMCDRequest: HMBuildableType {
         /// - Returns: The current Builder instance.
         @discardableResult
         public func with<S>(insertedData: S?) -> Self where
-            S: Sequence, S.Iterator.Element: HMCDConvertibleType
+            S: Sequence, S.Iterator.Element: HMCDObjectConvertibleType
         {
-            return with(insertedData: insertedData?.map({$0 as HMCDConvertibleType}))
+            return with(insertedData: insertedData?.map({$0 as HMCDObjectConvertibleType}))
         }
         
         /// Set the data to upsert.
@@ -335,7 +335,7 @@ extension HMCDRequest: HMCDRequestType {
         return nsSortDescriptors
     }
     
-    public func insertedData() throws -> [HMCDConvertibleType] {
+    public func insertedData() throws -> [HMCDObjectConvertibleType] {
         return cdInsertedData
     }
     

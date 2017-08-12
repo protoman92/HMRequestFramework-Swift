@@ -189,11 +189,12 @@ extension HMCDRequestProcessor: HMCDRequestProcessorType {
         // If the data requires versioning, we call updateVersionn.
         let versionables = data.flatMap({$0 as? HMCDVersionableType})
         let nonVersionables = data.filter({!($0 is HMCDVersionableType)})
+        let updateRequests = try request.updateRequest(versionables)
         
         return Observable
             .concat(
-//                manager.rx.updateVersion(entityName, versionables),
-                manager.rx.upsert(entityName, data)
+                manager.rx.updateVersion(entityName, updateRequests),
+                manager.rx.upsert(entityName, nonVersionables)
             )
             .reduce([], accumulator: +)
             .map(Try.success)

@@ -1,5 +1,5 @@
 //
-//  HMPersistentStoreURL.swift
+//  HMCDPersistentStoreURL.swift
 //  HMRequestFramework
 //
 //  Created by Hai Pham on 7/24/17.
@@ -10,7 +10,7 @@ import CoreData
 import SwiftUtilities
 
 /// Use this class to represent components to build a persistent store URL.
-public struct HMPersistentStoreURL {
+public struct HMCDPersistentStoreURL {
     fileprivate var fileManager: FileManager?
     fileprivate var searchPath: FileManager.SearchPathDirectory?
     fileprivate var domainMask: FileManager.SearchPathDomainMask?
@@ -38,7 +38,7 @@ public struct HMPersistentStoreURL {
     }
 }
 
-extension HMPersistentStoreURL: HMBuildableType {
+extension HMCDPersistentStoreURL: HMBuildableType {
     public static func builder() -> Builder {
         return Builder()
     }
@@ -129,7 +129,7 @@ extension HMPersistentStoreURL: HMBuildableType {
         /// - Parameter storeType: A StoreType instance.
         /// - Returns: The current Builder instance.
         @discardableResult
-        public func with(storeType: HMPersistentStoreSettings.StoreType) -> Self {
+        public func with(storeType: HMCDPersistentStoreSettings.StoreType) -> Self {
             if let fileExtension = storeType.fileExtension() {
                 return with(fileExtension: fileExtension)
             } else {
@@ -139,8 +139,8 @@ extension HMPersistentStoreURL: HMBuildableType {
     }
 }
 
-extension HMPersistentStoreURL.Builder: HMBuilderType {
-    public typealias Buildable = HMPersistentStoreURL
+extension HMCDPersistentStoreURL.Builder: HMBuilderType {
+    public typealias Buildable = HMCDPersistentStoreURL
     
     /// Override this method to provide default implementation.
     ///
@@ -160,7 +160,7 @@ extension HMPersistentStoreURL.Builder: HMBuilderType {
     }
 }
 
-public extension HMPersistentStoreSettings.StoreType {
+public extension HMCDPersistentStoreSettings.StoreType {
     
     /// Get the associated file extension.
     ///

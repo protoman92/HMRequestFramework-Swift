@@ -37,7 +37,7 @@ public extension HMCDKeyValueUpdatableType {
     /// assumes that this object does not need to validate the incoming updates.
     ///
     /// - Parameter obj: A HMCDKeyValueUpdatableType instance.
-    public func update(from obj: Self) throws {
+    public func update(from obj: HMCDKeyValueUpdatableType) throws {
         try update(with: obj.updateDictionary())
     }
 }

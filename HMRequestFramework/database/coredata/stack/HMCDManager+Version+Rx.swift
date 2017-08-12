@@ -10,16 +10,17 @@ import CoreData
 import RxSwift
 import SwiftUtilities
 
+/// For CoreData version control, we use HMCDVersionableType by default.
 public typealias HMCDVersionUpdateRequest = HMVersionUpdateRequest<HMCDVersionableType>
 
 // Just a bit of utility here, not going to expose publicly.
-fileprivate extension HMVersionUpdateRequest where VC: HMCDIdentifiableType {
+fileprivate extension HMVersionUpdateRequest where VC == HMCDVersionableType {
     
     /// Check if the current request possesses an edited object.
     ///
-    /// - Parameter obj: A VC instance.
+    /// - Parameter obj: A HMCDIdentifiableType instance.
     /// - Returns: A Bool value.
-    fileprivate func ownsEditedVC(_ obj: VC) -> Bool {
+    fileprivate func ownsEditedVC(_ obj: HMCDIdentifiableType) -> Bool {
         return (try? editedVC().identifiable(as: obj)) ?? false
     }
 }
@@ -33,10 +34,9 @@ public extension HMCDManager {
     ///   - context: A NSManagedObjectContext instance.
     ///   - request: A HMVersionUpdateRequest instance.
     /// - Throws: Exception if the operation fails.
-    func resolveVersionConflictUnsafely<VC>(
+    func resolveVersionConflictUnsafely(
         _ context: NSManagedObjectContext,
-        _ request: HMVersionUpdateRequest<VC>) throws where
-        VC: HMCDVersionableType
+        _ request: HMCDVersionUpdateRequest) throws
     {
         let original = try request.originalVC()
         let edited = try request.editedVC()
@@ -66,12 +66,10 @@ public extension HMCDManager {
     ///
     /// - Parameters:
     ///   - context: A NSManagedObjectContext instance.
-    ///   - request: A HMVersionUpdateRequest instance.
+    ///   - request: A HMCDVersionUpdateRequest instance.
     /// - Throws: Exception if the operation fails.
-    func attempVersionUpdateUnsafely<VC>(
-        _ context: NSManagedObjectContext,
-        _ request: HMVersionUpdateRequest<VC>) throws where
-        VC: HMCDVersionableType
+    func attempVersionUpdateUnsafely(_ context: NSManagedObjectContext,
+                                     _ request: HMCDVersionUpdateRequest) throws
     {
         let original = try request.originalVC()
         let edited = try request.editedVC()
@@ -91,11 +89,8 @@ public extension HMCDManager {
     ///   - context: A NSManagedObjectContext instance.
     ///   - request: A HMVersionUpdateRequest instance.
     /// - Throws: Exception if the operation fails.
-    func updateVersionUnsafely<VC>(
-        _ context: NSManagedObjectContext,
-        _ request: HMVersionUpdateRequest<VC>) throws where
-        VC: HMCDVersionableType
-    {
+    func updateVersionUnsafely(_ context: NSManagedObjectContext,
+                               _ request: HMCDVersionUpdateRequest) throws {
         let originalVersion = try request.originalVC().currentVersion()
         let editedVersion = try request.editedVC().currentVersion()
         
@@ -117,30 +112,35 @@ public extension HMCDManager {
     ///   - entityName: A String value representing the entity's name.
     ///   - requests: A Sequence of HMVersionUpdateRequest.
     /// - Throws: Exception if the operation fails.
-    func convert<VC,S>(_ context: NSManagedObjectContext,
-                       _ entityName: String,
-                       _ requests: S) throws -> [HMResult] where
-        VC: HMCDVersionableType,
-        S: Sequence,
-        S.Iterator.Element == HMVersionUpdateRequest<VC>
+    func convert<S>(_ context: NSManagedObjectContext,
+                    _ entityName: String,
+                    _ requests: S) throws -> [HMResult] where
+        S: Sequence, S.Iterator.Element == HMCDVersionUpdateRequest
     {
         // It's ok for these requests not to have the original object. We will
         // get them right below.
-        let identifiables = requests.flatMap({try? $0.editedVC()})
+        let identifiables: [HMCDIdentifiableType] = requests.flatMap({try? $0.editedVC()})
         let originals = try self.blockingRefetch(context, entityName, identifiables)
         var results: [HMResult] = []
         
         // We also need an Array of VC to store items that cannot be found in
         // the DB yet.
-        var nonExisting: [VC] = []
+        var nonExisting: [HMCDObjectConvertibleType] = []
         
         for item in identifiables {
             if
                 let original = originals.first(where: item.identifiable),
                 let request = requests.first(where: {($0.ownsEditedVC(item))})?
                     .cloneBuilder()
-                    .with(original: original)
-                    .with(edited: item)
+                    
+                    // The cast here is unfortunate, but we have to do it to
+                    // avoid having to define a concrete class that extends
+                    // NSManagedObject and implements HMCDVersionableType.
+                    // When the object is fetched from database, it retains its
+                    // original type (thanks to entityName), but is masked under
+                    // NSManagedObject. We should expect it to be a subtype of
+                    // HMCDVersionableType.
+                    .with(original: original as? HMCDVersionableType)
                     .build()
             {
                 let result: HMResult
@@ -179,13 +179,12 @@ public extension HMCDManager {
     ///   - requests: A Sequence of HMVersionUpdateRequest.
     ///   - obs: An ObserverType instance.
     /// - Throws: Exception if the operation fails.
-    func updateVersion<VC,S,O>(_ context: NSManagedObjectContext,
-                               _ entityName: String,
-                               _ requests: S,
-                               _ obs: O) where
-        VC: HMCDVersionableType,
+    func updateVersion<S,O>(_ context: NSManagedObjectContext,
+                            _ entityName: String,
+                            _ requests: S,
+                            _ obs: O) where
         S: Sequence,
-        S.Iterator.Element == HMVersionUpdateRequest<VC>,
+        S.Iterator.Element == HMCDVersionUpdateRequest,
         O: ObserverType,
         O.E == [HMResult]
     {
@@ -212,13 +211,11 @@ extension Reactive where Base: HMCDManager {
     ///   - requests: A Sequence of HMVersionUpdateRequest.
     /// - Return: An Observable instance.
     /// - Throws: Exception if the operation fails.
-    public func updateVersion<VC,S>(_ context: NSManagedObjectContext,
-                                    _ entityName: String,
-                                    _ requests: S)
+    public func updateVersion<S>(_ context: NSManagedObjectContext,
+                                 _ entityName: String,
+                                 _ requests: S)
         -> Observable<[HMResult]> where
-        VC: HMCDVersionableType,
-        S: Sequence,
-        S.Iterator.Element == HMVersionUpdateRequest<VC>
+        S: Sequence, S.Iterator.Element == HMCDVersionUpdateRequest
     {
         return Observable<[HMResult]>.create({
             self.base.updateVersion(context, entityName, requests, $0)
@@ -232,14 +229,11 @@ extension Reactive where Base: HMCDManager {
     /// - Parameters:
     ///   - entityName: A String value representing the entity's name.
     ///   - requests: A Sequence of HMVersionUpdateRequest.
-    ///   - strategyFn: A strategy producer.
     /// - Return: An Observable instance.
     /// - Throws: Exception if the operation fails.
-    public func updateVersion<VC,S>(_ entityName: String, _ requests: S)
+    public func updateVersion<S>(_ entityName: String, _ requests: S)
         -> Observable<[HMResult]> where
-        VC: HMCDVersionableType,
-        S: Sequence,
-        S.Iterator.Element == HMVersionUpdateRequest<VC>
+        S: Sequence, S.Iterator.Element == HMCDVersionUpdateRequest
     {
         let context = base.disposableObjectContext()
         return updateVersion(context, entityName, requests)

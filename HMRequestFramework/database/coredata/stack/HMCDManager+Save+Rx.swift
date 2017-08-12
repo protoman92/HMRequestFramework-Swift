@@ -106,7 +106,7 @@ public extension HMCDManager {
     /// - Throws: Exception if the operation fails.
     func convert<S>(_ context: NSManagedObjectContext,
                     _ convertibles: S) -> [HMResult] where
-        S: Sequence, S.Iterator.Element == HMCDConvertibleType
+        S: Sequence, S.Iterator.Element == HMCDObjectConvertibleType
     {
         var results: [HMResult] = []
         
@@ -136,9 +136,9 @@ public extension HMCDManager {
     /// - Throws: Exception if the operation fails.
     func convert<U,S>(_ context: NSManagedObjectContext,
                       _ convertibles: S) -> [HMResult] where
-        U: HMCDConvertibleType, S: Sequence, S.Iterator.Element == U
+        U: HMCDObjectConvertibleType, S: Sequence, S.Iterator.Element == U
     {
-        return convert(context, convertibles.map({$0 as HMCDConvertibleType}))
+        return convert(context, convertibles.map({$0 as HMCDObjectConvertibleType}))
     }
     
     /// Save a Sequence of convertible objects to memory and observe the process.
@@ -149,7 +149,7 @@ public extension HMCDManager {
     ///   - convertibles: A Sequence of HMCDConvertibleType.
     ///   - obs: An ObserverType instance.
     func save<S,O>(_ convertibles: S, _ obs: O) where
-        S: Sequence, S.Iterator.Element == HMCDConvertibleType,
+        S: Sequence, S.Iterator.Element == HMCDObjectConvertibleType,
         O: ObserverType, O.E == [HMResult]
     {
         let context = disposableObjectContext()
@@ -173,11 +173,11 @@ public extension HMCDManager {
     ///   - convertibles: A Sequence of HMCDConvertibleType.
     ///   - obs: An ObserverType instance.
     func save<U,S,O>(_ convertibles: S, _ obs: O) where
-        U: HMCDConvertibleType,
+        U: HMCDObjectConvertibleType,
         S: Sequence, S.Iterator.Element == U,
         O: ObserverType, O.E == [HMResult]
     {
-        return save(convertibles.map({$0 as HMCDConvertibleType}), obs)
+        return save(convertibles.map({$0 as HMCDObjectConvertibleType}), obs)
     }
 }
 
@@ -247,7 +247,7 @@ public extension Reactive where Base: HMCDManager {
     /// - Parameters convertibles: A Sequence of HMCDConvertibleType.
     /// - Return: An Observable instance.
     func save<S>(_ convertibles: S) -> Observable<[HMResult]> where
-        S: Sequence, S.Iterator.Element == HMCDConvertibleType
+        S: Sequence, S.Iterator.Element == HMCDObjectConvertibleType
     {
         return Observable<[HMResult]>.create({
             self.base.save(convertibles, $0)
@@ -261,10 +261,10 @@ public extension Reactive where Base: HMCDManager {
     /// - Return: An Observable instance.
     func save<S,OC>(_ convertibles: S)
         -> Observable<[HMResult]> where
-        OC: HMCDConvertibleType,
+        OC: HMCDObjectConvertibleType,
         S: Sequence, S.Iterator.Element == OC
     {
-        return save(convertibles.map({$0 as HMCDConvertibleType}))
+        return save(convertibles.map({$0 as HMCDObjectConvertibleType}))
     }
 }
 

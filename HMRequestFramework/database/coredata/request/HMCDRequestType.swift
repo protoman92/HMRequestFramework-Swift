@@ -41,7 +41,7 @@ public protocol HMCDRequestType: HMDatabaseRequestType {
     ///
     /// - Returns: An Array of HMCDConvertibleType.
     /// - Throws: Exception if the data is not available.
-    func insertedData() throws -> [HMCDConvertibleType]
+    func insertedData() throws -> [HMCDObjectConvertibleType]
     
     /// Get the data to be upserted. Upsert works similarly to how insertion
     /// does, but it will also check for version-controlled objects if present.
@@ -110,5 +110,23 @@ public extension HMCDRequestType {
         PO: HMCDPureObjectType
     {
         return try fetchRequest(cls.CDClass.self)
+    }
+    
+    /// Get version update requests for some versionable objects.
+    ///
+    /// - Parameter versionables: A Sequence of versionable objects.
+    /// - Returns: An Array of HMCDVersionUpdateRequest.
+    /// - Throws: Exception if the operation fails.
+    public func updateRequest<S>(_ versionables: S) throws -> [HMCDVersionUpdateRequest] where
+        S: Sequence, S.Iterator.Element == HMCDVersionableType
+    {
+        let conflictStrategy = try versionConflictStrategy()
+        
+        return versionables.map({
+            HMCDVersionUpdateRequest.builder()
+                .with(edited: $0)
+                .with(strategy: conflictStrategy)
+                .build()
+        })
     }
 }

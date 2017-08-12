@@ -137,32 +137,29 @@ public final class CoreDataRequestTest: CoreDataRootTest {
         let expect = expectation(description: "Should have completed")
         let manager = self.manager!
         let dbProcessor = self.dbProcessor!.processor
-
-        // We need 2 contexts here because we will perform 2 operations:
-        // persist data1 to DB, and upsert data23. Under no circumstances
-        // should the operations share a disposable context.
-        let context1 = manager.disposableObjectContext()
-        let context2 = manager.disposableObjectContext()
+        let context = manager.disposableObjectContext()
         let times1 = 1000
         let times2 = 2000
         let pureObjects1 = (0..<times1).map({_ in Dummy1()})
         let pureObjects2 = (0..<times2).map({_ in Dummy1()})
 
+        // Since we are using overwrite, we expect the upsert to still succeed.
         let pureObjects3 = (0..<times1).map({(index) -> Dummy1 in
             let dummy = Dummy1()
-            dummy.id = pureObjects1[index].id
+            let previous = pureObjects1[index]
+            dummy.id = previous.id
+            dummy.version = (previous.version!.intValue + 1) as NSNumber
             return dummy
         })
 
         let pureObjects23 = [pureObjects2, pureObjects3].flatMap({$0})
-        let cdObjects1 = try! manager.constructUnsafely(context1, pureObjects1)
-        let cdObjects23 = try! manager.constructUnsafely(context2, pureObjects23)
-
+        let cdObjects1 = try! manager.constructUnsafely(context, pureObjects1)
+        let cdObjects23 = try! manager.constructUnsafely(context, pureObjects23)
         let insertGn = dummy1InsertRgn(cdObjects1)
         let insertPs = dummy1UpsertRps()
         let persistGn = dummyPersistRgn()
         let persistPs = dummyPersistRps()
-        let upsertGn = dummy1UpsertRgn(cdObjects23)
+        let upsertGn = dummy1UpsertRgn(cdObjects23, .overwrite)
         let upsertPs = dummy1UpsertRps()
         let fetchGn = dummy1FetchRgn()
 
@@ -204,6 +201,77 @@ public final class CoreDataRequestTest: CoreDataRootTest {
         XCTAssertEqual(nextElements.count, pureObjects23.count)
         XCTAssertTrue(pureObjects23.all(satisfying: nextDummies.contains))
         XCTAssertFalse(pureObjects1.any(satisfying: nextDummies.contains))
+    }
+    
+    public func test_upsertVersionableWithErrorStrategy_shouldNotOverwrite() {
+        /// Setup
+        let observer = scheduler.createObserver(Try<Dummy1>.self)
+        let expect = expectation(description: "Should have completed")
+        let manager = self.manager!
+        let dbProcessor = self.dbProcessor!.processor
+        let context = manager.disposableObjectContext()
+        let times = 1000
+        let pureObjects1 = (0..<times).map({_ in Dummy1()})
+        
+        // Since we are using error, we expect the upsert to still fail.
+        let pureObjects2 = (0..<times).map({(index) -> Dummy1 in
+            let dummy = Dummy1()
+            let previous = pureObjects1[index]
+            dummy.id = previous.id
+            dummy.version = (previous.version!.intValue + 1) as NSNumber
+            return dummy
+        })
+        
+        let cdObjects1 = try! manager.constructUnsafely(context, pureObjects1)
+        let cdObjects2 = try! manager.constructUnsafely(context, pureObjects2)
+        let insertGn = dummy1InsertRgn(cdObjects1)
+        let insertPs = dummy1UpsertRps()
+        let persistGn = dummyPersistRgn()
+        let persistPs = dummyPersistRps()
+        let upsertGn = dummy1UpsertRgn(cdObjects2, .error)
+        let upsertPs = dummy1UpsertRps()
+        let fetchGn = dummy1FetchRgn()
+        
+        /// When
+        // Insert the first set of data.
+        dbProcessor.process(dummy, insertGn, insertPs)
+            .map({$0.map({$0 as Any})})
+            
+            // Persist changes to DB.
+            .flatMap({dbProcessor.process($0, persistGn, persistPs)})
+            .map({$0.map({$0 as Any})})
+            
+            .flatMap({dbProcessor.process($0, fetchGn, Dummy1.self)})
+            .doOnNext({XCTAssertEqual($0.value?.count, times)})
+            .map({$0.map({$0 as Any})})
+            
+            // Upsert the second set of data.
+            .flatMap({dbProcessor.process($0, upsertGn, upsertPs)})
+            .map({$0.map({$0 as Any})})
+            
+            // Persist changes to DB.
+            .flatMap({dbProcessor.process($0, persistGn, persistPs)})
+            .map({$0.map({$0 as Any})})
+            
+            // Fetch all data to check that the upsert failed.
+            .flatMap({dbProcessor.process($0, fetchGn, Dummy1.self)})
+            .map({try $0.getOrThrow()})
+            .flatMap({Observable.from($0)})
+            .doOnDispose(expect.fulfill)
+            .subscribe(observer)
+            .disposed(by: disposeBag)
+        
+        waitForExpectations(timeout: timeout, handler: nil)
+        
+        /// Then
+        let nextElements = observer.nextElements()
+        let nextDummies = nextElements.flatMap({$0.value})
+        
+        // Only the old data exists in the DB. The updated versionables are not
+        // persisted due to error conflict strategy.
+        XCTAssertEqual(nextElements.count, times)
+        XCTAssertTrue(pureObjects1.all(satisfying: nextDummies.contains))
+        XCTAssertFalse(pureObjects2.any(satisfying: nextDummies.contains))
     }
     
     public func test_saveConvertibleData_shouldWork() {
@@ -299,23 +367,29 @@ extension CoreDataRequestTest {
         return {Observable.just($0).map(toVoid).map(Try.success)}
     }
     
-    func dummy1UpsertRequest(_ data: [Dummy1.CDClass]) -> Req {
+    func dummy1UpsertRequest(_ data: [Dummy1.CDClass],
+                             _ strategy: VersionConflict.Strategy) -> Req {
         return HMCDRequest.builder()
             .with(operation: .upsert)
             .with(poType: Dummy1.self)
             .with(upsertedData: data)
+            .with(vcStrategy: strategy)
             .build()
     }
     
-    func dummy1UpsertRgn(_ data: [Dummy1.CDClass]) -> HMAnyRequestGenerator<Req> {
-        return HMRequestGenerators.forceGenerateFn(dummy1UpsertRequest(data), Any.self)
+    func dummy1UpsertRgn(_ data: [Dummy1.CDClass],
+                         _ strategy: VersionConflict.Strategy)
+        -> HMAnyRequestGenerator<Req>
+    {
+        let request = dummy1UpsertRequest(data, strategy)
+        return HMRequestGenerators.forceGenerateFn(request, Any.self)
     }
     
     func dummy1UpsertRps() -> HMResultProcessor<HMResult,Void> {
         return {Observable.just($0).map(toVoid).map(Try.success)}
     }
 
-    func dummy1FetchRgn() -> HMRequestGenerator<Any,Req> {
+    func dummy1FetchRgn() -> HMAnyRequestGenerator<Req> {
         return HMRequestGenerators.forceGenerateFn(dummy1FetchRequest())
     }
     
@@ -327,7 +401,7 @@ extension CoreDataRequestTest {
         return Req.builder().with(operation: .persistLocally).build()
     }
 
-    func dummyPersistRgn() -> HMRequestGenerator<Any,Req> {
+    func dummyPersistRgn() -> HMAnyRequestGenerator<Req> {
         return HMRequestGenerators.forceGenerateFn(dummyPersistRequest())
     }
 
@@ -352,7 +426,7 @@ extension CoreDataRequestTest {
 }
 
 extension CoreDataRequestTest {
-    func errorDBRgn() -> HMRequestGenerator<Any,Req> {
+    func errorDBRgn() -> HMAnyRequestGenerator<Req> {
         return {_ in throw Exception(self.generatorError)}
     }
 

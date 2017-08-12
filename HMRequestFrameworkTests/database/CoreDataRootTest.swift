@@ -28,7 +28,7 @@ public class CoreDataRootTest: XCTestCase {
         super.setUp()
         let fileManager = FileManager.default
         
-        let url = HMPersistentStoreURL.builder()
+        let url = HMCDPersistentStoreURL.builder()
             .with(fileManager: fileManager)
             .withDocumentDirectory()
             .withUserDomainMask()
@@ -40,7 +40,7 @@ public class CoreDataRootTest: XCTestCase {
         try? fileManager.removeItem(at: try! url.storeURL())
         
         let settings = [
-            HMPersistentStoreSettings.builder()
+            HMCDPersistentStoreSettings.builder()
                 .with(storeType: .InMemory)
                 .with(persistentStoreURL: url)
                 .build()
