@@ -11,17 +11,17 @@ import SwiftUtilities
 /// Use this class to represent the result of some operation that is applied
 /// to multiple items (e.g. in an Array), for which the result of each application
 /// could be relevant to downstream flow.
-public struct HMResult {
-    public static func just(_ obj: Any) -> HMResult {
-        return HMResult.builder().with(object: obj).build()
+public struct HMResult<Val> {
+    public static func just<Val>(_ obj: Val) -> HMResult<Val> {
+        return HMResult<Val>.builder().with(object: obj).build()
     }
     
-    fileprivate var object: Any?
+    fileprivate var object: Val?
     fileprivate var error: Error?
     
     fileprivate init() {}
     
-    public func appliedObject() -> Any? {
+    public func appliedObject() -> Val? {
         return object
     }
     
@@ -57,7 +57,7 @@ extension HMResult: HMBuildableType {
         /// - Parameter object: A Val instance.
         /// - Returns: The current Builder instance.
         @discardableResult
-        public func with(object: Any?) -> Self {
+        public func with(object: Val?) -> Self {
             result.object = object
             return self
         }

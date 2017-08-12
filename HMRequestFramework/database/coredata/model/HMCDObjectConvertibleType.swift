@@ -10,7 +10,7 @@ import CoreData
 
 /// Classes that implement this protocol must be able to convert itself into
 /// a NSManagedObject.
-public protocol HMCDObjectConvertibleType {
+public protocol HMCDObjectConvertibleType: HMCDObjectAliasType {
     
     /// Convert the current object into a NSManagedObject. If this is already
     /// a NSManagedObject, clone it and insert the clone into the specified

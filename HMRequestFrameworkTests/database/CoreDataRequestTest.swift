@@ -363,7 +363,7 @@ extension CoreDataRequestTest {
         return HMRequestGenerators.forceGenerateFn(dummy1InsertRequest(data))
     }
     
-    func dummy1InsertRps() -> HMResultProcessor<HMResult,Void> {
+    func dummy1InsertRps() -> HMResultProcessor<HMCDResult,Void> {
         return {Observable.just($0).map(toVoid).map(Try.success)}
     }
     
@@ -385,7 +385,7 @@ extension CoreDataRequestTest {
         return HMRequestGenerators.forceGenerateFn(request, Any.self)
     }
     
-    func dummy1UpsertRps() -> HMResultProcessor<HMResult,Void> {
+    func dummy1UpsertRps() -> HMResultProcessor<HMCDResult,Void> {
         return {Observable.just($0).map(toVoid).map(Try.success)}
     }
 

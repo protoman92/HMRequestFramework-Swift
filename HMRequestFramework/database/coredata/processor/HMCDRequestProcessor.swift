@@ -81,7 +81,7 @@ extension HMCDRequestProcessor: HMCDRequestProcessorType {
     /// - Parameter request: A Req instance.
     /// - Returns: An Observable instance.
     /// - Throws: Exception if the operation fails.
-    public func executeTyped(_ request: Req) throws -> Observable<Try<[HMResult]>> {
+    public func executeTyped(_ request: Req) throws -> Observable<Try<[HMCDResult]>> {
         let operation = try request.operation()
         
         switch operation {
@@ -101,9 +101,7 @@ extension HMCDRequestProcessor: HMCDRequestProcessorType {
     /// - Parameter request: A Req instance.
     /// - Returns: An Observable instance.
     /// - Throws: Exception if the execution fails.
-    private func executeSaveData(_ request: Req) throws
-        -> Observable<Try<[HMResult]>>
-    {
+    private func executeSaveData(_ request: Req) throws -> Observable<Try<[HMCDResult]>> {
         let manager = coreDataManager()
         let insertedData = try request.insertedData()
         
@@ -179,9 +177,7 @@ extension HMCDRequestProcessor: HMCDRequestProcessorType {
     /// - Parameter request: A Req instance.
     /// - Returns: An Observable instance.
     /// - Throws: Exception if the execution fails.
-    private func executeUpsert(_ request: Req) throws
-        -> Observable<Try<[HMResult]>>
-    {
+    private func executeUpsert(_ request: Req) throws -> Observable<Try<[HMCDResult]>> {
         let manager = coreDataManager()
         let data = try request.upsertedData()
         let entityName = try request.entityName()

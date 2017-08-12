@@ -31,7 +31,7 @@ public protocol HMCDRequestProcessorType: HMRequestHandlerType {
     /// - Parameter request: A Req instance.
     /// - Returns: An Observable instance.
     /// - Throws: Exception if the operation fails.
-    func executeTyped(_ request: Req) throws -> Observable<Try<[HMResult]>>
+    func executeTyped(_ request: Req) throws -> Observable<Try<[HMCDResult]>>
     
     /// Perform a CoreData request with required dependencies.
     ///
@@ -111,7 +111,7 @@ public extension HMCDRequestProcessorType {
     public func process<Prev,Res>(
         _ previous: Try<Prev>,
         _ generator: @escaping HMRequestGenerator<Prev,Req>,
-        _ processor: @escaping HMResultProcessor<HMResult,Res>)
+        _ processor: @escaping HMResultProcessor<HMCDResult,Res>)
         -> Observable<Try<[Try<Res>]>>
     {
         return process(previous, generator, executeTyped, processor)

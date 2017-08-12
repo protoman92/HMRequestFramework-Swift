@@ -37,12 +37,12 @@ public extension HMCDManager {
     /// - Throws: Exception if the conversion fails.
     func convert<S>(_ context: NSManagedObjectContext,
                     _ entityName: String,
-                    _ upsertables: S) throws -> [HMResult] where
+                    _ upsertables: S) throws -> [HMCDResult] where
         S: Sequence, S.Iterator.Element == HMCDUpsertableType
     {
         let identifiables = upsertables.map({$0 as HMCDIdentifiableType})
         let existing = try self.blockingRefetch(context, entityName, identifiables)
-        var results: [HMResult] = []
+        var results: [HMCDResult] = []
         
         // We need an Array here to keep track of the objects that do
         // not exist in DB yet.
@@ -51,7 +51,7 @@ public extension HMCDManager {
         for upsertable in upsertables {
             if let item = existing.first(where: upsertable.identifiable) {
                 item.update(from: upsertable)
-                results.append(HMResult.just(upsertable))
+                results.append(HMCDResult.just(upsertable))
             } else {
                 nonExisting.append(upsertable)
             }
@@ -77,7 +77,7 @@ public extension HMCDManager {
     /// - Throws: Exception if the conversion fails.
     func convert<U,S>(_ context: NSManagedObjectContext,
                       _ entityName: String,
-                      _ upsertables: S) throws -> [HMResult] where
+                      _ upsertables: S) throws -> [HMCDResult] where
         U: HMCDUpsertableType,
         S: Sequence, S.Iterator.Element == U
     {
@@ -103,7 +103,7 @@ public extension HMCDManager {
         S: Sequence,
         S.Iterator.Element == HMCDUpsertableType,
         O: ObserverType,
-        O.E == [HMResult]
+        O.E == [HMCDResult]
     {
         performOnContextThread(mainContext) {
             do {
@@ -133,7 +133,7 @@ public extension HMCDManager {
         S: Sequence,
         S.Iterator.Element == U,
         O: ObserverType,
-        O.E == [HMResult]
+        O.E == [HMCDResult]
     {
         let upsertables = upsertables.map({$0 as HMCDUpsertableType})
         return upsert(context, entityName, upsertables, obs)
@@ -152,7 +152,7 @@ extension Reactive where Base: HMCDManager {
     func upsert<S>(_ context: NSManagedObjectContext,
                    _ entityName: String,
                    _ upsertables: S)
-        -> Observable<[HMResult]> where
+        -> Observable<[HMCDResult]> where
         S: Sequence, S.Iterator.Element == HMCDUpsertableType
     {
         return Observable<[HMResult]>.create({
@@ -169,7 +169,7 @@ extension Reactive where Base: HMCDManager {
     ///   - upsertables: A Sequence of upsertable objects.
     /// - Returns: An Observable instane.
     public func upsert<S>(_ entityName: String, _ upsertables: S)
-        -> Observable<[HMResult]> where
+        -> Observable<[HMCDResult]> where
         S: Sequence, S.Iterator.Element == HMCDUpsertableType
     {
         return upsert(base.disposableObjectContext(), entityName, upsertables)
@@ -185,7 +185,7 @@ extension Reactive where Base: HMCDManager {
     func upsert<U,S>(_ context: NSManagedObjectContext,
                      _ entityName: String,
                      _ upsertables: S)
-        -> Observable<[HMResult]> where
+        -> Observable<[HMCDResult]> where
         U: HMCDUpsertableType,
         S: Sequence,
         S.Iterator.Element == U
@@ -201,7 +201,7 @@ extension Reactive where Base: HMCDManager {
     ///   - upsertables: A Sequence of upsertable objects.
     /// - Returns: An Observable instane.
     public func upsert<U,S>(_ entityName: String, _ upsertables: S)
-        -> Observable<[HMResult]> where
+        -> Observable<[HMCDResult]> where
         U: HMCDUpsertableType,
         S: Sequence,
         S.Iterator.Element == U

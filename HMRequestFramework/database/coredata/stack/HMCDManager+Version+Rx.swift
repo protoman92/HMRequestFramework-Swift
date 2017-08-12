@@ -114,14 +114,14 @@ public extension HMCDManager {
     /// - Throws: Exception if the operation fails.
     func convert<S>(_ context: NSManagedObjectContext,
                     _ entityName: String,
-                    _ requests: S) throws -> [HMResult] where
+                    _ requests: S) throws -> [HMCDResult] where
         S: Sequence, S.Iterator.Element == HMCDVersionUpdateRequest
     {
         // It's ok for these requests not to have the original object. We will
         // get them right below.
         let identifiables: [HMCDIdentifiableType] = requests.flatMap({try? $0.editedVC()})
         let originals = try self.blockingRefetch(context, entityName, identifiables)
-        var results: [HMResult] = []
+        var results: [HMCDResult] = []
         
         // We also need an Array of VC to store items that cannot be found in
         // the DB yet.
@@ -143,13 +143,13 @@ public extension HMCDManager {
                     .with(original: original as? HMCDVersionableType)
                     .build()
             {
-                let result: HMResult
+                let result: HMCDResult
                 
                 do {
                     try self.updateVersionUnsafely(context, request)
-                    result = HMResult.just(item)
+                    result = HMCDResult.just(item)
                 } catch let e {
-                    result = HMResult.builder()
+                    result = HMCDResult.builder()
                         .with(object: item)
                         .with(error: e)
                         .build()
@@ -186,7 +186,7 @@ public extension HMCDManager {
         S: Sequence,
         S.Iterator.Element == HMCDVersionUpdateRequest,
         O: ObserverType,
-        O.E == [HMResult]
+        O.E == [HMCDResult]
     {
         performOnContextThread(mainContext) {
             do {
@@ -214,7 +214,7 @@ extension Reactive where Base: HMCDManager {
     public func updateVersion<S>(_ context: NSManagedObjectContext,
                                  _ entityName: String,
                                  _ requests: S)
-        -> Observable<[HMResult]> where
+        -> Observable<[HMCDResult]> where
         S: Sequence, S.Iterator.Element == HMCDVersionUpdateRequest
     {
         return Observable<[HMResult]>.create({
@@ -232,7 +232,7 @@ extension Reactive where Base: HMCDManager {
     /// - Return: An Observable instance.
     /// - Throws: Exception if the operation fails.
     public func updateVersion<S>(_ entityName: String, _ requests: S)
-        -> Observable<[HMResult]> where
+        -> Observable<[HMCDResult]> where
         S: Sequence, S.Iterator.Element == HMCDVersionUpdateRequest
     {
         let context = base.disposableObjectContext()

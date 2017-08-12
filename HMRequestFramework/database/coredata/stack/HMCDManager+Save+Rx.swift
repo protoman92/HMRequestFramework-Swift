@@ -105,19 +105,22 @@ public extension HMCDManager {
     /// - Returns: An Array of HMResult.
     /// - Throws: Exception if the operation fails.
     func convert<S>(_ context: NSManagedObjectContext,
-                    _ convertibles: S) -> [HMResult] where
+                    _ convertibles: S) -> [HMCDResult] where
         S: Sequence, S.Iterator.Element == HMCDObjectConvertibleType
     {
-        var results: [HMResult] = []
+        var results: [HMCDResult] = []
         
         for item in convertibles {
-            let result: HMResult
+            let result: HMCDResult
             
             do {
                 _ = try item.asManagedObject(context)
-                result = HMResult.just(item)
+                result = HMCDResult.just(item)
             } catch let e {
-                result = HMResult.builder().with(object: item).with(error: e).build()
+                result = HMCDResult.builder()
+                    .with(object: item)
+                    .with(error: e)
+                    .build()
             }
             
             results.append(result)
@@ -135,7 +138,7 @@ public extension HMCDManager {
     /// - Returns: An Array of HMResult.
     /// - Throws: Exception if the operation fails.
     func convert<U,S>(_ context: NSManagedObjectContext,
-                      _ convertibles: S) -> [HMResult] where
+                      _ convertibles: S) -> [HMCDResult] where
         U: HMCDObjectConvertibleType, S: Sequence, S.Iterator.Element == U
     {
         return convert(context, convertibles.map({$0 as HMCDObjectConvertibleType}))
@@ -150,7 +153,7 @@ public extension HMCDManager {
     ///   - obs: An ObserverType instance.
     func save<S,O>(_ convertibles: S, _ obs: O) where
         S: Sequence, S.Iterator.Element == HMCDObjectConvertibleType,
-        O: ObserverType, O.E == [HMResult]
+        O: ObserverType, O.E == [HMCDResult]
     {
         let context = disposableObjectContext()
         
@@ -175,7 +178,7 @@ public extension HMCDManager {
     func save<U,S,O>(_ convertibles: S, _ obs: O) where
         U: HMCDObjectConvertibleType,
         S: Sequence, S.Iterator.Element == U,
-        O: ObserverType, O.E == [HMResult]
+        O: ObserverType, O.E == [HMCDResult]
     {
         return save(convertibles.map({$0 as HMCDObjectConvertibleType}), obs)
     }
@@ -246,7 +249,7 @@ public extension Reactive where Base: HMCDManager {
     ///
     /// - Parameters convertibles: A Sequence of HMCDConvertibleType.
     /// - Return: An Observable instance.
-    func save<S>(_ convertibles: S) -> Observable<[HMResult]> where
+    func save<S>(_ convertibles: S) -> Observable<[HMCDResult]> where
         S: Sequence, S.Iterator.Element == HMCDObjectConvertibleType
     {
         return Observable<[HMResult]>.create({
@@ -259,8 +262,7 @@ public extension Reactive where Base: HMCDManager {
     ///
     /// - Parameters convertibles: A Sequence of HMCDConvertibleType.
     /// - Return: An Observable instance.
-    func save<S,OC>(_ convertibles: S)
-        -> Observable<[HMResult]> where
+    func save<S,OC>(_ convertibles: S) -> Observable<[HMCDResult]> where
         OC: HMCDObjectConvertibleType,
         S: Sequence, S.Iterator.Element == OC
     {
