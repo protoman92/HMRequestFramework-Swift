@@ -1,4 +1,4 @@
-00# HMRequestFramework-iOS
+# HMRequestFramework-iOS
 Network/Database request framework for iOS clients.
 
 This framework provides handlers, processors and middlewares to manage all manners of requests, be it database or network. It guarantees immutability in most cases and relies heavily on RxSwift.
