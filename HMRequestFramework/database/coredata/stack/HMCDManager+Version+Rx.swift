@@ -34,12 +34,7 @@ public extension HMCDManager {
     func resolveVersionConflictUnsafely<VC>(
         _ context: NSManagedObjectContext,
         _ request: HMVersionUpdateRequest<VC>) throws where
-        VC: HMCDKeyValueUpdatableType,
-        VC: HMCDVersionableType,
-        VC: HMCDVersionUpdatableType,
-        VC: HMCDVersionBuildableType,
-        VC.Builder: HMCDVersionBuilderType,
-        VC.Builder.Buildable == VC
+        VC: HMCDVersionableType
     {
         let original = try request.originalVC()
         let edited = try request.editedVC()
@@ -74,12 +69,7 @@ public extension HMCDManager {
     func attempVersionUpdateUnsafely<VC>(
         _ context: NSManagedObjectContext,
         _ request: HMVersionUpdateRequest<VC>) throws where
-        VC: HMCDKeyValueUpdatableType,
-        VC: HMCDVersionableType,
-        VC: HMCDVersionUpdatableType,
-        VC: HMCDVersionBuildableType,
-        VC.Builder: HMCDVersionBuilderType,
-        VC.Builder.Buildable == VC
+        VC: HMCDVersionableType
     {
         let original = try request.originalVC()
         let edited = try request.editedVC()
@@ -102,12 +92,7 @@ public extension HMCDManager {
     func updateVersionUnsafely<VC>(
         _ context: NSManagedObjectContext,
         _ request: HMVersionUpdateRequest<VC>) throws where
-        VC: HMCDKeyValueUpdatableType,
-        VC: HMCDVersionableType,
-        VC: HMCDVersionUpdatableType,
-        VC: HMCDVersionBuildableType,
-        VC.Builder: HMCDVersionBuilderType,
-        VC.Builder.Buildable == VC
+        VC: HMCDVersionableType
     {
         let originalVersion = try request.originalVC().currentVersion()
         let editedVersion = try request.editedVC().currentVersion()
@@ -121,6 +106,68 @@ public extension HMCDManager {
 }
 
 public extension HMCDManager {
+    
+    /// Perform update on the identifiables, insert them into the specified
+    /// context and and get the results back.
+    ///
+    /// - Parameters:
+    ///   - context: A NSManagedObjectContext instance.
+    ///   - entityName: A String value representing the entity's name.
+    ///   - requests: A Sequence of HMVersionUpdateRequest.
+    /// - Throws: Exception if the operation fails.
+    func convert<VC,S>(_ context: NSManagedObjectContext,
+                       _ entityName: String,
+                       _ requests: S) throws -> [HMResult] where
+        VC: HMCDConvertibleType,
+        VC: HMCDIdentifiableType,
+        VC: HMCDVersionableType,
+        S: Sequence,
+        S.Iterator.Element == HMVersionUpdateRequest<VC>
+    {
+        // It's ok for these requests not to have the original object. We will
+        // get them right below.
+        let identifiables = requests.flatMap({try? $0.editedVC()})
+        let originals = try self.blockingRefetch(context, entityName, identifiables)
+        var results: [HMResult] = []
+        
+        // We also need an Array of VC to store items that cannot be found in
+        // the DB yet.
+        var nonExisting: [VC] = []
+        
+        for item in identifiables {
+            if
+                let original = originals.first(where: item.identifiable),
+                let request = requests.first(where: {($0.ownsEditedVC(item))})?
+                    .cloneBuilder()
+                    .with(original: original)
+                    .with(edited: item)
+                    .build()
+            {
+                let result: HMResult
+                
+                do {
+                    try self.updateVersionUnsafely(context, request)
+                    result = HMResult.just(item)
+                } catch let e {
+                    result = HMResult.builder()
+                        .with(object: item)
+                        .with(error: e)
+                        .build()
+                }
+                
+                results.append(result)
+            } else {
+                nonExisting.append(item)
+            }
+        }
+        
+        // For items that do not exist in the DB yet, simply save them. Since
+        // these objects are convertible, we can reconstruct them as NSManagedObject
+        // instances and insert into the specified context.
+        results.append(contentsOf: convert(context, nonExisting))
+        
+        return results
+    }
     
     /// Update a Sequence of versioned objects and save to memory. It is better
     /// not to call this method on too many objects, because context.save()
@@ -138,12 +185,7 @@ public extension HMCDManager {
                                _ obs: O) where
         VC: HMCDConvertibleType,
         VC: HMCDIdentifiableType,
-        VC: HMCDKeyValueUpdatableType,
         VC: HMCDVersionableType,
-        VC: HMCDVersionUpdatableType,
-        VC: HMCDVersionBuildableType,
-        VC.Builder: HMCDVersionBuilderType,
-        VC.Builder.Buildable == VC,
         S: Sequence,
         S.Iterator.Element == HMVersionUpdateRequest<VC>,
         O: ObserverType,
@@ -151,51 +193,7 @@ public extension HMCDManager {
     {
         performOnContextThread(mainContext) {
             do {
-                // It's ok for these requests not to have the original object.
-                // We will get them right below.
-                let identifiables = requests.flatMap({try? $0.editedVC()})
-                let originals = try self.blockingRefetch(context, entityName, identifiables)
-                var results: [HMResult] = []
-                
-                // We also need an Array of VC to store items that cannot be
-                // found in the DB yet.
-                var nonExisting: [VC] = []
-                
-                for item in identifiables {
-                    if
-                        let original = originals.first(where: item.identifiable),
-                        let request = requests.first(where: {($0.ownsEditedVC(item))})?
-                            .cloneBuilder()
-                            .with(original: original)
-                            .with(edited: item)
-                            .build()
-                    {
-                        let result: HMResult
-                        
-                        do {
-                            try self.updateVersionUnsafely(context, request)
-                            result = HMResult.just(item)
-                        } catch let e {
-                            result = HMResult.builder()
-                                .with(object: item)
-                                .with(error: e)
-                                .build()
-                        }
-                        
-                        results.append(result)
-                    } else {
-                        nonExisting.append(item)
-                    }
-                }
-                
-                // For items that do not exist in the DB yet, simply save them.
-                // Since these objects are convertible, we can reconstruct them
-                // as NSManagedObject instances and insert into the specified
-                // context.
-                results.append(contentsOf: self.convert(context, nonExisting))
-                
-                // When we save this context, the updates and insertions will
-                // be committed to upstream.
+                let results = try self.convert(context, entityName, requests)
                 try self.saveUnsafely(context)
                 obs.onNext(results)
                 obs.onCompleted()
@@ -222,12 +220,7 @@ extension Reactive where Base: HMCDManager {
         -> Observable<[HMResult]> where
         VC: HMCDConvertibleType,
         VC: HMCDIdentifiableType,
-        VC: HMCDKeyValueUpdatableType,
         VC: HMCDVersionableType,
-        VC: HMCDVersionUpdatableType,
-        VC: HMCDVersionBuildableType,
-        VC.Builder: HMCDVersionBuilderType,
-        VC.Builder.Buildable == VC,
         S: Sequence,
         S.Iterator.Element == HMVersionUpdateRequest<VC>
     {
@@ -250,12 +243,7 @@ extension Reactive where Base: HMCDManager {
         -> Observable<[HMResult]> where
         VC: HMCDConvertibleType,
         VC: HMCDIdentifiableType,
-        VC: HMCDKeyValueUpdatableType,
         VC: HMCDVersionableType,
-        VC: HMCDVersionUpdatableType,
-        VC: HMCDVersionBuildableType,
-        VC.Builder: HMCDVersionBuilderType,
-        VC.Builder.Buildable == VC,
         S: Sequence,
         S.Iterator.Element == HMVersionUpdateRequest<VC>
     {

@@ -8,8 +8,14 @@
 
 import CoreData
 
-/// Similar to HMVersionableType, customized for CoreData.
-public protocol HMCDVersionableType: HMVersionableType {}
+/// Similar to HMVersionableType, customized for CoreData. They should also
+/// support updating inner values and version (mutating own properties).
+/// However, we should avoid such mutations as much as we can.
+public protocol HMCDVersionableType:
+    NSFetchRequestResult,
+    HMVersionableType,
+    HMCDKeyValueUpdatableType,
+    HMCDVersionUpdatableType {}
 
 /// Classes that implement this protocol must be able to update version. Since
 /// this protocol implies mutation, we should avoid using it as much as possible.
