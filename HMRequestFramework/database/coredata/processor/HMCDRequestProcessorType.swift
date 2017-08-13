@@ -101,7 +101,9 @@ public extension HMCDRequestProcessorType {
         return process(previous, generator, executeTyped, processor)
     }
     
-    /// Perform a CoreData save data request and process the result.
+    /// Perform a CoreData result-based request and process the result. Each
+    /// HMCDResult represents the success/failure of the operation on one
+    /// particular item.
     ///
     /// - Parameters:
     ///   - previous: The result of the upstream request.
@@ -115,7 +117,25 @@ public extension HMCDRequestProcessorType {
         -> Observable<Try<[Try<Res>]>>
     {
         return process(previous, generator, executeTyped, processor)
-
+    }
+    
+    /// Perform a CoreData result-based request and process the result using
+    /// a default processor. Since HMResult and Try have similarities in terms
+    /// of semantics, we can simply use HMResult directly in the emission.
+    ///
+    /// - Parameters:
+    ///   - previous: The result of the upstream request.
+    ///   - generator: Generator function to create the current request.
+    /// - Returns: An Observable instance.
+    public func process<Prev>(
+        _ previous: Try<Prev>,
+        _ generator: @escaping HMRequestGenerator<Prev,Req>)
+        -> Observable<Try<[HMCDResult]>>
+    {
+        let processor = HMResultProcessors.eqProcessor(HMCDResult.self)
+        
+        return process(previous, generator, processor)
+            .map({$0.map({$0.map(HMCDResult.unwrap)})})
     }
     
     /// Perform a CoreData get request and process the result into a pure object.

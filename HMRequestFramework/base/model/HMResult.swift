@@ -16,6 +16,24 @@ public struct HMResult<Val> {
         return HMResult<Val>.builder().with(object: obj).build()
     }
     
+    public static func just<Val>(_ error: Error) -> HMResult<Val> {
+        return HMResult<Val>.builder().with(error: error).build()
+    }
+    
+    /// Unwrap a Try that contains a HMResult.
+    ///
+    /// - Parameter wrapped: A Try instance.
+    /// - Returns: A HMResult instance.
+    public static func unwrap<Val>(_ wrapped: Try<HMResult<Val>>) -> HMResult<Val> {
+        switch wrapped {
+        case .success(let result):
+            return result
+            
+        case .failure(let e):
+            return HMResult<Val>.just(e)
+        }
+    }
+    
     fileprivate var object: Val?
     fileprivate var error: Error?
     
