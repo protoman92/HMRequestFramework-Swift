@@ -149,7 +149,7 @@ public final class CoreDataVersionTest: CoreDataRootTest {
             // Since strategy is overwrite, we expect all updates to succeed.
             // Items that are not in the DB yet will be inserted.
             .flatMap({manager.rx.updateVersion(entityName, updateRequests)})
-            .doOnNext({XCTAssertTrue($0.all(satisfying: {$0.isSuccess()}))})
+            .doOnNext({XCTAssertTrue($0.all({$0.isSuccess()}))})
             .flatMap({_ in manager.rx.persistLocally()})
             .flatMap({manager.rx.fetch(self.fetchRq)})
             .map({$0.map({$0.asPureObject()})})
@@ -163,7 +163,7 @@ public final class CoreDataVersionTest: CoreDataRootTest {
         /// Then
         let nextElements = observer.nextElements()
         XCTAssertEqual(nextElements.count, toBeSaved.count)
-        XCTAssertTrue(toBeSaved.all(satisfying: nextElements.contains))
+        XCTAssertTrue(toBeSaved.all(nextElements.contains))
     }
 }
 

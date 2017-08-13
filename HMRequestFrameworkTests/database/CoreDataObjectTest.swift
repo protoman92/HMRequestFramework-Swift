@@ -28,7 +28,7 @@ public final class CoreDataObjectTest: CoreDataRootTest {
         
         /// Then
         let reconverted2 = cdObjects2.map({$0.asPureObject()})
-        XCTAssertTrue(pureObjects1.all(satisfying: reconverted2.contains))
-        XCTAssertFalse(pureObjects2.any(satisfying: reconverted2.contains))
+        XCTAssertTrue(pureObjects1.all(reconverted2.contains))
+        XCTAssertFalse(pureObjects2.any(reconverted2.contains))
     }
 }

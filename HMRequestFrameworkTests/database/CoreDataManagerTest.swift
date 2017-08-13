@@ -81,7 +81,7 @@ public final class CoreDataManagerTest: CoreDataRootTest {
         /// Then
         let nextElements = observer.nextElements()
         XCTAssertEqual(nextElements.count, dummyCount)
-        XCTAssertTrue(nextElements.all(satisfying: dummies.contains))
+        XCTAssertTrue(nextElements.all(dummies.contains))
     }
     
     public func test_refetchUpsertables_shouldWork() {
@@ -116,7 +116,7 @@ public final class CoreDataManagerTest: CoreDataRootTest {
         /// Then
         let nextElements = observer.nextElements()
         XCTAssertEqual(nextElements.count, dummyCount)
-        XCTAssertTrue(nextElements.all(satisfying: pureObjects.contains))
+        XCTAssertTrue(nextElements.all(pureObjects.contains))
     }
     
     public func test_insertAndDeleteUpsertables_shouldWork() {
@@ -160,7 +160,7 @@ public final class CoreDataManagerTest: CoreDataRootTest {
             // Fetch to verify that the DB only contains data1.
             .flatMap({manager.rx.fetch(fetchRq)})
             .map({$0.map({$0.asPureObject()})})
-            .doOnNext({XCTAssertTrue($0.all(satisfying: pureObjects1.contains))})
+            .doOnNext({XCTAssertTrue($0.all(pureObjects1.contains))})
             .doOnNext({XCTAssertEqual($0.count, dummyCount)})
             
             // Delete data2 from memory. data1 and data2 are two different
@@ -271,7 +271,7 @@ public final class CoreDataManagerTest: CoreDataRootTest {
         let dummyValues = objs.flatMap({$0.primaryValue()})
         XCTAssertEqual(dummyValues.count, times)
         XCTAssertEqual(dComponents.filter({$0 == "OR"}).count, times - 1)
-        XCTAssertTrue(dummyValues.all(satisfying: description.contains))
+        XCTAssertTrue(dummyValues.all(description.contains))
     }
 }
 
@@ -293,7 +293,7 @@ public extension CoreDataManagerTest {
         // created these objects, we can reconstruct them and insert into another
         // context of choice.
         manager.rx.save(convertibles)
-            .doOnNext({XCTAssertTrue($0.all(satisfying: {$0.isSuccess()}))})
+            .doOnNext({XCTAssertTrue($0.all({$0.isSuccess()}))})
             .flatMap({_ in manager.rx.persistLocally()})
             .flatMap({manager.rx.fetch(fetchRq)})
             .map({$0.map({$0.asPureObject()})})
@@ -307,7 +307,7 @@ public extension CoreDataManagerTest {
         /// Then
         let nextElements = observer.nextElements()
         XCTAssertEqual(nextElements.count, pureObjects.count)
-        XCTAssertTrue(pureObjects.all(satisfying: nextElements.contains))
+        XCTAssertTrue(pureObjects.all(nextElements.contains))
     }
     
     public func test_upsertConvertibles_shouldWork() {
@@ -352,6 +352,6 @@ public extension CoreDataManagerTest {
         /// Then
         let nextElements = observer.nextElements()
         XCTAssertEqual(nextElements.count, pureObjects23.count)
-        XCTAssertTrue(pureObjects23.all(satisfying: nextElements.contains))
+        XCTAssertTrue(pureObjects23.all(nextElements.contains))
     }
 }

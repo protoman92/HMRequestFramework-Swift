@@ -2,7 +2,7 @@
 # platform :ios, '9.0'
 
 def allPods
-    pod 'SwiftUtilities/Main'
+    pod 'SwiftUtilities/Main', git: 'https://github.com/protoman92/SwiftUtilities.git'
 end
 
 target 'HMRequestFramework' do

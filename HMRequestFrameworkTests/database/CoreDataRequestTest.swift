@@ -199,8 +199,8 @@ public final class CoreDataRequestTest: CoreDataRootTest {
         let nextElements = observer.nextElements()
         let nextDummies = nextElements.flatMap({$0.value})
         XCTAssertEqual(nextElements.count, pureObjects23.count)
-        XCTAssertTrue(pureObjects23.all(satisfying: nextDummies.contains))
-        XCTAssertFalse(pureObjects1.any(satisfying: nextDummies.contains))
+        XCTAssertTrue(pureObjects23.all(nextDummies.contains))
+        XCTAssertFalse(pureObjects1.any(nextDummies.contains))
     }
     
     public func test_upsertVersionableWithErrorStrategy_shouldNotOverwrite() {
@@ -270,8 +270,8 @@ public final class CoreDataRequestTest: CoreDataRootTest {
         // Only the old data exists in the DB. The updated versionables are not
         // persisted due to error conflict strategy.
         XCTAssertEqual(nextElements.count, times)
-        XCTAssertTrue(pureObjects1.all(satisfying: nextDummies.contains))
-        XCTAssertFalse(pureObjects2.any(satisfying: nextDummies.contains))
+        XCTAssertTrue(pureObjects1.all(nextDummies.contains))
+        XCTAssertFalse(pureObjects2.any(nextDummies.contains))
     }
     
     public func test_saveConvertibleData_shouldWork() {
@@ -310,7 +310,7 @@ public final class CoreDataRequestTest: CoreDataRootTest {
         let nextElements = observer.nextElements()
         let unwrapped = nextElements.flatMap({$0.value})
         XCTAssertEqual(unwrapped.count, pureObjects.count)
-        XCTAssertTrue(pureObjects.all(satisfying: unwrapped.contains))
+        XCTAssertTrue(pureObjects.all(unwrapped.contains))
     }
     
     public func test_cdNonTypedRequestObject_shouldThrowErrorsIfNecessary() {
