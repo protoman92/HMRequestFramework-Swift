@@ -12,6 +12,53 @@ import SwiftUtilities
 
 public extension HMCDManager {
     
+    /// Delete items in DB using some fetch request. This operation is not
+    /// thread-safe.
+    ///
+    /// Beware that this is only available for SQLite stores.
+    ///
+    /// - Parameters:
+    ///   - context: A NSManagedObjectContext instance.
+    ///   - request: A NSFetchRequest instance.
+    /// - Returns: A NSBatchDeleteResult instance.
+    /// - Throws: Exception if the operation fails.
+    func deleteUnsafely(_ context: NSManagedObjectContext,
+                        _ request: NSFetchRequest<NSFetchRequestResult>) throws
+        -> NSPersistentStoreResult
+    {
+        let deleteRequest = NSBatchDeleteRequest(fetchRequest: request)
+        return try context.execute(deleteRequest)
+    }
+}
+
+public extension HMCDManager {
+    
+    /// Delete items in DB using some fetch request and observe the result.
+    /// Beware that this is only available for SQLite stores.
+    ///
+    /// - Parameters:
+    ///   - context: A NSManagedObjectContext instance.
+    ///   - request: A NSFetchRequest instance.
+    ///   - obs: An ObserverType instance.
+    func delete<O>(_ context: NSManagedObjectContext,
+                   _ request: NSFetchRequest<NSFetchRequestResult>,
+                   _ obs: O) where
+        O: ObserverType, O.E == NSPersistentStoreResult
+    {
+        performOnContextThread(mainContext) {
+            do {
+                let result = try self.deleteUnsafely(context, request)
+                obs.onNext(result)
+                obs.onCompleted()
+            } catch let e {
+                obs.onError(e)
+            }
+        }
+    }
+}
+
+public extension HMCDManager {
+    
     /// Delete a Sequence of data from memory by refetching them using some
     /// context. This operation is not thread-safe.
     ///
@@ -74,7 +121,7 @@ public extension HMCDManager {
     {
         let context = disposableObjectContext()
         
-        performOnContextThread(context) {
+        performOnContextThread(mainContext) {
             do {
                 try self.deleteUnsafely(context, data)
                 obs.onNext()
@@ -102,7 +149,7 @@ public extension HMCDManager {
     {
         let context = disposableObjectContext()
         
-        performOnContextThread(context) {
+        performOnContextThread(mainContext) {
             do {
                 try self.deleteUnsafely(context, entityName, identifiables)
                 obs.onNext()
@@ -111,6 +158,37 @@ public extension HMCDManager {
                 obs.onError(e)
             }
         }
+    }
+}
+
+public extension Reactive where Base: HMCDManager {
+    
+    /// Delete items in DB using some fetch request. Beware that this is only
+    /// available for SQLite stores.
+    ///
+    /// - Parameters:
+    ///   - context: A NSManagedObjectContext instance.
+    ///   - request: A NSFetchRequest instance.
+    /// - Return: An Observable instance.
+    public func delete(_ context: NSManagedObjectContext,
+                       _ request: NSFetchRequest<NSFetchRequestResult>)
+        -> Observable<NSPersistentStoreResult>
+    {
+        return Observable<NSPersistentStoreResult>.create({
+            self.base.delete(context, request, $0)
+            return Disposables.create()
+        })
+    }
+    
+    /// Delete items in DB using some fetch request and a disposable context.
+    /// Beware that this is only available for SQLite stores.
+    ///
+    /// - Parameters request: A NSFetchRequest instance.
+    /// - Return: An Observable instance.
+    public func delete(_ request: NSFetchRequest<NSFetchRequestResult>)
+        -> Observable<NSPersistentStoreResult>
+    {
+        return delete(base.disposableObjectContext(), request)
     }
 }
 

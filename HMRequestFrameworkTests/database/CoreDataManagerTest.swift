@@ -83,7 +83,9 @@ public final class CoreDataManagerTest: CoreDataRootTest {
         XCTAssertEqual(nextElements.count, dummyCount)
         XCTAssertTrue(nextElements.all(dummies.contains))
     }
-    
+}
+
+public extension CoreDataManagerTest {
     public func test_refetchUpsertables_shouldWork() {
         /// Setup
         let observer = scheduler.createObserver(Dummy1.self)
@@ -183,6 +185,49 @@ public final class CoreDataManagerTest: CoreDataRootTest {
         let nextElements = observer.nextElements()
         XCTAssertEqual(nextElements.count, 0)
     }
+}
+
+public extension CoreDataManagerTest {
+    public func test_insertAndDeleteByBatch_shouldWork() {
+        // This does not work for in-memory store.
+        if case .InMemory = self.storeType! {
+            return
+        }
+        
+        /// Setup
+        let observer = scheduler.createObserver(Any.self)
+        let expect = expectation(description: "Should have completed")
+        let manager = self.manager!
+        let context = manager.disposableObjectContext()
+        let dummyCount = self.dummyCount
+        let pureObjects = (0..<dummyCount).map({_ in Dummy1()})
+        let cdObjects = try! manager.constructUnsafely(context, pureObjects)
+        let fetchRequest = try! dummy1FetchRequest().fetchRequest(Dummy1.self)
+        let deleteRequest = try! dummy1FetchRequest().untypedFetchRequest()
+        
+        /// When
+        manager.rx.save(cdObjects)
+            .flatMap({_ in manager.rx.persistLocally()})
+            .flatMap({manager.rx.fetch(fetchRequest)})
+            .map({$0.map({$0.asPureObject()})})
+            .doOnNext({XCTAssertEqual($0.count, dummyCount)})
+            .doOnNext({XCTAssertTrue(pureObjects.all($0.contains))})
+            .flatMap({_ in manager.rx.delete(deleteRequest)})
+            .flatMap({_ in manager.rx.persistLocally()})
+            .flatMap({_ in manager.rx.fetch(fetchRequest)})
+            .map({$0.map({$0.asPureObject()})})
+            .flatMap({Observable.from($0)})
+            .cast(to: Any.self)
+            .doOnDispose(expect.fulfill)
+            .subscribe(observer)
+            .disposed(by: disposeBag)
+        
+        waitForExpectations(timeout: timeout, handler: nil)
+        
+        /// Then
+        let nextElements = observer.nextElements()
+        XCTAssertEqual(nextElements.count, 0)
+    }
     
     public func test_insertAndDeleteManyRandomDummies_shouldWork() {
         /// Setup
@@ -254,7 +299,9 @@ public final class CoreDataManagerTest: CoreDataRootTest {
         let elements = observer.nextElements()
         XCTAssertEqual(elements.count, 0)
     }
-    
+}
+
+public extension CoreDataManagerTest {
     public func test_predicateForUpsertFetch_shouldWork() {
         /// Setup
         let times = 1000

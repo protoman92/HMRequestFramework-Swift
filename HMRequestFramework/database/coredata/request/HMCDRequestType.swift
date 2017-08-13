@@ -90,6 +90,14 @@ public extension HMCDRequestType {
         return cdRequest
     }
     
+    /// Get the associated fetch request, but do not specify any subtype.
+    ///
+    /// - Returns: A NSFetchRequest instance.
+    /// - Throws: Exception if the request cannot be generated.
+    public func untypedFetchRequest() throws -> NSFetchRequest<NSFetchRequestResult> {
+        return try fetchRequest()
+    }
+    
     /// Get the associated fetch request.
     ///
     /// - Parameter cls: The Val class type.

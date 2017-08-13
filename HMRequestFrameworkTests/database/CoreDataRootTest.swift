@@ -20,12 +20,15 @@ public class CoreDataRootTest: XCTestCase {
     let timeout: TimeInterval = 1000
     let dummyCount = 1000
     let dummy: Try<Any> = Try.success(1)
+    var storeType: HMCDPersistentStoreSettings.StoreType!
     var manager: HMCDManager!
     var disposeBag: DisposeBag!
     var scheduler: TestScheduler!
     
     override public func setUp() {
         super.setUp()
+        storeType = .InMemory
+        
         let fileManager = FileManager.default
         
         let url = HMCDPersistentStoreURL.builder()
@@ -41,7 +44,7 @@ public class CoreDataRootTest: XCTestCase {
         
         let settings = [
             HMCDPersistentStoreSettings.builder()
-                .with(storeType: .InMemory)
+                .with(storeType: storeType)
                 .with(persistentStoreURL: url)
                 .build()
         ]
