@@ -48,7 +48,7 @@ public final class CoreDataRequestTest: CoreDataRootTest {
         let dbProcessor = self.dbProcessor!.processor
         let generator = errorDBRgn()
         let processor = errorDBRps()
-        
+
         /// When
         dbProcessor.process(dummy, generator, processor)
             .map({$0.map({$0 as Any})})
@@ -61,13 +61,13 @@ public final class CoreDataRequestTest: CoreDataRootTest {
             .doOnDispose(expect.fulfill)
             .subscribe(observer)
             .disposed(by: disposeBag)
-        
+
         waitForExpectations(timeout: timeout, handler: nil)
-        
+
         /// Then
         let nextElements = observer.nextElements()
         XCTAssertEqual(nextElements.count, 1)
-        
+
         let first = nextElements.first!
         XCTAssertTrue(first.isFailure)
         XCTAssertEqual(first.error!.localizedDescription, generatorError)
@@ -75,7 +75,7 @@ public final class CoreDataRequestTest: CoreDataRootTest {
     
     public func test_insertAndDeleteRandomDummies_shouldWork() {
         /// Setup
-        let observer = scheduler.createObserver(Try<Any>.self)
+        let observer = scheduler.createObserver(Dummy1.self)
         let expect = expectation(description: "Should have completed")
         let cdProcessor = self.cdProcessor!
         let manager = self.manager!
@@ -86,11 +86,8 @@ public final class CoreDataRequestTest: CoreDataRootTest {
         let insertGn = dummy1InsertRgn(cdObjects)
         let insertPs = dummy1InsertRps()
         let persistGn = dummyPersistRgn()
-        let persistPs = dummyPersistRps()
         let deleteGn = dummyMemoryDeleteRgn(cdObjects)
-        let deletePs = dummyMemoryDeleteRps()
         let fetchGn = dummy1FetchRgn()
-        let fetchPs = dummy1FetchRps()
 
         /// When
         // Save the changes in the disposable context.
@@ -98,28 +95,87 @@ public final class CoreDataRequestTest: CoreDataRootTest {
             .map({$0.map({$0 as Any})})
 
             // Persist changes to DB.
-            .flatMap({cdProcessor.process($0, persistGn, persistPs)})
+            .flatMap({cdProcessor.processVoid($0, persistGn)})
             .map({$0.map({$0 as Any})})
 
             // Fetch to verify that data have been persisted.
-            .flatMap({cdProcessor.process($0, fetchGn, fetchPs)})
+            .flatMap({cdProcessor.process($0, fetchGn, Dummy1.self)})
             .map({try $0.getOrThrow()})
             .doOnNext({XCTAssertEqual($0.count, dummyCount)})
+            .doOnNext({XCTAssertTrue(pureObjects.all($0.contains))})
             .map({$0 as Any}).map(Try.success)
 
             // Delete data from memory, but do not persist to DB yet.
-            .flatMap({cdProcessor.process($0, deleteGn, deletePs)})
+            .flatMap({cdProcessor.processVoid($0, deleteGn)})
             .map({$0.map({$0 as Any})})
 
             // Persist changes to DB.
-            .flatMap({cdProcessor.process($0, persistGn, persistPs)})
+            .flatMap({cdProcessor.processVoid($0, persistGn)})
             .map({$0.map({$0 as Any})})
 
             // Fetch to verify that the data have been deleted.
-            .flatMap({cdProcessor.process($0, fetchGn, fetchPs)})
+            .flatMap({cdProcessor.process($0, fetchGn, Dummy1.self)})
             .map({try $0.getOrThrow()})
             .flatMap({Observable.from($0)})
+            .doOnDispose(expect.fulfill)
+            .subscribe(observer)
+            .disposed(by: disposeBag)
+
+        waitForExpectations(timeout: timeout, handler: nil)
+
+        /// Then
+        let nextElements = observer.nextElements()
+        XCTAssertEqual(nextElements.count, 0)
+    }
+    
+    public func test_batchDelete_shouldWork() {
+        if case .InMemory = storeType! {
+            return
+        }
+
+        /// Setup
+        let observer = scheduler.createObserver(Dummy1.self)
+        let expect = expectation(description: "Should have completed")
+        let cdProcessor = self.cdProcessor!
+        let manager = self.manager!
+        let context = manager.disposableObjectContext()
+        let dummyCount = self.dummyCount
+        let pureObjects = (0..<dummyCount).map({_ in Dummy1()})
+        let cdObjects = try! manager.constructUnsafely(context, pureObjects)
+        let insertGn = dummy1InsertRgn(cdObjects)
+        let insertPs = dummy1InsertRps()
+        let persistGn = dummyPersistRgn()
+        let deleteGn = dummy1BatchDeleteRgn()
+        let fetchGn = dummy1FetchRgn()
+
+        /// When
+        // Save the changes in the disposable context.
+        cdProcessor.process(dummy, insertGn, insertPs)
             .map({$0.map({$0 as Any})})
+
+            // Persist changes to DB.
+            .flatMap({cdProcessor.processVoid($0, persistGn)})
+            .map({$0.map({$0 as Any})})
+
+            // Fetch to verify that data have been persisted.
+            .flatMap({cdProcessor.process($0, fetchGn, Dummy1.self)})
+            .map({try $0.getOrThrow()})
+            .doOnNext({XCTAssertEqual($0.count, dummyCount)})
+            .doOnNext({XCTAssertTrue(pureObjects.all($0.contains))})
+            .map({$0 as Any}).map(Try.success)
+
+            // Delete data from DB. Make sure this is a SQLite store though.
+            .flatMap({cdProcessor.processVoid($0, deleteGn)})
+            .map({$0.map({$0 as Any})})
+
+            // Persist changes to DB.
+            .flatMap({cdProcessor.processVoid($0, persistGn)})
+            .map({$0.map({$0 as Any})})
+
+            // Fetch to verify that the data have been deleted.
+            .flatMap({cdProcessor.process($0, fetchGn, Dummy1.self)})
+            .map({try $0.getOrThrow()})
+            .flatMap({Observable.from($0)})
             .doOnDispose(expect.fulfill)
             .subscribe(observer)
             .disposed(by: disposeBag)
@@ -133,7 +189,7 @@ public final class CoreDataRequestTest: CoreDataRootTest {
     
     public func test_coreDataUpsert_shouldWork() {
         /// Setup
-        let observer = scheduler.createObserver(Try<Dummy1>.self)
+        let observer = scheduler.createObserver(Dummy1.self)
         let expect = expectation(description: "Should have completed")
         let manager = self.manager!
         let dbProcessor = self.dbProcessor!.processor
@@ -158,7 +214,6 @@ public final class CoreDataRequestTest: CoreDataRootTest {
         let insertGn = dummy1InsertRgn(cdObjects1)
         let insertPs = dummy1UpsertRps()
         let persistGn = dummyPersistRgn()
-        let persistPs = dummyPersistRps()
         let upsertGn = dummy1UpsertRgn(cdObjects23, .overwrite)
         let upsertPs = dummy1UpsertRps()
         let fetchGn = dummy1FetchRgn()
@@ -169,12 +224,14 @@ public final class CoreDataRequestTest: CoreDataRootTest {
             .map({$0.map({$0 as Any})})
 
             // Persist changes to DB.
-            .flatMap({dbProcessor.process($0, persistGn, persistPs)})
+            .flatMap({dbProcessor.processVoid($0, persistGn)})
             .map({$0.map({$0 as Any})})
 
             .flatMap({dbProcessor.process($0, fetchGn, Dummy1.self)})
-            .doOnNext({XCTAssertEqual($0.value?.count, times1)})
-            .map({$0.map({$0 as Any})})
+            .map({try $0.getOrThrow()})
+            .doOnNext({XCTAssertTrue(pureObjects1.all($0.contains))})
+            .doOnNext({XCTAssertEqual($0.count, times1)})
+            .cast(to: Any.self).map(Try.success)
 
             // Upsert the second set of data. This set of data contains some
             // data with the same ids as the first set of data.
@@ -182,7 +239,7 @@ public final class CoreDataRequestTest: CoreDataRootTest {
             .map({$0.map({$0 as Any})})
 
             // Persist changes to DB.
-            .flatMap({dbProcessor.process($0, persistGn, persistPs)})
+            .flatMap({dbProcessor.processVoid($0, persistGn)})
             .map({$0.map({$0 as Any})})
 
             // Fetch all data to check that the upsert was successful.
@@ -197,23 +254,22 @@ public final class CoreDataRequestTest: CoreDataRootTest {
 
         /// Then
         let nextElements = observer.nextElements()
-        let nextDummies = nextElements.flatMap({$0.value})
         XCTAssertEqual(nextElements.count, pureObjects23.count)
-        XCTAssertTrue(pureObjects23.all(nextDummies.contains))
-        XCTAssertFalse(pureObjects1.any(nextDummies.contains))
+        XCTAssertTrue(pureObjects23.all(nextElements.contains))
+        XCTAssertFalse(pureObjects1.any(nextElements.contains))
     }
     
     public func test_upsertVersionableWithErrorStrategy_shouldNotOverwrite() {
         /// Setup
-        let observer = scheduler.createObserver(Try<Dummy1>.self)
+        let observer = scheduler.createObserver(Dummy1.self)
         let expect = expectation(description: "Should have completed")
         let manager = self.manager!
         let dbProcessor = self.dbProcessor!.processor
         let context = manager.disposableObjectContext()
         let times = 1000
         let pureObjects1 = (0..<times).map({_ in Dummy1()})
-        
-        // Since we are using error, we expect the upsert to still fail.
+
+        // Since we are using error, we expect the upsert to fail.
         let pureObjects2 = (0..<times).map({(index) -> Dummy1 in
             let dummy = Dummy1()
             let previous = pureObjects1[index]
@@ -221,38 +277,39 @@ public final class CoreDataRequestTest: CoreDataRootTest {
             dummy.version = (previous.version!.intValue + 1) as NSNumber
             return dummy
         })
-        
+
         let cdObjects1 = try! manager.constructUnsafely(context, pureObjects1)
         let cdObjects2 = try! manager.constructUnsafely(context, pureObjects2)
         let insertGn = dummy1InsertRgn(cdObjects1)
         let insertPs = dummy1UpsertRps()
         let persistGn = dummyPersistRgn()
-        let persistPs = dummyPersistRps()
         let upsertGn = dummy1UpsertRgn(cdObjects2, .error)
         let upsertPs = dummy1UpsertRps()
         let fetchGn = dummy1FetchRgn()
-        
+
         /// When
         // Insert the first set of data.
         dbProcessor.process(dummy, insertGn, insertPs)
             .map({$0.map({$0 as Any})})
-            
+
             // Persist changes to DB.
-            .flatMap({dbProcessor.process($0, persistGn, persistPs)})
+            .flatMap({dbProcessor.processVoid($0, persistGn)})
             .map({$0.map({$0 as Any})})
-            
+
             .flatMap({dbProcessor.process($0, fetchGn, Dummy1.self)})
-            .doOnNext({XCTAssertEqual($0.value?.count, times)})
-            .map({$0.map({$0 as Any})})
-            
+            .map({try $0.getOrThrow()})
+            .doOnNext({XCTAssertTrue(pureObjects1.all($0.contains))})
+            .doOnNext({XCTAssertEqual($0.count, times)})
+            .cast(to: Any.self).map(Try.success)
+
             // Upsert the second set of data.
             .flatMap({dbProcessor.process($0, upsertGn, upsertPs)})
             .map({$0.map({$0 as Any})})
-            
+
             // Persist changes to DB.
-            .flatMap({dbProcessor.process($0, persistGn, persistPs)})
+            .flatMap({dbProcessor.processVoid($0, persistGn)})
             .map({$0.map({$0 as Any})})
-            
+
             // Fetch all data to check that the upsert failed.
             .flatMap({dbProcessor.process($0, fetchGn, Dummy1.self)})
             .map({try $0.getOrThrow()})
@@ -260,23 +317,22 @@ public final class CoreDataRequestTest: CoreDataRootTest {
             .doOnDispose(expect.fulfill)
             .subscribe(observer)
             .disposed(by: disposeBag)
-        
+
         waitForExpectations(timeout: timeout, handler: nil)
-        
+
         /// Then
         let nextElements = observer.nextElements()
-        let nextDummies = nextElements.flatMap({$0.value})
-        
+
         // Only the old data exists in the DB. The updated versionables are not
         // persisted due to error conflict strategy.
         XCTAssertEqual(nextElements.count, times)
-        XCTAssertTrue(pureObjects1.all(nextDummies.contains))
-        XCTAssertFalse(pureObjects2.any(nextDummies.contains))
+        XCTAssertTrue(pureObjects1.all(nextElements.contains))
+        XCTAssertFalse(pureObjects2.any(nextElements.contains))
     }
     
-    public func test_saveConvertibleData_shouldWork() {
+    public func test_insertConvertibleData_shouldWork() {
         /// Setup
-        let observer = scheduler.createObserver(Try<Dummy1>.self)
+        let observer = scheduler.createObserver(Dummy1.self)
         let expect = expectation(description: "Should have completed")
         let dbProcessor = self.dbProcessor!.processor
         let manager = self.manager!
@@ -284,33 +340,30 @@ public final class CoreDataRequestTest: CoreDataRootTest {
         let dummyCount = self.dummyCount
         let pureObjects = (0..<dummyCount).map({_ in Dummy1()})
         let cdObjects = try! manager.constructUnsafely(context, pureObjects)
-        
+
         let insertGn = dummy1InsertRgn(cdObjects)
         let insertPs = dummy1InsertRps()
         let persistGn = dummyPersistRgn()
-        let persistPs = dummyPersistRps()
         let fetchGn = dummy1FetchRgn()
-        let fetchPs = dummy1FetchRps()
-        
+
         /// When
         dbProcessor.process(dummy, insertGn, insertPs)
             .map({$0.map({$0 as Any})})
-            .flatMap({dbProcessor.process($0, persistGn, persistPs)})
+            .flatMap({dbProcessor.processVoid($0, persistGn)})
             .map({$0.map({$0 as Any})})
-            .flatMap({dbProcessor.process($0, fetchGn, fetchPs)})
+            .flatMap({dbProcessor.process($0, fetchGn, Dummy1.self)})
             .map({try $0.getOrThrow()})
             .flatMap({Observable.from($0)})
             .doOnDispose(expect.fulfill)
             .subscribe(observer)
             .disposed(by: disposeBag)
-        
+
         waitForExpectations(timeout: timeout, handler: nil)
-        
+
         /// Then
         let nextElements = observer.nextElements()
-        let unwrapped = nextElements.flatMap({$0.value})
-        XCTAssertEqual(unwrapped.count, pureObjects.count)
-        XCTAssertTrue(pureObjects.all(unwrapped.contains))
+        XCTAssertEqual(nextElements.count, pureObjects.count)
+        XCTAssertTrue(pureObjects.all(nextElements.contains))
     }
     
     public func test_cdNonTypedRequestObject_shouldThrowErrorsIfNecessary() {
@@ -393,8 +446,15 @@ extension CoreDataRequestTest {
         return HMRequestGenerators.forceGenerateFn(dummy1FetchRequest())
     }
     
-    func dummy1FetchRps() -> HMCDTypedResultProcessor<Dummy1> {
-        return {Observable.just(Try.success($0.asPureObject()))}
+    func dumm1BatchDeleteRequest() -> Req {
+        return Req.builder()
+            .with(poType: Dummy1.self)
+            .with(predicate: NSPredicate(value: true))
+            .build()
+    }
+    
+    func dummy1BatchDeleteRgn() -> HMAnyRequestGenerator<Req> {
+        return HMRequestGenerators.forceGenerateFn(dumm1BatchDeleteRequest(), Any.self)
     }
 
     func dummyPersistRequest() -> Req {
@@ -403,10 +463,6 @@ extension CoreDataRequestTest {
 
     func dummyPersistRgn() -> HMAnyRequestGenerator<Req> {
         return HMRequestGenerators.forceGenerateFn(dummyPersistRequest())
-    }
-
-    func dummyPersistRps() -> HMEQResultProcessor<Void> {
-        return HMResultProcessors.eqProcessor()
     }
 
     func dummyMemoryDeleteRequest(_ data: [NSManagedObject]) -> Req {
@@ -418,10 +474,6 @@ extension CoreDataRequestTest {
 
     func dummyMemoryDeleteRgn(_ data: [NSManagedObject]) -> HMAnyRequestGenerator<Req> {
         return HMRequestGenerators.forceGenerateFn(dummyMemoryDeleteRequest(data))
-    }
-
-    func dummyMemoryDeleteRps() -> HMEQResultProcessor<Void> {
-        return HMResultProcessors.eqProcessor()
     }
 }
 

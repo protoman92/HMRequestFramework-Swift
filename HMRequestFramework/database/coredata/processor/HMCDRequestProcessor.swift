@@ -123,6 +123,9 @@ extension HMCDRequestProcessor: HMCDRequestProcessorType {
         case .delete:
             return try executeDelete(request)
             
+        case .deleteBatch:
+            return try executeBatchDelete(request)
+            
         case .persistLocally:
             return try executePersistToFile(request)
             
@@ -167,6 +170,22 @@ extension HMCDRequestProcessor: HMCDRequestProcessorType {
         let manager = coreDataManager()
         
         return manager.rx.persistLocally()
+            .retry(request.retries())
+            .map(Try.success)
+            .catchErrorJustReturn(Try.failure)
+    }
+    
+    /// Perform a batch delete operation. This only works for SQLite stores.
+    ///
+    /// - Parameter request: A Req instance.
+    /// - Returns: An Observable instance.
+    /// - Throws: Exception if the execution fails.
+    private func executeBatchDelete(_ request: Req) throws -> Observable<Try<Void>> {
+        let manager = coreDataManager()
+        let dRequest = try request.untypedFetchRequest()
+        
+        return manager.rx.delete(dRequest)
+            .map(toVoid)
             .retry(request.retries())
             .map(Try.success)
             .catchErrorJustReturn(Try.failure)

@@ -127,7 +127,7 @@ public extension HMCDRequestProcessorType {
     ///   - previous: The result of the upstream request.
     ///   - generator: Generator function to create the current request.
     /// - Returns: An Observable instance.
-    public func process<Prev>(
+    public func processResult<Prev>(
         _ previous: Try<Prev>,
         _ generator: @escaping HMRequestGenerator<Prev,Req>)
         -> Observable<Try<[HMCDResult]>>
@@ -149,17 +149,19 @@ public extension HMCDRequestProcessorType {
         _ previous: Try<Prev>,
         _ generator: @escaping HMRequestGenerator<Prev,Req>,
         _ poCls: PO.Type)
-        -> Observable<Try<[Try<PO>]>> where
+        -> Observable<Try<[PO]>> where
         PO: HMCDPureObjectType,
         PO.CDClass: HMCDPureObjectConvertibleType,
         PO.CDClass.PureObject == PO
     {
         let processor = HMCDResultProcessors.pureObjectProcessor(poCls)
         return process(previous, generator, processor)
+            
+            // Since asPureObject() does not throw an error, we can safely
+            // assume the processing succeeds for all items.
+            .map({$0.map({$0.flatMap({$0.value})})})
     }
     
-    /// Override this method to provide default implementation.
-    ///
     /// This method should be used for all operations other than those which
     /// require specific NSManagedObject subtypes.
     ///
@@ -176,5 +178,22 @@ public extension HMCDRequestProcessorType {
     {
         return execute(previous, generator, execute)
             .flatMap({try HMResultProcessors.processResultFn($0, processor)})
+    }
+    
+    /// This method should be used for all operations other than those which
+    /// require specific NSManagedObject subtypes. Cast the result to Void
+    /// using a default processor.
+    ///
+    /// - Parameters:
+    ///   - previous: The result of the upstream request.
+    ///   - generator: Generator function to create the current request.
+    /// - Returns: An Observable instance.
+    public func processVoid<Prev>(
+        _ previous: Try<Prev>,
+        _ generator: @escaping HMRequestGenerator<Prev,Req>)
+        -> Observable<Try<Void>>
+    {
+        let processor = HMResultProcessors.eqProcessor(Void.self)
+        return process(previous, generator, processor)
     }
 }
