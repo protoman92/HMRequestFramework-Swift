@@ -6,6 +6,8 @@
 //  Copyright © 2017 Holmusk. All rights reserved.
 //
 
+import SwiftUtilities
+
 /// This class contains convenient enums to deal with version conflicts.
 public final class VersionConflict {
     public struct Exception {
@@ -26,10 +28,14 @@ public final class VersionConflict {
     /// - error: Throw an Error.
     /// - overwrite: Ignore and continue the update.
     /// - takePreferable: Take the ones with preferable versions.
-    public enum Strategy {
+    public enum Strategy: EnumerableType {
         case error
         case overwrite
         case takePreferable
+        
+        public static func allValues() -> [VersionConflict.Strategy] {
+            return [.error, .overwrite, .takePreferable]
+        }
     }
     
     private init() {}

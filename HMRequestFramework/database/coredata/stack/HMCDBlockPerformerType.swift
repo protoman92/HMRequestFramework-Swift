@@ -7,10 +7,15 @@
 //
 
 import CoreData
+import SwiftUtilities
 
-public enum ContextPerformanceStrategy {
+public enum ContextPerformanceStrategy: EnumerableType {
     case perform
     case performAndWait
+    
+    public static func allValues() -> [ContextPerformanceStrategy] {
+        return [.perform, .performAndWait]
+    }
 }
 
 /// Classes that implement this protocol must be able to perform some code

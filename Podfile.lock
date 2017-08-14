@@ -25,7 +25,7 @@ EXTERNAL SOURCES:
 
 CHECKOUT OPTIONS:
   SwiftUtilities:
-    :commit: 445a29ebcc8609b8a6386f1606f1c93e97bcfba8
+    :commit: 0f971b7ce4721b55cb17939930efdfc0f32542b3
     :git: https://github.com/protoman92/SwiftUtilities.git
 
 SPEC CHECKSUMS:

@@ -14,9 +14,17 @@ public struct HMCDPersistentStoreSettings {
     /// This enum details available store types.
     ///
     /// - SQLite: SQLite store type.
-    public enum StoreType {
+    public enum StoreType: EnumerableType {
         case InMemory
         case SQLite
+        
+        public static func allValues() -> [StoreType] {
+            return [.InMemory, .SQLite]
+        }
+        
+        public static func from(type: String) -> StoreType? {
+            return allValues().first(where: {$0.storeType() == type})
+        }
         
         /// Get the store type.
         ///

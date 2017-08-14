@@ -6,11 +6,17 @@
 //  Copyright © 2017 Holmusk. All rights reserved.
 //
 
-public enum HttpMethod: String {
+import SwiftUtilities
+
+public enum HttpMethod: String, EnumerableType {
     case get = "GET"
     case post = "POST"
     case head = "HEAD"
     case put = "PUT"
+    
+    public static func allValues() -> [HttpMethod] {
+        return [.get, .post, .head, .put]
+    }
     
     /// Check if the current method requires a HTTP body.
     ///

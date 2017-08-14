@@ -48,6 +48,27 @@ public struct HMCDManager {
         self.privateContext = privateContext
         self.mainContext = mainContext
     }
+    
+    /// Get the main store type. This is useful e.g. when we are doing a
+    /// batch delete request and do not want to crash (since it does not work
+    /// for InMemory stores).
+    ///
+    /// - Returns: A StoreType instance.
+    public func mainStoreType() -> HMCDPersistentStoreSettings.StoreType? {
+        if let type = coordinator.persistentStores.first?.type {
+            return HMCDPersistentStoreSettings.StoreType.from(type: type)
+        } else {
+            return nil
+        }
+    }
+    
+    public func isMainStoreTypeInMemory() -> Bool {
+        return mainStoreType() == .some(.InMemory)
+    }
+    
+    public func isMainStoreTypeSQLite() -> Bool {
+        return mainStoreType() == .some(.SQLite)
+    }
 }
 
 extension HMCDManager {
