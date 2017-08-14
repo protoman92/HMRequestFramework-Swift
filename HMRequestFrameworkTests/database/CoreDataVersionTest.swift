@@ -147,21 +147,21 @@ public final class CoreDataVersionTest: CoreDataRootTest {
         let entityName = try! Dummy1.CDClass.entityName()
         
         // Different contexts.
-        let context1 = manager.disposableObjectContext()
-        let context2 = manager.disposableObjectContext()
-        let context3 = manager.disposableObjectContext()
+        let saveContext = manager.disposableObjectContext()
+        let versionContext = manager.disposableObjectContext()
+        let fetchContext = manager.disposableObjectContext()
 
         /// When
         // Save data3 to simulate version conflicts.
-        manager.rx.save(context1, serverCDObjects)
+        manager.rx.save(saveContext, serverCDObjects)
             .flatMap({_ in manager.rx.persistLocally()})
 
             // Since strategy is overwrite, we expect all updates to succeed.
             // Items that are not in the DB yet will be inserted.
-            .flatMap({manager.rx.updateVersion(context2, entityName, updateRequests)})
+            .flatMap({manager.rx.updateVersion(versionContext, entityName, updateRequests)})
             .doOnNext({XCTAssertTrue($0.all({$0.isSuccess()}))})
             .flatMap({_ in manager.rx.persistLocally()})
-            .flatMap({manager.rx.fetch(context3, self.fetchRq)})
+            .flatMap({manager.rx.fetch(fetchContext, self.fetchRq)})
             .map({$0.map({$0.asPureObject()})})
             .flatMap({Observable.from($0)})
             .doOnDispose(expect.fulfill)
@@ -179,9 +179,11 @@ public final class CoreDataVersionTest: CoreDataRootTest {
 
 public extension CoreDataVersionTest {
     func randomStrategies(_ times: Int) -> [VersionConflict.Strategy] {
-        let strategies = [VersionConflict.Strategy.error,
-                          .overwrite,
-                          .takePreferable]
+        let strategies: [VersionConflict.Strategy] = [
+            .error,
+            .overwrite,
+            .takePreferable
+        ]
         
         let allCount = strategies.count
         return (0..<times).map({_ in strategies[Int.random(0, allCount)]})
