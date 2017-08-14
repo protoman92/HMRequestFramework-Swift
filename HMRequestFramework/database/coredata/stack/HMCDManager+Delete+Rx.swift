@@ -163,7 +163,7 @@ public extension HMCDManager {
     }
 }
 
-public extension Reactive where Base: HMCDManager {
+public extension Reactive where Base == HMCDManager {
     
     /// Delete items in DB using some fetch request. Beware that this is only
     /// available for SQLite stores.
@@ -183,7 +183,7 @@ public extension Reactive where Base: HMCDManager {
     }
 }
 
-public extension Reactive where Base: HMCDManager {
+public extension Reactive where Base == HMCDManager {
     
     /// Delete a Sequence of data from memory by refetching them using some
     /// context.
@@ -203,7 +203,7 @@ public extension Reactive where Base: HMCDManager {
     }
 }
 
-public extension Reactive where Base: HMCDManager {
+public extension Reactive where Base == HMCDManager {
     
     /// Delete a Sequence of identifiable data from memory by refetching them
     /// using some context.

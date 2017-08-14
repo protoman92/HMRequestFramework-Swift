@@ -201,7 +201,7 @@ public extension HMCDManager {
     }
 }
 
-extension Reactive where Base: HMCDManager {
+extension Reactive where Base == HMCDManager {
     
     /// Update a Sequence of versioned objects and save to memory.
     ///

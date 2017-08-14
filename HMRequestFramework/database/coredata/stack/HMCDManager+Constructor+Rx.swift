@@ -87,7 +87,7 @@ public extension HMCDManager {
     }
 }
 
-public extension Reactive where Base: HMCDManager {
+public extension Reactive where Base == HMCDManager {
     
     /// Construct CoreData objects from multiple pure objects.
     ///

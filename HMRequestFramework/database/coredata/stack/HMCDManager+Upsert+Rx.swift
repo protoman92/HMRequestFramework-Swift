@@ -140,7 +140,7 @@ public extension HMCDManager {
     }
 }
 
-extension Reactive where Base: HMCDManager {
+extension Reactive where Base == HMCDManager {
     
     /// Perform an upsert request on a Sequence of upsertable objects.
     ///

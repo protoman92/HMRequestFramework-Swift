@@ -223,7 +223,7 @@ public extension HMCDManager {
     }
 }
 
-public extension Reactive where Base: HMCDManager {
+public extension Reactive where Base == HMCDManager {
     
     /// Save changes for a NSManagedObjectContext.
     ///
@@ -287,7 +287,7 @@ public extension Reactive where Base: HMCDManager {
     }
 }
 
-public extension Reactive where Base: HMCDManager {
+public extension Reactive where Base == HMCDManager {
     
     /// Save all changes in the main and private contexts. When the main context
     /// is saved, the changes will be reflected in the private context, so we

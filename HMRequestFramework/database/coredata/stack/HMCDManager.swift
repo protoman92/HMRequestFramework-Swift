@@ -10,7 +10,13 @@ import CoreData
 import RxSwift
 import SwiftUtilities
 
-public class HMCDManager {
+/// This class is used to manage CoreData-related operations. All operations
+/// take a NSManagedObjectContext instance as the first parameter, because in
+/// many cases the upper layers need to keep a reference to the context in
+/// which data is inserted (otherwise, ARC may deallocate properties). The
+/// context that is passed in as parameter should be a blank disposable one
+/// created using HMCDManager.disposableObjectContext().
+public struct HMCDManager {
     
     /// This context is not accessible outside of this class. It runs in
     /// background thread and acts as root of all managed object contexts.

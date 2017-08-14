@@ -260,7 +260,7 @@ public extension HMCDManager {
     }
 }
 
-public extension Reactive where Base: HMCDManager {
+public extension Reactive where Base == HMCDManager {
     
     /// Get data for a fetch request.
     ///
