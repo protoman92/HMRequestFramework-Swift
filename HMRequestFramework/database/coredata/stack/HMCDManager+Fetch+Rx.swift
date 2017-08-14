@@ -43,27 +43,6 @@ public extension HMCDManager {
 
 public extension HMCDManager {
     
-    /// Fetch data using a request. This operation blocks.
-    ///
-    /// - Parameter request: A NSFetchRequest instance.
-    /// - Returns: An Array of NSManagedObject.
-    /// - Throws: Exception if the fetch fails.
-    func blockingFetch<Val>(_ request: NSFetchRequest<Val>) throws -> [Val] {
-        return try blockingFetch(disposableObjectContext(), request)
-    }
-    
-    /// Fetch data using a request and a specified Val class. This operation blocks.
-    ///
-    /// - Parameters:
-    ///   - request: A NSFetchRequest instance.
-    ///   - cls: A Val class type.
-    /// - Returns: An Array of NSManagedObject.
-    /// - Throws: Exception if the fetch fails.
-    func blockingFetch<Val>(_ request: NSFetchRequest<Val>,
-                            _ cls: Val.Type) throws -> [Val] {
-        return try blockingFetch(request)
-    }
-    
     /// Fetch data from a context using a request. This operation blocks.
     ///
     /// - Parameters:
@@ -334,38 +313,6 @@ public extension Reactive where Base: HMCDManager {
         return fetch(context, request, cls.CDClass.self)
     }
     
-    /// Get data for a fetch request.
-    ///
-    /// - Parameters request: A NSFetchRequest instance.
-    /// - Returns: An Observable instance.
-    public func fetch<Val>(_ request: NSFetchRequest<Val>) -> Observable<[Val]> {
-        return fetch(base.disposableObjectContext(), request)
-    }
-    
-    /// Get data for a fetch request.
-    ///
-    /// - Parameters:
-    ///   - request: A NSFetchRequest instance.
-    ///   - cls: A Val class type.
-    /// - Returns: An Observable instance.
-    public func fetch<Val>(_ request: NSFetchRequest<Val>,
-                           _ cls: Val.Type) -> Observable<[Val]> {
-        return fetch(request)
-    }
-    
-    /// Get data for a fetch request.
-    ///
-    /// - Parameters:
-    ///   - request: A NSFetchRequest instance.
-    ///   - cls: A PO class type.
-    /// - Returns: An Observable instance.
-    public func fetch<PO>(_ request: NSFetchRequest<PO.CDClass>,
-                          _ cls: PO.Type) -> Observable<[PO.CDClass]>
-        where PO: HMCDPureObjectType
-    {
-        return fetch(request, cls.CDClass.self)
-    }
-    
     /// Perform a refetch request for a Sequence of identifiable objects.
     ///
     /// - Parameters:
@@ -395,22 +342,5 @@ public extension Reactive where Base: HMCDManager {
             
             return Disposables.create()
         })
-    }
-    
-    /// Perform a refetch request for a Sequence of identifiable objects, using
-    /// the default fetch context.
-    ///
-    /// - Parameters:
-    ///   - entityName: A String value representing the entity's name.
-    ///   - identifiables: A Sequence of HMCDIdentifiableType.
-    /// - Returns: An Observable instance.
-    public func refetch<U,S>(_ entityName: String, _ identifiables: S)
-        -> Observable<[U]> where
-        U: NSFetchRequestResult,
-        U: HMCDIdentifiableType,
-        S: Sequence,
-        S.Iterator.Element == U
-    {
-        return refetch(base.disposableObjectContext(), entityName, identifiables)
     }
 }

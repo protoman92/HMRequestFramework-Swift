@@ -78,20 +78,25 @@ public final class CoreDataVersionTest: CoreDataRootTest {
                 .with(strategy: strategies[$0.offset])
                 .build()
         })
+        
+        // Different contexts.
+        let context1 = manager.disposableObjectContext()
+        let context2 = manager.disposableObjectContext()
+        let context3 = manager.disposableObjectContext()
 
         /// When
         // When we save data3, we are simulating the scenario whereby an edit
         // is happening when some other processes from another thread update
         // the DB to overwrite data.
-        manager.rx.save(serverCDObjects)
+        manager.rx.save(context1, serverCDObjects)
             .flatMap({_ in manager.rx.persistLocally()})
 
             // When we update the versioned objects, we apply random conflict
             // strategies to the Array.
-            .flatMap({manager.rx.updateVersion(entityName, updateRequests)})
+            .flatMap({manager.rx.updateVersion(context2, entityName, updateRequests)})
             .doOnNext({XCTAssertEqual($0.filter({$0.isFailure()}).count, errorCount)})
             .flatMap({_ in manager.rx.persistLocally()})
-            .flatMap({_ in manager.rx.fetch(self.fetchRq)})
+            .flatMap({_ in manager.rx.fetch(context3, self.fetchRq)})
             .map({$0.map({$0.asPureObject()})})
             .flatMap({Observable.from($0)})
             .doOnDispose(expect.fulfill)
@@ -140,18 +145,23 @@ public final class CoreDataVersionTest: CoreDataRootTest {
         })
 
         let entityName = try! Dummy1.CDClass.entityName()
+        
+        // Different contexts.
+        let context1 = manager.disposableObjectContext()
+        let context2 = manager.disposableObjectContext()
+        let context3 = manager.disposableObjectContext()
 
         /// When
         // Save data3 to simulate version conflicts.
-        manager.rx.save(serverCDObjects)
+        manager.rx.save(context1, serverCDObjects)
             .flatMap({_ in manager.rx.persistLocally()})
 
             // Since strategy is overwrite, we expect all updates to succeed.
             // Items that are not in the DB yet will be inserted.
-            .flatMap({manager.rx.updateVersion(entityName, updateRequests)})
+            .flatMap({manager.rx.updateVersion(context2, entityName, updateRequests)})
             .doOnNext({XCTAssertTrue($0.all({$0.isSuccess()}))})
             .flatMap({_ in manager.rx.persistLocally()})
-            .flatMap({manager.rx.fetch(self.fetchRq)})
+            .flatMap({manager.rx.fetch(context3, self.fetchRq)})
             .map({$0.map({$0.asPureObject()})})
             .flatMap({Observable.from($0)})
             .doOnDispose(expect.fulfill)

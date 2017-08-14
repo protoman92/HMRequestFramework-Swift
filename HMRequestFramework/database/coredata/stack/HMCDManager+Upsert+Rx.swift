@@ -161,20 +161,6 @@ extension Reactive where Base: HMCDManager {
         })
     }
     
-    /// Perform an upsert request on a Sequence of upsertable objects with a
-    /// disposable context.
-    ///
-    /// - Parameters:
-    ///   - entityName: A String value. representing the entity's name.
-    ///   - upsertables: A Sequence of upsertable objects.
-    /// - Returns: An Observable instane.
-    public func upsert<S>(_ entityName: String, _ upsertables: S)
-        -> Observable<[HMCDResult]> where
-        S: Sequence, S.Iterator.Element == HMCDUpsertableType
-    {
-        return upsert(base.disposableObjectContext(), entityName, upsertables)
-    }
-    
     /// Perform an upsert request on a Sequence of upsertable objects.
     ///
     /// - Parameters:
@@ -191,21 +177,5 @@ extension Reactive where Base: HMCDManager {
         S.Iterator.Element == U
     {
         return upsert(context, entityName, upsertables.map({$0 as HMCDUpsertableType}))
-    }
-    
-    /// Perform an upsert request on a Sequence of upsertable objects with a
-    /// disposable context.
-    ///
-    /// - Parameters:
-    ///   - entityName: A String value. representing the entity's name.
-    ///   - upsertables: A Sequence of upsertable objects.
-    /// - Returns: An Observable instane.
-    public func upsert<U,S>(_ entityName: String, _ upsertables: S)
-        -> Observable<[HMCDResult]> where
-        U: HMCDUpsertableType,
-        S: Sequence,
-        S.Iterator.Element == U
-    {
-        return upsert(base.disposableObjectContext(), entityName, upsertables)
     }
 }

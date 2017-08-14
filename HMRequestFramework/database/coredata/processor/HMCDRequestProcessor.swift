@@ -69,8 +69,9 @@ extension HMCDRequestProcessor: HMCDRequestProcessorType {
     {
         let manager = coreDataManager()
         let cdRequest = try request.fetchRequest(Val.self)
+        let context = manager.disposableObjectContext()
     
-        return manager.rx.fetch(cdRequest)
+        return manager.rx.fetch(context, cdRequest)
             .retry(request.retries())
             .map(Try.success)
             .catchErrorJustReturn(Try.failure)
@@ -104,8 +105,9 @@ extension HMCDRequestProcessor: HMCDRequestProcessorType {
     private func executeSaveData(_ request: Req) throws -> Observable<Try<[HMCDResult]>> {
         let manager = coreDataManager()
         let insertedData = try request.insertedData()
+        let context = manager.disposableObjectContext()
         
-        return manager.rx.save(insertedData)
+        return manager.rx.save(context, insertedData)
             .retry(request.retries())
             .map(Try.success)
             .catchErrorJustReturn(Try.failure)
@@ -150,11 +152,13 @@ extension HMCDRequestProcessor: HMCDRequestProcessorType {
         // first before deleting.
         let identifiables = data.flatMap({$0 as? HMCDIdentifiableType})
         let nonIdentifiables = data.filter({!($0 is HMCDIdentifiableType)})
+        let context1 = manager.disposableObjectContext()
+        let context2 = manager.disposableObjectContext()
         
         return Observable
             .concat(
-                manager.rx.delete(entityName, identifiables),
-                manager.rx.delete(nonIdentifiables)
+                manager.rx.delete(context1, entityName, identifiables),
+                manager.rx.delete(context2, nonIdentifiables)
             )
             .retry(request.retries())
             .map(Try.success)
@@ -183,8 +187,9 @@ extension HMCDRequestProcessor: HMCDRequestProcessorType {
     private func executeBatchDelete(_ request: Req) throws -> Observable<Try<Void>> {
         let manager = coreDataManager()
         let dRequest = try request.untypedFetchRequest()
+        let context = manager.disposableObjectContext()
         
-        return manager.rx.delete(dRequest)
+        return manager.rx.delete(context, dRequest)
             .map(toVoid)
             .retry(request.retries())
             .map(Try.success)
@@ -205,11 +210,13 @@ extension HMCDRequestProcessor: HMCDRequestProcessorType {
         let versionables = data.flatMap({$0 as? HMCDVersionableType})
         let nonVersionables = data.filter({!($0 is HMCDVersionableType)})
         let updateRequests = try request.updateRequest(versionables)
+        let context1 = manager.disposableObjectContext()
+        let context2 = manager.disposableObjectContext()
         
         return Observable
             .concat(
-                manager.rx.updateVersion(entityName, updateRequests),
-                manager.rx.upsert(entityName, nonVersionables)
+                manager.rx.updateVersion(context1, entityName, updateRequests),
+                manager.rx.upsert(context2, entityName, nonVersionables)
             )
             .reduce([], accumulator: +)
             .map(Try.success)

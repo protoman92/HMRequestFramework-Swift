@@ -49,17 +49,20 @@ public final class CoreDataManagerTest: CoreDataRootTest {
         let privateContext = manager.privateContext
         let dummies = (0..<dummyCount).map({_ in Dummy2()})
         let fetchRq: NSFetchRequest<CDDummy2> = try! dummy2FetchRequest().fetchRequest()
-        XCTAssertTrue(mainContext.insertedObjects.isEmpty)
-        XCTAssertTrue(privateContext.insertedObjects.isEmpty)
+        
+        // Different contexts for each operation.
+        let context1 = manager.disposableObjectContext()
+        let context2 = manager.disposableObjectContext()
+        let context3 = manager.disposableObjectContext()
         
         /// When
         // Save the dummies in memory. Their NSManagedObject equivalents will
         // be constructed here.
-        manager.rx.save(dummies)
+        manager.rx.save(context1, dummies)
             
             // Perform a fetch to verify that the data have been inserted, but
             // not persisted.
-            .flatMap({manager.rx.fetch(fetchRq)})
+            .flatMap({manager.rx.fetch(context2, fetchRq)})
             .doOnNext({XCTAssertEqual($0.count, dummyCount)})
             .doOnNext({_ in XCTAssertEqual(mainContext.insertedObjects.count, dummyCount)})
             .doOnNext({_ in XCTAssertTrue(privateContext.insertedObjects.isEmpty)})
@@ -69,7 +72,7 @@ public final class CoreDataManagerTest: CoreDataRootTest {
             .flatMap(manager.rx.persistLocally)
             
             // Fetch the data and verify that they have been persisted.
-            .flatMap({manager.rx.fetch(fetchRq)})
+            .flatMap({manager.rx.fetch(context3, fetchRq)})
             .map({$0.map({$0.asPureObject()})})
             .flatMap({Observable.from($0)})
             .doOnDispose(expect.fulfill)
@@ -97,16 +100,20 @@ public extension CoreDataManagerTest {
         let cdObjects = try! manager.constructUnsafely(context, pureObjects)
         let entityName = try! Dummy1.CDClass.entityName()
         
+        // Different contexts.
+        let context1 = manager.disposableObjectContext()
+        let context2 = manager.disposableObjectContext()
+        
         /// When
         // Save data without persisting to DB.
-        manager.rx.save(cdObjects)
+        manager.rx.save(context1, cdObjects)
             
             // Persist data to DB.
             .flatMap({_ in manager.rx.persistLocally()})
             
             // Refetch based on identifiable objects. We expect the returned
             // data to contain the same properties.
-            .flatMap({manager.rx.refetch(entityName, cdObjects)})
+            .flatMap({manager.rx.refetch(context2, entityName, cdObjects)})
             .map({$0.map({$0.asPureObject()})})
             .flatMap({Observable.from($0)})
             .doOnDispose(expect.fulfill)
@@ -128,8 +135,7 @@ public extension CoreDataManagerTest {
         let manager = self.manager!
         
         // Two contexts for two operations, no shared context.
-        let context1 = manager.disposableObjectContext()
-        let context2 = manager.disposableObjectContext()
+        let context = manager.disposableObjectContext()
         let dummyCount = self.dummyCount
         let pureObjects1 = (0..<dummyCount).map({_ in Dummy1()})
         
@@ -139,8 +145,8 @@ public extension CoreDataManagerTest {
             return dummy
         })
         
-        let cdObjects1 = try! manager.constructUnsafely(context1, pureObjects1)
-        let cdObjects2 = try! manager.constructUnsafely(context2, pureObjects2)
+        let cdObjects1 = try! manager.constructUnsafely(context, pureObjects1)
+        let cdObjects2 = try! manager.constructUnsafely(context, pureObjects2)
         
         let fetchRq = try! HMCDRequest.builder()
             .with(poType: Dummy1.self)
@@ -151,29 +157,35 @@ public extension CoreDataManagerTest {
         
         let entityName = fetchRq.entityName!
         
+        // Different contexts.
+        let context1 = manager.disposableObjectContext()
+        let context2 = manager.disposableObjectContext()
+        let context3 = manager.disposableObjectContext()
+        let context4 = manager.disposableObjectContext()
+        
         /// When
         // Save data1 to memory without persisting to DB.
-        manager.rx.save(context1)
+        manager.rx.save(context1, cdObjects1)
             
             // Persist changes to DB. At this stage, data1 is the only set
             // of data within the DB.
-            .flatMap(manager.rx.persistLocally)
+            .flatMap({_ in manager.rx.persistLocally()})
             
             // Fetch to verify that the DB only contains data1.
-            .flatMap({manager.rx.fetch(fetchRq)})
+            .flatMap({manager.rx.fetch(context2, fetchRq)})
             .map({$0.map({$0.asPureObject()})})
             .doOnNext({XCTAssertTrue($0.all(pureObjects1.contains))})
             .doOnNext({XCTAssertEqual($0.count, dummyCount)})
             
             // Delete data2 from memory. data1 and data2 are two different
             // sets of data that only have the same primary key-value.
-            .flatMap({_ in manager.rx.delete(entityName, cdObjects2)})
+            .flatMap({_ in manager.rx.delete(context3, entityName, cdObjects2)})
             
             // Persist changes to DB.
             .flatMap(manager.rx.persistLocally)
             
             // Fetch to verify that the DB is now empty.
-            .flatMap({manager.rx.fetch(fetchRq)})
+            .flatMap({manager.rx.fetch(context4, fetchRq)})
             .flatMap({Observable.from($0)})
             .doOnDispose(expect.fulfill)
             .subscribe(observer)
@@ -205,16 +217,22 @@ public extension CoreDataManagerTest {
         let fetchRequest = try! dummy1FetchRequest().fetchRequest(Dummy1.self)
         let deleteRequest = try! dummy1FetchRequest().untypedFetchRequest()
         
+        // Different contexts.
+        let context1 = manager.disposableObjectContext()
+        let context2 = manager.disposableObjectContext()
+        let context3 = manager.disposableObjectContext()
+        let context4 = manager.disposableObjectContext()
+        
         /// When
-        manager.rx.save(cdObjects)
+        manager.rx.save(context1, cdObjects)
             .flatMap({_ in manager.rx.persistLocally()})
-            .flatMap({manager.rx.fetch(fetchRequest)})
+            .flatMap({manager.rx.fetch(context2, fetchRequest)})
             .map({$0.map({$0.asPureObject()})})
             .doOnNext({XCTAssertEqual($0.count, dummyCount)})
             .doOnNext({XCTAssertTrue(pureObjects.all($0.contains))})
-            .flatMap({_ in manager.rx.delete(deleteRequest)})
+            .flatMap({_ in manager.rx.delete(context3, deleteRequest)})
             .flatMap({_ in manager.rx.persistLocally()})
-            .flatMap({_ in manager.rx.fetch(fetchRequest)})
+            .flatMap({_ in manager.rx.fetch(context4, fetchRequest)})
             .map({$0.map({$0.asPureObject()})})
             .flatMap({Observable.from($0)})
             .cast(to: Any.self)
@@ -239,6 +257,10 @@ public extension CoreDataManagerTest {
         let request = try! dummy1FetchRequest().fetchRequest(Dummy1.self)
         let entityName = request.entityName!
         
+        // Different contexts
+        let context1 = manager.disposableObjectContext()
+        let context2 = manager.disposableObjectContext()
+        
         /// When
         Observable.from(0..<iterationCount)
 
@@ -248,17 +270,18 @@ public extension CoreDataManagerTest {
             .flatMap({(i) -> Observable<Void> in
                 // Always beware that if we don't keep a reference to the
                 // context, CD objects may lose their data.
-                let context = manager.disposableObjectContext()
+                let sc1 = manager.disposableObjectContext()
+                let sc2 = manager.disposableObjectContext()
                 
                 return Observable<[Dummy1.CDClass]>
                     .create({
                         let pureObjects = (0..<dummyCount).map({_ in Dummy1()})
-                        let cdObjects = try! manager.constructUnsafely(context, pureObjects)
+                        let cdObjects = try! manager.constructUnsafely(sc1, pureObjects)
                         $0.onNext(cdObjects)
                         $0.onCompleted()
                         return Disposables.create()
                     })
-                    .flatMap(manager.rx.save)
+                    .flatMap({manager.rx.save(sc2, $0)})
                     .map(toVoid)
                     .subscribeOn(qos: .background)
             })
@@ -268,24 +291,25 @@ public extension CoreDataManagerTest {
             .flatMap(manager.rx.persistLocally)
 
             // Fetch to verify that the data have been persisted.
-            .flatMap({manager.rx.fetch(request)})
+            .flatMap({manager.rx.fetch(context1, request)})
             .doOnNext({XCTAssertEqual($0.count, iterationCount * dummyCount)})
             .doOnNext({XCTAssertTrue($0.flatMap({$0.id}).count > 0)})
             .map({$0.map({$0.asPureObject()})})
             .flatMap({(objects) -> Observable<Void> in
-                let context = manager.disposableObjectContext()
+                let sc1 = manager.disposableObjectContext()
+                let sc2 = manager.disposableObjectContext()
                 
-                return manager.rx.construct(context, objects)
+                return manager.rx.construct(sc1, objects)
                     
                     // Delete from memory, but do not persist yet.
-                    .flatMap({manager.rx.delete(entityName, $0)})
+                    .flatMap({manager.rx.delete(sc2, entityName, $0)})
             })
 
             // Persist the changes.
             .flatMap(manager.rx.persistLocally)
 
             // Fetch to verify that the data have been deleted.
-            .flatMap({manager.rx.fetch(request).subscribeOn(qos: .background)})
+            .flatMap({manager.rx.fetch(context2, request).subscribeOn(qos: .background)})
             .map({$0.map({$0.asPureObject()})})
             .flatMap({Observable.from($0)})
             .cast(to: Any.self)
@@ -334,15 +358,19 @@ public extension CoreDataManagerTest {
         let convertibles = try! manager.constructUnsafely(context, pureObjects)
         let fetchRq = try! dummy1FetchRequest().fetchRequest(Dummy1.self)
         
+        // Different contexts.
+        let context1 = manager.disposableObjectContext()
+        let context2 = manager.disposableObjectContext()
+        
         /// When
         // The convertible objects should be converted into their NSManagedObject
         // counterparts here. Even if we do not have access to the context that
         // created these objects, we can reconstruct them and insert into another
         // context of choice.
-        manager.rx.save(convertibles)
+        manager.rx.save(context1, convertibles)
             .doOnNext({XCTAssertTrue($0.all({$0.isSuccess()}))})
             .flatMap({_ in manager.rx.persistLocally()})
-            .flatMap({manager.rx.fetch(fetchRq)})
+            .flatMap({manager.rx.fetch(context2, fetchRq)})
             .map({$0.map({$0.asPureObject()})})
             .flatMap({Observable.from($0)})
             .doOnDispose(expect.fulfill)
@@ -379,15 +407,20 @@ public extension CoreDataManagerTest {
         let fetchRq = try! dummy1FetchRequest().fetchRequest(Dummy1.self)
         let entityName = fetchRq.entityName!
         
+        // Different contexts.
+        let context1 = manager.disposableObjectContext()
+        let context2 = manager.disposableObjectContext()
+        let context3 = manager.disposableObjectContext()
+        
         /// When
-        manager.rx.save(cdObjects1)
+        manager.rx.save(context1, cdObjects1)
             .flatMap({_ in manager.rx.persistLocally()})
             
             // We expect the edited data to overwrite, while new data will
             // simply be inserted.
-            .flatMap({_ in manager.rx.upsert(entityName, cdObjects23)})
+            .flatMap({_ in manager.rx.upsert(context2, entityName, cdObjects23)})
             .flatMap({_ in manager.rx.persistLocally()})
-            .flatMap({manager.rx.fetch(fetchRq)})
+            .flatMap({manager.rx.fetch(context3, fetchRq)})
             .map({$0.map({$0.asPureObject()})})
             .flatMap({Observable.from($0)})
             .doOnDispose(expect.fulfill)

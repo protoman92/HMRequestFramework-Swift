@@ -222,20 +222,4 @@ extension Reactive where Base: HMCDManager {
             return Disposables.create()
         })
     }
-    
-    /// Update a Sequence of versioned objects and save to memory with a default
-    /// context.
-    ///
-    /// - Parameters:
-    ///   - entityName: A String value representing the entity's name.
-    ///   - requests: A Sequence of HMVersionUpdateRequest.
-    /// - Return: An Observable instance.
-    /// - Throws: Exception if the operation fails.
-    public func updateVersion<S>(_ entityName: String, _ requests: S)
-        -> Observable<[HMCDResult]> where
-        S: Sequence, S.Iterator.Element == HMCDVersionUpdateRequest
-    {
-        let context = base.disposableObjectContext()
-        return updateVersion(context, entityName, requests)
-    }
 }
