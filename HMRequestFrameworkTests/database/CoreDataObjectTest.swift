@@ -31,4 +31,20 @@ public final class CoreDataObjectTest: CoreDataRootTest {
         XCTAssertTrue(pureObjects1.all(reconverted2.contains))
         XCTAssertFalse(pureObjects2.any(reconverted2.contains))
     }
+    
+    public func test_convertCoreDataToPureObjectAndBack_shouldWork() {
+        /// Setup
+        let manager = self.manager!
+        let context = manager.disposableObjectContext()
+        let times = 1000
+        let dummies = (0..<times).map({_ in Dummy1()})
+        
+        /// When
+        let cdObjects = dummies.flatMap({try? $0.asManagedObject(context)})
+        let newDummies = cdObjects.flatMap({$0 as? Dummy1.CDClass}).map({$0.asPureObject()})
+        
+        /// Then
+        XCTAssertEqual(newDummies.count, dummies.count)
+        XCTAssertTrue(dummies.all(newDummies.contains))
+    }
 }

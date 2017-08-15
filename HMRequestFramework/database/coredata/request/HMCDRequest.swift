@@ -17,7 +17,7 @@ public struct HMCDRequest {
     fileprivate var cdOperation: CoreDataOperation?
     fileprivate var cdInsertedData: [HMCDObjectConvertibleType]
     fileprivate var cdUpsertedData: [HMCDUpsertableType]
-    fileprivate var cdDeletedData: [NSManagedObject]
+    fileprivate var cdDeletedData: [HMCDObjectConvertibleType]
     fileprivate var cdVCStrategy: VersionConflict.Strategy?
     fileprivate var retryCount: Int
     fileprivate var middlewaresEnabled: Bool
@@ -195,7 +195,7 @@ extension HMCDRequest: HMBuildableType {
         /// - Returns: The current Builder instance.
         @discardableResult
         public func with<S>(deletedData: S?) -> Self where
-            S: Sequence, S.Iterator.Element == NSManagedObject
+            S: Sequence, S.Iterator.Element == HMCDObjectConvertibleType
         {
             if let data = deletedData {
                 request.cdDeletedData.append(contentsOf: data)
@@ -210,9 +210,9 @@ extension HMCDRequest: HMBuildableType {
         /// - Returns: The current Builder instance.
         @discardableResult
         public func with<S>(deletedData: S?) -> Self where
-            S: Sequence, S.Iterator.Element: NSManagedObject
+            S: Sequence, S.Iterator.Element: HMCDObjectConvertibleType
         {
-            return with(deletedData: deletedData?.map({$0 as NSManagedObject}))
+            return with(deletedData: deletedData?.map({$0 as HMCDObjectConvertibleType}))
         }
         
         /// Set the version conflict strategy.
@@ -343,7 +343,7 @@ extension HMCDRequest: HMCDRequestType {
         return cdUpsertedData
     }
     
-    public func deletedData() throws -> [NSManagedObject] {
+    public func deletedData() throws -> [HMCDObjectConvertibleType] {
         return cdDeletedData
     }
     

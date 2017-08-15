@@ -231,6 +231,7 @@ extension Dummy1: Equatable {
     }
 }
 
+extension Dummy1: HMCDObjectConvertibleType {}
 extension Dummy1: Dummy1Type {}
 
 extension Dummy1: CustomStringConvertible {

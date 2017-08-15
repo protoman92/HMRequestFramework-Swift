@@ -58,14 +58,9 @@ public protocol HMCDRequestType: HMDatabaseRequestType {
     /// populate it with data pulled from the DB using objectIDs and call said
     /// context's delete(_:) method without it throwing an Error.
     ///
-    /// For save/upsert, it's not possible to do this since most likely the
-    /// data are not yet in the DB, and we cannot pass objects between contexts.
-    /// Therefore, we can neither query the DB nor transfer the data to our
-    /// own disposable context.
-    ///
-    /// - Returns: An Array of NSManagedObject.
+    /// - Returns: An Array of HMCDObjectConvertibleType.
     /// - Throws: Exception if the data is not available.
-    func deletedData() throws -> [NSManagedObject]
+    func deletedData() throws -> [HMCDObjectConvertibleType]
     
     /// Get the conflict strategy to be used in an update operation/
     ///

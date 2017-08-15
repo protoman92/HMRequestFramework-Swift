@@ -148,7 +148,7 @@ public extension CoreDataManagerTest {
         let cdObjects1 = try! manager.constructUnsafely(context, pureObjects1)
         let cdObjects2 = try! manager.constructUnsafely(context, pureObjects2)
         
-        let fetchRq = try! HMCDRequest.builder()
+        let fetchRq = try! Req.builder()
             .with(poType: Dummy1.self)
             .with(operation: .fetch)
             .with(predicate: NSPredicate(value: true))

@@ -122,7 +122,7 @@ extension HMCDRequestProcessor: HMCDRequestProcessorType {
         let operation = try request.operation()
         
         switch operation {
-        case .delete:
+        case .deleteData:
             return try executeDelete(request)
             
         case .deleteBatch:
@@ -144,14 +144,31 @@ extension HMCDRequestProcessor: HMCDRequestProcessorType {
     /// - Throws: Exception if the execution fails.
     private func executeDelete(_ request: Req) throws -> Observable<Try<Void>> {
         let manager = coreDataManager()
+        let context = manager.disposableObjectContext()
         let entityName = try request.entityName()
         let data = try request.deletedData()
+        
+        // Since both CoreData and PureObject can implement HMCDObjectConvertibleType,
+        // we can convert them all to NSManagedObject and delete them based on
+        // whether they are identifiable or not.
+        //
+        // If an object is a HMCDObjectAliasType, it is likely a NSManagedObject.
+        // We delete these using their ObjectID. If not, we construct the managed
+        // objects using a disposable context, and see if any of these objects
+        // is identifiable.
+        let aliases = data.flatMap({$0 as? HMCDObjectAliasType})
+            .map({$0.asManagedObject()})
+        
+        let nonAliases = data.filter({!($0 is HMCDObjectAliasType)})
+            .flatMap({try? $0.asManagedObject(context)})
+        
+        let objects = [aliases, nonAliases].flatMap({$0})
         
         // We deal with identifiables and normal managed objects differently.
         // For identifiables, we need to fetch their counterparts in the DB
         // first before deleting.
-        let identifiables = data.flatMap({$0 as? HMCDIdentifiableType})
-        let nonIdentifiables = data.filter({!($0 is HMCDIdentifiableType)})
+        let identifiables = objects.flatMap({$0 as? HMCDIdentifiableType})
+        let nonIdentifiables = objects.filter({!($0 is HMCDIdentifiableType)})
         let context1 = manager.disposableObjectContext()
         let context2 = manager.disposableObjectContext()
         
@@ -160,9 +177,19 @@ extension HMCDRequestProcessor: HMCDRequestProcessorType {
                 manager.rx.delete(context1, entityName, identifiables),
                 manager.rx.delete(context2, nonIdentifiables)
             )
+            .reduce((), accumulator: {_ in ()})
             .retry(request.retries())
             .map(Try.success)
             .catchErrorJustReturn(Try.failure)
+    }
+    
+    /// Perform a CoreData PureObject delete operation.
+    ///
+    /// - Parameter request: A Req instance.
+    /// - Returns: An Observable instance.
+    /// - Throws: Exception if the execution fails.
+    private func executeDeletePureObjects(_ request: Req) throws -> Observable<Try<Void>> {
+        return Observable.empty()
     }
     
     /// Perform a CoreData data persistence operation.

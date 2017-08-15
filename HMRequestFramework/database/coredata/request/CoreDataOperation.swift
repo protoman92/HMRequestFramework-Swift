@@ -12,14 +12,14 @@ import SwiftUtilities
 /// out.
 ///
 /// - fetch: Fetch operation.
-/// - delete: Delete operation. This deletes some data from memory.
+/// - deleteData: Delete operation. This deletes some data from memory.
 /// - deleteBatch: Batch delete operation. This only works for SQLite stores.
 /// - saveData: Save operation. This saves some convertible objects to memory.
 /// - persistLocally: Save operation. This saves some data to the local DB file.
 /// - upsert: Update or insert. Persist new data and update existing data.
 public enum CoreDataOperation: EnumerableType {
     case fetch
-    case delete
+    case deleteData
     case deleteBatch
     case saveData
     case persistLocally
@@ -28,7 +28,7 @@ public enum CoreDataOperation: EnumerableType {
     public static func allValues() -> [CoreDataOperation] {
         return [
             .fetch,
-            .delete,
+            .deleteData,
             .deleteBatch,
             .saveData,
             .persistLocally,

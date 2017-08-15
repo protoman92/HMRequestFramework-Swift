@@ -16,7 +16,6 @@ import XCTest
 @testable import HMRequestFramework
 
 public final class CoreDataRequestTest: CoreDataRootTest {
-    public typealias Req = HMCDRequestProcessor.Req
     let generatorError = "Generator error!"
     let processorError = "Processor error!"
     var rqMiddlewareManager: HMMiddlewareManager<Req>!
@@ -81,12 +80,23 @@ public final class CoreDataRequestTest: CoreDataRootTest {
         let manager = self.manager!
         let context = manager.disposableObjectContext()
         let dummyCount = self.dummyCount
+        
         let pureObjects = (0..<dummyCount).map({_ in Dummy1()})
         let cdObjects = try! manager.constructUnsafely(context, pureObjects)
+        let splitIndex = Int(dummyCount / 2)
+        
+        // We get some from pure objects and the rest from CoreData objects to
+        // check that the delete request works correctly by splitting the
+        // deleted data into the appropriate slices (based on their types).
+        let deletedObjects: [HMCDObjectConvertibleType] = [
+            pureObjects[0..<splitIndex].map({$0 as HMCDObjectConvertibleType}),
+            cdObjects[splitIndex..<dummyCount].map({$0 as HMCDObjectConvertibleType})
+        ].flatMap({$0})
+        
         let insertGn = dummy1InsertRgn(cdObjects)
         let insertPs = dummy1InsertRps()
         let persistGn = dummyPersistRgn()
-        let deleteGn = dummyMemoryDeleteRgn(cdObjects)
+        let deleteGn = dummyMemoryDeleteRgn(deletedObjects)
         let fetchGn = dummy1FetchRgn()
 
         /// When
@@ -187,7 +197,7 @@ public final class CoreDataRequestTest: CoreDataRootTest {
         XCTAssertEqual(nextElements.count, 0)
     }
     
-    public func test_coreDataUpsert_shouldWork() {
+    public func test_upsertWithOverwriteStrategy_shouldWork() {
         /// Setup
         let observer = scheduler.createObserver(Dummy1.self)
         let expect = expectation(description: "Should have completed")
@@ -406,7 +416,7 @@ public final class CoreDataRequestTest: CoreDataRootTest {
 
 extension CoreDataRequestTest {
     func dummy1InsertRequest(_ data: [Dummy1.CDClass]) -> Req {
-        return HMCDRequest.builder()
+        return Req.builder()
             .with(operation: .saveData)
             .with(insertedData: data)
             .build()
@@ -422,7 +432,7 @@ extension CoreDataRequestTest {
     
     func dummy1UpsertRequest(_ data: [Dummy1.CDClass],
                              _ strategy: VersionConflict.Strategy) -> Req {
-        return HMCDRequest.builder()
+        return Req.builder()
             .with(operation: .upsert)
             .with(poType: Dummy1.self)
             .with(upsertedData: data)
@@ -465,14 +475,14 @@ extension CoreDataRequestTest {
         return HMRequestGenerators.forceGenerateFn(dummyPersistRequest())
     }
 
-    func dummyMemoryDeleteRequest(_ data: [NSManagedObject]) -> Req {
+    func dummyMemoryDeleteRequest(_ data: [HMCDObjectConvertibleType]) -> Req {
         return Req.builder()
-            .with(operation: .delete)
+            .with(operation: .deleteData)
             .with(deletedData: data)
             .build()
     }
 
-    func dummyMemoryDeleteRgn(_ data: [NSManagedObject]) -> HMAnyRequestGenerator<Req> {
+    func dummyMemoryDeleteRgn(_ data: [HMCDObjectConvertibleType]) -> HMAnyRequestGenerator<Req> {
         return HMRequestGenerators.forceGenerateFn(dummyMemoryDeleteRequest(data))
     }
 }

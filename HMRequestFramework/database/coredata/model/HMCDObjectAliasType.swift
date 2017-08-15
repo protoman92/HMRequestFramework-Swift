@@ -22,3 +22,5 @@ public extension HMCDObjectAliasType where Self: NSManagedObject {
         return self
     }
 }
+
+extension NSManagedObject: HMCDObjectAliasType {}
