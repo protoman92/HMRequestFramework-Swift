@@ -139,10 +139,6 @@ public final class CoreDataRequestTest: CoreDataRootTest {
     }
     
     public func test_batchDelete_shouldWork() {
-        if case .InMemory = storeType! {
-            return
-        }
-
         /// Setup
         let observer = scheduler.createObserver(Dummy1.self)
         let expect = expectation(description: "Should have completed")

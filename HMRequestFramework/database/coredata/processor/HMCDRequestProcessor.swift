@@ -36,6 +36,9 @@ extension HMCDRequestProcessor: HMCDRequestProcessorType {
     public func requestMiddlewareManager() -> HMMiddlewareManager<Req>? {
         return rqMiddlewareManager
     }
+}
+
+public extension HMCDRequestProcessor {
     
     /// Override this method to provide default implementation.
     ///
@@ -54,63 +57,6 @@ extension HMCDRequestProcessor: HMCDRequestProcessorType {
         default:
             throw Exception("Please use normal execute for \(operation)")
         }
-    }
-    
-    /// Perform a CoreData get request.
-    ///
-    /// - Parameters:
-    ///   - request: A Req instance.
-    ///   - cls: The Val class type.
-    /// - Returns: An Observable instance.
-    /// - Throws: Exception if the execution fails.
-    private func executeFetch<Val>(_ request: Req, _ cls: Val.Type) throws
-        -> Observable<Try<[Val]>>
-        where Val: NSFetchRequestResult
-    {
-        let manager = coreDataManager()
-        let cdRequest = try request.fetchRequest(Val.self)
-        let context = manager.disposableObjectContext()
-    
-        return manager.rx.fetch(context, cdRequest)
-            .retry(request.retries())
-            .map(Try.success)
-            .catchErrorJustReturn(Try.failure)
-    }
-    
-    /// Overwrite this method to provide default implementation.
-    ///
-    /// - Parameter request: A Req instance.
-    /// - Returns: An Observable instance.
-    /// - Throws: Exception if the operation fails.
-    public func executeTyped(_ request: Req) throws -> Observable<Try<[HMCDResult]>> {
-        let operation = try request.operation()
-        
-        switch operation {
-        case .saveData:
-            return try executeSaveData(request)
-            
-        case .upsert:
-            return try executeUpsert(request)
-            
-        default:
-            throw Exception("Please use normal execute for \(operation)")
-        }
-    }
-    
-    /// Perform a CoreData saveData operation.
-    ///
-    /// - Parameter request: A Req instance.
-    /// - Returns: An Observable instance.
-    /// - Throws: Exception if the execution fails.
-    private func executeSaveData(_ request: Req) throws -> Observable<Try<[HMCDResult]>> {
-        let manager = coreDataManager()
-        let insertedData = try request.insertedData()
-        let context = manager.disposableObjectContext()
-        
-        return manager.rx.save(context, insertedData)
-            .retry(request.retries())
-            .map(Try.success)
-            .catchErrorJustReturn(Try.failure)
     }
     
     /// Override this method to provide default implementation.
@@ -136,13 +82,126 @@ extension HMCDRequestProcessor: HMCDRequestProcessorType {
         }
     }
     
+    /// Overwrite this method to provide default implementation.
+    ///
+    /// - Parameter request: A Req instance.
+    /// - Returns: An Observable instance.
+    /// - Throws: Exception if the operation fails.
+    public func executeTyped(_ request: Req) throws -> Observable<Try<[HMCDResult]>> {
+        let operation = try request.operation()
+        
+        switch operation {
+        case .saveData:
+            return try executeSaveData(request)
+            
+        case .upsert:
+            return try executeUpsert(request)
+            
+        default:
+            throw Exception("Please use normal execute for \(operation)")
+        }
+    }
+}
+
+public extension HMCDRequestProcessor {
+    
+    /// Perform a CoreData get request.
+    ///
+    /// - Parameters:
+    ///   - request: A Req instance.
+    ///   - cls: The Val class type.
+    /// - Returns: An Observable instance.
+    /// - Throws: Exception if the execution fails.
+    fileprivate func executeFetch<Val>(_ request: Req, _ cls: Val.Type) throws
+        -> Observable<Try<[Val]>>
+        where Val: NSFetchRequestResult
+    {
+        let manager = coreDataManager()
+        let cdRequest = try request.fetchRequest(Val.self)
+        let context = manager.disposableObjectContext()
+    
+        return manager.rx.fetch(context, cdRequest)
+            .retry(request.retries())
+            .map(Try.success)
+            .catchErrorJustReturn(Try.failure)
+    }
+}
+
+public extension HMCDRequestProcessor {
+    
+    /// Perform a CoreData saveData operation.
+    ///
+    /// - Parameter request: A Req instance.
+    /// - Returns: An Observable instance.
+    /// - Throws: Exception if the execution fails.
+    fileprivate func executeSaveData(_ request: Req) throws -> Observable<Try<[HMCDResult]>> {
+        let manager = coreDataManager()
+        let insertedData = try request.insertedData()
+        let context = manager.disposableObjectContext()
+        
+        return manager.rx.save(context, insertedData)
+            .retry(request.retries())
+            .map(Try.success)
+            .catchErrorJustReturn(Try.failure)
+    }
+}
+
+public extension HMCDRequestProcessor {
+    
+    /// Perform a CoreData data persistence operation.
+    ///
+    /// - Parameter request: A Req instance.
+    /// - Returns: An Observable instance.
+    /// - Throws: Exception if the execution fails.
+    fileprivate func executePersistToFile(_ request: Req) throws -> Observable<Try<Void>> {
+        let manager = coreDataManager()
+        
+        return manager.rx.persistLocally()
+            .retry(request.retries())
+            .map(Try.success)
+            .catchErrorJustReturn(Try.failure)
+    }
+}
+
+public extension HMCDRequestProcessor {
+    
+    /// Perform a CoreData upsert operation.
+    ///
+    /// - Parameter request: A Req instance.
+    /// - Returns: An Observable instance.
+    /// - Throws: Exception if the execution fails.
+    fileprivate func executeUpsert(_ request: Req) throws -> Observable<Try<[HMCDResult]>> {
+        let manager = coreDataManager()
+        let data = try request.upsertedData()
+        let entityName = try request.entityName()
+        
+        // If the data requires versioning, we call updateVersionn.
+        let versionables = data.flatMap({$0 as? HMCDVersionableType})
+        let nonVersionables = data.filter({!($0 is HMCDVersionableType)})
+        let updateRequests = try request.updateRequest(versionables)
+        let context1 = manager.disposableObjectContext()
+        let context2 = manager.disposableObjectContext()
+        
+        return Observable
+            .concat(
+                manager.rx.updateVersion(context1, entityName, updateRequests),
+                manager.rx.upsert(context2, entityName, nonVersionables)
+            )
+            .reduce([], accumulator: +)
+            .map(Try.success)
+            .catchErrorJustReturn(Try.failure)
+    }
+}
+
+public extension HMCDRequestProcessor {
+    
     /// Perform a CoreData delete operation. This operation detects identifiable
     /// objects and treat those objects differently.
     ///
     /// - Parameter request: A Req instance.
     /// - Returns: An Observable instance.
     /// - Throws: Exception if the execution fails.
-    private func executeDelete(_ request: Req) throws -> Observable<Try<Void>> {
+    fileprivate func executeDelete(_ request: Req) throws -> Observable<Try<Void>> {
         let manager = coreDataManager()
         let context = manager.disposableObjectContext()
         let entityName = try request.entityName()
@@ -182,28 +241,23 @@ extension HMCDRequestProcessor: HMCDRequestProcessorType {
             .map(Try.success)
             .catchErrorJustReturn(Try.failure)
     }
+}
+
+public extension HMCDRequestProcessor {
     
-    /// Perform a CoreData PureObject delete operation.
+    /// We need this check because batch delete does not work for InMemory store.
     ///
     /// - Parameter request: A Req instance.
     /// - Returns: An Observable instance.
     /// - Throws: Exception if the execution fails.
-    private func executeDeletePureObjects(_ request: Req) throws -> Observable<Try<Void>> {
-        return Observable.empty()
-    }
-    
-    /// Perform a CoreData data persistence operation.
-    ///
-    /// - Parameter request: A Req instance.
-    /// - Returns: An Observable instance.
-    /// - Throws: Exception if the execution fails.
-    private func executePersistToFile(_ request: Req) throws -> Observable<Try<Void>> {
+    fileprivate func executeDeleteWithRequest(_ request: Req) throws -> Observable<Try<Void>> {
         let manager = coreDataManager()
         
-        return manager.rx.persistLocally()
-            .retry(request.retries())
-            .map(Try.success)
-            .catchErrorJustReturn(Try.failure)
+        if manager.isMainStoreTypeSQLite() {
+            return try executeBatchDelete(request)
+        } else {
+            return try executeFetchAndDelete(request)
+        }
     }
     
     /// Perform a batch delete operation. This only works for SQLite stores.
@@ -211,41 +265,32 @@ extension HMCDRequestProcessor: HMCDRequestProcessorType {
     /// - Parameter request: A Req instance.
     /// - Returns: An Observable instance.
     /// - Throws: Exception if the execution fails.
-    private func executeBatchDelete(_ request: Req) throws -> Observable<Try<Void>> {
+    fileprivate func executeBatchDelete(_ request: Req) throws -> Observable<Try<Void>> {
         let manager = coreDataManager()
-        let dRequest = try request.untypedFetchRequest()
+        let deleteRequest = try request.untypedFetchRequest()
         let context = manager.disposableObjectContext()
         
-        return manager.rx.delete(context, dRequest)
+        return manager.rx.delete(context, deleteRequest)
             .map(toVoid)
             .retry(request.retries())
             .map(Try.success)
             .catchErrorJustReturn(Try.failure)
     }
     
-    /// Perform a CoreData upsert operation.
+    /// Fetch some data from DB then delete them. This should only be used
+    /// when we want to batch-delete data but the store type is not SQLite.
     ///
     /// - Parameter request: A Req instance.
     /// - Returns: An Observable instance.
     /// - Throws: Exception if the execution fails.
-    private func executeUpsert(_ request: Req) throws -> Observable<Try<[HMCDResult]>> {
+    fileprivate func executeFetchAndDelete(_ request: Req) throws -> Observable<Try<Void>> {
         let manager = coreDataManager()
-        let data = try request.upsertedData()
-        let entityName = try request.entityName()
+        let fetchContext = manager.disposableObjectContext()
+        let deleteContext = manager.disposableObjectContext()
+        let fetchRequest = try request.fetchRequest(NSManagedObject.self)
         
-        // If the data requires versioning, we call updateVersionn.
-        let versionables = data.flatMap({$0 as? HMCDVersionableType})
-        let nonVersionables = data.filter({!($0 is HMCDVersionableType)})
-        let updateRequests = try request.updateRequest(versionables)
-        let context1 = manager.disposableObjectContext()
-        let context2 = manager.disposableObjectContext()
-        
-        return Observable
-            .concat(
-                manager.rx.updateVersion(context1, entityName, updateRequests),
-                manager.rx.upsert(context2, entityName, nonVersionables)
-            )
-            .reduce([], accumulator: +)
+        return manager.rx.fetch(fetchContext, fetchRequest)
+            .flatMap({manager.rx.delete(deleteContext, $0)})
             .map(Try.success)
             .catchErrorJustReturn(Try.failure)
     }
