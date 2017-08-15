@@ -72,7 +72,7 @@ public extension HMCDRequestProcessor {
             return try executeDelete(request)
             
         case .deleteBatch:
-            return try executeBatchDelete(request)
+            return try executeDeleteWithRequest(request)
             
         case .persistLocally:
             return try executePersistToFile(request)
