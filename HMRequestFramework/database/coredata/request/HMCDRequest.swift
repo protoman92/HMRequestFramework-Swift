@@ -15,6 +15,9 @@ public struct HMCDRequest {
     fileprivate var nsPredicate: NSPredicate?
     fileprivate var nsSortDescriptors: [NSSortDescriptor]
     fileprivate var cdOperation: CoreDataOperation?
+    fileprivate var cdFetchResultType: NSFetchRequestResultType?
+    fileprivate var cdFetchProperties: [Any]
+    fileprivate var cdFetchGroupBy: [Any]
     fileprivate var cdInsertedData: [HMCDObjectConvertibleType]
     fileprivate var cdUpsertedData: [HMCDUpsertableType]
     fileprivate var cdDeletedData: [HMCDObjectConvertibleType]
@@ -24,6 +27,8 @@ public struct HMCDRequest {
     fileprivate var rqDescription: String?
     
     fileprivate init() {
+        cdFetchProperties = []
+        cdFetchGroupBy = []
         cdInsertedData = []
         cdUpsertedData = []
         cdDeletedData = []
@@ -137,6 +142,82 @@ extension HMCDRequest: HMBuildableType {
             return self
         }
         
+        /// Set the fetch result type.
+        ///
+        /// - Parameter fetchResultType: A NSFetchRequestResultType instance.
+        /// - Returns: The current Builder instance.
+        @discardableResult
+        public func with(fetchResultType: NSFetchRequestResultType?) -> Self {
+            request.cdFetchResultType = fetchResultType
+            return self
+        }
+        
+        /// Set the fetch properties.
+        ///
+        /// - Parameter fetchProperties: An Sequence of Any.
+        /// - Returns: The current Builder instance.
+        @discardableResult
+        public func with<S>(fetchProperties: S?) -> Self where
+            S: Sequence, S.Iterator.Element == Any
+        {
+            request.cdFetchProperties = fetchProperties?.map({$0}) ?? []
+            return self
+        }
+        
+        /// Set the fetch properties.
+        ///
+        /// - Parameter fetchProperties: An Sequence of Any.
+        /// - Returns: The current Builder instance.
+        @discardableResult
+        public func with<S>(fetchProperties: S?) -> Self where
+            S: Sequence, S.Iterator.Element: Any
+        {
+            return with(fetchProperties: fetchProperties?.map({$0 as Any}))
+        }
+        
+        /// Add a fetch property.
+        ///
+        /// - Parameter fetchProperty: An Any object.
+        /// - Returns: The current Builder instance.
+        @discardableResult
+        public func add(fetchProperty: Any) -> Self {
+            request.cdFetchProperties.append(fetchProperty)
+            return self
+        }
+        
+        /// Set the fetch group by properties.
+        ///
+        /// - Parameter fetchGroupBy: An Array of Any.
+        /// - Returns: The current Builder instance.
+        @discardableResult
+        public func with<S>(fetchGroupBy: S?) -> Self where
+            S: Sequence, S.Iterator.Element == Any
+        {
+            request.cdFetchGroupBy = fetchGroupBy?.map({$0}) ?? []
+            return self
+        }
+        
+        /// Set the fetch group by properties.
+        ///
+        /// - Parameter fetchGroupBy: An Array of Any.
+        /// - Returns: The current Builder instance.
+        @discardableResult
+        public func with<S>(fetchGroupBy: S?) -> Self where
+            S: Sequence, S.Iterator.Element: Any
+        {
+            return with(fetchGroupBy: fetchGroupBy?.map({$0 as Any}))
+        }
+        
+        /// Add a fetch group by property.
+        ///
+        /// - Parameter fetchProperty: An Any object.
+        /// - Returns: The current Builder instance.
+        @discardableResult
+        public func add(fetchGroupBy: Any) -> Self {
+            request.cdFetchGroupBy.append(fetchGroupBy)
+            return self
+        }
+        
         /// Set the data to insert.
         ///
         /// - Parameter insertedData: A Sequence of HMCDConvertibleType.
@@ -247,6 +328,9 @@ extension HMCDRequest.Builder: HMProtocolConvertibleBuilderType {
             .with(entityName: try? generic.entityName())
             .with(predicate: try? generic.predicate())
             .with(sortDescriptors: try? generic.sortDescriptors())
+            .with(fetchResultType: generic.fetchResultType())
+            .with(fetchProperties: generic.fetchProperties())
+            .with(fetchGroupBy: generic.fetchGroupBy())
             .with(insertedData: try? generic.insertedData())
             .with(upsertedData: try? generic.upsertedData())
             .with(deletedData: try? generic.deletedData())
@@ -333,6 +417,18 @@ extension HMCDRequest: HMCDRequestType {
     
     public func sortDescriptors() throws -> [NSSortDescriptor] {
         return nsSortDescriptors
+    }
+    
+    public func fetchResultType() -> NSFetchRequestResultType? {
+        return cdFetchResultType
+    }
+    
+    public func fetchProperties() -> [Any]? {
+        return cdFetchProperties.isEmpty ? nil : cdFetchProperties
+    }
+    
+    public func fetchGroupBy() -> [Any]? {
+        return cdFetchGroupBy.isEmpty ? nil : cdFetchGroupBy
     }
     
     public func insertedData() throws -> [HMCDObjectConvertibleType] {

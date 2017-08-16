@@ -8,7 +8,8 @@
 
 import CoreData
 
-/// Request type for CoreData.
+/// Request type for CoreData. Refer to CoreDataOperation for a list of properties
+/// used for each operation.
 public protocol HMCDRequestType: HMDatabaseRequestType {
     
     /// Get the NSManagedObject entity description.
@@ -26,11 +27,25 @@ public protocol HMCDRequestType: HMDatabaseRequestType {
     /// - Returns: An Array of NSSortDescriptor.
     func sortDescriptors() throws -> [NSSortDescriptor]
     
-    
     /// Get the associated CoreData operation.
     ///
     /// - Returns: A CoreDataOperation instance.
     func operation() throws -> CoreDataOperation
+    
+    /// Get the result type for a fetch request.
+    ///
+    /// - Returns: A NSFetchRequestResultType instance.
+    func fetchResultType() -> NSFetchRequestResultType?
+    
+    /// Get the propertiesToFetch for a NSFetchRequest.
+    ///
+    /// - Returns: An Array of Any.
+    func fetchProperties() -> [Any]?
+    
+    /// Get the propertiesToGroupBy for a NSFetchRequest.
+    ///
+    /// - Returns: An Array of Any.
+    func fetchGroupBy() -> [Any]?
     
     /// Get the data to be inserted. Only used for save operations
     ///
@@ -79,9 +94,15 @@ public extension HMCDRequestType {
         Val: NSFetchRequestResult
     {
         let description = try entityName()
+        let resultType = fetchResultType() ?? .managedObjectResultType
+        let propertiesToFetch = fetchProperties()
+        let propertiesToGroupBy = fetchGroupBy()
         let cdRequest = NSFetchRequest<Val>(entityName: description)
         cdRequest.predicate = try predicate()
         cdRequest.sortDescriptors = try sortDescriptors()
+        cdRequest.resultType = resultType
+        cdRequest.propertiesToFetch = propertiesToFetch
+        cdRequest.propertiesToGroupBy = propertiesToGroupBy
         return cdRequest
     }
     

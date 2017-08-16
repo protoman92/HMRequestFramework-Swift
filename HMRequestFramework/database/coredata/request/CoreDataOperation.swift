@@ -18,11 +18,43 @@ import SwiftUtilities
 /// - persistLocally: Save operation. This saves some data to the local DB file.
 /// - upsert: Update or insert. Persist new data and update existing data.
 public enum CoreDataOperation: EnumerableType {
+    // For this operation, the request should contain:
+    //  - entityName
+    //  - operation
+    //  - predicate (optional)
+    //  - sortDescriptors (optional)
+    //  - fetchResultType (optional)
+    //  - fetchProperties (optional)
+    //  - fetchGroupBy (optional)
     case fetch
+    
+    // For this operation, the request should contain:
+    //  - entityName
+    //  - operation
+    //  - deletedData
     case deleteData
+    
+    // For this operation, the request should contain:
+    //  - entityName
+    //  - operation
+    //  - predicate
     case deleteBatch
+    
+    // For this operation, the request should contain:
+    //  - entityName
+    //  - operation
+    //  - savedData
     case saveData
+    
+    // For this operation, the request should contain:
+    //  - operation
     case persistLocally
+    
+    // For this operation, the request should contain:
+    //  - entityName
+    //  - operation
+    //  - upsertedData
+    //  - versionConflictStrategy
     case upsert
     
     public static func allValues() -> [CoreDataOperation] {
