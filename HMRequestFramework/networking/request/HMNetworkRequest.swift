@@ -14,7 +14,7 @@ public struct HMNetworkRequest {
     fileprivate var endPointStr: String?
     fileprivate var baseUrlStr: String?
     fileprivate var httpMethod: HttpMethod?
-    fileprivate var httpParams: [String : Any]?
+    fileprivate var httpParams: [URLQueryItem]
     fileprivate var httpHeaders: [String : String]?
     fileprivate var httpBody: Any?
     fileprivate var timeoutInterval: TimeInterval
@@ -24,6 +24,7 @@ public struct HMNetworkRequest {
     
     fileprivate init() {
         retryCount = 1
+        httpParams = []
         middlewaresEnabled = false
         timeoutInterval = TimeInterval.infinity
     }
@@ -98,7 +99,32 @@ extension HMNetworkRequest: HMBuildableType {
         /// - Returns: The current Builder instance.
         @discardableResult
         public func with(params: [String : Any]?) -> Self {
-            request.httpParams = params
+            request.httpParams = params?
+                .map({($0.key, String(describing: $0.value))})
+                .map({URLQueryItem(name: $0.0, value: $0.1)}) ?? []
+            
+            return self
+        }
+        
+        /// Set the request params.
+        ///
+        /// - Parameter params: A Sequence of URLQueryItem.
+        /// - Returns: The current Builder instance.
+        @discardableResult
+        public func with<S>(params: S) -> Self where
+            S: Sequence, S.Iterator.Element == URLQueryItem
+        {
+            request.httpParams = params.map({$0})
+            return self
+        }
+        
+        /// Add a request param.
+        ///
+        /// - Parameter param: A URLQueryItem instance.
+        /// - Returns: The current Builder instance.
+        @discardableResult
+        public func add(param: URLQueryItem) -> Self {
+            request.httpParams.append(param)
             return self
         }
         
@@ -250,7 +276,7 @@ extension HMNetworkRequest: HMNetworkRequestType {
         return request
     }
     
-    public func params() -> [String : Any]? {
+    public func params() -> [URLQueryItem] {
         return httpParams
     }
     

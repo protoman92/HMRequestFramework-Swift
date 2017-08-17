@@ -21,11 +21,7 @@ public protocol HMNetworkRequestType: HMRequestType, HMNetworkResourceType {
     
     func headers() -> [String : String]?
     
-    /// Be mindful that these is only basic params support. For anything more
-    /// complicated (like nested Arrays/Dicts), please flatten first.
-    ///
-    /// - Returns: A Dictionary instance.
-    func params() -> [String : Any]?
+    func params() -> [URLQueryItem]
     
     func timeout() -> TimeInterval
 }
@@ -33,18 +29,11 @@ public protocol HMNetworkRequestType: HMRequestType, HMNetworkResourceType {
 public extension HMNetworkRequestType {
     func baseUrlRequest() throws -> URLRequest {
         var urlString = try self.urlString()
+        var components = URLComponents(string: "\(urlString)?")
+        components?.queryItems = params()
         
-        // If there are request params, append them to the end of the URL.
-        if let params = self.params() {
-            var components = URLComponents(string: "\(urlString)?")
-            
-            components?.queryItems = params
-                .map({($0.key, String(describing: $0.value))})
-                .map({URLQueryItem(name: $0.0, value: $0.1)})
-            
-            if let urlWithParams = components?.url?.absoluteString {
-                urlString = urlWithParams
-            }
+        if let urlWithParams = components?.url?.absoluteString {
+            urlString = urlWithParams
         }
         
         if let url = URL(string: urlString) {
