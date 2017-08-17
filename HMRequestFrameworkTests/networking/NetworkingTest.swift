@@ -37,6 +37,19 @@ public final class NetworkingTest: XCTestCase {
         scheduler = TestScheduler(initialClock: 0)
     }
     
+    public func test_requestWithParams_shouldBeCorrectlyGenerated() {
+        /// Setup
+        let request = HMNetworkRequest.builder()
+            .with(baseUrl: "https://google.com")
+            .with(endPoint: "image")
+            .with(params: ["page": 1, "items": 5])
+            .with(method: .get)
+            .build()
+        
+        /// When & Then
+        print(try! request.urlRequest().url!.absoluteString)
+    }
+    
     public func test_responseProcessingFailed_shouldNotThrowError() {
         /// Setup
         let observer = scheduler.createObserver(Try<Any>.self)
