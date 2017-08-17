@@ -6,44 +6,8 @@
 //  Copyright © 2017 Holmusk. All rights reserved.
 //
 
-/// Classes that implement this protocol must declare a Builder class to
-/// construct instances of said classes.
-public protocol HMBuildableType {
-    associatedtype Builder
-    
-    static func builder() -> Builder
-}
+import SwiftUtilities
 
-/// Builders should implement this protocol.
-public protocol HMBuilderType {
-    associatedtype Buildable
-    
-    /// Copy all properties from another Buildable to the one associated with
-    /// this Builder.
-    ///
-    /// - Parameter buildable: A Buildable instance.
-    /// - Returns: The current Builder instance.
-    func with(buildable: Buildable) -> Self
-    
-    func build() -> Buildable
-}
-
-public extension HMBuildableType where Builder: HMBuilderType, Self == Builder.Buildable {
-
-    /// Instead of mutating properties here, we create a new Builder and copy
-    /// all properties to the new Buildable instance.
-    ///
-    /// - Returns: A Builder instance.
-    public func cloneBuilder() -> Builder {
-        return Self.builder().with(buildable: self)
-    }
-    
-    /// Clone the current object by creating a new one via Builder and copying
-    /// all properties.
-    ///
-    /// - Returns: A Self instance.
-    public func clone() -> Self {
-        return cloneBuilder().build()
-    }
-}
-
+/// Holmust-specific Buildable/Builder type.
+public typealias HMBuildableType = BuildableType
+public typealias HMBuilderType = BuilderType
