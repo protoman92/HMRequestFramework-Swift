@@ -37,5 +37,13 @@ public extension HMBuildableType where Builder: HMBuilderType, Self == Builder.B
     public func cloneBuilder() -> Builder {
         return Self.builder().with(buildable: self)
     }
+    
+    /// Clone the current object by creating a new one via Builder and copying
+    /// all properties.
+    ///
+    /// - Returns: A Self instance.
+    public func clone() -> Self {
+        return cloneBuilder().build()
+    }
 }
 
