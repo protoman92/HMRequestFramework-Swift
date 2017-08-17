@@ -42,7 +42,8 @@ public final class NetworkingTest: XCTestCase {
         let request = HMNetworkRequest.builder()
             .with(baseUrl: "https://google.com")
             .with(endPoint: "image")
-            .with(params: ["page": 1, "items": 5])
+            .add(params: ["page": 1, "items": 5])
+            .add(params: ["checked": true, "gotten": false])
             .with(method: .get)
             .build()
         

@@ -93,17 +93,25 @@ extension HMNetworkRequest: HMBuildableType {
             return self
         }
         
-        /// Set the request params.
+        /// Add request params.
+        ///
+        /// - Parameter params: A Dictionary of params.
+        /// - Returns: The current Builder instance.
+        @discardableResult
+        public func add(params: [String : Any]?) -> Self {
+            return add(params: params?
+                .map({($0.key, String(describing: $0.value))})
+                .map({URLQueryItem(name: $0.0, value: $0.1)}) ?? [])
+        }
+        
+        /// Set request params.
         ///
         /// - Parameter params: A Dictionary of params.
         /// - Returns: The current Builder instance.
         @discardableResult
         public func with(params: [String : Any]?) -> Self {
-            request.httpParams = params?
-                .map({($0.key, String(describing: $0.value))})
-                .map({URLQueryItem(name: $0.0, value: $0.1)}) ?? []
-            
-            return self
+            request.httpParams.removeAll()
+            return add(params: params)
         }
         
         /// Set the request params.
@@ -114,7 +122,19 @@ extension HMNetworkRequest: HMBuildableType {
         public func with<S>(params: S) -> Self where
             S: Sequence, S.Iterator.Element == URLQueryItem
         {
-            request.httpParams = params.map({$0})
+            request.httpParams.removeAll()
+            return add(params: params)
+        }
+        
+        /// Add request params.
+        ///
+        /// - Parameter param: A Sequence of URLQueryItem.
+        /// - Returns: The current Builder instance.
+        @discardableResult
+        public func add<S>(params: S) -> Self where
+            S: Sequence, S.Iterator.Element == URLQueryItem
+        {
+            request.httpParams.append(contentsOf: params)
             return self
         }
         
