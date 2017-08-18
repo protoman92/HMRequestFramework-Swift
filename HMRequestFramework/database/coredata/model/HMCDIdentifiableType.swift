@@ -12,7 +12,6 @@ import CoreData
 /// and can be identified without using ObjectID.
 public protocol HMCDIdentifiableType:
     HMIdentifiableType,             // Identifiable by primary key-value pair.
-    HMCDObjectAliasType,            // Usable in place of a managed object.
     HMCDObjectConvertibleType {}    // Reconstructible as NSManagedObject.
 
 public extension HMCDIdentifiableType {

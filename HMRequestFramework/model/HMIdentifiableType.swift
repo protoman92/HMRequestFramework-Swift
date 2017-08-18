@@ -21,3 +21,15 @@ public protocol HMIdentifiableType {
     /// - Returns: A String value.
     func primaryValue() -> String?
 }
+
+public extension HMIdentifiableType {
+    
+    /// Check if the current identifiable object is identifiable as another
+    /// identifiable object.
+    ///
+    /// - Parameter object: A HMIdentifiableType instance.
+    /// - Returns: A Bool value.
+    public func identifiable(as object: HMIdentifiableType) -> Bool {
+        return primaryKey() == object.primaryKey() && primaryValue() == object.primaryValue()
+    }
+}

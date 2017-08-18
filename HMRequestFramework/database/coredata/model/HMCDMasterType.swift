@@ -31,7 +31,16 @@ public protocol HMCDVersionableMasterType:
 /// Use this for PureObject classes that mirror CoreData classes.
 public protocol HMCDPureObjectMasterType:
     HMCDPureObjectType,
-    HMCDPureObjectBuildableType {}
+    HMCDPureObjectBuildableType,
+    HMCDObjectConvertibleType {}
+
+/// Use this for PureObject classes whose CoreData counterparts are upsertable.
+public protocol HMCDUpsertablePureObjectMasterType:
+    HMCDPureObjectMasterType,
+    
+    // Instead of constructing the managed object, we can simply use the
+    // primary key/value from the pure object.
+    HMCDIdentifiableType {}
 
 /// Use this for PureObject Builder classes.
 public protocol HMCDPureObjectBuilderMasterType: HMCDPureObjectBuilderType {}

@@ -47,3 +47,4 @@ public extension HMCDObjectConvertibleType where
         return try CDClass.builder(context).with(pureObject: self).build()
     }
 }
+

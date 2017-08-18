@@ -18,6 +18,16 @@ public protocol Dummy1Type {
     var version: NSNumber? { get set }
 }
 
+public extension Dummy1Type {
+    public func primaryKey() -> String {
+        return "id"
+    }
+    
+    public func primaryValue() -> String? {
+        return id
+    }
+}
+
 public final class CDDummy1: NSManagedObject {
     @NSManaged public var id: String?
     @NSManaged public var int64: NSNumber?
@@ -150,6 +160,16 @@ extension CDDummy1: HMCDVersionableMasterType {
         ]
     }
     
+    public static func builder(_ context: NSManagedObjectContext) throws -> Builder {
+        return try Builder(Dummy1.CDClass.init(context))
+    }
+    
+    public final class Builder: Dummy1Builder<CDDummy1> {
+        fileprivate override init(_ cdo: PureObject.CDClass) {
+            super.init(cdo)
+        }
+    }
+    
     public func currentVersion() -> String? {
         if let version = self.version {
             return String(describing: version)
@@ -180,30 +200,8 @@ extension CDDummy1: HMCDVersionableMasterType {
         }
     }
     
-    public static func builder(_ context: NSManagedObjectContext) throws -> Builder {
-        return try Builder(Dummy1.CDClass.init(context))
-    }
-    
-    public final class Builder: Dummy1Builder<CDDummy1> {
-        fileprivate override init(_ cdo: PureObject.CDClass) {
-            super.init(cdo)
-        }
-    }
-}
-
-extension CDDummy1: HMCDKeyValueUpdatableType {
     public func updateKeys() -> [String] {
         return ["id", "date", "int64", "float", "version"]
-    }
-}
-
-extension CDDummy1: HMCDUpsertableType {
-    public func primaryKey() -> String {
-        return "id"
-    }
-    
-    public func primaryValue() -> String? {
-        return id
     }
 }
 
@@ -231,7 +229,6 @@ extension Dummy1: Equatable {
     }
 }
 
-extension Dummy1: HMCDObjectConvertibleType {}
 extension Dummy1: Dummy1Type {}
 
 extension Dummy1: CustomStringConvertible {
@@ -240,7 +237,7 @@ extension Dummy1: CustomStringConvertible {
     }
 }
 
-extension Dummy1: HMCDPureObjectMasterType {
+extension Dummy1: HMCDUpsertablePureObjectMasterType {
     public typealias CDClass = CDDummy1
 
     public static func builder() -> Builder {

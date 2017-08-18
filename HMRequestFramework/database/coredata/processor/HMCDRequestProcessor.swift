@@ -211,14 +211,12 @@ public extension HMCDRequestProcessor {
         // we can convert them all to NSManagedObject and delete them based on
         // whether they are identifiable or not.
         //
-        // If an object is a HMCDObjectAliasType, it is likely a NSManagedObject.
-        // We delete these using their ObjectID. If not, we construct the managed
-        // objects using a disposable context, and see if any of these objects
-        // is identifiable.
-        let aliases = data.flatMap({$0 as? HMCDObjectAliasType})
-            .map({$0.asManagedObject()})
+        // We delete NSManagedObject using their ObjectID. If not, we construct
+        // the managed objects using a disposable context, and see if any of
+        // these objects is identifiable.
+        let aliases = data.flatMap({$0 as? NSManagedObject})
         
-        let nonAliases = data.filter({!($0 is HMCDObjectAliasType)})
+        let nonAliases = data.filter({!($0 is NSManagedObject)})
             .flatMap({try? $0.asManagedObject(context)})
         
         let objects = [aliases, nonAliases].flatMap({$0})
