@@ -40,11 +40,10 @@ public final class NetworkingTest: XCTestCase {
     public func test_requestWithParams_shouldBeCorrectlyGenerated() {
         /// Setup
         let request = HMNetworkRequest.builder()
-            .with(baseUrl: "https://google.com")
-            .with(endPoint: "image")
+            .with(urlString: "https://google.com/image")
             .add(params: ["page": 1, "items": 5])
             .add(params: ["checked": true, "gotten": false])
-            .with(method: .get)
+            .with(operation: .get)
             .build()
         
         /// When & Then
@@ -58,7 +57,7 @@ public final class NetworkingTest: XCTestCase {
         
         let request = HMNetworkRequest.builder()
             .with(resource: MockResource.empty)
-            .with(method: .get)
+            .with(operation: .get)
             .build()
         
         let generator = HMRequestGenerators.forceGenerateFn(request, Any.self)
@@ -134,24 +133,21 @@ public final class NetworkingTest: XCTestCase {
         let request1 = checkError(HMNetworkRequest.builder().build(), true)
         
         /// 2
-        let request2 = checkError(request1.cloneBuilder().with(baseUrl: "http://google.com").build(), true)
+        let request2 = checkError(request1.cloneBuilder().with(urlString: "http://google.com").build(), true)
         
         /// 3
-        let request3 = checkError(request2.cloneBuilder().with(endPoint: "").build(), true)
+        let request3 = checkError(request2.cloneBuilder().with(operation: .get).build(), false)
         
         /// 4
-        let request4 = checkError(request3.cloneBuilder().with(method: .get).build(), false)
+        let request4 = checkError(request3.cloneBuilder().with(operation: .post).build(), true)
         
         /// 5
-        let request5 = checkError(request4.cloneBuilder().with(method: .post).build(), true)
+        let request5 = checkError(request4.cloneBuilder().with(operation: .put).build(), true)
         
         /// 6
-        let request6 = checkError(request5.cloneBuilder().with(method: .put).build(), true)
-        
-        /// 7
-        let request7 = checkError(request6.cloneBuilder().with(body: ["1" : "2"]).build(), false)
+        let request6 = checkError(request5.cloneBuilder().with(body: ["1" : "2"]).build(), false)
         
         /// End
-        _ = request7
+        _ = request6
     }
 }

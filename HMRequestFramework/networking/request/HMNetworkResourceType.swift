@@ -9,20 +9,15 @@
 import SwiftUtilities
 
 public protocol HMNetworkResourceType {
-    func baseUrl() throws -> String
     
-    func endPoint() throws -> String
+    /// Get the URL endpoint for Http operations.
+    ///
+    /// - Returns: A String value.
+    /// - Throws: Exception if the url is not available.
+    func urlString() throws -> String
 }
 
 public extension HMNetworkResourceType {
-    
-    /// Get the base urlString using baseUrl and endPoint().
-    ///
-    /// - Returns: A String value.
-    /// - Throws: Exception if the baseUrl and endPoint are not available.
-    func urlString() throws -> String {
-        return try "\(baseUrl())/\(endPoint())"
-    }
     
     /// Get the URL for a URLRequest.
     ///

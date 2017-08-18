@@ -137,7 +137,7 @@ public final class MiddlewareTest: XCTestCase {
         
         let request = HMNetworkRequest.builder()
             .with(resource: MockResource.empty)
-            .with(method: .get)
+            .with(operation: .get)
             .shouldApplyMiddlewares()
             .build()
         

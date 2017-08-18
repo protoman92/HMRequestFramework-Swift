@@ -11,8 +11,7 @@ import SwiftUtilities
 
 /// Use this concrete class whenever a HMNetworkRequestType is needed.
 public struct HMNetworkRequest {
-    fileprivate var endPointStr: String?
-    fileprivate var baseUrlStr: String?
+    fileprivate var httpURL: String?
     fileprivate var httpMethod: HttpOperation?
     fileprivate var httpParams: [URLQueryItem]
     fileprivate var httpHeaders: [String : String]
@@ -44,23 +43,13 @@ extension HMNetworkRequest: HMBuildableType {
             request = Buildable()
         }
         
-        /// Set the endpoint.
+        /// Set the url string.
         ///
         /// - Parameter endPoint: A String value.
         /// - Returns: The current Builder instance.
         @discardableResult
-        public func with(endPoint: String?) -> Self {
-            request.endPointStr = endPoint
-            return self
-        }
-        
-        /// Set the baseUrl.
-        ///
-        /// - Parameter baseUrl: A String value.
-        /// - Returns: The current Builder instance.
-        @discardableResult
-        public func with(baseUrl: String?) -> Self {
-            request.baseUrlStr = baseUrl
+        public func with(urlString: String?) -> Self {
+            request.httpURL = urlString
             return self
         }
         
@@ -70,18 +59,16 @@ extension HMNetworkRequest: HMBuildableType {
         /// - Returns: The current Builder instance.
         @discardableResult
         public func with(resource: HMNetworkResourceType) -> Self {
-            return self
-                .with(baseUrl: try? resource.baseUrl())
-                .with(endPoint: try? resource.endPoint())
+            return with(urlString: try? resource.urlString())
         }
         
         /// Set the HTTP method.
         ///
-        /// - Parameter method: A HttpOperation instance.
+        /// - Parameter operation: A HttpOperation instance.
         /// - Returns: The current Builder instance.
         @discardableResult
-        public func with(method: HttpOperation?) -> Self {
-            request.httpMethod = method
+        public func with(operation: HttpOperation?) -> Self {
+            request.httpMethod = operation
             return self
         }
         
@@ -248,9 +235,8 @@ extension HMNetworkRequest.Builder: HMProtocolConvertibleBuilderType {
     /// - Returns: The current Builder instance.
     public func with(generic: Buildable.PTCType) -> Self {
         return self
-            .with(baseUrl: try? generic.baseUrl())
-            .with(endPoint: try? generic.endPoint())
-            .with(method: try? generic.operation())
+            .with(urlString: try? generic.urlString())
+            .with(operation: try? generic.operation())
             .with(body: try? generic.body())
             .with(headers: generic.headers())
             .with(params: generic.params())
@@ -309,19 +295,11 @@ extension HMNetworkRequest.Builder: HMRequestBuilderType {
 }
 
 extension HMNetworkRequest: HMNetworkRequestType {
-    public func endPoint() throws -> String {
-        if let url = self.endPointStr {
+    public func urlString() throws -> String {
+        if let url = self.httpURL {
             return url
         } else {
-            throw Exception("Endpoint cannot be nil")
-        }
-    }
-    
-    public func baseUrl() throws -> String {
-        if let baseUrl = self.baseUrlStr {
-            return baseUrl
-        } else {
-            throw Exception("Base Url cannot be nil")
+            throw Exception("URL cannot be nil")
         }
     }
     

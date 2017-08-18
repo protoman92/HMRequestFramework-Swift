@@ -12,7 +12,7 @@ public enum MockResource {
     case empty
 }
 
-extension MockResource: HMNetworkResourceType {
+extension MockResource: HMURLComponentProviderType {
     public func baseUrl() -> String {
         return "http://google.com"
     }
