@@ -13,10 +13,11 @@ import SwiftUtilities
 public struct HMNetworkRequest {
     fileprivate var endPointStr: String?
     fileprivate var baseUrlStr: String?
-    fileprivate var httpMethod: HttpMethod?
+    fileprivate var httpMethod: HttpOperation?
     fileprivate var httpParams: [URLQueryItem]
-    fileprivate var httpHeaders: [String : String]?
+    fileprivate var httpHeaders: [String : String]
     fileprivate var httpBody: Any?
+    fileprivate var httpInputStream: InputStream?
     fileprivate var timeoutInterval: TimeInterval
     fileprivate var retryCount: Int
     fileprivate var middlewaresEnabled: Bool
@@ -25,6 +26,7 @@ public struct HMNetworkRequest {
     fileprivate init() {
         retryCount = 1
         httpParams = []
+        httpHeaders = [:]
         middlewaresEnabled = false
         timeoutInterval = TimeInterval.infinity
     }
@@ -75,10 +77,10 @@ extension HMNetworkRequest: HMBuildableType {
         
         /// Set the HTTP method.
         ///
-        /// - Parameter method: A HttpMethod instance.
+        /// - Parameter method: A HttpOperation instance.
         /// - Returns: The current Builder instance.
         @discardableResult
-        public func with(method: HttpMethod?) -> Self {
+        public func with(method: HttpOperation?) -> Self {
             request.httpMethod = method
             return self
         }
@@ -154,7 +156,17 @@ extension HMNetworkRequest: HMBuildableType {
         /// - Returns: The current Builder instance.
         @discardableResult
         public func with(headers: [String : String]?) -> Self {
-            request.httpHeaders = headers
+            request.httpHeaders = headers ?? [:]
+            return self
+        }
+        
+        /// Update request headers.
+        ///
+        /// - Parameter headers: A Dictionary of headers.
+        /// - Returns: The current Builder instance.
+        @discardableResult
+        public func add(headers: [String : String]?) -> Self {
+            request.httpHeaders.updateValues(from: headers ?? [:])
             return self
         }
         
@@ -166,6 +178,55 @@ extension HMNetworkRequest: HMBuildableType {
         public func with(body: Any?) -> Self {
             request.httpBody = body
             return self
+        }
+        
+        /// Set the request inputStream.
+        ///
+        /// - Parameter inputStream: An InputStream instance.
+        /// - Returns: The current Builder instance.
+        @discardableResult
+        public func with(inputStream: InputStream?) -> Self {
+            request.httpInputStream = inputStream
+            return self
+        }
+        
+        /// Set the request inputStream.
+        ///
+        /// - Parameter uploadData: A Data instance.
+        /// - Returns: The current Builder instance.
+        @discardableResult
+        public func with(uploadData: Data?) -> Self {
+            if let data = uploadData {
+                return with(inputStream: InputStream(data: data))
+            } else {
+                return self
+            }
+        }
+        
+        /// Set the request inputStream.
+        ///
+        /// - Parameter uploadURL: A URL instance.
+        /// - Returns: The current Builder instance.
+        @discardableResult
+        public func with(uploadURL: URL?) -> Self {
+            if let url = uploadURL {
+                return with(inputStream: InputStream(url: url))
+            } else {
+                return self
+            }
+        }
+        
+        /// Set the request inputStream
+        ///
+        /// - Parameter uploadFilePath: A String value.
+        /// - Returns: The current Builder instance.
+        @discardableResult
+        public func with(uploadFilePath: String?) -> Self {
+            if let path = uploadFilePath {
+                return with(inputStream: InputStream(fileAtPath: path))
+            } else {
+                return self
+            }
         }
     }
 }
@@ -189,10 +250,11 @@ extension HMNetworkRequest.Builder: HMProtocolConvertibleBuilderType {
         return self
             .with(baseUrl: try? generic.baseUrl())
             .with(endPoint: try? generic.endPoint())
-            .with(method: try? generic.method())
+            .with(method: try? generic.operation())
             .with(body: try? generic.body())
             .with(headers: generic.headers())
             .with(params: generic.params())
+            .with(inputStream: try? generic.inputStream())
             .with(timeout: generic.timeout())
             .with(retries: generic.retries())
             .with(applyMiddlewares: generic.applyMiddlewares())
@@ -263,11 +325,11 @@ extension HMNetworkRequest: HMNetworkRequestType {
         }
     }
     
-    public func method() throws -> HttpMethod {
+    public func operation() throws -> HttpOperation {
         if let method = httpMethod {
             return method
         } else {
-            throw Exception("Method cannot be nil")
+            throw Exception("Operation cannot be nil")
         }
     }
     
@@ -279,21 +341,12 @@ extension HMNetworkRequest: HMNetworkRequestType {
         }
     }
     
-    public func urlRequest() throws -> URLRequest {
-        let method = try self.method()
-        var request = try baseUrlRequest()
-        
-        switch method {
-        case .post, .put:
-            request.httpBody = try JSONSerialization.data(
-                withJSONObject: try self.body(),
-                options: .prettyPrinted)
-            
-        default:
-            break
+    public func inputStream() throws -> InputStream {
+        if let inputStream = httpInputStream {
+            return inputStream
+        } else {
+            throw Exception("Input stream cannot be nil")
         }
-        
-        return request
     }
     
     public func params() -> [URLQueryItem] {
@@ -301,7 +354,7 @@ extension HMNetworkRequest: HMNetworkRequestType {
     }
     
     public func headers() -> [String : String]? {
-        return httpHeaders
+        return httpHeaders.isEmpty ? nil : httpHeaders
     }
     
     public func timeout() -> TimeInterval {
@@ -323,7 +376,7 @@ extension HMNetworkRequest: HMNetworkRequestType {
 
 extension HMNetworkRequest: CustomStringConvertible {
     public var description: String {
-        let method = (try? self.method().rawValue) ?? "INVALID METHOD"
+        let method = (try? self.operation().method()) ?? "INVALID METHOD"
         let url = (try? self.url().absoluteString) ?? "INVALID URL"
         let description = (self.requestDescription()) ?? "NONE"
         return "Performing \(method) at: \(url). Description: \(description)"

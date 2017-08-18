@@ -11,13 +11,13 @@ import SwiftUtilities
 
 /// Instead of having different request subtypes, we put all possible 
 /// requirements here, and differentiate among multiple types of requests 
-/// using the associated HttpMethod.
+/// using the associated HttpOperation.
 public protocol HMNetworkRequestType: HMRequestType, HMNetworkResourceType {
-    func method() throws -> HttpMethod
+    func operation() throws -> HttpOperation
     
     func body() throws -> Any
     
-    func urlRequest() throws -> URLRequest
+    func inputStream() throws -> InputStream
     
     func headers() -> [String : String]?
     
@@ -38,12 +38,37 @@ public extension HMNetworkRequestType {
         
         if let url = URL(string: urlString) {
             var request = URLRequest(url: url)
-            request.httpMethod = try method().rawValue
+            request.httpMethod = try operation().method()
             request.allHTTPHeaderFields = headers()
             request.timeoutInterval = timeout()
             return request
         } else {
             throw Exception("Request cannot be constructed")
         }
+    }
+    
+    /// Depending on the operation, we will need to add additional parameters
+    /// to the URLRequest.
+    ///
+    /// - Returns: A URLRequest instance.
+    /// - Throws: Exception if the request cannot be generated.
+    public func urlRequest() throws -> URLRequest {
+        let method = try self.operation()
+        var request = try baseUrlRequest()
+        
+        switch method {
+        case .post, .put:
+            request.httpBody = try JSONSerialization.data(
+                withJSONObject: try self.body(),
+                options: .prettyPrinted)
+            
+        case .upload:
+            request.httpBodyStream = try inputStream()
+            
+        default:
+            break
+        }
+        
+        return request
     }
 }

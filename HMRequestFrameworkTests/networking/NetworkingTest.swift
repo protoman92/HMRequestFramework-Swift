@@ -15,7 +15,7 @@ import XCTest
 
 public final class NetworkingTest: XCTestCase {
     fileprivate typealias Req = HMNetworkRequestHandler.Req
-    fileprivate let dummy: Try<Void> = Try.success(())
+    fileprivate let dummy: Try<Any> = Try.success(())
     fileprivate let timeout: TimeInterval = 100
     fileprivate var disposeBag: DisposeBag!
     fileprivate var rqMiddlewareManager: HMMiddlewareManager<Req>!
@@ -61,9 +61,7 @@ public final class NetworkingTest: XCTestCase {
             .with(method: .get)
             .build()
         
-        let generator: HMRequestGenerator<Void,HMNetworkRequest> = {_ in
-            Observable.just(Try.success(request))
-        }
+        let generator = HMRequestGenerators.forceGenerateFn(request, Any.self)
         
         let processor: HMResultProcessor<Any,Any> = {_ in
             throw Exception("Error!")
@@ -84,6 +82,35 @@ public final class NetworkingTest: XCTestCase {
         let first = elements.first!
         XCTAssertTrue(first.isFailure)
     }
+    
+//    public func test_uploadData_shouldWork() {
+//        /// Setup
+//        let observer = scheduler.createObserver(Try<Data>.self)
+//        let expect = expectation(description: "Should have completed")
+//        let data = Data(count: 1)
+//
+//        let request = Req.builder()
+//            .with(baseUrl: "https://google.com")
+//            .with(endPoint: "")
+//            .with(method: .upload)
+//            .with(uploadData: data)
+//            .build()
+//
+//        let generator = HMRequestGenerators.forceGenerateFn(request, Any.self)
+//
+//        /// When
+//        handler.execute(dummy, generator)
+//            .doOnDispose(expect.fulfill)
+//            .logError()
+//            .subscribe(observer)
+//            .disposed(by: disposeBag)
+//
+//        waitForExpectations(timeout: timeout, handler: nil)
+//
+//        /// Then
+//        let nextElements = observer.nextElements()
+//        print(nextElements)
+//    }
     
     public func test_networkRequestObject_shouldThrowErrorsIfNecessary() {
         var currentCheck = 0
