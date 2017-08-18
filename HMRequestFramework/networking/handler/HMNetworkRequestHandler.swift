@@ -12,13 +12,13 @@ import SwiftUtilities
 
 /// Use this class to perform network requests.
 public struct HMNetworkRequestHandler {
-    fileprivate var urlSession: URLSession?
+    fileprivate var nwUrlSession: URLSession?
     fileprivate var rqMiddlewareManager: HMMiddlewareManager<Req>?
     
     fileprivate init() {}
     
-    fileprivate func urlSessionInstance() -> URLSession {
-        if let urlSession = self.urlSession {
+    fileprivate func urlSession() -> URLSession {
+        if let urlSession = self.nwUrlSession {
             return urlSession
         } else {
             fatalError("URLSession cannot be nil")
@@ -29,12 +29,53 @@ public struct HMNetworkRequestHandler {
     ///
     /// - Parameter request: A HMNetworkRequestType instance.
     /// - Returns: An Observable instance.
-    func execute(request: HMNetworkRequest) throws -> Observable<Try<Data>> {
-        let urlSession = urlSessionInstance()
+    /// - Throws: Exception if the operation fails.
+    fileprivate func execute(_ request: Req) throws -> Observable<Try<Data>> {
+        let urlSession = self.urlSession()
         let urlRequest = try request.urlRequest()
             
         return urlSession
             .rx.data(request: urlRequest)
+            .retry(request.retries())
+            .map(Try.success)
+            .catchErrorJustReturn(Try.failure)
+    }
+    
+    /// Execute a data request.
+    ///
+    /// - Parameter request: A Req instance.
+    /// - Returns: An Observable instance.
+    /// - Throws: Exception if the operation fails.
+    fileprivate func executeData(_ request: Req) throws -> Observable<Try<Data>> {
+        let urlSession = self.urlSession()
+        let urlRequest = try request.urlRequest()
+        
+        return urlSession
+            .rx.data(request: urlRequest)
+            .retry(request.retries())
+            .map(Try.success)
+            .catchErrorJustReturn(Try.failure)
+    }
+    
+    /// Execute an upload request.
+    ///
+    /// - Parameter request: A Req instance.
+    /// - Returns: An Observable instance.
+    /// - Throws: Exception if the operation fails.
+    fileprivate func executeUpload(_ request: Req) throws -> Observable<Try<Data>> {
+        let urlSession = self.urlSession()
+        let urlRequest = try request.urlRequest()
+        var uploadTask: Observable<Data>
+        
+        if let data = request.uploadData() {
+            uploadTask = urlSession.rx.uploadWithCompletion(urlRequest, data)
+        } else if let url = request.uploadURL() {
+            uploadTask = urlSession.rx.uploadWithCompletion(urlRequest, url)
+        } else {
+            throw Exception("No Data available for upload")
+        }
+        
+        return uploadTask
             .retry(request.retries())
             .map(Try.success)
             .catchErrorJustReturn(Try.failure)
@@ -85,7 +126,7 @@ extension HMNetworkRequestHandler: HMBuildableType {
         /// - Returns: The current Builder instance.
         @discardableResult
         public func with(urlSession: URLSession) -> Self {
-            handler.urlSession = urlSession
+            handler.nwUrlSession = urlSession
             return self
         }
         
@@ -111,7 +152,7 @@ extension HMNetworkRequestHandler.Builder: HMBuilderType {
     @discardableResult
     public func with(buildable: Buildable) -> Self {
         return self
-            .with(urlSession: buildable.urlSessionInstance())
+            .with(urlSession: buildable.urlSession())
             .with(rqMiddlewareManager: buildable.requestMiddlewareManager())
     }
     

@@ -16,7 +16,8 @@ public struct HMNetworkRequest {
     fileprivate var httpParams: [URLQueryItem]
     fileprivate var httpHeaders: [String : String]
     fileprivate var httpBody: Any?
-    fileprivate var httpInputStream: InputStream?
+    fileprivate var httpUploadedData: Data?
+    fileprivate var httpUploadURL: URL?
     fileprivate var timeoutInterval: TimeInterval
     fileprivate var retryCount: Int
     fileprivate var middlewaresEnabled: Bool
@@ -169,25 +170,12 @@ extension HMNetworkRequest: HMBuildableType {
         
         /// Set the request inputStream.
         ///
-        /// - Parameter inputStream: An InputStream instance.
-        /// - Returns: The current Builder instance.
-        @discardableResult
-        public func with(inputStream: InputStream?) -> Self {
-            request.httpInputStream = inputStream
-            return self
-        }
-        
-        /// Set the request inputStream.
-        ///
         /// - Parameter uploadData: A Data instance.
         /// - Returns: The current Builder instance.
         @discardableResult
         public func with(uploadData: Data?) -> Self {
-            if let data = uploadData {
-                return with(inputStream: InputStream(data: data))
-            } else {
-                return self
-            }
+            request.httpUploadedData = uploadData
+            return self
         }
         
         /// Set the request inputStream.
@@ -196,24 +184,8 @@ extension HMNetworkRequest: HMBuildableType {
         /// - Returns: The current Builder instance.
         @discardableResult
         public func with(uploadURL: URL?) -> Self {
-            if let url = uploadURL {
-                return with(inputStream: InputStream(url: url))
-            } else {
-                return self
-            }
-        }
-        
-        /// Set the request inputStream
-        ///
-        /// - Parameter uploadFilePath: A String value.
-        /// - Returns: The current Builder instance.
-        @discardableResult
-        public func with(uploadFilePath: String?) -> Self {
-            if let path = uploadFilePath {
-                return with(inputStream: InputStream(fileAtPath: path))
-            } else {
-                return self
-            }
+            request.httpUploadURL = uploadURL
+            return self
         }
     }
 }
@@ -240,7 +212,8 @@ extension HMNetworkRequest.Builder: HMProtocolConvertibleBuilderType {
             .with(body: try? generic.body())
             .with(headers: generic.headers())
             .with(params: generic.params())
-            .with(inputStream: try? generic.inputStream())
+            .with(uploadData: generic.uploadData())
+            .with(uploadURL: generic.uploadURL())
             .with(timeout: generic.timeout())
             .with(retries: generic.retries())
             .with(applyMiddlewares: generic.applyMiddlewares())
@@ -319,12 +292,12 @@ extension HMNetworkRequest: HMNetworkRequestType {
         }
     }
     
-    public func inputStream() throws -> InputStream {
-        if let inputStream = httpInputStream {
-            return inputStream
-        } else {
-            throw Exception("Input stream cannot be nil")
-        }
+    public func uploadData() -> Data? {
+        return httpUploadedData
+    }
+    
+    public func uploadURL() -> URL? {
+        return httpUploadURL
     }
     
     public func params() -> [URLQueryItem] {

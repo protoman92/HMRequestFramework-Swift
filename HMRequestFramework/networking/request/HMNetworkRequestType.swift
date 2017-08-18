@@ -9,15 +9,24 @@
 import RxSwift
 import SwiftUtilities
 
-/// Instead of having different request subtypes, we put all possible 
-/// requirements here, and differentiate among multiple types of requests 
+/// Instead of having different request subtypes, we put all possible
+/// requirements here, and differentiate among multiple types of requests
 /// using the associated HttpOperation.
 public protocol HMNetworkRequestType: HMRequestType, HMNetworkResourceType {
     func operation() throws -> HttpOperation
     
     func body() throws -> Any
     
-    func inputStream() throws -> InputStream
+    /// One way for uploading - with a data object.
+    ///
+    /// - Returns: A Data instance.
+    func uploadData() -> Data?
+    
+    /// One way for uploading - with a URL object that points to some resource
+    /// in the file system.
+    ///
+    /// - Returns: A URL instance.
+    func uploadURL() -> URL?
     
     func headers() -> [String : String]?
     
@@ -29,11 +38,15 @@ public protocol HMNetworkRequestType: HMRequestType, HMNetworkResourceType {
 public extension HMNetworkRequestType {
     func baseUrlRequest() throws -> URLRequest {
         var urlString = try self.urlString()
-        var components = URLComponents(string: "\(urlString)?")
-        components?.queryItems = params()
+        let params = self.params()
         
-        if let urlWithParams = components?.url?.absoluteString {
-            urlString = urlWithParams
+        if params.isNotEmpty {
+            var components = URLComponents(string: "\(urlString)?")
+            components?.queryItems = params
+            
+            if let urlWithParams = components?.url?.absoluteString {
+                urlString = urlWithParams
+            }
         }
         
         if let url = URL(string: urlString) {
@@ -61,9 +74,6 @@ public extension HMNetworkRequestType {
             request.httpBody = try JSONSerialization.data(
                 withJSONObject: try self.body(),
                 options: .prettyPrinted)
-            
-        case .upload:
-            request.httpBodyStream = try inputStream()
             
         default:
             break

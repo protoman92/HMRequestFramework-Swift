@@ -82,34 +82,32 @@ public final class NetworkingTest: XCTestCase {
         XCTAssertTrue(first.isFailure)
     }
     
-//    public func test_uploadData_shouldWork() {
-//        /// Setup
-//        let observer = scheduler.createObserver(Try<Data>.self)
-//        let expect = expectation(description: "Should have completed")
-//        let data = Data(count: 1)
-//
-//        let request = Req.builder()
-//            .with(baseUrl: "https://google.com")
-//            .with(endPoint: "")
-//            .with(method: .upload)
-//            .with(uploadData: data)
-//            .build()
-//
-//        let generator = HMRequestGenerators.forceGenerateFn(request, Any.self)
-//
-//        /// When
-//        handler.execute(dummy, generator)
-//            .doOnDispose(expect.fulfill)
-//            .logError()
-//            .subscribe(observer)
-//            .disposed(by: disposeBag)
-//
-//        waitForExpectations(timeout: timeout, handler: nil)
-//
-//        /// Then
-//        let nextElements = observer.nextElements()
-//        print(nextElements)
-//    }
+    public func test_uploadData_shouldWork() {
+        /// Setup
+        let observer = scheduler.createObserver(Try<Data>.self)
+        let expect = expectation(description: "Should have completed")
+        let data = Data(count: 1)
+
+        let request = Req.builder()
+            .with(urlString: "https://google.com")
+            .with(operation: .upload)
+            .with(uploadData: data)
+            .build()
+
+        let generator = HMRequestGenerators.forceGenerateFn(request, Any.self)
+
+        /// When
+        handler.execute(dummy, generator)
+            .doOnDispose(expect.fulfill)
+            .subscribe(observer)
+            .disposed(by: disposeBag)
+
+        waitForExpectations(timeout: timeout, handler: nil)
+
+        /// Then
+        let nextElements = observer.nextElements()
+        XCTAssertTrue(nextElements.count > 0)
+    }
     
     public func test_networkRequestObject_shouldThrowErrorsIfNecessary() {
         var currentCheck = 0
@@ -147,7 +145,13 @@ public final class NetworkingTest: XCTestCase {
         /// 6
         let request6 = checkError(request5.cloneBuilder().with(body: ["1" : "2"]).build(), false)
         
+        /// 7
+        let request7 = checkError(request6.cloneBuilder().with(operation: .upload).build(), true)
+        
+        /// 8
+        let request8 = checkError(request7.cloneBuilder().with(uploadData: Data(capacity: 0)).build(), false)
+        
         /// End
-        _ = request6
+        _ = request8
     }
 }
