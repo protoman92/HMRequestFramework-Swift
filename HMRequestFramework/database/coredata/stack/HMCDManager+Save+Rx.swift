@@ -266,7 +266,7 @@ public extension Reactive where Base == HMCDManager {
                  _ convertibles: S) -> Observable<[HMCDResult]> where
         S: Sequence, S.Iterator.Element == HMCDObjectConvertibleType
     {
-        return Observable<[HMResult]>.create({
+        return Observable<[HMCDResult]>.create({
             self.base.save(context, convertibles, $0)
             return Disposables.create()
         })

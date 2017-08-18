@@ -155,7 +155,7 @@ extension Reactive where Base == HMCDManager {
         -> Observable<[HMCDResult]> where
         S: Sequence, S.Iterator.Element == HMCDUpsertableType
     {
-        return Observable<[HMResult]>.create({
+        return Observable<[HMCDResult]>.create({
             self.base.upsert(context, entityName, upsertables, $0)
             return Disposables.create()
         })

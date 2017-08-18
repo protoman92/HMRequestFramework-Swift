@@ -352,18 +352,16 @@ public extension HMCDRequestProcessor {
     ///
     /// - Parameter previous: The result of the previous operation.
     /// - Returns: An Observable instance.
-    public func saveToMemory<S,PO>(_ previous: Try<S>) -> Observable<Try<Void>> where
+    public func saveToMemory<PO>(_ previous: Try<[PO]>) -> Observable<Try<Void>> where
         PO: HMCDPureObjectType,
         PO.CDClass: HMCDObjectConvertibleType,
         PO.CDClass: HMCDObjectBuildableType,
-        PO.CDClass.Builder.PureObject == PO,
-        S: Sequence,
-        S.Iterator.Element == PO
+        PO.CDClass.Builder.PureObject == PO
     {
         let cdManager = coreDataManager()
         let context = cdManager.disposableObjectContext()
         
-        let generator: HMRequestGenerator<S,Req> =
+        let generator: HMRequestGenerator<[PO],Req> =
             HMRequestGenerators.forceGenerateFn(generator: {
                 cdManager.rx.construct(context, $0).map(self.saveToMemoryRequest)
             })
@@ -401,15 +399,13 @@ public extension HMCDRequestProcessor {
     ///   - previous: The result of the previous request.
     ///   - strategy: A VersionConflict.Strategy instance.
     /// - Returns: An Observable instance.
-    public func upsertInMemory<U,S>(_ previous: Try<S>,
-                                    _ strategy: VersionConflict.Strategy)
+    public func upsertInMemory<U>(_ previous: Try<[U]>,
+                               _ strategy: VersionConflict.Strategy)
         -> Observable<Try<[HMCDResult]>> where
         U: HMCDObjectType,
-        U: HMCDUpsertableType,
-        S: Sequence,
-        S.Iterator.Element == U
+        U: HMCDUpsertableType
     {
-        let generator: HMRequestGenerator<S,Req> =
+        let generator: HMRequestGenerator<[U],Req> =
             HMRequestGenerators.forceGenerateFn(generator: {
                 Observable.just(self.upsertRequest($0, strategy))
             })
@@ -424,14 +420,12 @@ public extension HMCDRequestProcessor {
     ///   - data: A Sequence of PO.
     ///   - strategy: A VersionConflict.Strategy instance.
     /// - Returns: An Observable instance.
-    public func upsertInMemory<PO,S>(_ data: S, _ strategy: VersionConflict.Strategy)
+    public func upsertInMemory<PO>(_ data: [PO], _ strategy: VersionConflict.Strategy)
         -> Observable<Try<[HMCDResult]>> where
         PO: HMCDPureObjectType,
         PO.CDClass: HMCDUpsertableType,
         PO.CDClass: HMCDObjectBuildableType,
-        PO.CDClass.Builder.PureObject == PO,
-        S: Sequence,
-        S.Iterator.Element == PO
+        PO.CDClass.Builder.PureObject == PO
     {
         let cdManager = coreDataManager()
         let context = cdManager.disposableObjectContext()

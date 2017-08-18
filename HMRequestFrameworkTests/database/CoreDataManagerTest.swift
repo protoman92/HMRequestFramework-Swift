@@ -69,7 +69,7 @@ public final class CoreDataManagerTest: CoreDataRootTest {
             .map(toVoid)
             
             // Persist the data.
-            .flatMap(manager.rx.persistLocally)
+            .flatMap({manager.rx.persistLocally()})
             
             // Fetch the data and verify that they have been persisted.
             .flatMap({manager.rx.fetch(fetchContext2, fetchRq)})
@@ -182,7 +182,7 @@ public extension CoreDataManagerTest {
             .flatMap({_ in manager.rx.delete(deleteContext, entityName, cdObjects2)})
             
             // Persist changes to DB.
-            .flatMap(manager.rx.persistLocally)
+            .flatMap({manager.rx.persistLocally()})
             
             // Fetch to verify that the DB is now empty.
             .flatMap({manager.rx.fetch(fetchContext2, fetchRq)})
@@ -288,7 +288,7 @@ public extension CoreDataManagerTest {
             .reduce((), accumulator: {_ in ()})
 
             // Persist all changes to DB.
-            .flatMap(manager.rx.persistLocally)
+            .flatMap({manager.rx.persistLocally()})
 
             // Fetch to verify that the data have been persisted.
             .flatMap({manager.rx.fetch(fetchContext1, request)})
@@ -306,7 +306,7 @@ public extension CoreDataManagerTest {
             })
 
             // Persist the changes.
-            .flatMap(manager.rx.persistLocally)
+            .flatMap({manager.rx.persistLocally()})
 
             // Fetch to verify that the data have been deleted.
             .flatMap({manager.rx.fetch(fetchContext2, request).subscribeOn(qos: .background)})

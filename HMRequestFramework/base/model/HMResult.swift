@@ -107,7 +107,7 @@ extension HMResult: HMBuildableType {
 }
 
 extension HMResult.Builder: HMBuilderType {
-    public typealias Buildable = HMResult
+    public typealias Buildable = HMResult<Val>
     
     public func with(buildable: Buildable) -> Self {
         return self

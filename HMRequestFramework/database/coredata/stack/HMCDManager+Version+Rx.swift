@@ -217,7 +217,7 @@ extension Reactive where Base == HMCDManager {
         -> Observable<[HMCDResult]> where
         S: Sequence, S.Iterator.Element == HMCDVersionUpdateRequest
     {
-        return Observable<[HMResult]>.create({
+        return Observable<[HMCDResult]>.create({
             self.base.updateVersion(context, entityName, requests, $0)
             return Disposables.create()
         })
