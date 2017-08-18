@@ -300,7 +300,7 @@ public extension HMCDRequestProcessor {
     ///
     /// - Parameter cls: The PureObject class type.
     /// - Returns: A DBReq instance.
-    func fetchAllRequest<PO>(_ cls: PO.Type) -> Req where PO: HMCDPureObjectType {
+    public func fetchAllRequest<PO>(_ cls: PO.Type) -> Req where PO: HMCDPureObjectType {
         return Req.builder()
             .with(operation: .fetch)
             .with(poType: cls)
@@ -333,7 +333,7 @@ public extension HMCDRequestProcessor {
     ///
     /// - Parameter data: A Sequence of CD.
     /// - Returns: A Req instance.
-    func saveToMemoryRequest<CD,S>(_ data: S) -> Req where
+    public func saveToMemoryRequest<CD,S>(_ data: S) -> Req where
         CD: HMCDObjectType,
         CD: HMCDObjectConvertibleType,
         S: Sequence,
@@ -380,7 +380,7 @@ public extension HMCDRequestProcessor {
     ///   - data: A Sequence of U.
     ///   - strategy: A VersionConflict.Strategy instance.
     /// - Returns: A Req instance.
-    func upsertRequest<U,S>(_ data: S, _ strategy: VersionConflict.Strategy) -> Req where
+    public func upsertRequest<U,S>(_ data: S, _ strategy: VersionConflict.Strategy) -> Req where
         U: HMCDObjectType,
         U: HMCDUpsertableType,
         S: Sequence,
@@ -444,7 +444,7 @@ public extension HMCDRequestProcessor {
 }
 
 public extension HMCDRequestProcessor {
-    func persistToDBRequest() -> Req {
+    public func persistToDBRequest() -> Req {
         return Req.builder()
             .with(operation: .persistLocally)
             .with(requestDescription: "Persist all data to DB")
