@@ -93,23 +93,19 @@ public final class CoreDataRequestTest: CoreDataRootTest {
             cdObjects[splitIndex..<dummyCount].map({$0 as HMCDObjectConvertibleType})
         ].flatMap({$0})
         
-        let insertGn = dummy1InsertRgn(cdObjects)
-        let insertPs = dummy1InsertRps()
-        let persistGn = dummyPersistRgn()
         let deleteGn = dummyMemoryDeleteRgn(deletedObjects)
-        let fetchGn = dummy1FetchRgn()
 
         /// When
         // Save the changes in the disposable context.
-        cdProcessor.process(dummy, insertGn, insertPs)
+        cdProcessor.saveToMemory(Try.success(pureObjects))
             .map({$0.map({$0 as Any})})
 
             // Persist changes to DB.
-            .flatMap({cdProcessor.processVoid($0, persistGn)})
+            .flatMap(cdProcessor.persistToDB)
             .map({$0.map({$0 as Any})})
 
             // Fetch to verify that data have been persisted.
-            .flatMap({cdProcessor.process($0, fetchGn, Dummy1.self)})
+            .flatMap({cdProcessor.fetchAllDataFromDB($0, Dummy1.self)})
             .map({try $0.getOrThrow()})
             .doOnNext({XCTAssertEqual($0.count, dummyCount)})
             .doOnNext({XCTAssertTrue(pureObjects.all($0.contains))})
@@ -120,11 +116,11 @@ public final class CoreDataRequestTest: CoreDataRootTest {
             .map({$0.map({$0 as Any})})
 
             // Persist changes to DB.
-            .flatMap({cdProcessor.processVoid($0, persistGn)})
+            .flatMap(cdProcessor.persistToDB)
             .map({$0.map({$0 as Any})})
 
             // Fetch to verify that the data have been deleted.
-            .flatMap({cdProcessor.process($0, fetchGn, Dummy1.self)})
+            .flatMap({cdProcessor.fetchAllDataFromDB($0, Dummy1.self)})
             .map({try $0.getOrThrow()})
             .flatMap({Observable.from($0)})
             .doOnDispose(expect.fulfill)
@@ -143,28 +139,21 @@ public final class CoreDataRequestTest: CoreDataRootTest {
         let observer = scheduler.createObserver(Dummy1.self)
         let expect = expectation(description: "Should have completed")
         let cdProcessor = self.cdProcessor!
-        let manager = self.manager!
-        let context = manager.disposableObjectContext()
         let dummyCount = self.dummyCount
         let pureObjects = (0..<dummyCount).map({_ in Dummy1()})
-        let cdObjects = try! manager.constructUnsafely(context, pureObjects)
-        let insertGn = dummy1InsertRgn(cdObjects)
-        let insertPs = dummy1InsertRps()
-        let persistGn = dummyPersistRgn()
         let deleteGn = dummy1BatchDeleteRgn()
-        let fetchGn = dummy1FetchRgn()
 
         /// When
         // Save the changes in the disposable context.
-        cdProcessor.process(dummy, insertGn, insertPs)
+        cdProcessor.saveToMemory(Try.success(pureObjects))
             .map({$0.map({$0 as Any})})
 
             // Persist changes to DB.
-            .flatMap({cdProcessor.processVoid($0, persistGn)})
+            .flatMap(cdProcessor.persistToDB)
             .map({$0.map({$0 as Any})})
 
             // Fetch to verify that data have been persisted.
-            .flatMap({cdProcessor.process($0, fetchGn, Dummy1.self)})
+            .flatMap({cdProcessor.fetchAllDataFromDB($0, Dummy1.self)})
             .map({try $0.getOrThrow()})
             .doOnNext({XCTAssertEqual($0.count, dummyCount)})
             .doOnNext({XCTAssertTrue(pureObjects.all($0.contains))})
@@ -175,11 +164,11 @@ public final class CoreDataRequestTest: CoreDataRootTest {
             .map({$0.map({$0 as Any})})
 
             // Persist changes to DB.
-            .flatMap({cdProcessor.processVoid($0, persistGn)})
+            .flatMap(cdProcessor.persistToDB)
             .map({$0.map({$0 as Any})})
 
             // Fetch to verify that the data have been deleted.
-            .flatMap({cdProcessor.process($0, fetchGn, Dummy1.self)})
+            .flatMap({cdProcessor.fetchAllDataFromDB($0, Dummy1.self)})
             .map({try $0.getOrThrow()})
             .flatMap({Observable.from($0)})
             .doOnDispose(expect.fulfill)
@@ -215,25 +204,20 @@ public final class CoreDataRequestTest: CoreDataRootTest {
         })
 
         let pureObjects23 = [pureObjects2, pureObjects3].flatMap({$0})
-        let cdObjects1 = try! manager.constructUnsafely(context, pureObjects1)
         let cdObjects23 = try! manager.constructUnsafely(context, pureObjects23)
-        let insertGn = dummy1InsertRgn(cdObjects1)
-        let insertPs = dummy1UpsertRps()
-        let persistGn = dummyPersistRgn()
         let upsertGn = dummy1UpsertRgn(cdObjects23, .overwrite)
         let upsertPs = dummy1UpsertRps()
-        let fetchGn = dummy1FetchRgn()
 
         /// When
         // Insert the first set of data.
-        dbProcessor.process(dummy, insertGn, insertPs)
+        dbProcessor.saveToMemory(Try.success(pureObjects1))
             .map({$0.map({$0 as Any})})
 
             // Persist changes to DB.
-            .flatMap({dbProcessor.processVoid($0, persistGn)})
+            .flatMap(dbProcessor.persistToDB)
             .map({$0.map({$0 as Any})})
 
-            .flatMap({dbProcessor.process($0, fetchGn, Dummy1.self)})
+            .flatMap({dbProcessor.fetchAllDataFromDB($0, Dummy1.self)})
             .map({try $0.getOrThrow()})
             .doOnNext({XCTAssertTrue(pureObjects1.all($0.contains))})
             .doOnNext({XCTAssertEqual($0.count, times1)})
@@ -245,11 +229,11 @@ public final class CoreDataRequestTest: CoreDataRootTest {
             .map({$0.map({$0 as Any})})
 
             // Persist changes to DB.
-            .flatMap({dbProcessor.processVoid($0, persistGn)})
+            .flatMap(dbProcessor.persistToDB)
             .map({$0.map({$0 as Any})})
 
             // Fetch all data to check that the upsert was successful.
-            .flatMap({dbProcessor.process($0, fetchGn, Dummy1.self)})
+            .flatMap({dbProcessor.fetchAllDataFromDB($0, Dummy1.self)})
             .map({try $0.getOrThrow()})
             .flatMap({Observable.from($0)})
             .doOnDispose(expect.fulfill)
@@ -284,25 +268,20 @@ public final class CoreDataRequestTest: CoreDataRootTest {
             return dummy
         })
 
-        let cdObjects1 = try! manager.constructUnsafely(context, pureObjects1)
         let cdObjects2 = try! manager.constructUnsafely(context, pureObjects2)
-        let insertGn = dummy1InsertRgn(cdObjects1)
-        let insertPs = dummy1UpsertRps()
-        let persistGn = dummyPersistRgn()
         let upsertGn = dummy1UpsertRgn(cdObjects2, .error)
         let upsertPs = dummy1UpsertRps()
-        let fetchGn = dummy1FetchRgn()
 
         /// When
         // Insert the first set of data.
-        dbProcessor.process(dummy, insertGn, insertPs)
+        dbProcessor.saveToMemory(Try.success(pureObjects1))
             .map({$0.map({$0 as Any})})
 
             // Persist changes to DB.
-            .flatMap({dbProcessor.processVoid($0, persistGn)})
+            .flatMap(dbProcessor.persistToDB)
             .map({$0.map({$0 as Any})})
 
-            .flatMap({dbProcessor.process($0, fetchGn, Dummy1.self)})
+            .flatMap({dbProcessor.fetchAllDataFromDB($0, Dummy1.self)})
             .map({try $0.getOrThrow()})
             .doOnNext({XCTAssertTrue(pureObjects1.all($0.contains))})
             .doOnNext({XCTAssertEqual($0.count, times)})
@@ -313,11 +292,11 @@ public final class CoreDataRequestTest: CoreDataRootTest {
             .map({$0.map({$0 as Any})})
 
             // Persist changes to DB.
-            .flatMap({dbProcessor.processVoid($0, persistGn)})
+            .flatMap(dbProcessor.persistToDB)
             .map({$0.map({$0 as Any})})
 
             // Fetch all data to check that the upsert failed.
-            .flatMap({dbProcessor.process($0, fetchGn, Dummy1.self)})
+            .flatMap({dbProcessor.fetchAllDataFromDB($0, Dummy1.self)})
             .map({try $0.getOrThrow()})
             .flatMap({Observable.from($0)})
             .doOnDispose(expect.fulfill)
@@ -345,19 +324,13 @@ public final class CoreDataRequestTest: CoreDataRootTest {
         let context = manager.disposableObjectContext()
         let dummyCount = self.dummyCount
         let pureObjects = (0..<dummyCount).map({_ in Dummy1()})
-        let cdObjects = try! manager.constructUnsafely(context, pureObjects)
-
-        let insertGn = dummy1InsertRgn(cdObjects)
-        let insertPs = dummy1InsertRps()
-        let persistGn = dummyPersistRgn()
-        let fetchGn = dummy1FetchRgn()
 
         /// When
-        dbProcessor.process(dummy, insertGn, insertPs)
+        dbProcessor.saveToMemory(Try.success(pureObjects))
             .map({$0.map({$0 as Any})})
-            .flatMap({dbProcessor.processVoid($0, persistGn)})
+            .flatMap(dbProcessor.persistToDB)
             .map({$0.map({$0 as Any})})
-            .flatMap({dbProcessor.process($0, fetchGn, Dummy1.self)})
+            .flatMap({dbProcessor.fetchAllDataFromDB($0, Dummy1.self)})
             .map({try $0.getOrThrow()})
             .flatMap({Observable.from($0)})
             .doOnDispose(expect.fulfill)
@@ -411,21 +384,6 @@ public final class CoreDataRequestTest: CoreDataRootTest {
 }
 
 extension CoreDataRequestTest {
-    func dummy1InsertRequest(_ data: [Dummy1.CDClass]) -> Req {
-        return Req.builder()
-            .with(operation: .saveData)
-            .with(insertedData: data)
-            .build()
-    }
-    
-    func dummy1InsertRgn(_ data: [Dummy1.CDClass]) -> HMAnyRequestGenerator<Req> {
-        return HMRequestGenerators.forceGenerateFn(dummy1InsertRequest(data))
-    }
-    
-    func dummy1InsertRps() -> HMResultProcessor<HMCDResult,Void> {
-        return {Observable.just($0).map(toVoid).map(Try.success)}
-    }
-    
     func dummy1UpsertRequest(_ data: [Dummy1.CDClass],
                              _ strategy: VersionConflict.Strategy) -> Req {
         return Req.builder()
@@ -447,10 +405,6 @@ extension CoreDataRequestTest {
     func dummy1UpsertRps() -> HMResultProcessor<HMCDResult,Void> {
         return {Observable.just($0).map(toVoid).map(Try.success)}
     }
-
-    func dummy1FetchRgn() -> HMAnyRequestGenerator<Req> {
-        return HMRequestGenerators.forceGenerateFn(dummy1FetchRequest())
-    }
     
     func dumm1BatchDeleteRequest() -> Req {
         return Req.builder()
@@ -461,14 +415,6 @@ extension CoreDataRequestTest {
     
     func dummy1BatchDeleteRgn() -> HMAnyRequestGenerator<Req> {
         return HMRequestGenerators.forceGenerateFn(dumm1BatchDeleteRequest(), Any.self)
-    }
-
-    func dummyPersistRequest() -> Req {
-        return Req.builder().with(operation: .persistLocally).build()
-    }
-
-    func dummyPersistRgn() -> HMAnyRequestGenerator<Req> {
-        return HMRequestGenerators.forceGenerateFn(dummyPersistRequest())
     }
 
     func dummyMemoryDeleteRequest(_ data: [HMCDObjectConvertibleType]) -> Req {
