@@ -12,19 +12,33 @@ import SwiftUtilities
 /// to multiple items (e.g. in an Array), for which the result of each application
 /// could be relevant to downstream flow.
 public struct HMResult<Val> {
-    public static func just<Val>(_ obj: Val) -> HMResult<Val> {
+    public static func just(_ obj: Val) -> HMResult<Val> {
         return HMResult<Val>.builder().with(object: obj).build()
     }
     
-    public static func just<Val>(_ error: Error) -> HMResult<Val> {
+    public static func just(_ error: Error) -> HMResult<Val> {
         return HMResult<Val>.builder().with(error: error).build()
+    }
+    
+    /// Convert a Try to a HMResult.
+    ///
+    /// - Parameter tryInstance: A Try instance.
+    /// - Returns: A HMResult instance.
+    public static func from(_ tryInstance: Try<Val>) -> HMResult<Val> {
+        switch tryInstance {
+        case .success(let result):
+            return HMResult<Val>.just(result)
+            
+        case .failure(let e):
+            return HMResult<Val>.just(e)
+        }
     }
     
     /// Unwrap a Try that contains a HMResult.
     ///
     /// - Parameter wrapped: A Try instance.
     /// - Returns: A HMResult instance.
-    public static func unwrap<Val>(_ wrapped: Try<HMResult<Val>>) -> HMResult<Val> {
+    public static func unwrap(_ wrapped: Try<HMResult<Val>>) -> HMResult<Val> {
         switch wrapped {
         case .success(let result):
             return result
