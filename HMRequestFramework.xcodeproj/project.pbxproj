@@ -262,20 +262,13 @@
 			path = model;
 			sourceTree = "<group>";
 		};
-		D326B1801F2D7AFA0021216C /* model */ = {
-			isa = PBXGroup;
-			children = (
-				D326B1811F2D7B210021216C /* HMBuildableType.swift */,
-				D3FC6E7B1F2F0588007471E2 /* HMIdentifiableType.swift */,
-				D31C58751F278A8A00C8D8CC /* HMProtocolConvertibleType.swift */,
-			);
-			path = model;
-			sourceTree = "<group>";
-		};
 		D32718371F3C96C6003487FA /* model */ = {
 			isa = PBXGroup;
 			children = (
 				D32718341F3C93DC003487FA /* HMResult.swift */,
+				D326B1811F2D7B210021216C /* HMBuildableType.swift */,
+				D3FC6E7B1F2F0588007471E2 /* HMIdentifiableType.swift */,
+				D31C58751F278A8A00C8D8CC /* HMProtocolConvertibleType.swift */,
 			);
 			path = model;
 			sourceTree = "<group>";
@@ -369,7 +362,6 @@
 				D37D0B691F25E1BE0032C6AB /* database */,
 				D378D6D71F25E088009B89B2 /* HMRequestFramework.h */,
 				D378D6D81F25E088009B89B2 /* Info.plist */,
-				D326B1801F2D7AFA0021216C /* model */,
 				D37D0B541F25E1BE0032C6AB /* networking */,
 			);
 			path = HMRequestFramework;
