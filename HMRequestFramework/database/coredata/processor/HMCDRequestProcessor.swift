@@ -406,10 +406,10 @@ public extension HMCDRequestProcessor {
     /// Override this method to provide default implementation.
     ///
     /// - Parameters:
-    ///   - data: A Sequence of PO.
+    ///   - previous: The result of the previous request.
     ///   - transform: A Request transformer.
     /// - Returns: An Observable instance.
-    public func upsertInMemory<PO>(_ data: [PO],
+    public func upsertInMemory<PO>(_ previous: Try<[PO]>,
                                    _ transform: HMTransformer<Req>?)
         -> Observable<Try<[HMCDResult]>> where
         PO: HMCDPureObjectType,
@@ -420,7 +420,9 @@ public extension HMCDRequestProcessor {
         let cdManager = coreDataManager()
         let context = cdManager.disposableObjectContext()
         
-        return cdManager.rx.construct(context, data)
+        return Observable.just(previous)
+            .map({try $0.getOrThrow()})
+            .flatMap({cdManager.rx.construct(context, $0)})
             .map(Try.success)
             .flatMap({self.upsertInMemory($0, transform)})
             .catchErrorJustReturn(Try.failure)

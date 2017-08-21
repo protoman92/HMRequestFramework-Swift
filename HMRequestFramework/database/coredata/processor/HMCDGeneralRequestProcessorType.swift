@@ -36,8 +36,7 @@ public protocol HMCDGeneralRequestProcessorType {
     ///   - previous: The result of the previous operation.
     ///   - transform: A Request transformer.
     /// - Returns: An Observable instance.
-    func saveToMemory<PO>(_ previous: Try<[PO]>,
-                          _ transform: HMTransformer<Req>?)
+    func saveToMemory<PO>(_ previous: Try<[PO]>, _ transform: HMTransformer<Req>?)
         -> Observable<Try<Void>> where
         PO: HMCDPureObjectType,
         PO.CDClass: HMCDObjectConvertibleType,
@@ -59,10 +58,10 @@ public protocol HMCDGeneralRequestProcessorType {
     /// managed objects and then upserting them afterwards.
     ///
     /// - Parameters:
-    ///   - previous: A Sequence of PO.
+    ///   - previous: The result of the previous request.
     ///   - transform: A Request transformer.
     /// - Returns: An Observable instance.
-    func upsertInMemory<PO>(_ previous: [PO], _ transform: HMTransformer<Req>?)
+    func upsertInMemory<PO>(_ previous: Try<[PO]>, _ transform: HMTransformer<Req>?)
         -> Observable<Try<[HMCDResult]>> where
         PO: HMCDPureObjectType,
         PO.CDClass: HMCDUpsertableType,
