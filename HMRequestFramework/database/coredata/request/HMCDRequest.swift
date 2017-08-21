@@ -35,7 +35,7 @@ public struct HMCDRequest {
         cdDeletedData = []
         nsSortDescriptors = []
         retryCount = 1
-        middlewaresEnabled = false
+        middlewaresEnabled = true
     }
 }
 

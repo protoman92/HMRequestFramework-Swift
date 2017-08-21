@@ -27,7 +27,7 @@ public struct HMNetworkRequest {
         retryCount = 1
         httpParams = []
         httpHeaders = [:]
-        middlewaresEnabled = false
+        middlewaresEnabled = true
         timeoutInterval = TimeInterval.infinity
     }
 }
