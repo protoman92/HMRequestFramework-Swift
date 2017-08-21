@@ -12,7 +12,6 @@ import SwiftUtilities
 /// Classes that implement this protocol must be able to handle common CoreData
 /// requests.
 public protocol HMCDGeneralRequestProcessorType {
-    typealias Req = HMCDRequest
     
     /// Fetch all data of a type from DB, then convert them to pure objects.
     ///
@@ -29,7 +28,7 @@ public protocol HMCDGeneralRequestProcessorType {
         PO.CDClass: HMCDPureObjectConvertibleType,
         PO.CDClass.PureObject == PO,
         S: Sequence,
-        S.Iterator.Element == HMTransformer<Req>
+        S.Iterator.Element == HMTransformer<HMCDRequest>
     
     /// Save some data to memory by constructing them and then saving the
     /// resulting managed objects.
@@ -45,7 +44,7 @@ public protocol HMCDGeneralRequestProcessorType {
         PO.CDClass: HMCDObjectBuildableType,
         PO.CDClass.Builder.PureObject == PO,
         S: Sequence,
-        S.Iterator.Element == HMTransformer<Req>
+        S.Iterator.Element == HMTransformer<HMCDRequest>
     
     /// Perform an upsert operation with some upsertable data.
     ///
@@ -58,7 +57,7 @@ public protocol HMCDGeneralRequestProcessorType {
         U: HMCDObjectType,
         U: HMCDUpsertableType,
         S: Sequence,
-        S.Iterator.Element == HMTransformer<Req>
+        S.Iterator.Element == HMTransformer<HMCDRequest>
     
     /// Perform an upsert operation with some pure objects by constructing
     /// managed objects and then upserting them afterwards.
@@ -74,7 +73,7 @@ public protocol HMCDGeneralRequestProcessorType {
         PO.CDClass: HMCDObjectBuildableType,
         PO.CDClass.Builder.PureObject == PO,
         S: Sequence,
-        S.Iterator.Element == HMTransformer<Req>
+        S.Iterator.Element == HMTransformer<HMCDRequest>
     
     /// Persist all data to DB.
     ///
@@ -84,14 +83,14 @@ public protocol HMCDGeneralRequestProcessorType {
     /// - Returns: An Observable instance.
     func persistToDB<Prev,S>(_ previous: Try<Prev>, _ transform: S)
         -> Observable<Try<Void>> where
-        S: Sequence, S.Iterator.Element == HMTransformer<Req>
+        S: Sequence, S.Iterator.Element == HMTransformer<HMCDRequest>
 }
 
 /// Convenience method for varargs.
 public extension HMCDGeneralRequestProcessorType {
     public func fetchAllDataFromDB<Prev,PO>(_ previous: Try<Prev>,
                                             _ cls: PO.Type,
-                                            _ transforms: HMTransformer<Req>...)
+                                            _ transforms: HMTransformer<HMCDRequest>...)
         -> Observable<Try<[PO]>> where
         PO: HMCDPureObjectType,
         PO.CDClass: HMCDPureObjectConvertibleType,
@@ -101,7 +100,7 @@ public extension HMCDGeneralRequestProcessorType {
     }
     
     public func saveToMemory<PO>(_ previous: Try<[PO]>,
-                                 _ transforms: HMTransformer<Req>...)
+                                 _ transforms: HMTransformer<HMCDRequest>...)
         -> Observable<Try<Void>> where
         PO: HMCDPureObjectType,
         PO.CDClass: HMCDObjectConvertibleType,
@@ -112,7 +111,7 @@ public extension HMCDGeneralRequestProcessorType {
     }
     
     public func upsertInMemory<U>(_ previous: Try<[U]>,
-                                  _ transforms: HMTransformer<Req>...)
+                                  _ transforms: HMTransformer<HMCDRequest>...)
         -> Observable<Try<[HMCDResult]>> where
         U: HMCDObjectType, U: HMCDUpsertableType
     {
@@ -120,7 +119,7 @@ public extension HMCDGeneralRequestProcessorType {
     }
     
     public func upsertInMemory<PO>(_ previous: Try<[PO]>,
-                                   _ transforms: HMTransformer<Req>...)
+                                   _ transforms: HMTransformer<HMCDRequest>...)
         -> Observable<Try<[HMCDResult]>> where
         PO: HMCDPureObjectType,
         PO.CDClass: HMCDUpsertableType,
@@ -131,7 +130,7 @@ public extension HMCDGeneralRequestProcessorType {
     }
     
     public func persistToDB<Prev>(_ previous: Try<Prev>,
-                                  _ transforms: HMTransformer<Req>...)
+                                  _ transforms: HMTransformer<HMCDRequest>...)
         -> Observable<Try<Void>>
     {
         return persistToDB(previous, transforms)
