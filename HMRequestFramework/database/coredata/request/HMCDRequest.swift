@@ -18,6 +18,7 @@ public struct HMCDRequest {
     fileprivate var cdFetchResultType: NSFetchRequestResultType?
     fileprivate var cdFetchProperties: [Any]
     fileprivate var cdFetchGroupBy: [Any]
+    fileprivate var cdFetchLimit: Int?
     fileprivate var cdInsertedData: [HMCDObjectConvertibleType]
     fileprivate var cdUpsertedData: [HMCDUpsertableType]
     fileprivate var cdDeletedData: [HMCDObjectConvertibleType]
@@ -218,6 +219,16 @@ extension HMCDRequest: HMBuildableType {
             return self
         }
         
+        /// Set the fetchLimit.
+        ///
+        /// - Parameter fetchLimit: An Int value.
+        /// - Returns: The current Builder instance.
+        @discardableResult
+        public func with(fetchLimit: Int?) -> Self {
+            request.cdFetchLimit = fetchLimit
+            return self
+        }
+        
         /// Set the data to insert.
         ///
         /// - Parameter insertedData: A Sequence of HMCDConvertibleType.
@@ -331,6 +342,7 @@ extension HMCDRequest.Builder: HMProtocolConvertibleBuilderType {
             .with(fetchResultType: generic.fetchResultType())
             .with(fetchProperties: generic.fetchProperties())
             .with(fetchGroupBy: generic.fetchGroupBy())
+            .with(fetchLimit: generic.fetchLimit())
             .with(insertedData: try? generic.insertedData())
             .with(upsertedData: try? generic.upsertedData())
             .with(deletedData: try? generic.deletedData())
@@ -429,6 +441,10 @@ extension HMCDRequest: HMCDRequestType {
     
     public func fetchGroupBy() -> [Any]? {
         return cdFetchGroupBy.isEmpty ? nil : cdFetchGroupBy
+    }
+    
+    public func fetchLimit() -> Int? {
+        return cdFetchLimit
     }
     
     public func insertedData() throws -> [HMCDObjectConvertibleType] {

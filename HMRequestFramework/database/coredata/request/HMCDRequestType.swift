@@ -47,6 +47,11 @@ public protocol HMCDRequestType: HMDatabaseRequestType {
     /// - Returns: An Array of Any.
     func fetchGroupBy() -> [Any]?
     
+    /// Get the fetch limit for a fetch request.
+    ///
+    /// - Returns: An Int value.
+    func fetchLimit() -> Int?
+    
     /// Get the data to be inserted. Only used for save operations
     ///
     /// NSManagedObject will first be reconstructed using a disposable context,
@@ -103,6 +108,14 @@ public extension HMCDRequestType {
         cdRequest.resultType = resultType
         cdRequest.propertiesToFetch = propertiesToFetch
         cdRequest.propertiesToGroupBy = propertiesToGroupBy
+        
+        // fetchLimit is an optional because we are not sure what CoreData's
+        // default fetchLimit is. We don't want to set the limit unless the
+        // request explicitly asks for one.
+        if let limit = fetchLimit() {
+            cdRequest.fetchLimit = limit
+        }
+        
         return cdRequest
     }
     

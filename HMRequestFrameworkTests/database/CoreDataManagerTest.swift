@@ -434,4 +434,13 @@ public extension CoreDataManagerTest {
         XCTAssertEqual(nextElements.count, pureObjects23.count)
         XCTAssertTrue(pureObjects23.all(nextElements.contains))
     }
+    
+    public func test_fetchLimit_shouldWork() {
+        /// Setup
+        let observer = scheduler.creat
+        
+        /// When
+        
+        /// Then
+    }
 }
