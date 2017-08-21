@@ -320,8 +320,6 @@ public final class CoreDataRequestTest: CoreDataRootTest {
         let observer = scheduler.createObserver(Dummy1.self)
         let expect = expectation(description: "Should have completed")
         let dbProcessor = self.dbProcessor!.processor
-        let manager = self.manager!
-        let context = manager.disposableObjectContext()
         let dummyCount = self.dummyCount
         let pureObjects = (0..<dummyCount).map({_ in Dummy1()})
 

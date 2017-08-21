@@ -434,13 +434,47 @@ public extension CoreDataManagerTest {
         XCTAssertEqual(nextElements.count, pureObjects23.count)
         XCTAssertTrue(pureObjects23.all(nextElements.contains))
     }
-    
+}
+
+public extension CoreDataManagerTest {
     public func test_fetchLimit_shouldWork() {
         /// Setup
-        let observer = scheduler.creat
+        let observer = scheduler.createObserver(Dummy1.self)
+        let expect = expectation(description: "Should have completed")
+        let manager = self.manager!
+        let context = manager.disposableObjectContext()
+        let dummyCount = self.dummyCount
+        let limit = dummyCount / 2
+        let pureObjects = (0..<dummyCount).map({_ in Dummy1()})
+        let cdObjects = try! manager.constructUnsafely(context, pureObjects)
+        
+        let fetchRq = try! dummy1FetchRequest().cloneBuilder()
+            .with(fetchLimit: limit)
+            .build()
+            .fetchRequest(Dummy1.self)
+        
+        // Different contexts.
+        let saveContext = manager.disposableObjectContext()
+        let fetchContext = manager.disposableObjectContext()
         
         /// When
+        manager.rx.save(saveContext, cdObjects)
+            .flatMap({_ in manager.rx.persistLocally()})
+            
+            // We expect the number of results returned by this fetch to be
+            // limited to the predefined fetchLimit.
+            .flatMap({manager.rx.fetch(fetchContext, fetchRq)})
+            .map({$0.map({$0.asPureObject()})})
+            .flatMap({Observable.from($0)})
+            .doOnDispose(expect.fulfill)
+            .subscribe(observer)
+            .disposed(by: disposeBag)
+        
+        waitForExpectations(timeout: timeout, handler: nil)
         
         /// Then
+        let nextElements = observer.nextElements()
+        XCTAssertEqual(nextElements.count, limit)
+        XCTAssertTrue(nextElements.all(pureObjects.contains))
     }
 }
