@@ -337,6 +337,7 @@ public extension HMCDRequestProcessor {
             .with(operation: .saveData)
             .with(insertedData: data)
             .with(requestDescription: "Save \(CD.self) to memory")
+            .shouldApplyMiddlewares()
             .build()
     }
         
@@ -377,9 +378,10 @@ public extension HMCDRequestProcessor {
         return Req.builder()
             .with(cdType: U.self)
             .with(operation: .upsert)
-            .with(insertedData: data.map({$0 as HMCDUpsertableType}))
+            .with(upsertedData: data.map({$0 as HMCDUpsertableType}))
             .with(vcStrategy: .overwrite)
             .with(requestDescription: "Upsert \(U.self) in memory")
+            .shouldApplyMiddlewares()
             .build()
     }
     
