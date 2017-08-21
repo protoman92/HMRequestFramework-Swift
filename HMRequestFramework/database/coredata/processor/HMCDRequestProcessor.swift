@@ -295,11 +295,6 @@ public extension HMCDRequestProcessor {
 }
 
 public extension HMCDRequestProcessor {
-    
-    /// Get a DB request to fetch all items for an entity.
-    ///
-    /// - Parameter cls: The PureObject class type.
-    /// - Returns: A DBReq instance.
     public func fetchAllRequest<PO>(_ cls: PO.Type) -> Req where PO: HMCDPureObjectType {
         return Req.builder()
             .with(operation: .fetch)
@@ -309,7 +304,7 @@ public extension HMCDRequestProcessor {
             .build()
     }
     
-    /// Fetch all data of a type from DB, then convert them to pure objects.
+    /// Override this method to provide default implementation.
     ///
     /// - Parameters:
     ///   - previous: The result of the previous request.
@@ -331,11 +326,6 @@ public extension HMCDRequestProcessor {
 }
 
 public extension HMCDRequestProcessor {
-    
-    /// Get a database request to save some objects to memory.
-    ///
-    /// - Parameter data: A Sequence of CD.
-    /// - Returns: A Req instance.
     public func saveToMemoryRequest<CD,S>(_ data: S) -> Req where
         CD: HMCDObjectType,
         CD: HMCDObjectConvertibleType,
@@ -350,8 +340,7 @@ public extension HMCDRequestProcessor {
             .build()
     }
         
-    /// Save some data to memory by constructing them and then saving the
-    /// resulting managed objects.
+    /// Override this method to provide default implementation.
     ///
     /// - Parameters:
     ///   - previous: The result of the previous operation.
@@ -379,11 +368,6 @@ public extension HMCDRequestProcessor {
 }
 
 public extension HMCDRequestProcessor {
-
-    /// Get a database request to upsert some data.
-    ///
-    /// - Parameters data: A Sequence of U.
-    /// - Returns: A Req instance.
     public func upsertRequest<U,S>(_ data: S) -> Req where
         U: HMCDObjectType,
         U: HMCDUpsertableType,
@@ -399,7 +383,7 @@ public extension HMCDRequestProcessor {
             .build()
     }
     
-    /// Perform an upsert operation with some upsertable data.
+    /// Override this method to provide default implementation.
     ///
     /// - Parameters:
     ///   - previous: The result of the previous request.
@@ -419,8 +403,7 @@ public extension HMCDRequestProcessor {
         return processResult(previous, generator)
     }
     
-    /// Perform an upsert operation with some pure objects by constructing
-    /// managed objects and then upserting them afterwards.
+    /// Override this method to provide default implementation.
     ///
     /// - Parameters:
     ///   - data: A Sequence of PO.
@@ -453,7 +436,7 @@ public extension HMCDRequestProcessor {
             .build()
     }
     
-    /// Persist all data to DB.
+    /// Override this method to provide default implementation.
     ///
     /// - Parameter previous: The result of the previous request.
     /// - Returns: An Observable instance.
