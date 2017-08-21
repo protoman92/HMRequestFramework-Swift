@@ -35,13 +35,7 @@ public struct HMMiddlewareManager<A> {
         -> Observable<A> where
         S: Sequence, S.Iterator.Element == Transform
     {
-        var chain = Observable.just(result)
-                
-        for middleware in middlewares {
-            chain = chain.flatMap({try middleware($0)})
-        }
-        
-        return chain
+        return HMTransformers.applyTransformers(result, middlewares)
     }
     
     /// Sequentially apply a Sequence of side effect middlewares.

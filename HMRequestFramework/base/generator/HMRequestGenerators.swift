@@ -42,17 +42,18 @@ public final class HMRequestGenerators {
         return forceGn({_ in Observable.just(request)})
     }
     
-    /// Create a request generator from a request object and a transformer.
+    /// Create a request generator from a request object and some transformers.
     /// The transformer allows us to reuse request methods, albeit with minor
     /// modifications to the request object. E.g., for some requests we may
     /// want to set a fetchLimit under specific circumstances, or change the
     /// retry count.
-    public static func forceGn<Prev,Req>(_ request: Req,
-                                         _ transform: HMTransformer<Req>?,
-                                         _ pcls: Prev.Type)
-        -> HMRequestGenerator<Prev,Req>
+    public static func forceGn<Prev,Req,S>(_ request: Req,
+                                           _ pcls: Prev.Type,
+                                           _ transforms: S)
+        -> HMRequestGenerator<Prev,Req> where
+        S: Sequence, S.Iterator.Element == HMTransformer<Req>
     {
-        return forceGn({_ in try transform?(request) ?? .just(request)})
+        return forceGn({_ in HMTransformers.applyTransformers(request, transforms)})
     }
     
     private init() {}

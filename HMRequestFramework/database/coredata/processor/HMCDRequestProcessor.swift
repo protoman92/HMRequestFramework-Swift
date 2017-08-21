@@ -308,19 +308,21 @@ public extension HMCDRequestProcessor {
     ///
     /// - Parameters:
     ///   - previous: The result of the previous request.
-    ///   - transform: A Request transformer.
     ///   - cls: The PureObject class type.
+    ///   - transforms: A Sequence of Request transformers.
     /// - Returns: An Observable instance.
-    public func fetchAllDataFromDB<Prev,PO>(_ previous: Try<Prev>,
-                                            _ transform: HMTransformer<Req>?,
-                                            _ cls: PO.Type)
+    public func fetchAllDataFromDB<Prev,PO,S>(_ previous: Try<Prev>,
+                                              _ cls: PO.Type,
+                                              _ transforms: S)
         -> Observable<Try<[PO]>> where
         PO: HMCDPureObjectType,
         PO.CDClass: HMCDPureObjectConvertibleType,
-        PO.CDClass.PureObject == PO
+        PO.CDClass.PureObject == PO,
+        S: Sequence,
+        S.Iterator.Element == HMTransformer<Req>
     {
         let request = fetchAllRequest(cls)
-        let generator = HMRequestGenerators.forceGn(request, transform, Prev.self)
+        let generator = HMRequestGenerators.forceGn(request, Prev.self, transforms)
         return process(previous, generator, cls)
     }
 }
@@ -345,15 +347,16 @@ public extension HMCDRequestProcessor {
     ///
     /// - Parameters:
     ///   - previous: The result of the previous operation.
-    ///   - transform: A Request transformer.
+    ///   - transforms: A Sequence of Request transformers.
     /// - Returns: An Observable instance.
-    public func saveToMemory<PO>(_ previous: Try<[PO]>,
-                                 _ transform: HMTransformer<Req>?)
+    public func saveToMemory<PO,S>(_ previous: Try<[PO]>, _ transforms: S)
         -> Observable<Try<Void>> where
         PO: HMCDPureObjectType,
         PO.CDClass: HMCDObjectConvertibleType,
         PO.CDClass: HMCDObjectBuildableType,
-        PO.CDClass.Builder.PureObject == PO
+        PO.CDClass.Builder.PureObject == PO,
+        S: Sequence,
+        S.Iterator.Element == HMTransformer<Req>
     {
         let cdManager = coreDataManager()
         let context = cdManager.disposableObjectContext()
@@ -361,7 +364,7 @@ public extension HMCDRequestProcessor {
         let generator: HMRequestGenerator<[PO],Req> = HMRequestGenerators.forceGn({
             cdManager.rx.construct(context, $0)
                 .map(self.saveToMemoryRequest)
-                .flatMap({try transform?($0) ?? .just($0)})
+                .flatMap({HMTransformers.applyTransformers($0, transforms)})
         })
         
         return processResult(previous, generator).map({$0.map(toVoid)})
@@ -389,17 +392,18 @@ public extension HMCDRequestProcessor {
     ///
     /// - Parameters:
     ///   - previous: The result of the previous request.
-    ///   - transform: A Request transformer.
+    ///   - transforms: A Sequence of Request transformers.
     /// - Returns: An Observable instance.
-    public func upsertInMemory<U>(_ previous: Try<[U]>,
-                                  _ transform: HMTransformer<Req>?)
+    public func upsertInMemory<U,S>(_ previous: Try<[U]>, _ transforms: S)
         -> Observable<Try<[HMCDResult]>> where
         U: HMCDObjectType,
-        U: HMCDUpsertableType
+        U: HMCDUpsertableType,
+        S: Sequence,
+        S.Iterator.Element == HMTransformer<Req>
     {
         let generator: HMRequestGenerator<[U],Req> = HMRequestGenerators.forceGn({
             let request = self.upsertRequest($0)
-            return try transform?(request) ?? .just(request)
+            return HMTransformers.applyTransformers(request, transforms)
         })
         
         return processResult(previous, generator)
@@ -409,15 +413,16 @@ public extension HMCDRequestProcessor {
     ///
     /// - Parameters:
     ///   - previous: The result of the previous request.
-    ///   - transform: A Request transformer.
+    ///   - transforms: A Sequence of Request transformers.
     /// - Returns: An Observable instance.
-    public func upsertInMemory<PO>(_ previous: Try<[PO]>,
-                                   _ transform: HMTransformer<Req>?)
+    public func upsertInMemory<PO,S>(_ previous: Try<[PO]>, _ transforms: S)
         -> Observable<Try<[HMCDResult]>> where
         PO: HMCDPureObjectType,
         PO.CDClass: HMCDUpsertableType,
         PO.CDClass: HMCDObjectBuildableType,
-        PO.CDClass.Builder.PureObject == PO
+        PO.CDClass.Builder.PureObject == PO,
+        S: Sequence,
+        S.Iterator.Element == HMTransformer<Req>
     {
         let cdManager = coreDataManager()
         let context = cdManager.disposableObjectContext()
@@ -426,7 +431,7 @@ public extension HMCDRequestProcessor {
             .map({try $0.getOrThrow()})
             .flatMap({cdManager.rx.construct(context, $0)})
             .map(Try.success)
-            .flatMap({self.upsertInMemory($0, transform)})
+            .flatMap({self.upsertInMemory($0, transforms)})
             .catchErrorJustReturn(Try.failure)
     }
 }
@@ -442,14 +447,16 @@ public extension HMCDRequestProcessor {
     
     /// Override this method to provide default implementation.
     ///
-    /// - Parameter previous: The result of the previous request.
+    /// - Parameters:
+    ///   - previous: The result of the previous request.
+    ///   - transforms: A Sequence of Request transformers.
     /// - Returns: An Observable instance.
-    public func persistToDB<Prev>(_ previous: Try<Prev>,
-                                  _ transform: HMTransformer<Req>?)
-        -> Observable<Try<Void>>
+    public func persistToDB<Prev,S>(_ previous: Try<Prev>, _ transforms: S)
+        -> Observable<Try<Void>> where
+        S: Sequence, S.Iterator.Element == HMTransformer<Req>
     {
         let request = persistToDBRequest()
-        let generator = HMRequestGenerators.forceGn(request, transform, Prev.self)
+        let generator = HMRequestGenerators.forceGn(request, Prev.self, transforms)
         return processVoid(previous, generator)
     }
 }
