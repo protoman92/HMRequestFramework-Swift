@@ -189,13 +189,20 @@ public extension HMCDManager {
         O.E == [HMCDResult]
     {
         performOnContextThread(mainContext) {
-            do {
-                let results = try self.convert(context, entityName, requests)
-                try self.saveUnsafely(context)
-                obs.onNext(results)
+            let requests = requests.map({$0})
+            
+            if requests.isNotEmpty {
+                do {
+                    let results = try self.convert(context, entityName, requests)
+                    try self.saveUnsafely(context)
+                    obs.onNext(results)
+                    obs.onCompleted()
+                } catch let e {
+                    obs.onError(e)
+                }
+            } else {
+                obs.onNext([])
                 obs.onCompleted()
-            } catch let e {
-                obs.onError(e)
             }
         }
     }

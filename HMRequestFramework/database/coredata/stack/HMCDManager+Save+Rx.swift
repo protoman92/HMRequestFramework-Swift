@@ -67,8 +67,12 @@ public extension HMCDManager {
         S.Iterator.Element.CDClass: HMCDObjectBuildableType,
         S.Iterator.Element.CDClass.Builder.PureObject == S.Iterator.Element
     {
-        let _ = try pureObjects.map({try self.constructUnsafely(context, $0)})
-        try saveUnsafely(context)
+        let pureObjects = pureObjects.map({$0})
+        
+        if pureObjects.isNotEmpty {
+            let _ = try pureObjects.map({try self.constructUnsafely(context, $0)})
+            try saveUnsafely(context)
+        }
     }
 }
 
@@ -161,14 +165,21 @@ public extension HMCDManager {
         O.E == [HMCDResult]
     {
         performOnContextThread(mainContext) {
-            let results = self.convert(context, convertibles)
+            let convertibles = convertibles.map({$0})
             
-            do {
-                try self.saveUnsafely(context)
-                obs.onNext(results)
+            if convertibles.isNotEmpty {
+                let results = self.convert(context, convertibles)
+            
+                do {
+                    try self.saveUnsafely(context)
+                    obs.onNext(results)
+                    obs.onCompleted()
+                } catch let e {
+                    obs.onError(e)
+                }
+            } else {
+                obs.onNext([])
                 obs.onCompleted()
-            } catch let e {
-                obs.onError(e)
             }
         }
     }
