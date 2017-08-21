@@ -18,8 +18,8 @@ public final class HMRequestGenerators {
     /// This convenience method helps create a default HMRequestGenerator
     /// that forcefully extract the value of the previous Try and throw/catch
     /// the resulting Exception if it is not available.
-    public static func forceGenerateFn<Prev,Req>(
-        generator: @escaping (Prev) throws -> Observable<Req>)
+    public static func forceGn<Prev,Req>(
+        _ generator: @escaping (Prev) throws -> Observable<Req>)
         -> HMRequestGenerator<Prev,Req>
     {
         return {$0.rx.get().flatMap(generator)
@@ -29,19 +29,30 @@ public final class HMRequestGenerators {
     
     /// Create a request generator just from a request object, ignoring the
     /// previous value completely.
-    public static func forceGenerateFn<Prev,Req>(_ request: Req)
-        -> HMRequestGenerator<Prev,Req>
-    {
-        return forceGenerateFn(generator: {_ in Observable.just(request)})
+    public static func forceGn<Prev,Req>(_ request: Req) -> HMRequestGenerator<Prev,Req> {
+        return forceGn({_ in Observable.just(request)})
     }
     
     /// Create a request generator just from a request object, ignoring the
     /// previous value completely. We also specify the type of the previous
     /// result to help the compiler determine the correct types.
-    public static func forceGenerateFn<Prev,Req>(_ request: Req, _ pcls: Prev.Type)
+    public static func forceGn<Prev,Req>(_ request: Req, _ pcls: Prev.Type)
         -> HMRequestGenerator<Prev,Req>
     {
-        return forceGenerateFn(generator: {_ in Observable.just(request)})
+        return forceGn({_ in Observable.just(request)})
+    }
+    
+    /// Create a request generator from a request object and a transformer.
+    /// The transformer allows us to reuse request methods, albeit with minor
+    /// modifications to the request object. E.g., for some requests we may
+    /// want to set a fetchLimit under specific circumstances, or change the
+    /// retry count.
+    public static func forceGn<Prev,Req>(_ request: Req,
+                                         _ transform: HMTransformer<Req>?,
+                                         _ pcls: Prev.Type)
+        -> HMRequestGenerator<Prev,Req>
+    {
+        return forceGn({_ in try transform?(request) ?? .just(request)})
     }
     
     private init() {}

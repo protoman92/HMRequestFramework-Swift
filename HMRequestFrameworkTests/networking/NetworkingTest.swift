@@ -60,7 +60,7 @@ public final class NetworkingTest: XCTestCase {
             .with(operation: .get)
             .build()
         
-        let generator = HMRequestGenerators.forceGenerateFn(request, Any.self)
+        let generator = HMRequestGenerators.forceGn(request, Any.self)
         
         let processor: HMResultProcessor<Any,Any> = {_ in
             throw Exception("Error!")
@@ -94,7 +94,7 @@ public final class NetworkingTest: XCTestCase {
             .with(uploadData: data)
             .build()
 
-        let generator = HMRequestGenerators.forceGenerateFn(request, Any.self)
+        let generator = HMRequestGenerators.forceGn(request, Any.self)
 
         /// When
         handler.execute(dummy, generator)

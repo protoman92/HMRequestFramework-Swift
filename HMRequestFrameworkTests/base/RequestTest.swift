@@ -70,8 +70,7 @@ public final class RequestTest: XCTestCase {
         let observer = scheduler.createObserver(Try<Any>.self)
         let expect = expectation(description: "Should have completed")
         
-        let generator1 = HMRequestGenerators.forceGenerateFn(generator: {
-            (_: Any) -> Observable<MockRequest> in
+        let generator1 = HMRequestGenerators.forceGn({(_: Any) -> Observable<MockRequest> in
             Observable.error("This error should be ignored")
         })
         

@@ -313,16 +313,19 @@ public extension HMCDRequestProcessor {
     ///
     /// - Parameters:
     ///   - previous: The result of the previous request.
+    ///   - transform: A Request transformer.
     ///   - cls: The PureObject class type.
     /// - Returns: An Observable instance.
-    public func fetchAllDataFromDB<Prev,PO>(_ previous: Try<Prev>, _ cls: PO.Type)
+    public func fetchAllDataFromDB<Prev,PO>(_ previous: Try<Prev>,
+                                            _ transform: HMTransformer<Req>?,
+                                            _ cls: PO.Type)
         -> Observable<Try<[PO]>> where
         PO: HMCDPureObjectType,
         PO.CDClass: HMCDPureObjectConvertibleType,
         PO.CDClass.PureObject == PO
     {
         let request = fetchAllRequest(cls)
-        let generator = HMRequestGenerators.forceGenerateFn(request, Prev.self)
+        let generator = HMRequestGenerators.forceGn(request, transform, Prev.self)
         return process(previous, generator, cls)
     }
 }
@@ -346,13 +349,17 @@ public extension HMCDRequestProcessor {
             .with(requestDescription: "Save \(CD.self) to memory")
             .build()
     }
-    
+        
     /// Save some data to memory by constructing them and then saving the
     /// resulting managed objects.
     ///
-    /// - Parameter previous: The result of the previous operation.
+    /// - Parameters:
+    ///   - previous: The result of the previous operation.
+    ///   - transform: A Request transformer.
     /// - Returns: An Observable instance.
-    public func saveToMemory<PO>(_ previous: Try<[PO]>) -> Observable<Try<Void>> where
+    public func saveToMemory<PO>(_ previous: Try<[PO]>,
+                                 _ transform: HMTransformer<Req>?)
+        -> Observable<Try<Void>> where
         PO: HMCDPureObjectType,
         PO.CDClass: HMCDObjectConvertibleType,
         PO.CDClass: HMCDObjectBuildableType,
@@ -361,10 +368,11 @@ public extension HMCDRequestProcessor {
         let cdManager = coreDataManager()
         let context = cdManager.disposableObjectContext()
         
-        let generator: HMRequestGenerator<[PO],Req> =
-            HMRequestGenerators.forceGenerateFn(generator: {
-                cdManager.rx.construct(context, $0).map(self.saveToMemoryRequest)
-            })
+        let generator: HMRequestGenerator<[PO],Req> = HMRequestGenerators.forceGn({
+            cdManager.rx.construct(context, $0)
+                .map(self.saveToMemoryRequest)
+                .flatMap({try transform?($0) ?? .just($0)})
+        })
         
         return processResult(previous, generator).map({$0.map(toVoid)})
     }
@@ -374,11 +382,9 @@ public extension HMCDRequestProcessor {
 
     /// Get a database request to upsert some data.
     ///
-    /// - Parameters:
-    ///   - data: A Sequence of U.
-    ///   - strategy: A VersionConflict.Strategy instance.
+    /// - Parameters data: A Sequence of U.
     /// - Returns: A Req instance.
-    public func upsertRequest<U,S>(_ data: S, _ strategy: VersionConflict.Strategy) -> Req where
+    public func upsertRequest<U,S>(_ data: S) -> Req where
         U: HMCDObjectType,
         U: HMCDUpsertableType,
         S: Sequence,
@@ -388,7 +394,7 @@ public extension HMCDRequestProcessor {
             .with(cdType: U.self)
             .with(operation: .upsert)
             .with(insertedData: data.map({$0 as HMCDUpsertableType}))
-            .with(vcStrategy: strategy)
+            .with(vcStrategy: .overwrite)
             .with(requestDescription: "Upsert \(U.self) in memory")
             .build()
     }
@@ -397,18 +403,18 @@ public extension HMCDRequestProcessor {
     ///
     /// - Parameters:
     ///   - previous: The result of the previous request.
-    ///   - strategy: A VersionConflict.Strategy instance.
+    ///   - transform: A Request transformer.
     /// - Returns: An Observable instance.
     public func upsertInMemory<U>(_ previous: Try<[U]>,
-                               _ strategy: VersionConflict.Strategy)
+                                  _ transform: HMTransformer<Req>?)
         -> Observable<Try<[HMCDResult]>> where
         U: HMCDObjectType,
         U: HMCDUpsertableType
     {
-        let generator: HMRequestGenerator<[U],Req> =
-            HMRequestGenerators.forceGenerateFn(generator: {
-                Observable.just(self.upsertRequest($0, strategy))
-            })
+        let generator: HMRequestGenerator<[U],Req> = HMRequestGenerators.forceGn({
+            let request = self.upsertRequest($0)
+            return try transform?(request) ?? .just(request)
+        })
         
         return processResult(previous, generator)
     }
@@ -418,9 +424,10 @@ public extension HMCDRequestProcessor {
     ///
     /// - Parameters:
     ///   - data: A Sequence of PO.
-    ///   - strategy: A VersionConflict.Strategy instance.
+    ///   - transform: A Request transformer.
     /// - Returns: An Observable instance.
-    public func upsertInMemory<PO>(_ data: [PO], _ strategy: VersionConflict.Strategy)
+    public func upsertInMemory<PO>(_ data: [PO],
+                                   _ transform: HMTransformer<Req>?)
         -> Observable<Try<[HMCDResult]>> where
         PO: HMCDPureObjectType,
         PO.CDClass: HMCDUpsertableType,
@@ -432,7 +439,7 @@ public extension HMCDRequestProcessor {
         
         return cdManager.rx.construct(context, data)
             .map(Try.success)
-            .flatMap({self.upsertInMemory($0, strategy)})
+            .flatMap({self.upsertInMemory($0, transform)})
             .catchErrorJustReturn(Try.failure)
     }
 }
@@ -450,9 +457,12 @@ public extension HMCDRequestProcessor {
     ///
     /// - Parameter previous: The result of the previous request.
     /// - Returns: An Observable instance.
-    public func persistToDB<Prev>(_ previous: Try<Prev>) -> Observable<Try<Void>> {
+    public func persistToDB<Prev>(_ previous: Try<Prev>,
+                                  _ transform: HMTransformer<Req>?)
+        -> Observable<Try<Void>>
+    {
         let request = persistToDBRequest()
-        let generator = HMRequestGenerators.forceGenerateFn(request, Prev.self)
+        let generator = HMRequestGenerators.forceGn(request, transform, Prev.self)
         return processVoid(previous, generator)
     }
 }
