@@ -23,6 +23,7 @@ public enum CoreDataOperation: EnumerableType {
     //  - operation
     //  - predicate (optional)
     //  - sortDescriptors (optional)
+    //  - fetchLimit (optional)
     //  - fetchResultType (optional)
     //  - fetchProperties (optional)
     //  - fetchGroupBy (optional)
