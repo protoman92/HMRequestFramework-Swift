@@ -343,6 +343,36 @@ public final class CoreDataRequestTest: CoreDataRootTest {
         XCTAssertTrue(pureObjects.all(nextElements.contains))
     }
     
+    public func test_resetDBStack_shouldWork() {
+        /// Setup
+        let observer = scheduler.createObserver(Dummy1.self)
+        let expect = expectation(description: "Should have completed")
+        let dbProcessor = self.dbProcessor!.processor
+        let dummyCount = self.dummyCount
+        let pureObjects = (0..<dummyCount).map({_ in Dummy1()})
+        
+        /// When
+        dbProcessor.saveToMemory(Try.success(pureObjects))
+            .flatMap({dbProcessor.persistToDB($0)})
+            .flatMap({dbProcessor.fetchAllDataFromDB($0, Dummy1.self)})
+            .map({try $0.getOrThrow()})
+            .doOnNext({XCTAssertEqual($0.count, dummyCount)})
+            .map(Try.success)
+            .flatMap({dbProcessor.resetStack($0)})
+            .flatMap({dbProcessor.fetchAllDataFromDB($0, Dummy1.self)})
+            .map({try $0.getOrThrow()})
+            .flatMap({Observable.from($0)})
+            .doOnDispose(expect.fulfill)
+            .subscribe(observer)
+            .disposed(by: disposeBag)
+        
+        waitForExpectations(timeout: timeout, handler: nil)
+        
+        /// Then
+        let nextElements = observer.nextElements()
+        XCTAssertEqual(nextElements.count, 0)
+    }
+    
     public func test_cdNonTypedRequestObject_shouldThrowErrorsIfNecessary() {
         var currentCheck = 0
         let processor = cdProcessor!

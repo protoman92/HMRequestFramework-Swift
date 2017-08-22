@@ -392,6 +392,31 @@ public extension HMCDRequestProcessor {
 }
 
 public extension HMCDRequestProcessor {
+    public func resetStackRequest() -> Req {
+        return Req.builder()
+            .with(operation: .resetStack)
+            .with(requestDescription: "Reset CoreData stack")
+            .shouldApplyMiddlewares()
+            .build()
+    }
+    
+    /// Override this method to provide default implementation.
+    ///
+    /// - Parameters:
+    ///   - previous: The result of the previous operation.
+    ///   - transforms: A Sequence of Request transformers.
+    /// - Returns: An Observable instance.
+    public func resetStack<Prev,S>(_ previous: Try<Prev>, _ transforms: S)
+        -> Observable<Try<Void>> where
+        S: Sequence, S.Iterator.Element == HMTransformer<Req>
+    {
+        let request = resetStackRequest()
+        let generator = HMRequestGenerators.forceGn(request, Prev.self)
+        return processVoid(previous, generator)
+    }
+}
+
+public extension HMCDRequestProcessor {
     public func upsertRequest<U,S>(_ data: S) -> Req where
         U: HMCDObjectType,
         U: HMCDUpsertableType,

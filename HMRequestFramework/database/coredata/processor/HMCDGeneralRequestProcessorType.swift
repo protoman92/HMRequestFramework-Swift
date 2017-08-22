@@ -46,6 +46,16 @@ public protocol HMCDGeneralRequestProcessorType {
         S: Sequence,
         S.Iterator.Element == HMTransformer<HMCDRequest>
     
+    /// Reset the CoreData stack and wipe DB.
+    ///
+    /// - Parameters:
+    ///   - previous: The result of the previous operation.
+    ///   - transforms: A Sequence of Request transformers.
+    /// - Returns: An Observable instance.
+    func resetStack<Prev,S>(_ previous: Try<Prev>, _ transforms: S)
+        -> Observable<Try<Void>> where
+        S: Sequence, S.Iterator.Element == HMTransformer<HMCDRequest>
+    
     /// Perform an upsert operation with some upsertable data.
     ///
     /// - Parameters:
@@ -108,6 +118,13 @@ public extension HMCDGeneralRequestProcessorType {
         PO.CDClass.Builder.PureObject == PO
     {
         return saveToMemory(previous, transforms)
+    }
+    
+    public func resetStack<Prev>(_ previous: Try<Prev>,
+                                 _ transforms: HMTransformer<HMCDRequest>...)
+        -> Observable<Try<Void>>
+    {
+        return resetStack(previous, transforms)
     }
     
     public func upsertInMemory<U>(_ previous: Try<[U]>,
