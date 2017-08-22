@@ -69,6 +69,8 @@ public final class CoreDataVersionTest: CoreDataRootTest {
         let overwriteCount = self.overwriteCount!
         let takePreferableCount = self.takePreferableCount!
         let context = manager.disposableObjectContext()
+        let serverPureObjects = self.serverPureObjects!
+        let editedPureObjects = self.editedPureObjects!
         let editedCDObjects = try! manager.constructUnsafely(context, editedPureObjects)
         let serverCDObjects = try! manager.constructUnsafely(context, serverPureObjects)
 
@@ -88,7 +90,7 @@ public final class CoreDataVersionTest: CoreDataRootTest {
         // When we save data3, we are simulating the scenario whereby an edit
         // is happening when some other processes from another thread update
         // the DB to overwrite data.
-        manager.rx.save(context1, serverCDObjects)
+        manager.rx.saveConvertibles(context1, serverCDObjects)
             .flatMap({_ in manager.rx.persistLocally()})
 
             // When we update the versioned objects, we apply random conflict
@@ -153,7 +155,7 @@ public final class CoreDataVersionTest: CoreDataRootTest {
 
         /// When
         // Save data3 to simulate version conflicts.
-        manager.rx.save(saveContext, serverCDObjects)
+        manager.rx.saveConvertibles(saveContext, serverCDObjects)
             .flatMap({_ in manager.rx.persistLocally()})
 
             // Since strategy is overwrite, we expect all updates to succeed.

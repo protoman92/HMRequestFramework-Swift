@@ -40,8 +40,8 @@ public extension HMCDManager {
                     _ upsertables: S) throws -> [HMCDResult] where
         S: Sequence, S.Iterator.Element == HMCDUpsertableType
     {
-        let identifiables = upsertables.map({$0 as HMCDIdentifiableType})
-        let existing = try self.blockingRefetch(context, entityName, identifiables)
+        let ids = upsertables.map({$0 as HMCDIdentifiableType})
+        let existing = try self.blockingFetchIdentifiables(context, entityName, ids)
         var results: [HMCDResult] = []
         
         // We need an Array here to keep track of the objects that do

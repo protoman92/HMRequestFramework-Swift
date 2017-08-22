@@ -119,15 +119,15 @@ public extension HMCDManager {
     {
         // It's ok for these requests not to have the original object. We will
         // get them right below.
-        let identifiables: [HMCDIdentifiableType] = requests.flatMap({try? $0.editedVC()})
-        let originals = try self.blockingRefetch(context, entityName, identifiables)
+        let ids: [HMCDIdentifiableType] = requests.flatMap({try? $0.editedVC()})
+        let originals = try self.blockingFetchIdentifiables(context, entityName, ids)
         var results: [HMCDResult] = []
         
         // We also need an Array of VC to store items that cannot be found in
         // the DB yet.
         var nonExisting: [HMCDObjectConvertibleType] = []
         
-        for item in identifiables {
+        for item in ids {
             if
                 let original = originals.first(where: item.identifiable),
                 let request = requests.first(where: {($0.ownsEditedVC(item))})?
