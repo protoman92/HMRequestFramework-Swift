@@ -77,6 +77,9 @@ public extension HMCDRequestProcessor {
         case .persistLocally:
             return try executePersistToFile(request)
             
+        case .resetStack:
+            return try executeResetStack(request)
+            
         case .fetch, .saveData, .upsert:
             throw Exception("Please use typed execute for \(operation)")
         }
@@ -139,7 +142,7 @@ public extension HMCDRequestProcessor {
         let insertedData = try request.insertedData()
         let context = manager.disposableObjectContext()
         
-        return manager.rx.save(context, insertedData)
+        return manager.rx.saveConvertibles(context, insertedData)
             .retry(request.retries())
             .map(Try.success)
             .catchErrorJustReturn(Try.failure)
@@ -157,6 +160,23 @@ public extension HMCDRequestProcessor {
         let manager = coreDataManager()
         
         return manager.rx.persistLocally()
+            .retry(request.retries())
+            .map(Try.success)
+            .catchErrorJustReturn(Try.failure)
+    }
+}
+
+public extension HMCDRequestProcessor {
+    
+    /// Perform a CoreData stack reset operation.
+    ///
+    /// - Parameter request: A Req instance.
+    /// - Returns: An Observable instance.
+    /// - Throws: Exception if the execution fails.
+    fileprivate func executeResetStack(_ request: Req) throws -> Observable<Try<Void>> {
+        let manager = coreDataManager()
+        
+        return manager.rx.resetStack()
             .retry(request.retries())
             .map(Try.success)
             .catchErrorJustReturn(Try.failure)
@@ -224,15 +244,15 @@ public extension HMCDRequestProcessor {
         // We deal with identifiables and normal managed objects differently.
         // For identifiables, we need to fetch their counterparts in the DB
         // first before deleting.
-        let identifiables = objects.flatMap({$0 as? HMCDIdentifiableType})
-        let nonIdentifiables = objects.filter({!($0 is HMCDIdentifiableType)})
+        let ids = objects.flatMap({$0 as? HMCDIdentifiableType})
+        let nonIds = objects.filter({!($0 is HMCDIdentifiableType)})
         let context1 = manager.disposableObjectContext()
         let context2 = manager.disposableObjectContext()
         
         return Observable
             .concat(
-                manager.rx.delete(context1, entityName, identifiables),
-                manager.rx.delete(context2, nonIdentifiables)
+                manager.rx.deleteIdentifiables(context1, entityName, ids),
+                manager.rx.delete(context2, nonIds)
             )
             .reduce((), accumulator: {_ in ()})
             .retry(request.retries())

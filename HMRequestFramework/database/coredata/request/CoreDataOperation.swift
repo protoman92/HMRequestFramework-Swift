@@ -17,6 +17,7 @@ import SwiftUtilities
 /// - saveData: Save operation. This saves some convertible objects to memory.
 /// - persistLocally: Save operation. This saves some data to the local DB file.
 /// - upsert: Update or insert. Persist new data and update existing data.
+/// - resetStack: Wipe DB and reset the stack.
 public enum CoreDataOperation: EnumerableType {
     // For this operation, the request should contain:
     //  - entityName
@@ -57,6 +58,10 @@ public enum CoreDataOperation: EnumerableType {
     //  - upsertedData
     //  - versionConflictStrategy
     case upsert
+    
+    // For this operation, the request should contain:
+    //  - operation.
+    case resetStack
     
     public static func allValues() -> [CoreDataOperation] {
         return [

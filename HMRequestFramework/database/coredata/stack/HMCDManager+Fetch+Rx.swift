@@ -117,23 +117,23 @@ public extension HMCDManager {
     /// - Parameters:
     ///   - context: A NSManagedObjectContext instance.
     ///   - entityName: A String value representing the entity's name.
-    ///   - identifiables: A Sequence of HMCDIdentifiableType.
+    ///   - ids: A Sequence of HMCDIdentifiableType.
     ///   - predicate: The NSPredicate instance to query the identifiables.
     ///   - iCls: The identifiable class type.
     ///   - rCls: The type to cast the results to.
     /// - Returns: An Array of NSManagedObject.
     /// - Throws: Exception if the fetch fails.
-    private func blockingRefetch<S,ID,FR>(_ context: NSManagedObjectContext,
-                                          _ entityName: String,
-                                          _ identifiables: S,
-                                          _ predicate: NSPredicate,
-                                          _ iCls: ID.Type,
-                                          _ rCls: FR.Type) throws -> [FR] where
+    private func blockingFetchIdentifiables<S,ID,FR>(_ context: NSManagedObjectContext,
+                                                     _ entityName: String,
+                                                     _ ids: S,
+                                                     _ predicate: NSPredicate,
+                                                     _ iCls: ID.Type,
+                                                     _ rCls: FR.Type) throws -> [FR] where
         FR: NSFetchRequestResult,
         S: Sequence,
         S.Iterator.Element == ID
     {
-        let data = identifiables.map({$0})
+        let data = ids.map({$0})
         
         if data.isNotEmpty {
             let request: NSFetchRequest<FR> = NSFetchRequest(entityName: entityName)
@@ -151,24 +151,24 @@ public extension HMCDManager {
     /// - Parameters:
     ///   - context: A NSManagedObjectContext instance.
     ///   - entityName: A String value representing the entity's name.
-    ///   - identifiables: A Sequence of HMCDIdentifiableType.
+    ///   - ids: A Sequence of HMCDIdentifiableType.
     ///   - rCls: The type to cast the results to.
     /// - Returns: An Array of NSManagedObject.
     /// - Throws: Exception if the fetch fails.
-    private func blockingRefetch<S,FR>(_ context: NSManagedObjectContext,
-                                       _ entityName: String,
-                                       _ identifiables: S,
-                                       _ rCls: FR.Type) throws -> [FR] where
+    private func blockingFetchIdentifiables<S,FR>(_ context: NSManagedObjectContext,
+                                                  _ entityName: String,
+                                                  _ ids: S,
+                                                  _ rCls: FR.Type) throws -> [FR] where
         FR: NSFetchRequestResult,
         S: Sequence,
         S.Iterator.Element == HMCDIdentifiableType
     {
-        let predicate = predicateForIdentifiableFetch(identifiables)
+        let predicate = predicateForIdentifiableFetch(ids)
         
-        return try blockingRefetch(
+        return try blockingFetchIdentifiables(
             context,
             entityName,
-            identifiables,
+            ids,
             predicate,
             HMCDIdentifiableType.self,
             rCls
@@ -182,21 +182,21 @@ public extension HMCDManager {
     /// - Parameters:
     ///   - context: A NSManagedObjectContext instance.
     ///   - entityName: A String value representing the entity's name.
-    ///   - identifiables: A Sequence of HMCDIdentifiableType.
+    ///   - ids: A Sequence of HMCDIdentifiableType.
     ///   - rCls: The type to cast the results to.
     /// - Returns: An Array of NSManagedObject.
     /// - Throws: Exception if the fetch fails.
-    private func blockingRefetch<U,S,FR>(_ context: NSManagedObjectContext,
-                                         _ entityName: String,
-                                         _ identifiables: S,
-                                         _ rCls: FR.Type) throws -> [FR] where
+    private func blockingFetchIdentifiables<U,S,FR>(_ context: NSManagedObjectContext,
+                                                    _ entityName: String,
+                                                    _ ids: S,
+                                                    _ rCls: FR.Type) throws -> [FR] where
         U: HMCDIdentifiableType,
         FR: NSFetchRequestResult,
         S: Sequence,
         S.Iterator.Element == U
     {
-        let identifiables = identifiables.map({$0 as HMCDIdentifiableType})
-        return try blockingRefetch(context, entityName, identifiables, rCls)
+        let ids = ids.map({$0 as HMCDIdentifiableType})
+        return try blockingFetchIdentifiables(context, entityName, ids, rCls)
     }
     
     /// Fetch objects from DB based on the specified identifiables objects. The
@@ -205,18 +205,18 @@ public extension HMCDManager {
     /// - Parameters:
     ///   - context: A NSManagedObjectContext instance.
     ///   - entityName: A String value representing the entity's name.
-    ///   - identifiables: A Sequence of HMCDIdentifiableType.
+    ///   - ids: A Sequence of HMCDIdentifiableType.
     /// - Returns: An Array of NSManagedObject.
     /// - Throws: Exception if the fetch fails.
-    func blockingRefetch<U,S>(_ context: NSManagedObjectContext,
-                              _ entityName: String,
-                              _ identifiables: S) throws -> [U] where
+    func blockingFetchIdentifiables<U,S>(_ context: NSManagedObjectContext,
+                                         _ entityName: String,
+                                         _ ids: S) throws -> [U] where
         U: NSFetchRequestResult,
         U: HMCDIdentifiableType,
         S: Sequence,
         S.Iterator.Element == U
     {
-        return try blockingRefetch(context, entityName, identifiables, U.self)
+        return try blockingFetchIdentifiables(context, entityName, ids, U.self)
     }
     
     /// Fetch objects from DB based on the specified identifiables objects. The
@@ -225,19 +225,19 @@ public extension HMCDManager {
     /// - Parameters:
     ///   - context: A NSManagedObjectContext instance.
     ///   - entityName: A String value representing the entity's name.
-    ///   - identifiables: A Sequence of HMCDIdentifiableType.
+    ///   - ids: A Sequence of HMCDIdentifiableType.
     /// - Returns: An Array of NSManagedObject.
     /// - Throws: Exception if the fetch fails.
-    func blockingRefetch<U,S>(_ context: NSManagedObjectContext,
-                              _ entityName: String,
-                              _ identifiables: S) throws
+    func blockingFetchIdentifiables<U,S>(_ context: NSManagedObjectContext,
+                                         _ entityName: String,
+                                         _ ids: S) throws
         -> [NSManagedObject] where
         U: HMCDIdentifiableType,
         S: Sequence,
         S.Iterator.Element == U
     {
         let rCls = NSManagedObject.self
-        return try blockingRefetch(context, entityName, identifiables, rCls)
+        return try blockingFetchIdentifiables(context, entityName, ids, rCls)
     }
     
     /// Fetch objects from DB based on the specified identifiables objects. The
@@ -246,17 +246,17 @@ public extension HMCDManager {
     /// - Parameters:
     ///   - context: A NSManagedObjectContext instance.
     ///   - entityName: A String value representing the entity's name.
-    ///   - identifiables: A Sequence of HMCDIdentifiableType.
+    ///   - ids: A Sequence of HMCDIdentifiableType.
     /// - Returns: An Array of NSManagedObject.
     /// - Throws: Exception if the fetch fails.
-    func blockingRefetch<S>(_ context: NSManagedObjectContext,
-                            _ entityName: String,
-                            _ identifiables: S) throws
+    func blockingFetchIdentifiables<S>(_ context: NSManagedObjectContext,
+                                       _ entityName: String,
+                                       _ ids: S) throws
         -> [NSManagedObject] where
         S: Sequence, S.Iterator.Element == HMCDIdentifiableType
     {
         let rCls = NSManagedObject.self
-        return try blockingRefetch(context, entityName, identifiables, rCls)
+        return try blockingFetchIdentifiables(context, entityName, ids, rCls)
     }
 }
 
@@ -313,16 +313,48 @@ public extension Reactive where Base == HMCDManager {
         return fetch(context, request, cls.CDClass.self)
     }
     
-    /// Perform a refetch request for a Sequence of identifiable objects.
+    /// Perform a refetch request for a Sequence of identifiable objects without
+    /// any casting.
     ///
     /// - Parameters:
     ///   - context: A NSManagedObjectContext instance.
     ///   - entityName: A String value representing the entity's name.
-    ///   - identifiables: A Sequence of HMCDIdentifiableType.
+    ///   - ids: A Sequence of HMCDIdentifiableType.
     /// - Returns: An Observable instance.
-    public func refetch<U,S>(_ context: NSManagedObjectContext,
-                             _ entityName: String,
-                             _ identifiables: S)
+    public func fetchIdentifiables<U,S>(_ context: NSManagedObjectContext,
+                                        _ entityName: String,
+                                        _ ids: S)
+        -> Observable<[NSManagedObject]> where
+        U: HMCDIdentifiableType,
+        S: Sequence,
+        S.Iterator.Element == U
+    {
+        let base = self.base
+        
+        return Observable.create({(obs: AnyObserver<[NSManagedObject]>) in
+            do {
+                let result = try base.blockingFetchIdentifiables(context, entityName, ids)
+                obs.onNext(result)
+                obs.onCompleted()
+            } catch let e {
+                obs.onError(e)
+            }
+            
+            return Disposables.create()
+        })
+    }
+    
+    /// Perform a refetch request for a Sequence of identifiable objects and
+    /// cast the result to the correct type.
+    ///
+    /// - Parameters:
+    ///   - context: A NSManagedObjectContext instance.
+    ///   - entityName: A String value representing the entity's name.
+    ///   - ids: A Sequence of HMCDIdentifiableType.
+    /// - Returns: An Observable instance.
+    public func fetchIdentifiables<U,S>(_ context: NSManagedObjectContext,
+                                        _ entityName: String,
+                                        _ ids: S)
         -> Observable<[U]> where
         U: NSFetchRequestResult,
         U: HMCDIdentifiableType,
@@ -333,7 +365,7 @@ public extension Reactive where Base == HMCDManager {
         
         return Observable.create({(obs: AnyObserver<[U]>) in
             do {
-                let result = try base.blockingRefetch(context, entityName, identifiables)
+                let result = try base.blockingFetchIdentifiables(context, entityName, ids)
                 obs.onNext(result)
                 obs.onCompleted()
             } catch let e {

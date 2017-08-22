@@ -26,20 +26,12 @@ public struct HMCDManager {
     /// concurrently on main thread and should be used strictly for interfacing
     /// with user
     let mainContext: NSManagedObjectContext
-    private let coordinator: NSPersistentStoreCoordinator
+    let coordinator: NSPersistentStoreCoordinator
+    let settings: [HMCDPersistentStoreSettings]
     
     public init(constructor: HMCDConstructorType) throws {
         let coordinator = try constructor.persistentStoreCoordinator()
         let settings = try constructor.storeSettings()
-        
-        try settings.forEach({
-            try coordinator.addPersistentStore(
-                ofType: $0.storeType(),
-                configurationName: $0.configurationName(),
-                at: $0.persistentStoreURL(),
-                options: $0.options())
-        })
-        
         let privateContext = NSManagedObjectContext(concurrencyType: .privateQueueConcurrencyType)
         let mainContext = NSManagedObjectContext(concurrencyType: .mainQueueConcurrencyType)
         privateContext.persistentStoreCoordinator = coordinator
@@ -47,6 +39,11 @@ public struct HMCDManager {
         self.coordinator = coordinator
         self.privateContext = privateContext
         self.mainContext = mainContext
+        self.settings = settings
+        
+        // Apply store settings and initialize data stores. This method can be
+        // called again to refresh/reset all data.
+        try applyStoreSettings(coordinator, settings)
     }
     
     /// Get the main store type. This is useful e.g. when we are doing a
@@ -68,6 +65,25 @@ public struct HMCDManager {
     
     public func isMainStoreTypeSQLite() -> Bool {
         return mainStoreType() == .some(.SQLite)
+    }
+    
+    /// Apply settings to a store coordinator.
+    ///
+    /// - Parameters:
+    ///   - coordinator: A NSPersistentStoreCoordinator instance.
+    ///   - settings: A Sequence of HMCDPersistentStoreSettings.
+    /// - Throws: Exception if the settings cannot be applied.
+    func applyStoreSettings<S>(_ coordinator: NSPersistentStoreCoordinator,
+                               _ settings: S) throws where
+        S: Sequence, S.Iterator.Element == HMCDPersistentStoreSettings
+    {
+        try settings.forEach({
+            try coordinator.addPersistentStore(
+                ofType: $0.storeType(),
+                configurationName: $0.configurationName(),
+                at: $0.persistentStoreURL(),
+                options: $0.options())
+        })
     }
 }
 
