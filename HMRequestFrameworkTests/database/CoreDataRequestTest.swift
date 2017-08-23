@@ -15,7 +15,7 @@ import SwiftUtilitiesTests
 import XCTest
 @testable import HMRequestFramework
 
-public final class CoreDataRequestTest: CoreDataRootTest {
+public class CoreDataRequestTest: CoreDataRootTest {
     let generatorError = "Generator error!"
     let processorError = "Processor error!"
     var rqMiddlewareManager: HMMiddlewareManager<Req>!
@@ -79,7 +79,7 @@ public final class CoreDataRequestTest: CoreDataRootTest {
         let cdProcessor = self.cdProcessor!
         let manager = self.manager!
         let context = manager.disposableObjectContext()
-        let dummyCount = self.dummyCount
+        let dummyCount = self.dummyCount!
         
         let pureObjects = (0..<dummyCount).map({_ in Dummy1()})
         let cdObjects = try! manager.constructUnsafely(context, pureObjects)
@@ -139,7 +139,7 @@ public final class CoreDataRequestTest: CoreDataRootTest {
         let observer = scheduler.createObserver(Dummy1.self)
         let expect = expectation(description: "Should have completed")
         let dbProcessor = self.cdProcessor!
-        let dummyCount = self.dummyCount
+        let dummyCount = self.dummyCount!
         let pureObjects = (0..<dummyCount).map({_ in Dummy1()})
         let deleteGn = dummy1BatchDeleteRgn()
 
@@ -320,7 +320,7 @@ public final class CoreDataRequestTest: CoreDataRootTest {
         let observer = scheduler.createObserver(Dummy1.self)
         let expect = expectation(description: "Should have completed")
         let dbProcessor = self.dbProcessor!.processor
-        let dummyCount = self.dummyCount
+        let dummyCount = self.dummyCount!
         let pureObjects = (0..<dummyCount).map({_ in Dummy1()})
 
         /// When
@@ -348,7 +348,7 @@ public final class CoreDataRequestTest: CoreDataRootTest {
         let observer = scheduler.createObserver(Dummy1.self)
         let expect = expectation(description: "Should have completed")
         let dbProcessor = self.dbProcessor!.processor
-        let dummyCount = self.dummyCount
+        let dummyCount = self.dummyCount!
         let pureObjects = (0..<dummyCount).map({_ in Dummy1()})
         
         /// When

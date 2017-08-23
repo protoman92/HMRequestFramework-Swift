@@ -506,6 +506,68 @@ public extension HMCDRequestProcessor {
     }
 }
 
+public extension HMCDRequestProcessor {
+    
+    /// Get the basic stream request. For more sophisticated requests, please
+    /// use transformers on the accompanying method (as defined below).
+    ///
+    /// - Parameter cls: The PO class type.
+    /// - Returns: A Req instance.
+    public func streamDBChangesRequest<PO>(_ cls: PO.Type) -> Req where
+        PO: HMCDPureObjectType,
+        PO.CDClass: HMCDPureObjectConvertibleType,
+        PO.CDClass.PureObject == PO
+    {
+        return Req.builder()
+            .with(poType: cls)
+            .with(operation: .fetch)
+            .with(predicate: NSPredicate(value: true))
+            .shouldApplyMiddlewares()
+            .build()
+    }
+    
+    /// Stream DB changes
+    ///
+    /// - Parameters:
+    ///   - cls: The PO class type.
+    ///   - transforms: A Sequence of Request transformers.
+    /// - Returns: An Observable instance.
+    public func streamDBChanges<S,PO>(_ cls: PO.Type, _ transforms: S)
+        -> Observable<Try<[PO]>> where
+        PO: HMCDPureObjectType,
+        PO.CDClass: HMCDPureObjectConvertibleType,
+        PO.CDClass.PureObject == PO,
+        S: Sequence,
+        S.Iterator.Element == HMTransformer<HMCDRequest>
+    {
+        let manager = coreDataManager()
+        let request = streamDBChangesRequest(cls)
+        
+        do {
+            let wrapper = try manager.getFRCWrapperForRequest(request)
+            
+            return Observable<Void>
+                .create({
+                    do {
+                        // Start only when this Observable is subscribed to.
+                        try wrapper.startStream()
+                        $0.onNext(())
+                        $0.onCompleted()
+                    } catch let e {
+                        $0.onError(e)
+                    }
+                    
+                    return Disposables.create()
+                })
+                .flatMap({wrapper.pureObjectStream(cls)})
+                .map(Try.success)
+                .catchErrorJustReturn(Try.failure)
+        } catch let e {
+            return Observable.just(Try.failure(e))
+        }
+    }
+}
+
 extension HMCDRequestProcessor: HMBuildableType {
     public static func builder() -> Builder {
         return Builder()

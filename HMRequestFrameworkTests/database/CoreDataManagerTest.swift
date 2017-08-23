@@ -43,7 +43,7 @@ public final class CoreDataManagerTest: CoreDataRootTest {
         /// Setup
         let observer = scheduler.createObserver(Dummy2.self)
         let expect = expectation(description: ("Should have completed"))
-        let dummyCount = self.dummyCount
+        let dummyCount = self.dummyCount!
         let manager = self.manager!
         let mainContext = manager.mainContext
         let privateContext = manager.privateContext
@@ -95,7 +95,7 @@ public extension CoreDataManagerTest {
         let expect = expectation(description: "Should have completed")
         let manager = self.manager!
         let context = manager.disposableObjectContext()
-        let dummyCount = self.dummyCount
+        let dummyCount = self.dummyCount!
         let pureObjects = (0..<dummyCount).flatMap({_ in Dummy1()})
         let cdObjects = try! manager.constructUnsafely(context, pureObjects)
         let entityName = try! Dummy1.CDClass.entityName()
@@ -136,7 +136,7 @@ public extension CoreDataManagerTest {
         
         // Two contexts for two operations, no shared context.
         let context = manager.disposableObjectContext()
-        let dummyCount = self.dummyCount
+        let dummyCount = self.dummyCount!
         let pureObjects1 = (0..<dummyCount).map({_ in Dummy1()})
         
         let pureObjects2 = (0..<dummyCount).flatMap({(i) -> Dummy1 in
@@ -210,8 +210,7 @@ public extension CoreDataManagerTest {
         let observer = scheduler.createObserver(Any.self)
         let expect = expectation(description: "Should have completed")
         let manager = self.manager!
-        let context = manager.disposableObjectContext()
-        let dummyCount = self.dummyCount
+        let dummyCount = self.dummyCount!
         let pureObjects = (0..<dummyCount).map({_ in Dummy1()})
         let fetchRequest = try! dummy1FetchRequest().fetchRequest(Dummy1.self)
         let deleteRequest = try! dummy1FetchRequest().untypedFetchRequest()
@@ -350,7 +349,7 @@ public extension CoreDataManagerTest {
         let expect = expectation(description: "Should have completed")
         let manager = self.manager!
         let context = manager.disposableObjectContext()
-        let dummyCount = self.dummyCount
+        let dummyCount = self.dummyCount!
         let pureObjects = (0..<dummyCount).map({_ in Dummy1()})
         let convertibles = try! manager.constructUnsafely(context, pureObjects)
         let fetchRq = try! dummy1FetchRequest().fetchRequest(Dummy1.self)
@@ -388,7 +387,7 @@ public extension CoreDataManagerTest {
         let expect = expectation(description: "Should have completed")
         let manager = self.manager!
         let context = manager.disposableObjectContext()
-        let dummyCount = self.dummyCount
+        let dummyCount = self.dummyCount!
         let pureObjects1 = (0..<dummyCount).map({_ in Dummy1()})
         
         let pureObjects2 = (0..<dummyCount).map({(i) -> Dummy1 in
@@ -439,8 +438,7 @@ public extension CoreDataManagerTest {
         let observer = scheduler.createObserver(Dummy1.self)
         let expect = expectation(description: "Should have completed")
         let manager = self.manager!
-        let context = manager.disposableObjectContext()
-        let dummyCount = self.dummyCount
+        let dummyCount = self.dummyCount!
         let limit = dummyCount / 2
         let pureObjects = (0..<dummyCount).map({_ in Dummy1()})
         
@@ -481,7 +479,7 @@ public extension CoreDataManagerTest {
         let observer = scheduler.createObserver(Dummy1.self)
         let expect = expectation(description: "Should have completed")
         let manager = self.manager!
-        let dummyCount = self.dummyCount
+        let dummyCount = self.dummyCount!
         let pureObjects = (0..<dummyCount).map({_ in Dummy1()})
         let fetchRq = try! dummy1FetchRequest().fetchRequest(Dummy1.self)
         

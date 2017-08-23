@@ -60,7 +60,7 @@ public protocol HMCDGeneralRequestProcessorType {
     ///
     /// - Parameters:
     ///   - previous: The result of the previous request.
-    ///   - transforms: A Sequence of Request transformer.
+    ///   - transforms: A Sequence of Request transformers.
     /// - Returns: An Observable instance.
     func upsertInMemory<U,S>(_ previous: Try<[U]>, _ transforms: S)
         -> Observable<Try<[HMCDResult]>> where
@@ -74,7 +74,7 @@ public protocol HMCDGeneralRequestProcessorType {
     ///
     /// - Parameters:
     ///   - previous: The result of the previous request.
-    ///   - transforms: A Sequence of Request transformer.
+    ///   - transforms: A Sequence of Request transformers.
     /// - Returns: An Observable instance.
     func upsertInMemory<PO,S>(_ previous: Try<[PO]>, _ transform: S)
         -> Observable<Try<[HMCDResult]>> where
@@ -89,11 +89,25 @@ public protocol HMCDGeneralRequestProcessorType {
     ///
     /// - Parameters:
     ///   - previous: The result of the previous request.
-    ///   - transform: A Sequence of Request transformer.
+    ///   - transform: A Sequence of Request transformers.
     /// - Returns: An Observable instance.
     func persistToDB<Prev,S>(_ previous: Try<Prev>, _ transform: S)
         -> Observable<Try<Void>> where
         S: Sequence, S.Iterator.Element == HMTransformer<HMCDRequest>
+    
+    /// Stream DB changes for some pure object type.
+    ///
+    /// - Parameters:
+    ///   - cls: The PO class type.
+    ///   - transforms: A Sequence of Request transformers.
+    /// - Returns: An Observable instance.
+    func streamDBChanges<S,PO>(_ cls: PO.Type, _ transforms: S)
+        -> Observable<Try<[PO]>> where
+        PO: HMCDPureObjectType,
+        PO.CDClass: HMCDPureObjectConvertibleType,
+        PO.CDClass.PureObject == PO,
+        S: Sequence,
+        S.Iterator.Element == HMTransformer<HMCDRequest>
 }
 
 /// Convenience method for varargs.
@@ -151,5 +165,15 @@ public extension HMCDGeneralRequestProcessorType {
         -> Observable<Try<Void>>
     {
         return persistToDB(previous, transforms)
+    }
+    
+    public func streamDBChanges<PO>(_ cls: PO.Type,
+                                    _ transforms: HMTransformer<HMCDRequest>...)
+        -> Observable<Try<[PO]>> where
+        PO: HMCDPureObjectType,
+        PO.CDClass: HMCDPureObjectConvertibleType,
+        PO.CDClass.PureObject == PO
+    {
+        return streamDBChanges(cls, transforms)
     }
 }

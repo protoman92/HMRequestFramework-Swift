@@ -15,7 +15,7 @@ public final class CoreDataObjectTest: CoreDataRootTest {
         /// Setup
         let manager = self.manager!
         let context = manager.disposableObjectContext()
-        let dummyCount = self.dummyCount
+        let dummyCount = self.dummyCount!
         let pureObjects1 = (0..<dummyCount).map({_ in Dummy1()})
         let pureObjects2 = (0..<dummyCount).map({_ in Dummy1()})
         let cdObjects1 = try! manager.constructUnsafely(context, pureObjects1)

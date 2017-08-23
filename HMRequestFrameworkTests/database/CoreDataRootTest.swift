@@ -18,7 +18,7 @@ import XCTest
 public class CoreDataRootTest: XCTestCase {
     public typealias Req = HMCDRequestProcessor.Req
     let timeout: TimeInterval = 1000
-    let dummyCount = 1000
+    var dummyCount: Int!
     let dummy: Try<Any> = Try.success(1)
     var storeType: HMCDPersistentStoreSettings.StoreType!
     var manager: HMCDManager!
@@ -27,6 +27,7 @@ public class CoreDataRootTest: XCTestCase {
     
     override public func setUp() {
         super.setUp()
+        dummyCount = 1000
         storeType = .InMemory
         
         let fileManager = FileManager.default

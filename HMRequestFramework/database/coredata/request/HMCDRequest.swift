@@ -23,6 +23,8 @@ public struct HMCDRequest {
     fileprivate var cdUpsertedData: [HMCDUpsertableType]
     fileprivate var cdDeletedData: [HMCDObjectConvertibleType]
     fileprivate var cdVCStrategy: VersionConflict.Strategy?
+    fileprivate var cdfrcSectionName: String?
+    fileprivate var cdfrcCacheName: String?
     fileprivate var retryCount: Int
     fileprivate var middlewaresEnabled: Bool
     fileprivate var rqDescription: String?
@@ -315,41 +317,26 @@ extension HMCDRequest: HMBuildableType {
             request.cdVCStrategy = vcStrategy
             return self
         }
-    }
-}
-
-extension HMCDRequest: HMProtocolConvertibleType {
-    public typealias PTCType = HMCDRequestType
-    
-    public func asProtocol() -> PTCType {
-        return self as PTCType
-    }
-}
-
-extension HMCDRequest.Builder: HMProtocolConvertibleBuilderType {
-    
-    /// Override this method to provide default implementation.
-    ///
-    /// - Parameter generic: A HMCDRequestType instance.
-    /// - Returns: The current Builder instance.
-    @discardableResult
-    public func with(generic: Buildable.PTCType) -> Self {
-        return self
-            .with(operation: try? generic.operation())
-            .with(entityName: try? generic.entityName())
-            .with(predicate: try? generic.predicate())
-            .with(sortDescriptors: try? generic.sortDescriptors())
-            .with(fetchResultType: generic.fetchResultType())
-            .with(fetchProperties: generic.fetchProperties())
-            .with(fetchGroupBy: generic.fetchGroupBy())
-            .with(fetchLimit: generic.fetchLimit())
-            .with(insertedData: try? generic.insertedData())
-            .with(upsertedData: try? generic.upsertedData())
-            .with(deletedData: try? generic.deletedData())
-            .with(vcStrategy: try? generic.versionConflictStrategy())
-            .with(retries: generic.retries())
-            .with(applyMiddlewares: generic.applyMiddlewares())
-            .with(requestDescription: generic.requestDescription())
+        
+        /// Set the FRC section name.
+        ///
+        /// - Parameter frcSectionName: A String value.
+        /// - Returns: The current Builder instance.
+        @discardableResult
+        public func with(frcSectionName: String?) -> Self {
+            request.cdfrcSectionName = frcSectionName
+            return self
+        }
+        
+        /// Set the FRC cache name.
+        ///
+        /// - Parameter frcCacheName: A String value.
+        /// - Returns: The current Builder instance.
+        @discardableResult
+        public func with(frcCacheName: String?) -> Self {
+            request.cdfrcCacheName = frcCacheName
+            return self
+        }
     }
 }
 
@@ -392,7 +379,24 @@ extension HMCDRequest.Builder: HMRequestBuilderType {
     /// - Returns: The current Builder instance.
     @discardableResult
     public func with(buildable: Buildable) -> Self {
-        return with(generic: buildable)
+        return self
+            .with(operation: try? buildable.operation())
+            .with(entityName: try? buildable.entityName())
+            .with(predicate: try? buildable.predicate())
+            .with(sortDescriptors: try? buildable.sortDescriptors())
+            .with(fetchResultType: buildable.fetchResultType())
+            .with(fetchProperties: buildable.fetchProperties())
+            .with(fetchGroupBy: buildable.fetchGroupBy())
+            .with(fetchLimit: buildable.fetchLimit())
+            .with(insertedData: try? buildable.insertedData())
+            .with(upsertedData: try? buildable.upsertedData())
+            .with(deletedData: try? buildable.deletedData())
+            .with(vcStrategy: try? buildable.versionConflictStrategy())
+            .with(frcSectionName: buildable.frcSectionName())
+            .with(frcCacheName: buildable.frcCacheName())
+            .with(retries: buildable.retries())
+            .with(applyMiddlewares: buildable.applyMiddlewares())
+            .with(requestDescription: buildable.requestDescription())
     }
     
     public func build() -> Buildable {
@@ -400,9 +404,7 @@ extension HMCDRequest.Builder: HMRequestBuilderType {
     }
 }
 
-extension HMCDRequest: HMCDRequestType {
-    public typealias Value = NSManagedObject
-    
+extension HMCDRequest: HMCDFetchRequestType {
     public func entityName() throws -> String {
         if let entityName = cdEntityName {
             return entityName
@@ -446,6 +448,20 @@ extension HMCDRequest: HMCDRequestType {
     public func fetchLimit() -> Int? {
         return cdFetchLimit
     }
+}
+
+extension HMCDRequest: HMCDFetchedResultRequestType {
+    public func frcCacheName() -> String? {
+        return cdfrcCacheName
+    }
+    
+    public func frcSectionName() -> String? {
+        return cdfrcSectionName
+    }
+}
+
+extension HMCDRequest: HMCDRequestType {
+    public typealias Value = NSManagedObject
     
     public func insertedData() throws -> [HMCDObjectConvertibleType] {
         return cdInsertedData
