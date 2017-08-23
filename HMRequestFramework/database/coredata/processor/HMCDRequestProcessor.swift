@@ -550,7 +550,7 @@ public extension HMCDRequestProcessor {
                 .create({
                     do {
                         // Start only when this Observable is subscribed to.
-                        try wrapper.startStream()
+                        try wrapper.rx.startStream()
                         $0.onNext(())
                         $0.onCompleted()
                     } catch let e {
@@ -559,7 +559,7 @@ public extension HMCDRequestProcessor {
                     
                     return Disposables.create()
                 })
-                .flatMap({wrapper.pureObjectStream(cls)})
+                .flatMap({wrapper.rx.stream(cls)})
                 .map(Try.success)
                 .catchErrorJustReturn(Try.failure)
         } catch let e {

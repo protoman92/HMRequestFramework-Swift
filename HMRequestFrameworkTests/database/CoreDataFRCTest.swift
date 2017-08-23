@@ -35,10 +35,10 @@ public final class CoreDataFRCTest: CoreDataRequestTest {
         // Call count is 1 to take care of first empty event.
         var callCount = -1
         
-        try! frc.startStream()
+        try! frc.rx.startStream()
         
         /// When
-        frc.pureObjectStream(Dummy1.self)
+        frc.rx.stream(Dummy1.self)
             .doOnNext({_ in callCount += 1})
             .doOnNext({XCTAssertTrue(allDummies.all($0.contains))})
             .subscribe(frcObserver)

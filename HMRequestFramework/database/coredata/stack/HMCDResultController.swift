@@ -14,8 +14,8 @@ import RxSwift
 public final class HMCDResultController: NSObject {
     public typealias Result = NSFetchRequestResult
     public typealias Controller = NSFetchedResultsController<Result>
-    fileprivate let cdSubject: BehaviorSubject<[Result]>
-    fileprivate var frc: Controller?
+    let cdSubject: BehaviorSubject<[Result]>
+    var frc: Controller?
     
     override fileprivate init() {
         cdSubject = BehaviorSubject<[Result]>(value: [])
@@ -28,33 +28,12 @@ public final class HMCDResultController: NSObject {
         frc?.delegate = self
     }
     
-    fileprivate func controller() -> Controller {
+    func controller() -> Controller {
         if let frc = self.frc {
             return frc
         } else {
             fatalError("FRC cannot be nil")
         }
-    }
-    
-    /// Start the stream.
-    ///
-    /// - Throws: Exception if the stream cannot be started.
-    public func startStream() throws {
-        try controller().performFetch()
-    }
-    
-    /// Get an Observable stream that only emits pure objects of some type.
-    ///
-    /// - Parameter cls: The PO class type.
-    /// - Returns: An Observable instance.
-    public func pureObjectStream<PO>(_ cls: PO.Type) -> Observable<[PO]> where
-        PO: HMCDPureObjectType,
-        PO.CDClass: HMCDPureObjectConvertibleType,
-        PO.CDClass.PureObject == PO
-    {
-        return cdSubject
-            .map({$0.flatMap({$0 as? PO.CDClass})})
-            .map({$0.map({$0.asPureObject()})})
     }
 }
 
