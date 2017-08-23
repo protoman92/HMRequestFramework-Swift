@@ -39,6 +39,8 @@
 		D352E29B1F3AD820001FD55E /* HMCDManager+Fetch+Rx.swift in Sources */ = {isa = PBXBuildFile; fileRef = D352E29A1F3AD820001FD55E /* HMCDManager+Fetch+Rx.swift */; };
 		D352E29D1F3AF226001FD55E /* HMCDVersionableType.swift in Sources */ = {isa = PBXBuildFile; fileRef = D352E29C1F3AF226001FD55E /* HMCDVersionableType.swift */; };
 		D36F19B51F2D12C30053CCBD /* HMRequestBuilderType.swift in Sources */ = {isa = PBXBuildFile; fileRef = D36F19B41F2D12C30053CCBD /* HMRequestBuilderType.swift */; };
+		D3757B651F4D8349001935EC /* HMCDManager+FRC+Rx.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3757B641F4D8349001935EC /* HMCDManager+FRC+Rx.swift */; };
+		D3757B671F4D8869001935EC /* HMCDFetchedResultController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3757B661F4D8869001935EC /* HMCDFetchedResultController.swift */; };
 		D378D6DE1F25E088009B89B2 /* HMRequestFramework.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D378D6D41F25E088009B89B2 /* HMRequestFramework.framework */; };
 		D378D6E51F25E088009B89B2 /* HMRequestFramework.h in Headers */ = {isa = PBXBuildFile; fileRef = D378D6D71F25E088009B89B2 /* HMRequestFramework.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D37D0BA11F25E3A00032C6AB /* HMRequestGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = D37D0B611F25E1BE0032C6AB /* HMRequestGenerator.swift */; };
@@ -138,6 +140,8 @@
 		D352E29A1F3AD820001FD55E /* HMCDManager+Fetch+Rx.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HMCDManager+Fetch+Rx.swift"; sourceTree = "<group>"; };
 		D352E29C1F3AF226001FD55E /* HMCDVersionableType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMCDVersionableType.swift; sourceTree = "<group>"; };
 		D36F19B41F2D12C30053CCBD /* HMRequestBuilderType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMRequestBuilderType.swift; sourceTree = "<group>"; };
+		D3757B641F4D8349001935EC /* HMCDManager+FRC+Rx.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HMCDManager+FRC+Rx.swift"; sourceTree = "<group>"; };
+		D3757B661F4D8869001935EC /* HMCDFetchedResultController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMCDFetchedResultController.swift; sourceTree = "<group>"; };
 		D378D6D41F25E088009B89B2 /* HMRequestFramework.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = HMRequestFramework.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D378D6D71F25E088009B89B2 /* HMRequestFramework.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HMRequestFramework.h; sourceTree = "<group>"; };
 		D378D6D81F25E088009B89B2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -540,6 +544,8 @@
 				D3922E071F262B41004A49B9 /* HMCDPersistentStoreSettings.swift */,
 				D3922E091F26334A004A49B9 /* HMCDPersistentStoreURL.swift */,
 				D3A03AE91F4C0065006CBA02 /* HMCDManager+Reset+Rx.swift */,
+				D3757B641F4D8349001935EC /* HMCDManager+FRC+Rx.swift */,
+				D3757B661F4D8869001935EC /* HMCDFetchedResultController.swift */,
 			);
 			path = stack;
 			sourceTree = "<group>";
@@ -816,6 +822,7 @@
 				D399C7F41F4ACFF90083C130 /* HMCDGeneralRequestProcessorType.swift in Sources */,
 				D3C128D41F39F2B5009BCB21 /* HMCDBlockPerformerType.swift in Sources */,
 				D37D0BA21F25E3A00032C6AB /* HMRequestHandlerType.swift in Sources */,
+				D3757B671F4D8869001935EC /* HMCDFetchedResultController.swift in Sources */,
 				D37D0BA31F25E3A00032C6AB /* HMRequestProcessorType.swift in Sources */,
 				D32CF7861F2C7F2C00884886 /* HMMiddlewareManagers.swift in Sources */,
 				D37D0BA41F25E3A00032C6AB /* HMResultProcessor.swift in Sources */,
@@ -866,6 +873,7 @@
 				D37D0BB41F25E3A00032C6AB /* HMNetworkRequestType.swift in Sources */,
 				D32F6C1B1F3C1C94004F7133 /* HMCDObjectAliasType.swift in Sources */,
 				D37D0BCF1F25F7600032C6AB /* HMCDManager.swift in Sources */,
+				D3757B651F4D8349001935EC /* HMCDManager+FRC+Rx.swift in Sources */,
 				D37D0BB51F25E3A00032C6AB /* HMNetworkResourceType.swift in Sources */,
 				D32FF8051F468254005608C0 /* HttpOperation.swift in Sources */,
 			);
