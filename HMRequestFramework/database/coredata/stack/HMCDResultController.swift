@@ -153,7 +153,7 @@ extension HMCDResultController: NSFetchedResultsControllerDelegate {
                            for type: NSFetchedResultsChangeType,
                            newIndexPath: IndexPath?)
     {
-        print(anObject, indexPath, type)
+        print(anObject, indexPath, type.rawValue)
     }
     
     /// Notifies the delegate of added or removed sections.
@@ -172,6 +172,6 @@ extension HMCDResultController: NSFetchedResultsControllerDelegate {
                            atSectionIndex sectionIndex: Int,
                            for type: NSFetchedResultsChangeType)
     {
-        print(sectionInfo, sectionIndex, type)
+//        print(sectionInfo, sectionIndex, type)
     }
 }
