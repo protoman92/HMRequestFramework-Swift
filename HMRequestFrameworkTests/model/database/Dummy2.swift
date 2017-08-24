@@ -10,12 +10,22 @@ import CoreData
 @testable import HMRequestFramework
 
 public protocol Dummy2Type {
-    var id: String { get set }
+    var id2: String { get set }
     var count: Int64 { get set }
 }
 
+public extension Dummy2Type {
+    public func primaryKey() -> String {
+        return "id2"
+    }
+    
+    public func primaryValue() -> String? {
+        return id2
+    }
+}
+
 public final class CDDummy2: NSManagedObject {
-    @NSManaged public var id: String
+    @NSManaged public var id2: String
     @NSManaged public var count: Int64
     
     public convenience required init(_ context: NSManagedObjectContext) throws {
@@ -27,12 +37,12 @@ public final class CDDummy2: NSManagedObject {
 public final class Dummy2 {
     fileprivate static var counter = 0
     
-    public var id: String
+    public var id2: String
     public var count: Int64
     
     init() {
         Dummy2.counter += 1
-        id = "\(Dummy2.counter)"
+        id2 = "\(Dummy2.counter)"
         count = Int64(Int.random(0, 10000))
     }
 }
@@ -45,7 +55,7 @@ public class Dummy2Builder<D2: Dummy2Type> {
     }
     
     public func with(dummy2: Dummy2Type) -> Self {
-        d2.id = dummy2.id
+        d2.id2 = dummy2.id2
         d2.count = dummy2.count
         return self
     }
@@ -57,13 +67,13 @@ public class Dummy2Builder<D2: Dummy2Type> {
 
 extension CDDummy2: Dummy2Type {}
 
-extension CDDummy2: HMCDObjectMasterType {
+extension CDDummy2: HMCDUpsertableMasterType {
     public typealias PureObject = Dummy2
     
     public static func cdAttributes() throws -> [NSAttributeDescription]? {
         return [
             NSAttributeDescription.builder()
-                .with(name: "id")
+                .with(name: "id2")
                 .shouldNotBeOptional()
                 .with(type: .stringAttributeType)
                 .build(),
@@ -85,6 +95,10 @@ extension CDDummy2: HMCDObjectMasterType {
             super.init(cdo)
         }
     }
+    
+    public func updateKeys() -> [String] {
+        return ["id2", "count"]
+    }
 }
 
 extension CDDummy2.Builder: HMCDObjectBuilderMasterType {
@@ -103,17 +117,17 @@ extension Dummy2: Dummy2Type {}
 
 extension Dummy2: CustomStringConvertible {
     public var description: String {
-        return "id: \(id)-count: \(count)"
+        return "id2: \(id2)-count: \(count)"
     }
 }
 
 extension Dummy2: Equatable {
     public static func ==(lhs: Dummy2, rhs: Dummy2) -> Bool {
-        return lhs.id == rhs.id && lhs.count == rhs.count
+        return lhs.id2 == rhs.id2 && lhs.count == rhs.count
     }
 }
 
-extension Dummy2: HMCDPureObjectMasterType {
+extension Dummy2: HMCDUpsertablePureObjectMasterType {
     public typealias CDClass = CDDummy2
 
     public static func builder() -> Builder {

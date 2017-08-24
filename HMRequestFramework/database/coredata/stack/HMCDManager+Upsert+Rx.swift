@@ -41,11 +41,11 @@ public extension HMCDManager {
         S: Sequence, S.Iterator.Element == HMCDUpsertableType
     {
         let ids = upsertables.map({$0 as HMCDIdentifiableType})
-        let existing = try self.blockingFetchIdentifiables(context, entityName, ids)
+        let existing = try blockingFetchIdentifiables(context, entityName, ids)
         var results: [HMCDResult] = []
         
-        // We need an Array here to keep track of the objects that do
-        // not exist in DB yet.
+        // We need an Array here to keep track of the objects that do not exist
+        // in DB yet.
         var nonExisting: [HMCDObjectConvertibleType] = []
         
         for upsertable in upsertables {

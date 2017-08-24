@@ -22,7 +22,7 @@ public final class CoreDataFRCTest: CoreDataRequestTest {
         dummyCount = 2
     }
     
-    public func test_streamDBChangesWithFRCWrapper_shouldWork() {
+    public func test_streamDBObjectsWithFRCWrapper_shouldWork() {
         /// Setup
         let observer = scheduler.createObserver(Any.self)
         let frcObserver = scheduler.createObserver([Dummy1].self)
@@ -55,7 +55,7 @@ public final class CoreDataFRCTest: CoreDataRequestTest {
         XCTAssertEqual(callCount, iterationCount)
     }
     
-    public func test_streamDBChangesWithProcessor_shouldWork() {
+    public func test_streamDBObjectsWithProcessor_shouldWork() {
         /// Setup
         let observer = scheduler.createObserver(Any.self)
         let frcObserver = scheduler.createObserver([Dummy1].self)
@@ -85,6 +85,28 @@ public final class CoreDataFRCTest: CoreDataRequestTest {
         XCTAssertEqual(callCount, iterationCount)
     }
     
+    public func test_streamDBChanges_shouldWork() {
+        /// Setup
+        let observer = scheduler.createObserver(Any.self)
+        let expect = expectation(description: "Should have completed")
+        let frcRequest = dummy1FetchRequest()
+        let frc = try! manager.getFRCWrapperForRequest(frcRequest)
+        
+        try! frc.rx.startStream()
+        
+        /// When
+        insertAndUpdate({_ in})
+            .doOnDispose(expect.fulfill)
+            .subscribe(observer)
+            .disposed(by: disposeBag)
+        
+        waitForExpectations(timeout: timeout, handler: nil)
+        
+        /// Then
+    }
+}
+
+public extension CoreDataFRCTest {
     func insertNewObjects(_ onSave: @escaping ([Dummy1]) -> Void) -> Observable<Any> {
         let manager = self.manager!
         let iterationCount = self.iterationCount!
@@ -105,6 +127,43 @@ public final class CoreDataFRCTest: CoreDataRequestTest {
                     .doOnNext({onSave(pureObjects)})
             })
             .reduce((), accumulator: {_ in ()})
+            .cast(to: Any.self)
+    }
+    
+    func insertAndUpdate(_ onUpsert: @escaping ([Dummy1]) -> Void) -> Observable<Any> {
+        let manager = self.manager!
+        let context = manager.disposableObjectContext()
+        let iterationCount = self.iterationCount!
+        let dummyCount = self.dummyCount!
+        let original = (0..<dummyCount).map({_ in Dummy1()})
+        let entityName = try! Dummy1.CDClass.entityName()
+        
+        return manager.rx.savePureObjects(context, original)
+            .flatMap({manager.rx.persistLocally()})
+            .flatMap({Observable.range(start: 0, count: iterationCount)
+                .concatMap({(_) -> Observable<Void> in
+                    let context = manager.disposableObjectContext()
+                    let upsertCtx = manager.disposableObjectContext()
+                    
+                    let replace = (0..<dummyCount).map({(i) -> Dummy1 in
+                        let previous = original[i]
+                        let dummy = Dummy1()
+                        dummy.id = previous.id
+                        return dummy
+                    })
+                    
+                    let cdReplace = try! manager.constructUnsafely(context, replace)
+
+                    return Observable
+                        .concat(
+                            manager.rx.upsert(upsertCtx, entityName, cdReplace).logNext().map(toVoid),
+                            manager.rx.persistLocally()
+                        )
+                        .reduce((), accumulator: {_ in ()})
+                        .doOnNext({onUpsert(replace)})
+                })
+                .reduce((), accumulator: {_ in ()})
+            })
             .cast(to: Any.self)
     }
 }

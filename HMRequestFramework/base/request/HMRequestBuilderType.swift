@@ -10,18 +10,20 @@ public protocol HMRequestBuilderType: HMBuilderType {
     associatedtype Buildable: HMRequestType
     typealias MiddlewareFilter = Buildable.MiddlewareFilter
     
-    /// Set the value filters.
+    /// Set the middleware filters.
     ///
     /// - Parameter middlewareFilters: A Sequence of filters.
     /// - Returns: The current Builder instance.
+    @discardableResult
     func with<S>(middlewareFilters: S) -> Self where
-        S: Sequence, S.Iterator.Element == MiddlewareFilter
+        S: Sequence, S.Iterator.Element == HMMiddlewareFilter<Buildable>
     
-    /// Add a value filter.
+    /// Add a middleware filter.
     ///
     /// - Parameter middlewareFilter: A filter instance.
     /// - Returns: The current Builder instance.
-    func add(middlewareFilter: MiddlewareFilter) -> Self
+    @discardableResult
+    func add(middlewareFilter: HMMiddlewareFilter<Buildable>) -> Self
     
     /// Set the retry count.
     ///
@@ -47,7 +49,7 @@ public protocol HMRequestBuilderType: HMBuilderType {
 
 public extension HMRequestBuilderType {
     
-    /// Set the value filters.
+    /// Set the middleware filters.
     ///
     /// - Parameter middlewareFilters: A Sequence of filters.
     /// - Returns: The current Builder instance.
@@ -57,7 +59,7 @@ public extension HMRequestBuilderType {
         return with(middlewareFilters: middlewareFilters.map(HMMiddlewareFilter.init))
     }
     
-    /// Add a value filter.
+    /// Add a middleware filter.
     ///
     /// - Parameter middlewareFilter: A filter instance.
     /// - Returns: The current Builder instance.

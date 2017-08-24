@@ -344,27 +344,27 @@ extension HMCDRequest: HMBuildableType {
 
 extension HMCDRequest.Builder: HMRequestBuilderType {
     public typealias Buildable = HMCDRequest
-    
+
     /// Override this method to provide default implementation.
     ///
     /// - Parameter middlewareFilters: An Array of filters.
     /// - Returns: The current Builder instance.
     public func with<S>(middlewareFilters: S) -> Self where
-        S: Sequence, S.Iterator.Element == MiddlewareFilter
+        S: Sequence, S.Iterator.Element == HMMiddlewareFilter<Buildable>
     {
         request.cdmwFilters = middlewareFilters.map({$0})
         return self
     }
-    
+
     /// Override this method to provide default implementation.
     ///
     /// - Parameter middlewareFilter: A filter instance..
     /// - Returns: The current Builder instance.
-    public func add(middlewareFilter: MiddlewareFilter) -> Self {
+    public func add(middlewareFilter: HMMiddlewareFilter<Buildable>) -> Self {
         request.cdmwFilters.append(middlewareFilter)
         return self
     }
-    
+
     /// Override this method to provide default implementation.
     ///
     /// - Parameter retries: An Int value.
@@ -374,7 +374,7 @@ extension HMCDRequest.Builder: HMRequestBuilderType {
         request.retryCount = retries
         return self
     }
-    
+
     /// Override this method to provide default implementation.
     ///
     /// - Parameter applyMiddlewares: A Bool value.
@@ -384,7 +384,7 @@ extension HMCDRequest.Builder: HMRequestBuilderType {
         request.middlewaresEnabled = applyMiddlewares
         return self
     }
-    
+
     /// Override this method to provide default implementation.
     ///
     /// - Parameter requestDescription: A String value.
@@ -421,7 +421,7 @@ extension HMCDRequest.Builder: HMRequestBuilderType {
             .with(applyMiddlewares: buildable.applyMiddlewares())
             .with(requestDescription: buildable.requestDescription())
     }
-    
+
     public func build() -> Buildable {
         return request
     }
@@ -549,4 +549,5 @@ extension HMCDRequest: CustomStringConvertible {
         return "Performing \(ops). Description: \(description)"
     }
 }
+
 

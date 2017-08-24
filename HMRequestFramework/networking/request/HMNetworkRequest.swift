@@ -192,39 +192,15 @@ extension HMNetworkRequest: HMBuildableType {
     }
 }
 
-extension HMNetworkRequest.Builder: HMBuilderType {
-    public typealias Buildable = HMNetworkRequest
-    
-    /// Override this method to provide default implementation.
-    ///
-    /// - Parameter buildable: A Buildable instance.
-    /// - Returns: The current Builder instance.
-    @discardableResult
-    public func with(buildable: Buildable) -> Self {
-        return self
-            .with(urlString: try? buildable.urlString())
-            .with(operation: try? buildable.operation())
-            .with(body: try? buildable.body())
-            .with(headers: buildable.headers())
-            .with(params: buildable.params())
-            .with(uploadData: buildable.uploadData())
-            .with(uploadURL: buildable.uploadURL())
-            .with(timeout: buildable.timeout())
-            .with(middlewareFilters: buildable.middlewareFilters())
-            .with(retries: buildable.retries())
-            .with(applyMiddlewares: buildable.applyMiddlewares())
-            .with(requestDescription: buildable.requestDescription())
-    }
-}
-
 extension HMNetworkRequest.Builder: HMRequestBuilderType {
+    public typealias Buildable = HMNetworkRequest
 
     /// Override this method to provide default implementation.
     ///
     /// - Parameter middlewareFilters: An Array of filters.
     /// - Returns: The current Builder instance.
     public func with<S>(middlewareFilters: S) -> Self where
-        S: Sequence, S.Iterator.Element == MiddlewareFilter
+        S: Sequence, S.Iterator.Element == HMMiddlewareFilter<Buildable>
     {
         request.nwmwFilters = middlewareFilters.map({$0})
         return self
@@ -234,7 +210,7 @@ extension HMNetworkRequest.Builder: HMRequestBuilderType {
     ///
     /// - Parameter middlewareFilter: A filter instance.
     /// - Returns: The current Builder instance.
-    public func add(middlewareFilter: MiddlewareFilter) -> Self {
+    public func add(middlewareFilter: HMMiddlewareFilter<Buildable>) -> Self {
         request.nwmwFilters.append(middlewareFilter)
         return self
     }
@@ -267,6 +243,27 @@ extension HMNetworkRequest.Builder: HMRequestBuilderType {
     public func with(requestDescription: String?) -> Self {
         request.rqDescription = requestDescription
         return self
+    }
+    
+    /// Override this method to provide default implementation.
+    ///
+    /// - Parameter buildable: A Buildable instance.
+    /// - Returns: The current Builder instance.
+    @discardableResult
+    public func with(buildable: Buildable) -> Self {
+        return self
+            .with(urlString: try? buildable.urlString())
+            .with(operation: try? buildable.operation())
+            .with(body: try? buildable.body())
+            .with(headers: buildable.headers())
+            .with(params: buildable.params())
+            .with(uploadData: buildable.uploadData())
+            .with(uploadURL: buildable.uploadURL())
+            .with(timeout: buildable.timeout())
+            .with(middlewareFilters: buildable.middlewareFilters())
+            .with(retries: buildable.retries())
+            .with(applyMiddlewares: buildable.applyMiddlewares())
+            .with(requestDescription: buildable.requestDescription())
     }
     
     public func build() -> Buildable {
@@ -348,3 +345,4 @@ extension HMNetworkRequest: CustomStringConvertible {
         return "Performing \(method) at: \(url). Description: \(description)"
     }
 }
+

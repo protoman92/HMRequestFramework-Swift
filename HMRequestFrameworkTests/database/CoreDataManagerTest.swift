@@ -41,14 +41,14 @@ public final class CoreDataManagerTest: CoreDataRootTest {
     
     public func test_saveAndFetchBuildable_shouldWork() {
         /// Setup
-        let observer = scheduler.createObserver(Dummy2.self)
+        let observer = scheduler.createObserver(Dummy1.self)
         let expect = expectation(description: ("Should have completed"))
         let dummyCount = self.dummyCount!
         let manager = self.manager!
         let mainContext = manager.mainContext
         let privateContext = manager.privateContext
-        let dummies = (0..<dummyCount).map({_ in Dummy2()})
-        let fetchRq: NSFetchRequest<CDDummy2> = try! dummy2FetchRequest().fetchRequest()
+        let dummies = (0..<dummyCount).map({_ in Dummy1()})
+        let fetchRq = try! dummy1FetchRequest().fetchRequest(Dummy1.self)
         
         // Different contexts for each operation.
         let saveContext = manager.disposableObjectContext()
@@ -293,13 +293,8 @@ public extension CoreDataManagerTest {
             .doOnNext({XCTAssertTrue($0.flatMap({$0.id}).count > 0)})
             .map({$0.map({$0.asPureObject()})})
             .flatMap({(objects) -> Observable<Void> in
-                let sc1 = manager.disposableObjectContext()
-                let sc2 = manager.disposableObjectContext()
-                
-                return manager.rx.construct(sc1, objects)
-                    
-                    // Delete from memory, but do not persist yet.
-                    .flatMap({manager.rx.deleteIdentifiables(sc2, entityName, $0)})
+                let sc = manager.disposableObjectContext()
+                return manager.rx.deleteIdentifiables(sc, entityName, objects)
             })
 
             // Persist the changes.
@@ -317,29 +312,31 @@ public extension CoreDataManagerTest {
         waitForExpectations(timeout: timeout, handler: nil)
         
         /// Then
+        print(observer.events)
         let elements = observer.nextElements()
         XCTAssertEqual(elements.count, 0)
     }
 }
 
 public extension CoreDataManagerTest {
-    public func test_predicateForUpsertFetch_shouldWork() {
+    public func test_predicateForIdentifiableFetch_shouldWork() {
         /// Setup
-        let times = 1000
-        let context = manager.disposableObjectContext()
-        let pureObjs = (0..<times).map({_ in Dummy1()})
-        let objs = try! manager.constructUnsafely(context, pureObjs)
+        let times = 100
+        let pureObjs1 = (0..<times).map({_ in Dummy1()})
+        let pureObjs2 = (0..<times).map({_ in Dummy2()})
+        
+        let allUpsertables = [
+            pureObjs1.map({$0 as HMIdentifiableType}),
+            pureObjs2.map({$0 as HMIdentifiableType})
+        ].flatMap({$0})
         
         /// When
-        let predicate = manager.predicateForIdentifiableFetch(objs)
+        let predicate = manager.predicateForIdentifiableFetch(allUpsertables)
         
         /// Then
         let description = predicate.description
-        let dComponents = description.components(separatedBy: " ")
-        let dummyValues = objs.flatMap({$0.primaryValue()})
-        XCTAssertEqual(dummyValues.count, times)
-        XCTAssertEqual(dComponents.filter({$0 == "OR"}).count, times - 1)
-        XCTAssertTrue(dummyValues.all(description.contains))
+        XCTAssertTrue(description.contains("IN"))
+        XCTAssertTrue(description.contains("OR"))
     }
 }
 
@@ -389,18 +386,17 @@ public extension CoreDataManagerTest {
         let manager = self.manager!
         let context = manager.disposableObjectContext()
         let dummyCount = self.dummyCount!
-        let pureObjects1 = (0..<dummyCount).map({_ in Dummy1()})
+        let originalPureObjects = (0..<dummyCount).map({_ in Dummy1()})
         
-        let pureObjects2 = (0..<dummyCount).map({(i) -> Dummy1 in
+        let editedPureObjects = (0..<dummyCount).map({(i) -> Dummy1 in
             let dummy = Dummy1()
-            dummy.id = pureObjects1[i].id
+            dummy.id = originalPureObjects[i].id
             return dummy
         })
         
-        let pureObjects3 = (0..<dummyCount).map({_ in Dummy1()})
-        let pureObjects23 = [pureObjects2, pureObjects3].flatMap({$0})
-        let cdObjects1 = try! manager.constructUnsafely(context, pureObjects1)
-        let cdObjects23 = try! manager.constructUnsafely(context, pureObjects23)
+        let newPureObjects = (0..<dummyCount).map({_ in Dummy1()})
+        let upsertedPureObjects = [editedPureObjects, newPureObjects].flatMap({$0})
+        let upsertedCDObjects = try! manager.constructUnsafely(context, upsertedPureObjects)
         let fetchRq = try! dummy1FetchRequest().fetchRequest(Dummy1.self)
         let entityName = fetchRq.entityName!
         
@@ -410,12 +406,12 @@ public extension CoreDataManagerTest {
         let fetchContext = manager.disposableObjectContext()
         
         /// When
-        manager.rx.saveConvertibles(saveContext, cdObjects1)
+        manager.rx.savePureObjects(saveContext, originalPureObjects)
             .flatMap({_ in manager.rx.persistLocally()})
             
             // We expect the edited data to overwrite, while new data will
             // simply be inserted.
-            .flatMap({_ in manager.rx.upsert(upsertContext, entityName, cdObjects23)})
+            .flatMap({_ in manager.rx.upsert(upsertContext, entityName, upsertedCDObjects)})
             .flatMap({_ in manager.rx.persistLocally()})
             .flatMap({manager.rx.fetch(fetchContext, fetchRq)})
             .map({$0.map({$0.asPureObject()})})
@@ -428,8 +424,8 @@ public extension CoreDataManagerTest {
         
         /// Then
         let nextElements = observer.nextElements()
-        XCTAssertEqual(nextElements.count, pureObjects23.count)
-        XCTAssertTrue(pureObjects23.all(nextElements.contains))
+        XCTAssertEqual(nextElements.count, upsertedPureObjects.count)
+        XCTAssertTrue(upsertedPureObjects.all(nextElements.contains))
     }
 }
 

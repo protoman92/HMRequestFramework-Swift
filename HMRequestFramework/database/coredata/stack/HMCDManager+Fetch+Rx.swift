@@ -18,13 +18,13 @@ public extension HMCDManager {
     /// - Parameter data: A Sequence of HMCDIdentifiableType.
     /// - Returns: A NSPredicate instance.
     func predicateForIdentifiableFetch<S>(_ identifiables: S) -> NSPredicate where
-        S: Sequence, S.Iterator.Element == HMCDIdentifiableType
+        S: Sequence, S.Iterator.Element == HMIdentifiableType
     {
         return NSCompoundPredicate(orPredicateWithSubpredicates:
-            identifiables
-                .map({($0.primaryKey(), $0.primaryValue())})
-                .filter({$0.1 != nil})
-                .map({NSPredicate(format: "%K == %@", $0.0, $0.1 ?? "")})
+            HMIdentifiables
+                .segment(identifiables)
+                .filter({$0.1.isNotEmpty})
+                .map({NSPredicate(format: "%K in %@", $0.0, $0.1)})
         )
     }
     
@@ -34,9 +34,9 @@ public extension HMCDManager {
     /// - Parameter data: A Sequence of HMCDIdentifiableType.
     /// - Returns: A NSPredicate instance.
     func predicateForIdentifiableFetch<S>(_ identifiables: S) -> NSPredicate where
-        S: Sequence, S.Iterator.Element: HMCDIdentifiableType
+        S: Sequence, S.Iterator.Element: HMIdentifiableType
     {
-        let identifiables = identifiables.map({$0 as HMCDIdentifiableType})
+        let identifiables = identifiables.map({$0 as HMIdentifiableType})
         return predicateForIdentifiableFetch(identifiables)
     }
 }
@@ -163,7 +163,8 @@ public extension HMCDManager {
         S: Sequence,
         S.Iterator.Element == HMCDIdentifiableType
     {
-        let predicate = predicateForIdentifiableFetch(ids)
+        let identifiables = ids.map({$0 as HMIdentifiableType})
+        let predicate = predicateForIdentifiableFetch(identifiables)
         
         return try blockingFetchIdentifiables(
             context,
