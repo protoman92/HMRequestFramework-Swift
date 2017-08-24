@@ -14,7 +14,7 @@ public protocol HMRequestBuilderType: HMBuilderType {
     /// - Parameter valueFilters: A Sequence of filters.
     /// - Returns: The current Builder instance.
     func with<S>(valueFilters: S) -> Self where
-        S: Sequence, S.Iterator.Element == Buildable.MiddlewareFilter
+        S: Sequence, S.Iterator.Element == HMValueFilter<Buildable>
     
     /// Add a value filter.
     ///
@@ -51,7 +51,8 @@ public extension HMRequestBuilderType {
     /// - Parameter valueFilters: A Sequence of filters.
     /// - Returns: The current Builder instance.
     public func with<S>(valueFilters: S) -> Self where
-        S: Sequence, S.Iterator.Element == (Buildable, Buildable.Filterable) throws -> Bool
+        S: Sequence,
+        S.Iterator.Element == (Buildable, Buildable.Filterable) throws -> Bool
     {
         return with(valueFilters: valueFilters.map(HMValueFilter.init))
     }

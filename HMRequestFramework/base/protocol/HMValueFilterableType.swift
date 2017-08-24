@@ -24,5 +24,5 @@ public protocol HMValueFilterableType {
     /// Get an Array of filters of Self type.
     ///
     /// - Returns: An Array of filters.
-    func valueFilters() -> [HMValueFilter<Self,Filterable>]
+    func valueFilters() -> [HMValueFilter<Self>]
 }

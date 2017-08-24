@@ -13,7 +13,9 @@ import XCTest
 @testable import HMRequestFramework
 
 extension Int: HMValueFilterableType {
-    public func valueFilters() -> [HMValueFilter<Int,String>] {
+    public typealias Filterable = String
+    
+    public func valueFilters() -> [HMValueFilter<Int>] {
         return []
     }
 }
@@ -78,8 +80,8 @@ public final class MiddlewareTest: XCTestCase {
         
         let request = MockRequest.builder()
             .with(valueFilters: [
-                MockRequest.MiddlewareFilter({$0.1 != "middleware1"}),
-                MockRequest.MiddlewareFilter({$0.1 != "middleware2"})
+                HMValueFilter<MockRequest>({$0.1 != "middleware1"}),
+                HMValueFilter<MockRequest>({$0.1 != "middleware2"})
             ])
             .with(applyMiddlewares: true)
             .build()
