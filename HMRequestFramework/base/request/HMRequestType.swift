@@ -7,8 +7,8 @@
 //
 
 /// Base request type that can be used for HMRequestHandler.
-public protocol HMRequestType: HMValueBasedFilterableType {
-    typealias MiddlewareFilter = HMValueBasedFilter<Self,Filterable>
+public protocol HMRequestType: HMValueFilterableType {
+    typealias MiddlewareFilter = HMValueFilter<Self,Filterable>
 
     /// Specify how many times a request should be retries.
     ///

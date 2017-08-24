@@ -14,7 +14,7 @@ import SwiftUtilities
 ///
 /// If a request handler uses this class, it must catch errors and wrap in
 /// Try itself.
-public struct HMMiddlewareManager<Target: HMValueBasedFilterableType> {
+public struct HMMiddlewareManager<Target: HMValueFilterableType> {
     public typealias Filterable = Target.Filterable
     public typealias Transform = HMTransformMiddleware<Target>
     public typealias SideEffect = HMSideEffectMiddleware<Target>

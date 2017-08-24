@@ -12,8 +12,8 @@ import SwiftUtilities
 import XCTest
 @testable import HMRequestFramework
 
-extension Int: HMValueBasedFilterableType {
-    public func valueFilters() -> [HMValueBasedFilter<Int,String>] {
+extension Int: HMValueFilterableType {
+    public func valueFilters() -> [HMValueFilter<Int,String>] {
         return []
     }
 }
