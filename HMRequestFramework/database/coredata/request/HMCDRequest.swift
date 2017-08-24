@@ -347,21 +347,21 @@ extension HMCDRequest.Builder: HMRequestBuilderType {
     
     /// Override this method to provide default implementation.
     ///
-    /// - Parameter valueFilters: An Array of filters.
+    /// - Parameter middlewareFilters: An Array of filters.
     /// - Returns: The current Builder instance.
-    public func with<S>(valueFilters: S) -> Self where
-        S: Sequence, S.Iterator.Element == Buildable.MiddlewareFilter
+    public func with<S>(middlewareFilters: S) -> Self where
+        S: Sequence, S.Iterator.Element == MiddlewareFilter
     {
-        request.cdmwFilters = valueFilters.map({$0})
+        request.cdmwFilters = middlewareFilters.map({$0})
         return self
     }
     
     /// Override this method to provide default implementation.
     ///
-    /// - Parameter valueFilter: A filter instance..
+    /// - Parameter middlewareFilter: A filter instance..
     /// - Returns: The current Builder instance.
-    public func add(valueFilter: Buildable.MiddlewareFilter) -> Self {
-        request.cdmwFilters.append(valueFilter)
+    public func add(middlewareFilter: MiddlewareFilter) -> Self {
+        request.cdmwFilters.append(middlewareFilter)
         return self
     }
     
@@ -416,7 +416,7 @@ extension HMCDRequest.Builder: HMRequestBuilderType {
             .with(vcStrategy: try? buildable.versionConflictStrategy())
             .with(frcSectionName: buildable.frcSectionName())
             .with(frcCacheName: buildable.frcCacheName())
-            .with(valueFilters: buildable.valueFilters())
+            .with(middlewareFilters: buildable.middlewareFilters())
             .with(retries: buildable.retries())
             .with(applyMiddlewares: buildable.applyMiddlewares())
             .with(requestDescription: buildable.requestDescription())
@@ -430,7 +430,7 @@ extension HMCDRequest.Builder: HMRequestBuilderType {
 extension HMCDRequest: HMRequestType {
     public typealias Filterable = String
     
-    public func valueFilters() -> [MiddlewareFilter] {
+    public func middlewareFilters() -> [MiddlewareFilter] {
         return cdmwFilters
     }
     

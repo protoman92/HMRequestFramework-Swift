@@ -40,11 +40,11 @@ public final class Singleton {
     }
     
     public static func dbProcessor(_ manager: HMCDManager) -> HMCDRequestProcessor {
-        let rqMiddlewareManager = HMMiddlewareManager<HMCDRequest>.builder().build()
+        let rqmManager = HMMiddlewareManager<HMCDRequest>.builder().build()
         
         return HMCDRequestProcessor.builder()
             .with(manager: manager)
-            .with(rqMiddlewareManager: rqMiddlewareManager)
+            .with(rqmManager: rqmManager)
             .build()
     }
 }

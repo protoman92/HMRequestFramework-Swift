@@ -8,19 +8,20 @@
 
 public protocol HMRequestBuilderType: HMBuilderType {
     associatedtype Buildable: HMRequestType
+    typealias MiddlewareFilter = Buildable.MiddlewareFilter
     
     /// Set the value filters.
     ///
-    /// - Parameter valueFilters: A Sequence of filters.
+    /// - Parameter middlewareFilters: A Sequence of filters.
     /// - Returns: The current Builder instance.
-    func with<S>(valueFilters: S) -> Self where
-        S: Sequence, S.Iterator.Element == HMValueFilter<Buildable>
+    func with<S>(middlewareFilters: S) -> Self where
+        S: Sequence, S.Iterator.Element == MiddlewareFilter
     
     /// Add a value filter.
     ///
-    /// - Parameter valueFilter: A filter instance.
+    /// - Parameter middlewareFilter: A filter instance.
     /// - Returns: The current Builder instance.
-    func add(valueFilter: Buildable.MiddlewareFilter) -> Self
+    func add(middlewareFilter: MiddlewareFilter) -> Self
     
     /// Set the retry count.
     ///
@@ -48,21 +49,20 @@ public extension HMRequestBuilderType {
     
     /// Set the value filters.
     ///
-    /// - Parameter valueFilters: A Sequence of filters.
+    /// - Parameter middlewareFilters: A Sequence of filters.
     /// - Returns: The current Builder instance.
-    public func with<S>(valueFilters: S) -> Self where
-        S: Sequence,
-        S.Iterator.Element == (Buildable, Buildable.Filterable) throws -> Bool
+    public func with<S>(middlewareFilters: S) -> Self where
+        S: Sequence, S.Iterator.Element == MiddlewareFilter.Filter
     {
-        return with(valueFilters: valueFilters.map(HMValueFilter.init))
+        return with(middlewareFilters: middlewareFilters.map(HMMiddlewareFilter.init))
     }
     
     /// Add a value filter.
     ///
-    /// - Parameter valueFilter: A filter instance.
+    /// - Parameter middlewareFilter: A filter instance.
     /// - Returns: The current Builder instance.
-    public func add(valueFilter: @escaping (Buildable, Buildable.Filterable) throws -> Bool) -> Self {
-        return add(valueFilter: HMValueFilter(valueFilter))
+    public func add(middlewareFilter: @escaping MiddlewareFilter.Filter) -> Self {
+        return add(middlewareFilter: HMMiddlewareFilter(middlewareFilter))
     }
     
     /// Enable middlewares.

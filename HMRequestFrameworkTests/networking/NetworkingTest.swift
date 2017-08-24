@@ -18,18 +18,18 @@ public final class NetworkingTest: XCTestCase {
     fileprivate let dummy: Try<Any> = Try.success(())
     fileprivate let timeout: TimeInterval = 100
     fileprivate var disposeBag: DisposeBag!
-    fileprivate var rqMiddlewareManager: HMMiddlewareManager<Req>!
+    fileprivate var rqmManager: HMMiddlewareManager<Req>!
     fileprivate var handler: HMNetworkRequestHandler!
     fileprivate var processor: HMNetworkRequestProcessor!
     fileprivate var scheduler: TestScheduler!
     
     override public func setUp() {
         super.setUp()
-        rqMiddlewareManager = HMMiddlewareManager<Req>.builder().build()
+        rqmManager = HMMiddlewareManager<Req>.builder().build()
         
         handler = HMNetworkRequestHandler.builder()
             .with(urlSession: .shared)
-            .with(rqMiddlewareManager: rqMiddlewareManager)
+            .with(rqmManager: rqmManager)
             .build()
         
         processor = HMNetworkRequestProcessor(handler: handler)

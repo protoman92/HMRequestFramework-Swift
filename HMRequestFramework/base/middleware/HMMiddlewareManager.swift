@@ -14,12 +14,12 @@ import SwiftUtilities
 ///
 /// If a request handler uses this class, it must catch errors and wrap in
 /// Try itself.
-public struct HMMiddlewareManager<Target: HMValueFilterableType> {
+public struct HMMiddlewareManager<Target: HMMiddlewareFilterableType> {
     public typealias Filterable = Target.Filterable
     public typealias Transform = HMTransformMiddleware<Target>
     public typealias SideEffect = HMSideEffectMiddleware<Target>
-    fileprivate var tfMiddlewares: [(Filterable, Transform)]
-    fileprivate var seMiddlewares: [(Filterable, SideEffect)]
+    var tfMiddlewares: [(Filterable, Transform)]
+    var seMiddlewares: [(Filterable, SideEffect)]
     
     fileprivate init() {
         tfMiddlewares = []
@@ -34,7 +34,7 @@ public struct HMMiddlewareManager<Target: HMValueFilterableType> {
         -> [(Filterable, MW)] where
         S: Sequence, S.Iterator.Element == (Filterable, MW)
     {
-        let filters = result.valueFilters()
+        let filters = result.middlewareFilters()
 
         return filterables.filter({(filterable, _) in
             filters.all({(try? $0.filter(result, filterable)) ?? false})

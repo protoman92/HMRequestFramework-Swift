@@ -210,7 +210,7 @@ extension HMNetworkRequest.Builder: HMBuilderType {
             .with(uploadData: buildable.uploadData())
             .with(uploadURL: buildable.uploadURL())
             .with(timeout: buildable.timeout())
-            .with(valueFilters: buildable.valueFilters())
+            .with(middlewareFilters: buildable.middlewareFilters())
             .with(retries: buildable.retries())
             .with(applyMiddlewares: buildable.applyMiddlewares())
             .with(requestDescription: buildable.requestDescription())
@@ -221,21 +221,21 @@ extension HMNetworkRequest.Builder: HMRequestBuilderType {
 
     /// Override this method to provide default implementation.
     ///
-    /// - Parameter valueFilters: An Array of filters.
+    /// - Parameter middlewareFilters: An Array of filters.
     /// - Returns: The current Builder instance.
-    public func with<S>(valueFilters: S) -> Self where
-        S: Sequence, S.Iterator.Element == Buildable.MiddlewareFilter
+    public func with<S>(middlewareFilters: S) -> Self where
+        S: Sequence, S.Iterator.Element == MiddlewareFilter
     {
-        request.nwmwFilters = valueFilters.map({$0})
+        request.nwmwFilters = middlewareFilters.map({$0})
         return self
     }
     
     /// Override this method to provide default implementation.
     ///
-    /// - Parameter valueFilter: A filter instance.
+    /// - Parameter middlewareFilter: A filter instance.
     /// - Returns: The current Builder instance.
-    public func add(valueFilter: Buildable.MiddlewareFilter) -> Self {
-        request.nwmwFilters.append(valueFilter)
+    public func add(middlewareFilter: MiddlewareFilter) -> Self {
+        request.nwmwFilters.append(middlewareFilter)
         return self
     }
     
@@ -277,7 +277,7 @@ extension HMNetworkRequest.Builder: HMRequestBuilderType {
 extension HMNetworkRequest: HMRequestType {
     public typealias Filterable = String
     
-    public func valueFilters() -> [MiddlewareFilter] {
+    public func middlewareFilters() -> [MiddlewareFilter] {
         return nwmwFilters
     }
     

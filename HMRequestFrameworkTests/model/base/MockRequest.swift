@@ -9,13 +9,13 @@
 @testable import HMRequestFramework
 
 public struct MockRequest {
-    fileprivate var vFilters: [MiddlewareFilter]
+    fileprivate var mFilters: [MiddlewareFilter]
     fileprivate var retryCount: Int
     fileprivate var middlewaresEnabled: Bool
     fileprivate var rqDescription: String?
     
     fileprivate init() {
-        vFilters = []
+        mFilters = []
         retryCount = 1
         middlewaresEnabled = false
     }
@@ -24,8 +24,8 @@ public struct MockRequest {
 extension MockRequest: HMRequestType {
     public typealias Filterable = String
     
-    public func valueFilters() -> [MiddlewareFilter] {
-        return vFilters
+    public func middlewareFilters() -> [MiddlewareFilter] {
+        return mFilters
     }
     
     public func retries() -> Int {
@@ -46,18 +46,26 @@ public extension MockRequest {
         return Builder()
     }
     
-    public final class Builder {
-        fileprivate var request: MockRequest
+    public final class Builder: HMRequestBuilderType {
+        public typealias Buildable = MockRequest
+        
+        fileprivate var request: Buildable
         
         init() {
             request = MockRequest()
         }
         
         @discardableResult
-        public func with<S>(valueFilters: S) -> Self where
-            S: Sequence, S.Iterator.Element == MockRequest.MiddlewareFilter
+        public func with<S>(middlewareFilters: S) -> Self where
+            S: Sequence, S.Iterator.Element == MiddlewareFilter
         {
-            request.vFilters = valueFilters.map({$0})
+            request.mFilters = middlewareFilters.map({$0})
+            return self
+        }
+        
+        @discardableResult
+        public func add(middlewareFilter: MiddlewareFilter) -> MockRequest.Builder {
+            request.mFilters.append(middlewareFilter)
             return self
         }
         
@@ -79,7 +87,15 @@ public extension MockRequest {
             return self
         }
         
-        func build() -> MockRequest {
+        public func with(buildable: Buildable) -> Self {
+            return self
+                .with(middlewareFilters: buildable.middlewareFilters())
+                .with(applyMiddlewares: buildable.applyMiddlewares())
+                .with(retries: buildable.retries())
+                .with(requestDescription: buildable.requestDescription())
+        }
+        
+        public func build() -> Buildable {
             return request
         }
     }

@@ -13,7 +13,7 @@ import SwiftUtilities
 /// Use this class to perform network requests.
 public struct HMNetworkRequestHandler {
     fileprivate var nwUrlSession: URLSession?
-    fileprivate var rqMiddlewareManager: HMMiddlewareManager<Req>?
+    fileprivate var rqmManager: HMMiddlewareManager<Req>?
     
     fileprivate init() {}
     
@@ -103,7 +103,7 @@ extension HMNetworkRequestHandler: HMNetworkRequestHandlerType {
     ///
     /// - Returns: A HMMiddlewareManager instance.
     public func requestMiddlewareManager() -> HMMiddlewareManager<Req>? {
-        return rqMiddlewareManager
+        return rqmManager
     }
 }
 
@@ -132,11 +132,11 @@ extension HMNetworkRequestHandler: HMBuildableType {
         
         /// Set the request middleware manager instance.
         ///
-        /// - Parameter rqMiddlewareManager: A HMMiddlewareManager instance.
+        /// - Parameter rqmManager: A HMMiddlewareManager instance.
         /// - Returns: The current Builder instance.
         @discardableResult
-        public func with(rqMiddlewareManager: HMMiddlewareManager<Req>?) -> Self {
-            handler.rqMiddlewareManager = rqMiddlewareManager
+        public func with(rqmManager: HMMiddlewareManager<Req>?) -> Self {
+            handler.rqmManager = rqmManager
             return self
         }
     }
@@ -153,7 +153,7 @@ extension HMNetworkRequestHandler.Builder: HMBuilderType {
     public func with(buildable: Buildable) -> Self {
         return self
             .with(urlSession: buildable.urlSession())
-            .with(rqMiddlewareManager: buildable.requestMiddlewareManager())
+            .with(rqmManager: buildable.requestMiddlewareManager())
     }
     
     public func build() -> Buildable {

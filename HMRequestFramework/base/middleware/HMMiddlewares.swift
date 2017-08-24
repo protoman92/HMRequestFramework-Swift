@@ -36,7 +36,7 @@ public final class HMMiddlewares {
     public static func transformFromSideEffect<A>(
         _ sideEffectMiddleware: @escaping HMSideEffectMiddleware<A>)
         -> HMTransformMiddleware<A> where
-        A: HMValueFilterableType
+        A: HMMiddlewareFilterableType
     {
         return {
             try? sideEffectMiddleware($0)

@@ -78,8 +78,8 @@
 		D39BDAA41F4E6B5500A397BD /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D39BDAA31F4E6B5500A397BD /* Assets.xcassets */; };
 		D39BDAA71F4E6B5500A397BD /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D39BDAA51F4E6B5500A397BD /* LaunchScreen.storyboard */; };
 		D39BDAAD1F4E6BEF00A397BD /* Singleton.swift in Sources */ = {isa = PBXBuildFile; fileRef = D39BDAAC1F4E6BEF00A397BD /* Singleton.swift */; };
-		D39BDAAF1F4E789600A397BD /* HMValueFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = D39BDAAE1F4E789600A397BD /* HMValueFilter.swift */; };
-		D39BDAB21F4E7AC900A397BD /* HMValueFilterableType.swift in Sources */ = {isa = PBXBuildFile; fileRef = D39BDAB11F4E7AC900A397BD /* HMValueFilterableType.swift */; };
+		D39BDAAF1F4E789600A397BD /* HMMiddlewareFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = D39BDAAE1F4E789600A397BD /* HMMiddlewareFilter.swift */; };
+		D39BDAB21F4E7AC900A397BD /* HMMiddlewareFilterableType.swift in Sources */ = {isa = PBXBuildFile; fileRef = D39BDAB11F4E7AC900A397BD /* HMMiddlewareFilterableType.swift */; };
 		D3A03AEA1F4C0065006CBA02 /* HMCDManager+Reset+Rx.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3A03AE91F4C0065006CBA02 /* HMCDManager+Reset+Rx.swift */; };
 		D3AC07181F3D9C280085D329 /* HMCDKeyValueUpdatableType.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3AC07171F3D9C280085D329 /* HMCDKeyValueUpdatableType.swift */; };
 		D3AC071A1F3DA0FA0085D329 /* CoreDataObjectTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3AC07191F3DA0FA0085D329 /* CoreDataObjectTest.swift */; };
@@ -194,8 +194,8 @@
 		D39BDAA61F4E6B5500A397BD /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		D39BDAA81F4E6B5500A397BD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D39BDAAC1F4E6BEF00A397BD /* Singleton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Singleton.swift; sourceTree = "<group>"; };
-		D39BDAAE1F4E789600A397BD /* HMValueFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMValueFilter.swift; sourceTree = "<group>"; };
-		D39BDAB11F4E7AC900A397BD /* HMValueFilterableType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMValueFilterableType.swift; sourceTree = "<group>"; };
+		D39BDAAE1F4E789600A397BD /* HMMiddlewareFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = HMMiddlewareFilter.swift; path = ../model/HMMiddlewareFilter.swift; sourceTree = "<group>"; };
+		D39BDAB11F4E7AC900A397BD /* HMMiddlewareFilterableType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = HMMiddlewareFilterableType.swift; path = ../protocol/HMMiddlewareFilterableType.swift; sourceTree = "<group>"; };
 		D3A03AE91F4C0065006CBA02 /* HMCDManager+Reset+Rx.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HMCDManager+Reset+Rx.swift"; sourceTree = "<group>"; };
 		D3AC07171F3D9C280085D329 /* HMCDKeyValueUpdatableType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMCDKeyValueUpdatableType.swift; sourceTree = "<group>"; };
 		D3AC07191F3DA0FA0085D329 /* CoreDataObjectTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataObjectTest.swift; sourceTree = "<group>"; };
@@ -306,7 +306,6 @@
 		D32718371F3C96C6003487FA /* model */ = {
 			isa = PBXGroup;
 			children = (
-				D39BDAAE1F4E789600A397BD /* HMValueFilter.swift */,
 				D399C7F11F4AC8A70083C130 /* HMTransformer.swift */,
 				D3E7B51C1F4AFE62009357F5 /* HMTransformers.swift */,
 				D32718341F3C93DC003487FA /* HMResult.swift */,
@@ -349,6 +348,8 @@
 		D34DF2901F2C2D540076D6B1 /* middleware */ = {
 			isa = PBXGroup;
 			children = (
+				D39BDAB11F4E7AC900A397BD /* HMMiddlewareFilterableType.swift */,
+				D39BDAAE1F4E789600A397BD /* HMMiddlewareFilter.swift */,
 				D34DF2911F2C2D740076D6B1 /* HMMiddlewares.swift */,
 				D34DF2931F2C323A0076D6B1 /* HMMiddlewareManager.swift */,
 				D34DF2981F2C530F0076D6B1 /* HMMiddlewareManagerType.swift */,
@@ -601,7 +602,6 @@
 				D326B1811F2D7B210021216C /* HMBuildableType.swift */,
 				D3FC6E7B1F2F0588007471E2 /* HMIdentifiableType.swift */,
 				D31C58751F278A8A00C8D8CC /* HMProtocolConvertibleType.swift */,
-				D39BDAB11F4E7AC900A397BD /* HMValueFilterableType.swift */,
 			);
 			path = protocol;
 			sourceTree = "<group>";
@@ -919,7 +919,7 @@
 				D33CAAB31F3C50060000EE13 /* HMCDObjectConvertibleType.swift in Sources */,
 				D37D0BA51F25E3A00032C6AB /* HMRequestType.swift in Sources */,
 				D34DF2991F2C530F0076D6B1 /* HMMiddlewareManagerType.swift in Sources */,
-				D39BDAB21F4E7AC900A397BD /* HMValueFilterableType.swift in Sources */,
+				D39BDAB21F4E7AC900A397BD /* HMMiddlewareFilterableType.swift in Sources */,
 				D3EA76971F3CBCEE00A9275E /* HMVersionUpdateRequest.swift in Sources */,
 				D37D0BA61F25E3A00032C6AB /* HMCDRequestProcessor.swift in Sources */,
 				D3FC61921F2F88430006188D /* HMRequestGenerators.swift in Sources */,
@@ -962,7 +962,7 @@
 				D37D0BB21F25E3A00032C6AB /* HMNetworkRequestProcessor.swift in Sources */,
 				D37D0BB31F25E3A00032C6AB /* HMNetworkRequest.swift in Sources */,
 				D3FBDC171F2AFA080052A94A /* HMCDManager+Constructor+Rx.swift in Sources */,
-				D39BDAAF1F4E789600A397BD /* HMValueFilter.swift in Sources */,
+				D39BDAAF1F4E789600A397BD /* HMMiddlewareFilter.swift in Sources */,
 				D3922E081F262B41004A49B9 /* HMCDPersistentStoreSettings.swift in Sources */,
 				D37D0BB41F25E3A00032C6AB /* HMNetworkRequestType.swift in Sources */,
 				D32F6C1B1F3C1C94004F7133 /* HMCDObjectAliasType.swift in Sources */,

@@ -17,15 +17,15 @@ public final class RequestTest: XCTestCase {
     fileprivate typealias Req = RequestHandler.Req
     fileprivate let dummy: Try<Any> = Try.success(())
     fileprivate let timeout: TimeInterval = 100
-    fileprivate var rqMiddlewareManager: HMMiddlewareManager<Req>!
+    fileprivate var rqmManager: HMMiddlewareManager<Req>!
     fileprivate var disposeBag: DisposeBag!
     fileprivate var handler: RequestHandler!
     fileprivate var scheduler: TestScheduler!
     
     override public func setUp() {
         super.setUp()
-        rqMiddlewareManager = HMMiddlewareManager<Req>.builder().build()
-        handler = RequestHandler(requestMiddlewareManager: rqMiddlewareManager)
+        rqmManager = HMMiddlewareManager<Req>.builder().build()
+        handler = RequestHandler(requestMiddlewareManager: rqmManager)
         disposeBag = DisposeBag()
         scheduler = TestScheduler(initialClock: 0)
     }

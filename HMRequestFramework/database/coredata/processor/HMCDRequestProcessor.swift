@@ -14,7 +14,7 @@ import SwiftUtilities
 /// design limitations. This way, casting is done at the database level.
 public struct HMCDRequestProcessor {
     fileprivate var manager: HMCDManager?
-    fileprivate var rqMiddlewareManager: HMMiddlewareManager<Req>?
+    fileprivate var rqmManager: HMMiddlewareManager<Req>?
     
     fileprivate init() {}
     
@@ -34,7 +34,7 @@ extension HMCDRequestProcessor: HMCDRequestProcessorType {
     ///
     /// - Returns: A HMMiddlewareManager instance.
     public func requestMiddlewareManager() -> HMMiddlewareManager<Req>? {
-        return rqMiddlewareManager
+        return rqmManager
     }
 }
 
@@ -593,11 +593,11 @@ extension HMCDRequestProcessor: HMBuildableType {
         
         /// Set the request middleware manager.
         ///
-        /// - Parameter rqMiddlewareManager: A HMMiddlewareManager instance.
+        /// - Parameter rqmManager: A HMMiddlewareManager instance.
         /// - Returns: The current Builder instance.
         @discardableResult
-        public func with(rqMiddlewareManager: HMMiddlewareManager<Req>?) -> Self {
-            processor.rqMiddlewareManager = rqMiddlewareManager
+        public func with(rqmManager: HMMiddlewareManager<Req>?) -> Self {
+            processor.rqmManager = rqmManager
             return self
         }
     }
@@ -614,7 +614,7 @@ extension HMCDRequestProcessor.Builder: HMBuilderType {
     public func with(buildable: Buildable) -> Self {
         return self
             .with(manager: buildable.coreDataManager())
-            .with(rqMiddlewareManager: buildable.requestMiddlewareManager())
+            .with(rqmManager: buildable.requestMiddlewareManager())
     }
     
     

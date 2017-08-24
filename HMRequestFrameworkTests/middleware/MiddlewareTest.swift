@@ -12,10 +12,10 @@ import SwiftUtilities
 import XCTest
 @testable import HMRequestFramework
 
-extension Int: HMValueFilterableType {
+extension Int: HMMiddlewareFilterableType {
     public typealias Filterable = String
     
-    public func valueFilters() -> [HMValueFilter<Int>] {
+    public func middlewareFilters() -> [HMMiddlewareFilter<Int>] {
         return []
     }
 }
@@ -70,19 +70,21 @@ public final class MiddlewareTest: XCTestCase {
         /// Setup
         let observer = scheduler.createObserver(Try<Any>.self)
         let expect = expectation(description: "Should have completed")
+        let finalError = "This error should be thrown"
         
         // If we filter these middlewares out, we'd expect them not to be applied
         // to the request.
-        let rqMiddlewareManager = HMMiddlewareManager<MockRequest>.builder()
+        let rqmManager = HMMiddlewareManager<MockRequest>.builder()
             .add(transform: {_ in throw Exception("Error1") }, forKey: "middleware1")
             .add(transform: {_ in throw Exception("Error2") }, forKey: "middleware2")
+            .add(transform: {_ in throw Exception(finalError)}, forKey: "middleware3")
             .build()
         
+        // Even if there are some error filters, they will not affect the other
+        // filters.
         let request = MockRequest.builder()
-            .with(valueFilters: [
-                HMValueFilter<MockRequest>({$0.1 != "middleware1"}),
-                HMValueFilter<MockRequest>({$0.1 != "middleware2"})
-            ])
+            .add(middlewareFilter: {$0.1 != "middleware1"})
+            .add(middlewareFilter: {$0.1 != "middleware2"})
             .with(applyMiddlewares: true)
             .build()
         
@@ -92,7 +94,7 @@ public final class MiddlewareTest: XCTestCase {
             return Observable.just(Try.success(()))
         }
         
-        let handler = RequestHandler(requestMiddlewareManager: rqMiddlewareManager)
+        let handler = RequestHandler(requestMiddlewareManager: rqmManager)
         
         /// When
         handler.execute(Try.success(()), generator, perform)
@@ -106,10 +108,33 @@ public final class MiddlewareTest: XCTestCase {
         /// Then
         let nextElements = observer.nextElements()
         XCTAssertTrue(nextElements.count > 0)
+        XCTAssertTrue(nextElements.all({$0.isFailure}))
+        XCTAssertEqual(nextElements.first?.error?.localizedDescription, finalError)
+    }
+    
+    public func test_filterMiddlewareFailedWithError_shouldInvalidateAllMiddlewares() {
+        /// Setup
+        let rqmManager = HMMiddlewareManager<MockRequest>.builder()
+            .add(transform: {_ in throw Exception("Error1")}, forKey: "middleware1")
+            .add(transform: {_ in throw Exception("Error2")}, forKey: "middleware2")
+            .add(transform: {_ in throw Exception("Error3")}, forKey: "middleware3")
+            .build()
         
-        // Since all the middlewares throw errors, if they are applied, the
-        // final result will be a failure Try.
-        XCTAssertTrue(nextElements.all({$0.isSuccess}))
+        let request = MockRequest.builder()
+            .add(middlewareFilter: {_ in throw Exception("FilterError1")})
+            .add(middlewareFilter: {_ in throw Exception("FilterError2")})
+            .build()
+        
+        let tfMiddlewares = rqmManager.tfMiddlewares
+        let seMiddlewares = rqmManager.seMiddlewares
+        
+        /// When
+        let tfFiltered = rqmManager.filterMiddlewares(request, tfMiddlewares)
+        let seFiltered = rqmManager.filterMiddlewares(request, seMiddlewares)
+        
+        /// Then
+        XCTAssertEqual(tfFiltered.count, 0)
+        XCTAssertEqual(seFiltered.count, 0)
     }
     
     public func test_applyEmptyTransformMiddlewares_shouldReturnOriginal() {
@@ -154,14 +179,14 @@ public final class MiddlewareTest: XCTestCase {
         // This request object should be nil if the middlewares are not called.
         var requestObject: MockRequest? = nil
         
-        let rqMiddlewareManager: HMMiddlewareManager<MockRequest> =
+        let rqmManager: HMMiddlewareManager<MockRequest> =
             HMMiddlewareManager<MockRequest>.builder()
                 .add(transform: {_ in throw Exception("Should not be fired") }, forKey: "E1")
                 .add(sideEffect: {_ in throw Exception("Should not be fired") }, forKey: "E2")
                 .add(sideEffect: { requestObject = $0 }, forKey: "SE1")
                 .build()
         
-        let handler = RequestHandler(requestMiddlewareManager: rqMiddlewareManager)
+        let handler = RequestHandler(requestMiddlewareManager: rqmManager)
         
         /// When
         handler.execute(dummy, generator, perform)
@@ -199,7 +224,7 @@ public final class MiddlewareTest: XCTestCase {
         var requestObject: HMNetworkRequest? = nil
         
         // Need to reset properties here because these are all structs
-        let rqMiddlewareManager: HMMiddlewareManager<HMNetworkRequest> =
+        let rqmManager: HMMiddlewareManager<HMNetworkRequest> =
             HMMiddlewareManager<HMNetworkRequest>.builder()
                 .add(transform: {
                     Observable.just($0.cloneBuilder()
@@ -215,7 +240,7 @@ public final class MiddlewareTest: XCTestCase {
         
         let handler = HMNetworkRequestHandler.builder()
             .with(urlSession: URLSession.shared)
-            .with(rqMiddlewareManager: rqMiddlewareManager)
+            .with(rqmManager: rqmManager)
             .build()
 
         let nwProcessor = HMNetworkRequestProcessor(handler: handler)

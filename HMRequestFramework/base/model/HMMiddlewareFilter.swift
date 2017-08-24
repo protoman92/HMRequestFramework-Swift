@@ -1,5 +1,5 @@
 //
-//  HMValueFilter.swift
+//  HMMiddlewareFilter.swift
 //  HMRequestFramework
 //
 //  Created by Hai Pham on 24/8/17.
@@ -10,7 +10,7 @@ import RxSwift
 
 /// Classes that implement this protocol must be able to filter out some
 /// filterables based on another object.
-public struct HMValueFilter<Value: HMValueFilterableType> {
+public struct HMMiddlewareFilter<Value: HMMiddlewareFilterableType> {
     public typealias Filterable = Value.Filterable
     public typealias Filter = (Value, Filterable) throws -> Bool
     
