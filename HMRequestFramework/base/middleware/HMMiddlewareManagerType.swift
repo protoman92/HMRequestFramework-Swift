@@ -9,6 +9,8 @@
 import RxSwift
 import SwiftUtilities
 
+/// Classes that implement this protocol must be able to manage and apply
+/// middlewares.
 public protocol HMMiddlewareManagerType {
     associatedtype Target
     

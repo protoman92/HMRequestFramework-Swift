@@ -201,15 +201,16 @@ public extension CoreDataManagerTest {
 
 public extension CoreDataManagerTest {
     public func test_insertAndDeleteByBatch_shouldWork() {
+        let manager = self.manager!
+        
         // This does not work for in-memory store.
-        if case .InMemory = self.storeType! {
+        if manager.isMainStoreTypeInMemory() {
             return
         }
         
         /// Setup
         let observer = scheduler.createObserver(Any.self)
         let expect = expectation(description: "Should have completed")
-        let manager = self.manager!
         let dummyCount = self.dummyCount!
         let pureObjects = (0..<dummyCount).map({_ in Dummy1()})
         let fetchRequest = try! dummy1FetchRequest().fetchRequest(Dummy1.self)

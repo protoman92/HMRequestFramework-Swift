@@ -60,7 +60,7 @@ public final class CoreDataFRCTest: CoreDataRequestTest {
         let observer = scheduler.createObserver(Any.self)
         let frcObserver = scheduler.createObserver([Dummy1].self)
         let expect = expectation(description: "Should have completed")
-        let processor = dbProcessor!.processor
+        let processor = self.dbProcessor!
         var allDummies: [Dummy1] = []
         
         // Call count is 1 to take care of first empty event.

@@ -18,6 +18,7 @@ public struct HMNetworkRequest {
     fileprivate var httpBody: Any?
     fileprivate var httpUploadedData: Data?
     fileprivate var httpUploadURL: URL?
+    fileprivate var nwmwFilters: [MiddlewareFilter]
     fileprivate var timeoutInterval: TimeInterval
     fileprivate var retryCount: Int
     fileprivate var middlewaresEnabled: Bool
@@ -27,6 +28,7 @@ public struct HMNetworkRequest {
         retryCount = 1
         httpParams = []
         httpHeaders = [:]
+        nwmwFilters = []
         middlewaresEnabled = true
         timeoutInterval = TimeInterval.infinity
     }
@@ -190,35 +192,8 @@ extension HMNetworkRequest: HMBuildableType {
     }
 }
 
-extension HMNetworkRequest: HMProtocolConvertibleType {
-    public typealias PTCType = HMNetworkRequestType
-    
-    public func asProtocol() -> PTCType {
-        return self as PTCType
-    }
-}
-
-extension HMNetworkRequest.Builder: HMProtocolConvertibleBuilderType {
+extension HMNetworkRequest.Builder: HMBuilderType {
     public typealias Buildable = HMNetworkRequest
-    
-    /// Override this method to provide default implementation.
-    ///
-    /// - Parameter generic: A HMNetworkRequestType.
-    /// - Returns: The current Builder instance.
-    public func with(generic: Buildable.PTCType) -> Self {
-        return self
-            .with(urlString: try? generic.urlString())
-            .with(operation: try? generic.operation())
-            .with(body: try? generic.body())
-            .with(headers: generic.headers())
-            .with(params: generic.params())
-            .with(uploadData: generic.uploadData())
-            .with(uploadURL: generic.uploadURL())
-            .with(timeout: generic.timeout())
-            .with(retries: generic.retries())
-            .with(applyMiddlewares: generic.applyMiddlewares())
-            .with(requestDescription: generic.requestDescription())
-    }
     
     /// Override this method to provide default implementation.
     ///
@@ -226,12 +201,44 @@ extension HMNetworkRequest.Builder: HMProtocolConvertibleBuilderType {
     /// - Returns: The current Builder instance.
     @discardableResult
     public func with(buildable: Buildable) -> Self {
-        return with(generic: buildable)
+        return self
+            .with(urlString: try? buildable.urlString())
+            .with(operation: try? buildable.operation())
+            .with(body: try? buildable.body())
+            .with(headers: buildable.headers())
+            .with(params: buildable.params())
+            .with(uploadData: buildable.uploadData())
+            .with(uploadURL: buildable.uploadURL())
+            .with(timeout: buildable.timeout())
+            .with(valueFilters: buildable.valueFilters())
+            .with(retries: buildable.retries())
+            .with(applyMiddlewares: buildable.applyMiddlewares())
+            .with(requestDescription: buildable.requestDescription())
     }
 }
 
 extension HMNetworkRequest.Builder: HMRequestBuilderType {
 
+    /// Override this method to provide default implementation.
+    ///
+    /// - Parameter valueFilters: An Array of filters.
+    /// - Returns: The current Builder instance.
+    public func with<S>(valueFilters: S) -> Self where
+        S: Sequence, S.Iterator.Element == Buildable.MiddlewareFilter
+    {
+        request.nwmwFilters = valueFilters.map({$0})
+        return self
+    }
+    
+    /// Override this method to provide default implementation.
+    ///
+    /// - Parameter valueFilter: A filter instance.
+    /// - Returns: The current Builder instance.
+    public func add(valueFilter: Buildable.MiddlewareFilter) -> Self {
+        request.nwmwFilters.append(valueFilter)
+        return self
+    }
+    
     /// Override this method to provide default implementation.
     ///
     /// - Parameter retries: An Int value.
@@ -264,6 +271,26 @@ extension HMNetworkRequest.Builder: HMRequestBuilderType {
     
     public func build() -> Buildable {
         return request
+    }
+}
+
+extension HMNetworkRequest: HMRequestType {
+    public typealias Filterable = String
+    
+    public func valueFilters() -> [MiddlewareFilter] {
+        return nwmwFilters
+    }
+    
+    public func retries() -> Int {
+        return Swift.max(retryCount, 1)
+    }
+    
+    public func applyMiddlewares() -> Bool {
+        return middlewaresEnabled
+    }
+    
+    public func requestDescription() -> String? {
+        return rqDescription
     }
 }
 
@@ -310,18 +337,6 @@ extension HMNetworkRequest: HMNetworkRequestType {
     
     public func timeout() -> TimeInterval {
         return timeoutInterval
-    }
-    
-    public func retries() -> Int {
-        return Swift.max(retryCount, 1)
-    }
-    
-    public func applyMiddlewares() -> Bool {
-        return middlewaresEnabled
-    }
-    
-    public func requestDescription() -> String? {
-        return rqDescription
     }
 }
 

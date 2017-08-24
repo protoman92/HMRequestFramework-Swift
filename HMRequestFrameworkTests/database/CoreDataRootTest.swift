@@ -20,7 +20,6 @@ public class CoreDataRootTest: XCTestCase {
     let timeout: TimeInterval = 1000
     var dummyCount: Int!
     let dummy: Try<Any> = Try.success(1)
-    var storeType: HMCDPersistentStoreSettings.StoreType!
     var manager: HMCDManager!
     var disposeBag: DisposeBag!
     var scheduler: TestScheduler!
@@ -28,34 +27,7 @@ public class CoreDataRootTest: XCTestCase {
     override public func setUp() {
         super.setUp()
         dummyCount = 1000
-        storeType = .InMemory
-        
-        let fileManager = FileManager.default
-        
-        let url = HMCDPersistentStoreURL.builder()
-            .with(fileManager: fileManager)
-            .withDocumentDirectory()
-            .withUserDomainMask()
-            .with(fileName: "HMRequestFramework")
-            .with(storeType: .SQLite)
-            .build()
-        
-        print("Creating store at \(try! url.storeURL())")
-        try? fileManager.removeItem(at: try! url.storeURL())
-        
-        let settings = [
-            HMCDPersistentStoreSettings.builder()
-                .with(storeType: storeType)
-                .with(persistentStoreURL: url)
-                .build()
-        ]
-        
-        let constructor = HMCDConstructor.builder()
-            .with(cdTypes: Dummy1.CDClass.self, Dummy2.CDClass.self)
-            .with(settings: settings)
-            .build()
-        
-        manager = try! HMCDManager(constructor: constructor)
+        manager = Singleton.coreDataManager()
         disposeBag = DisposeBag()
         scheduler = TestScheduler(initialClock: 0)
     }

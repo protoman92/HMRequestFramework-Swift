@@ -12,6 +12,12 @@ import SwiftUtilities
 import XCTest
 @testable import HMRequestFramework
 
+extension Int: HMValueBasedFilterableType {
+    public func valueFilters() -> [HMValueBasedFilter<Int,String>] {
+        return []
+    }
+}
+
 public final class MiddlewareTest: XCTestCase {
     fileprivate let timeout: TimeInterval = 1000
     fileprivate var manager: HMMiddlewareManager<Int>!
@@ -27,23 +33,18 @@ public final class MiddlewareTest: XCTestCase {
     
     public func test_applyValidTransformMiddlewares_shouldWork() {
         /// Setup
-        let times = 1000
-        
-        let times2: HMTransformMiddleware<Int> = {
-            Observable.just($0 * 2)
-        }
-        
-        let times3: HMTransformMiddleware<Int> = {
-            Observable.just($0 * 3)
-        }
-        
-        let times4: HMTransformMiddleware<Int> = {
-            Observable.just($0 * 4)
-        }
-
-        let middlewares = [times2, times3, times4]
-        let expect = expectation(description: "Should have completed")
         let observer = scheduler.createObserver(Any.self)
+        let expect = expectation(description: "Should have completed")
+        let times = 1000
+        let middleware1: HMTransformMiddleware<Int> = {Observable.just($0 * 2)}
+        let middleware2: HMTransformMiddleware<Int> = {Observable.just($0 * 3)}
+        let middleware3: HMTransformMiddleware<Int> = {Observable.just($0 * 4)}
+
+        let middlewares = [
+            ("middleware1", middleware1),
+            ("middleware2", middleware2),
+            ("middleware3", middleware3)
+        ]
         
         /// When
         Observable.range(start: 0, count: times)
@@ -63,11 +64,57 @@ public final class MiddlewareTest: XCTestCase {
         XCTAssertEqual(nextElements.count, times)
     }
     
+    public func test_filterMiddlewaresWithFilterables_shouldWork() {
+        /// Setup
+        let observer = scheduler.createObserver(Try<Any>.self)
+        let expect = expectation(description: "Should have completed")
+        
+        // If we filter these middlewares out, we'd expect them not to be applied
+        // to the request.
+        let rqMiddlewareManager = HMMiddlewareManager<MockRequest>.builder()
+            .add(transform: {_ in throw Exception("Error1") }, forKey: "middleware1")
+            .add(transform: {_ in throw Exception("Error2") }, forKey: "middleware2")
+            .build()
+        
+        let request = MockRequest.builder()
+            .with(valueFilters: [
+                MockRequest.MiddlewareFilter({$0.1 != "middleware1"}),
+                MockRequest.MiddlewareFilter({$0.1 != "middleware2"})
+            ])
+            .with(applyMiddlewares: true)
+            .build()
+        
+        let generator = HMRequestGenerators.forceGn(request, Any.self)
+        
+        let perform: (MockRequest) throws -> Observable<Try<Void>> = {_ in
+            return Observable.just(Try.success(()))
+        }
+        
+        let handler = RequestHandler(requestMiddlewareManager: rqMiddlewareManager)
+        
+        /// When
+        handler.execute(Try.success(()), generator, perform)
+            .map({$0.map({$0 as Any})})
+            .doOnDispose(expect.fulfill)
+            .subscribe(observer)
+            .disposed(by: disposeBag)
+        
+        waitForExpectations(timeout: timeout, handler: nil)
+        
+        /// Then
+        let nextElements = observer.nextElements()
+        XCTAssertTrue(nextElements.count > 0)
+        
+        // Since all the middlewares throw errors, if they are applied, the
+        // final result will be a failure Try.
+        XCTAssertTrue(nextElements.all({$0.isSuccess}))
+    }
+    
     public func test_applyEmptyTransformMiddlewares_shouldReturnOriginal() {
         /// Setup
-        let original = 1
-        let expect = expectation(description: "Should have completed")
         let observer = scheduler.createObserver(Int.self)
+        let expect = expectation(description: "Should have completed")
+        let original = 1
         
         /// When
         manager.applyTransformMiddlewares(original, [])
@@ -85,20 +132,18 @@ public final class MiddlewareTest: XCTestCase {
         XCTAssertEqual(original, first)
     }
     
-    public func test_middlewareDisabledRequest_shouldNotFireMiddlewares() {
+    public func test_disableMiddlewaresForRequest_shouldNotFireMiddlewares() {
         /// Setup
-        let dummy: Try<Any> = Try.success(())
         let observer = scheduler.createObserver(Try<Any>.self)
         let expect = expectation(description: "Should have completed")
+        let dummy: Try<Any> = Try.success(())
         
         let request = MockRequest.builder()
             .with(applyMiddlewares: false)
             .with(retries: 10)
             .build()
         
-        let generator: HMAnyRequestGenerator<MockRequest> = {_ in
-            Observable.just(Try.success(request))
-        }
+        let generator = HMRequestGenerators.forceGn(request, Any.self)
         
         let perform: (MockRequest) throws -> Observable<Try<Any>> = {_ in
             throw Exception("Error!")
@@ -109,10 +154,9 @@ public final class MiddlewareTest: XCTestCase {
         
         let rqMiddlewareManager: HMMiddlewareManager<MockRequest> =
             HMMiddlewareManager<MockRequest>.builder()
-                .add(transform: {_ in throw Exception("Should not be fired") })
-                .add(sideEffect: {_ in throw Exception("Should not be fired") })
-                .add(sideEffect: { requestObject = $0 })
-                .addLoggingMiddleware()
+                .add(transform: {_ in throw Exception("Should not be fired") }, forKey: "E1")
+                .add(sideEffect: {_ in throw Exception("Should not be fired") }, forKey: "E2")
+                .add(sideEffect: { requestObject = $0 }, forKey: "SE1")
                 .build()
         
         let handler = RequestHandler(requestMiddlewareManager: rqMiddlewareManager)
@@ -131,9 +175,9 @@ public final class MiddlewareTest: XCTestCase {
     
     public func test_requestMiddlewaresForNetworkRequest_shouldAddHeaders() {
         /// Setup
-        let dummy: Try<Any> = Try.success(())
         let observer = scheduler.createObserver(Try<Any>.self)
         let expect = expectation(description: "Should have completed")
+        let dummy: Try<Any> = Try.success(())
         
         let request = HMNetworkRequest.builder()
             .with(resource: MockResource.empty)
@@ -156,13 +200,15 @@ public final class MiddlewareTest: XCTestCase {
         let rqMiddlewareManager: HMMiddlewareManager<HMNetworkRequest> =
             HMMiddlewareManager<HMNetworkRequest>.builder()
                 .add(transform: {
-                    Observable.just($0.cloneBuilder().with(headers: headers).build())
-                })
+                    Observable.just($0.cloneBuilder()
+                        .with(headers: headers)
+                        .build())
+                }, forKey: "TF1")
                 .add(sideEffect: {
                     let rqHeaders = $0.headers()
                     XCTAssertEqual(headers, rqHeaders!)
                     requestObject = request
-                })
+                }, forKey: "SE1")
                 .build()
         
         let handler = HMNetworkRequestHandler.builder()

@@ -17,13 +17,6 @@ extension Reactive where Base: HMCDResultController {
         try base.controller().performFetch()
     }
     
-    /// Stop the stream.
-    public func stopStream() {
-        let base = self.base
-        base.frc?.delegate = nil
-        base.cdSubject.onCompleted()
-    }
-    
     /// Get an Observable stream that only emits pure objects of some type.
     ///
     /// - Parameter cls: The PO class type.

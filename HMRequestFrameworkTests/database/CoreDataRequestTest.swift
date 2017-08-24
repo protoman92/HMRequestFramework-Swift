@@ -18,20 +18,11 @@ import XCTest
 public class CoreDataRequestTest: CoreDataRootTest {
     let generatorError = "Generator error!"
     let processorError = "Processor error!"
-    var rqMiddlewareManager: HMMiddlewareManager<Req>!
-    var cdProcessor: HMCDRequestProcessor!
-    var dbProcessor: DBRequestProcessor!
+    var dbProcessor: HMCDRequestProcessor!
     
     override public func setUp() {
         super.setUp()
-        rqMiddlewareManager = HMMiddlewareManager<Req>.builder().build()
-        
-        cdProcessor = HMCDRequestProcessor.builder()
-            .with(manager: manager)
-            .with(rqMiddlewareManager: rqMiddlewareManager)
-            .build()
-        
-        dbProcessor = DBRequestProcessor(processor: cdProcessor)
+        dbProcessor = Singleton.dbProcessor(manager!)
     }
     
     /// This test represents the upper layer (API user). We are trying to prove
@@ -44,7 +35,7 @@ public class CoreDataRequestTest: CoreDataRootTest {
         /// Setup
         let observer = scheduler.createObserver(Try<Any>.self)
         let expect = expectation(description: "Should have completed")
-        let dbProcessor = self.dbProcessor!.processor
+        let dbProcessor = self.dbProcessor!
         let generator = errorDBRgn()
         let processor = errorDBRps()
 
@@ -76,7 +67,7 @@ public class CoreDataRequestTest: CoreDataRootTest {
         /// Setup
         let observer = scheduler.createObserver(Dummy1.self)
         let expect = expectation(description: "Should have completed")
-        let cdProcessor = self.cdProcessor!
+        let dbProcessor = self.dbProcessor!
         let manager = self.manager!
         let context = manager.disposableObjectContext()
         let dummyCount = self.dummyCount!
@@ -97,30 +88,30 @@ public class CoreDataRequestTest: CoreDataRootTest {
 
         /// When
         // Save the changes in the disposable context.
-        cdProcessor.saveToMemory(Try.success(pureObjects))
+        dbProcessor.saveToMemory(Try.success(pureObjects))
             .map({$0.map({$0 as Any})})
 
             // Persist changes to DB.
-            .flatMap({cdProcessor.persistToDB($0)})
+            .flatMap({dbProcessor.persistToDB($0)})
             .map({$0.map({$0 as Any})})
 
             // Fetch to verify that data have been persisted.
-            .flatMap({cdProcessor.fetchAllDataFromDB($0, Dummy1.self)})
+            .flatMap({dbProcessor.fetchAllDataFromDB($0, Dummy1.self)})
             .map({try $0.getOrThrow()})
             .doOnNext({XCTAssertEqual($0.count, dummyCount)})
             .doOnNext({XCTAssertTrue(pureObjects.all($0.contains))})
             .map({$0 as Any}).map(Try.success)
 
             // Delete data from memory, but do not persist to DB yet.
-            .flatMap({cdProcessor.processVoid($0, deleteGn)})
+            .flatMap({dbProcessor.processVoid($0, deleteGn)})
             .map({$0.map({$0 as Any})})
 
             // Persist changes to DB.
-            .flatMap({cdProcessor.persistToDB($0)})
+            .flatMap({dbProcessor.persistToDB($0)})
             .map({$0.map({$0 as Any})})
 
             // Fetch to verify that the data have been deleted.
-            .flatMap({cdProcessor.fetchAllDataFromDB($0, Dummy1.self)})
+            .flatMap({dbProcessor.fetchAllDataFromDB($0, Dummy1.self)})
             .map({try $0.getOrThrow()})
             .flatMap({Observable.from($0)})
             .doOnDispose(expect.fulfill)
@@ -138,7 +129,7 @@ public class CoreDataRequestTest: CoreDataRootTest {
         /// Setup
         let observer = scheduler.createObserver(Dummy1.self)
         let expect = expectation(description: "Should have completed")
-        let dbProcessor = self.cdProcessor!
+        let dbProcessor = self.dbProcessor!
         let dummyCount = self.dummyCount!
         let pureObjects = (0..<dummyCount).map({_ in Dummy1()})
         let deleteGn = dummy1BatchDeleteRgn()
@@ -187,7 +178,7 @@ public class CoreDataRequestTest: CoreDataRootTest {
         let observer = scheduler.createObserver(Dummy1.self)
         let expect = expectation(description: "Should have completed")
         let manager = self.manager!
-        let dbProcessor = self.dbProcessor!.processor
+        let dbProcessor = self.dbProcessor!
         let context = manager.disposableObjectContext()
         let times1 = 1000
         let times2 = 2000
@@ -254,7 +245,7 @@ public class CoreDataRequestTest: CoreDataRootTest {
         let observer = scheduler.createObserver(Dummy1.self)
         let expect = expectation(description: "Should have completed")
         let manager = self.manager!
-        let dbProcessor = self.dbProcessor!.processor
+        let dbProcessor = self.dbProcessor!
         let context = manager.disposableObjectContext()
         let times = 1000
         let pureObjects1 = (0..<times).map({_ in Dummy1()})
@@ -319,7 +310,7 @@ public class CoreDataRequestTest: CoreDataRootTest {
         /// Setup
         let observer = scheduler.createObserver(Dummy1.self)
         let expect = expectation(description: "Should have completed")
-        let dbProcessor = self.dbProcessor!.processor
+        let dbProcessor = self.dbProcessor!
         let dummyCount = self.dummyCount!
         let pureObjects = (0..<dummyCount).map({_ in Dummy1()})
 
@@ -347,7 +338,7 @@ public class CoreDataRequestTest: CoreDataRootTest {
         /// Setup
         let observer = scheduler.createObserver(Dummy1.self)
         let expect = expectation(description: "Should have completed")
-        let dbProcessor = self.dbProcessor!.processor
+        let dbProcessor = self.dbProcessor!
         let dummyCount = self.dummyCount!
         let pureObjects = (0..<dummyCount).map({_ in Dummy1()})
         
@@ -375,7 +366,7 @@ public class CoreDataRequestTest: CoreDataRootTest {
     
     public func test_cdNonTypedRequestObject_shouldThrowErrorsIfNecessary() {
         var currentCheck = 0
-        let processor = cdProcessor!
+        let processor = self.dbProcessor!
         
         let checkError: (Req, Bool) -> Req = {
             currentCheck += 1

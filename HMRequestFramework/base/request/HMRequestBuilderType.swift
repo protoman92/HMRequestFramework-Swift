@@ -9,6 +9,19 @@
 public protocol HMRequestBuilderType: HMBuilderType {
     associatedtype Buildable: HMRequestType
     
+    /// Set the value filters.
+    ///
+    /// - Parameter valueFilters: A Sequence of filters.
+    /// - Returns: The current Builder instance.
+    func with<S>(valueFilters: S) -> Self where
+        S: Sequence, S.Iterator.Element == Buildable.MiddlewareFilter
+    
+    /// Add a value filter.
+    ///
+    /// - Parameter valueFilter: A filter instance.
+    /// - Returns: The current Builder instance.
+    func add(valueFilter: Buildable.MiddlewareFilter) -> Self
+    
     /// Set the retry count.
     ///
     /// - Parameter retries: An Int value.

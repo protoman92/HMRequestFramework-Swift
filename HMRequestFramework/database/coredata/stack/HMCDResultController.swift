@@ -17,6 +17,10 @@ public final class HMCDResultController: NSObject {
     let cdSubject: BehaviorSubject<[Result]>
     var frc: Controller?
     
+    deinit {
+        print("Deinit \(self)")
+    }
+    
     override fileprivate init() {
         cdSubject = BehaviorSubject<[Result]>(value: [])
         super.init()

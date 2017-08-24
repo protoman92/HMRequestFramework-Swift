@@ -25,6 +25,7 @@ public struct HMCDRequest {
     fileprivate var cdVCStrategy: VersionConflict.Strategy?
     fileprivate var cdfrcSectionName: String?
     fileprivate var cdfrcCacheName: String?
+    fileprivate var cdmwFilters: [MiddlewareFilter]
     fileprivate var retryCount: Int
     fileprivate var middlewaresEnabled: Bool
     fileprivate var rqDescription: String?
@@ -36,6 +37,7 @@ public struct HMCDRequest {
         cdUpsertedData = []
         cdDeletedData = []
         nsSortDescriptors = []
+        cdmwFilters = []
         retryCount = 1
         middlewaresEnabled = true
     }
@@ -345,6 +347,26 @@ extension HMCDRequest.Builder: HMRequestBuilderType {
     
     /// Override this method to provide default implementation.
     ///
+    /// - Parameter valueFilters: An Array of filters.
+    /// - Returns: The current Builder instance.
+    public func with<S>(valueFilters: S) -> Self where
+        S: Sequence, S.Iterator.Element == Buildable.MiddlewareFilter
+    {
+        request.cdmwFilters = valueFilters.map({$0})
+        return self
+    }
+    
+    /// Override this method to provide default implementation.
+    ///
+    /// - Parameter valueFilter: A filter instance..
+    /// - Returns: The current Builder instance.
+    public func add(valueFilter: Buildable.MiddlewareFilter) -> Self {
+        request.cdmwFilters.append(valueFilter)
+        return self
+    }
+    
+    /// Override this method to provide default implementation.
+    ///
     /// - Parameter retries: An Int value.
     /// - Returns: The current Builder instance.
     @discardableResult
@@ -394,6 +416,7 @@ extension HMCDRequest.Builder: HMRequestBuilderType {
             .with(vcStrategy: try? buildable.versionConflictStrategy())
             .with(frcSectionName: buildable.frcSectionName())
             .with(frcCacheName: buildable.frcCacheName())
+            .with(valueFilters: buildable.valueFilters())
             .with(retries: buildable.retries())
             .with(applyMiddlewares: buildable.applyMiddlewares())
             .with(requestDescription: buildable.requestDescription())
@@ -401,6 +424,26 @@ extension HMCDRequest.Builder: HMRequestBuilderType {
     
     public func build() -> Buildable {
         return request
+    }
+}
+
+extension HMCDRequest: HMRequestType {
+    public typealias Filterable = String
+    
+    public func valueFilters() -> [MiddlewareFilter] {
+        return cdmwFilters
+    }
+    
+    public func retries() -> Int {
+        return Swift.max(retryCount, 1)
+    }
+    
+    public func applyMiddlewares() -> Bool {
+        return middlewaresEnabled
+    }
+    
+    public func requestDescription() -> String? {
+        return rqDescription
     }
 }
 
@@ -481,18 +524,6 @@ extension HMCDRequest: HMCDRequestType {
         } else {
             throw Exception("Version conflict strategy must not be nil")
         }
-    }
-    
-    public func retries() -> Int {
-        return Swift.max(retryCount, 1)
-    }
-    
-    public func applyMiddlewares() -> Bool {
-        return middlewaresEnabled
-    }
-    
-    public func requestDescription() -> String? {
-        return rqDescription
     }
 }
 
