@@ -46,6 +46,24 @@ public protocol HMRequestBuilderType: HMBuilderType {
 
 public extension HMRequestBuilderType {
     
+    /// Set the value filters.
+    ///
+    /// - Parameter valueFilters: A Sequence of filters.
+    /// - Returns: The current Builder instance.
+    public func with<S>(valueFilters: S) -> Self where
+        S: Sequence, S.Iterator.Element == (Buildable, Buildable.Filterable) throws -> Bool
+    {
+        return with(valueFilters: valueFilters.map(HMValueFilter.init))
+    }
+    
+    /// Add a value filter.
+    ///
+    /// - Parameter valueFilter: A filter instance.
+    /// - Returns: The current Builder instance.
+    public func add(valueFilter: @escaping (Buildable, Buildable.Filterable) throws -> Bool) -> Self {
+        return add(valueFilter: HMValueFilter(valueFilter))
+    }
+    
     /// Enable middlewares.
     ///
     /// - Returns: The current Builder instance.
