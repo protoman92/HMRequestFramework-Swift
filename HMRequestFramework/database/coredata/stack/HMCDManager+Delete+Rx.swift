@@ -1,5 +1,5 @@
 //
-//  HMCDManager+Delete.swift
+//  HMCDManager+Delete+Rx.swift
 //  HMRequestFramework
 //
 //  Created by Hai Pham on 8/9/17.

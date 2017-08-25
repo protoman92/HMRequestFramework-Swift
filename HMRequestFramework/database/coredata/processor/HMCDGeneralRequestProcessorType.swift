@@ -101,8 +101,8 @@ public protocol HMCDGeneralRequestProcessorType {
     ///   - cls: The PO class type.
     ///   - transforms: A Sequence of Request transformers.
     /// - Returns: An Observable instance.
-    func streamDBChanges<S,PO>(_ cls: PO.Type, _ transforms: S)
-        -> Observable<Try<[PO]>> where
+    func streamDBEvents<S,PO>(_ cls: PO.Type, _ transforms: S)
+        -> Observable<Try<HMCDEvent<PO>>> where
         PO: HMCDPureObjectType,
         PO.CDClass: HMCDPureObjectConvertibleType,
         PO.CDClass.PureObject == PO,
@@ -167,13 +167,13 @@ public extension HMCDGeneralRequestProcessorType {
         return persistToDB(previous, transforms)
     }
     
-    public func streamDBChanges<PO>(_ cls: PO.Type,
+    public func streamDBEvents<PO>(_ cls: PO.Type,
                                     _ transforms: HMTransformer<HMCDRequest>...)
-        -> Observable<Try<[PO]>> where
+        -> Observable<Try<HMCDEvent<PO>>> where
         PO: HMCDPureObjectType,
         PO.CDClass: HMCDPureObjectConvertibleType,
         PO.CDClass.PureObject == PO
     {
-        return streamDBChanges(cls, transforms)
+        return streamDBEvents(cls, transforms)
     }
 }

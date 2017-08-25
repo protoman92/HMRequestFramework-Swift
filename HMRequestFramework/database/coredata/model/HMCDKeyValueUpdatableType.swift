@@ -13,17 +13,7 @@ import CoreData
 ///
 /// This protocol implies mutation. Therefore, we should try not to use it
 /// as much as possible.
-public protocol HMCDKeyValueUpdatableType {
-    
-    /// Get the keys to be used to access inner properties.
-    ///
-    /// - Returns: An Array of String.
-    func updateKeys() -> [String]
-    
-    /// Get the key-value pairs to be used for an update.
-    ///
-    /// - Returns: A Dictionary instance.
-    func updateDictionary() -> [String : Any?]
+public protocol HMCDKeyValueUpdatableType: HMCDKeyValueRepresentableType {
     
     /// Update inner properties using a Dictionary.
     ///
@@ -42,18 +32,12 @@ public extension HMCDKeyValueUpdatableType {
     }
 }
 
-public extension HMCDKeyValueUpdatableType where Self: NSManagedObject {
-    public func updateDictionary() -> [String : Any?] {
-        var dict: [String : Any?] = [:]
-        let keys = updateKeys()
-        
-        for key in keys {
-            dict.updateValue(value(forKey: key), forKey: key)
-        }
-        
-        return dict
-    }
+public extension HMCDKeyValueUpdatableType where Self: NSObject {
     
+    /// Update the current object's properties with NSObject methods.
+    ///
+    /// - Parameter dict: A Dictionary instance.
+    /// - Throws: Exception if the update fails.
     public func update(with dict: [String : Any?]) throws {
         for (key, value) in dict {
             setValue(value, forKey: key)

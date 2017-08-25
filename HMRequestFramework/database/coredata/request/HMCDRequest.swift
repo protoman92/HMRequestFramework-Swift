@@ -347,21 +347,21 @@ extension HMCDRequest.Builder: HMRequestBuilderType {
 
     /// Override this method to provide default implementation.
     ///
-    /// - Parameter middlewareFilters: An Array of filters.
+    /// - Parameter mwFilters: An Array of filters.
     /// - Returns: The current Builder instance.
-    public func with<S>(middlewareFilters: S) -> Self where
+    public func with<S>(mwFilters: S) -> Self where
         S: Sequence, S.Iterator.Element == HMMiddlewareFilter<Buildable>
     {
-        request.cdmwFilters = middlewareFilters.map({$0})
+        request.cdmwFilters = mwFilters.map({$0})
         return self
     }
 
     /// Override this method to provide default implementation.
     ///
-    /// - Parameter middlewareFilter: A filter instance..
+    /// - Parameter mwFilter: A filter instance..
     /// - Returns: The current Builder instance.
-    public func add(middlewareFilter: HMMiddlewareFilter<Buildable>) -> Self {
-        request.cdmwFilters.append(middlewareFilter)
+    public func add(mwFilter: HMMiddlewareFilter<Buildable>) -> Self {
+        request.cdmwFilters.append(mwFilter)
         return self
     }
 
@@ -416,7 +416,7 @@ extension HMCDRequest.Builder: HMRequestBuilderType {
             .with(vcStrategy: try? buildable.versionConflictStrategy())
             .with(frcSectionName: buildable.frcSectionName())
             .with(frcCacheName: buildable.frcCacheName())
-            .with(middlewareFilters: buildable.middlewareFilters())
+            .with(mwFilters: buildable.middlewareFilters())
             .with(retries: buildable.retries())
             .with(applyMiddlewares: buildable.applyMiddlewares())
             .with(requestDescription: buildable.requestDescription())

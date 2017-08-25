@@ -18,12 +18,6 @@ import XCTest
 public class CoreDataRequestTest: CoreDataRootTest {
     let generatorError = "Generator error!"
     let processorError = "Processor error!"
-    var dbProcessor: HMCDRequestProcessor!
-    
-    override public func setUp() {
-        super.setUp()
-        dbProcessor = Singleton.dbProcessor(manager!)
-    }
     
     /// This test represents the upper layer (API user). We are trying to prove
     /// that this upper layer knows nothing about the specific database

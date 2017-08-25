@@ -56,16 +56,16 @@ public extension MockRequest {
         }
         
         @discardableResult
-        public func with<S>(middlewareFilters: S) -> Self where
+        public func with<S>(mwFilters: S) -> Self where
             S: Sequence, S.Iterator.Element == MiddlewareFilter
         {
-            request.mFilters = middlewareFilters.map({$0})
+            request.mFilters = mwFilters.map({$0})
             return self
         }
         
         @discardableResult
-        public func add(middlewareFilter: MiddlewareFilter) -> MockRequest.Builder {
-            request.mFilters.append(middlewareFilter)
+        public func add(mwFilter: MiddlewareFilter) -> MockRequest.Builder {
+            request.mFilters.append(mwFilter)
             return self
         }
         
@@ -89,7 +89,7 @@ public extension MockRequest {
         
         public func with(buildable: Buildable) -> Self {
             return self
-                .with(middlewareFilters: buildable.middlewareFilters())
+                .with(mwFilters: buildable.middlewareFilters())
                 .with(applyMiddlewares: buildable.applyMiddlewares())
                 .with(retries: buildable.retries())
                 .with(requestDescription: buildable.requestDescription())

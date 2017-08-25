@@ -1,5 +1,5 @@
 //
-//  HMCDManager+Fetch.swift
+//  HMCDManager+Fetch+Rx.swift
 //  HMRequestFramework
 //
 //  Created by Hai Pham on 8/9/17.

@@ -14,8 +14,8 @@ fileprivate extension NSManagedObject {
     
     /// Update inner properties using a HMCDKeyValueUpdatableType.
     ///
-    /// - Parameter obj: A HMCDKeyValueUpdatableType instance.
-    fileprivate func update(from obj: HMCDKeyValueUpdatableType) {
+    /// - Parameter obj: A HMCDKeyValueRepresentableType instance.
+    fileprivate func update(from obj: HMCDKeyValueRepresentableType) {
         let dict = obj.updateDictionary()
         
         for (key, value) in dict {

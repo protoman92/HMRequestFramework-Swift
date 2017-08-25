@@ -18,7 +18,7 @@
 /// filter as such: HMMiddlewareFilter({$0.1 != middlewareName}). These middlewares
 /// will be omitted from the application.
 public protocol HMMiddlewareFilterableType {
-    associatedtype Filterable
+    associatedtype Filterable: Equatable
     
     /// Get an Array of filters of Self type.
     ///

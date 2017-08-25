@@ -13,7 +13,7 @@ import XCTest
 import SwiftUtilities
 @testable import HMRequestFramework
 
-public final class CoreDataFRCTest: CoreDataRequestTest {
+public final class CoreDataFRCTest: CoreDataRootTest {
     var iterationCount: Int!
     
     override public func setUp() {
@@ -22,25 +22,93 @@ public final class CoreDataFRCTest: CoreDataRequestTest {
         dummyCount = 2
     }
     
-    public func test_streamDBObjectsWithFRCWrapper_shouldWork() {
+    public func test_streamDBInsertsWithProcessor_shouldWork() {
         /// Setup
         let observer = scheduler.createObserver(Any.self)
-        let frcObserver = scheduler.createObserver([Dummy1].self)
+        let frcObserver = scheduler.createObserver(Any.self)
+        let expect = expectation(description: "Should have completed")
+        let processor = self.dbProcessor!
+        let iterationCount = self.iterationCount!
+        var allDummies: [Dummy1] = []
+        
+        // Call count is -1 initially to take care of first empty event.
+        var callCount = -1
+        var didChangeCount = 0
+        var willChangeCount = 0
+        var insertCount = 0
+        
+        /// When
+        processor.streamDBEvents(Dummy1.self)
+            .doOnNext({_ in callCount += 1})
+            .map({try $0.getOrThrow()})
+            .doOnNext({
+                switch $0 {
+                case .didChange: didChangeCount += 1
+                case .willChange: willChangeCount += 1
+                case .insert: insertCount += 1
+                default: break
+                }
+            })
+            .doOnNext({self.validateDidChange($0, {allDummies.all($0.contains)})})
+            
+            // The insert event is broadcast before didChange, so allDummies
+            // do not contain the inner object yet.
+            .doOnNext({self.validateInsert($0, {!allDummies.contains($0)})})
+            .cast(to: Any.self)
+            .subscribe(frcObserver)
+            .disposed(by: disposeBag)
+        
+        insertNewObjects({allDummies.append(contentsOf: $0)})
+            .doOnDispose(expect.fulfill)
+            .subscribe(observer)
+            .disposed(by: disposeBag)
+        
+        waitForExpectations(timeout: timeout, handler: nil)
+        
+        // Then
+        XCTAssertTrue(callCount >= iterationCount)
+        XCTAssertEqual(didChangeCount, iterationCount)
+        XCTAssertEqual(willChangeCount, iterationCount)
+        XCTAssertEqual(callCount, didChangeCount + willChangeCount + insertCount)
+    }
+    
+    public func test_streamDBInsertsWithFRCWrapper_shouldWork() {
+        /// Setup
+        let observer = scheduler.createObserver(Any.self)
+        let frcObserver = scheduler.createObserver(Any.self)
         let expect = expectation(description: "Should have completed")
         let manager = self.manager!
         let frcRequest = dummy1FetchRequest()
         let frc = try! manager.getFRCWrapperForRequest(frcRequest)
+        let iterationCount = self.iterationCount!
         var allDummies: [Dummy1] = []
         
-        // Call count is 1 to take care of first empty event.
+        // Call count is -1 initially to take care of first empty event.
         var callCount = -1
+        var didChangeCount = 0
+        var willChangeCount = 0
+        var insertCount = 0
         
         try! frc.rx.startStream()
         
         /// When
-        frc.rx.stream(Dummy1.self)
+        frc.rx.streamEvents(Dummy1.self)
             .doOnNext({_ in callCount += 1})
-            .doOnNext({XCTAssertTrue(allDummies.all($0.contains))})
+            .doOnNext({
+                switch $0 {
+                case .didChange: didChangeCount += 1
+                case .willChange: willChangeCount += 1
+                case .insert: insertCount += 1
+                default: break
+                }
+            })
+            .doOnNext({print(allDummies, $0)})
+            .doOnNext({self.validateDidChange($0, {allDummies.all($0.contains)})})
+            
+            // The insert event is broadcast before didChange, so allDummies
+            // do not contain the inner object yet.
+            .doOnNext({self.validateInsert($0, {!allDummies.contains($0)})})
+            .cast(to: Any.self)
             .subscribe(frcObserver)
             .disposed(by: disposeBag)
         
@@ -52,40 +120,13 @@ public final class CoreDataFRCTest: CoreDataRequestTest {
         waitForExpectations(timeout: timeout, handler: nil)
         
         // Then
-        XCTAssertEqual(callCount, iterationCount)
+        XCTAssertTrue(callCount >= iterationCount)
+        XCTAssertEqual(didChangeCount, iterationCount)
+        XCTAssertEqual(willChangeCount, iterationCount)
+        XCTAssertEqual(callCount, didChangeCount + willChangeCount + insertCount)
     }
     
-    public func test_streamDBObjectsWithProcessor_shouldWork() {
-        /// Setup
-        let observer = scheduler.createObserver(Any.self)
-        let frcObserver = scheduler.createObserver([Dummy1].self)
-        let expect = expectation(description: "Should have completed")
-        let processor = self.dbProcessor!
-        var allDummies: [Dummy1] = []
-        
-        // Call count is 1 to take care of first empty event.
-        var callCount = -1
-        
-        /// When
-        processor.streamDBChanges(Dummy1.self)
-            .doOnNext({_ in callCount += 1})
-            .map({(try? $0.getOrThrow()) ?? []})
-            .doOnNext({XCTAssertTrue(allDummies.all($0.contains))})
-            .subscribe(frcObserver)
-            .disposed(by: disposeBag)
-        
-        insertNewObjects({allDummies.append(contentsOf: $0)})
-            .doOnDispose(expect.fulfill)
-            .subscribe(observer)
-            .disposed(by: disposeBag)
-        
-        waitForExpectations(timeout: timeout, handler: nil)
-        
-        // Then
-        XCTAssertEqual(callCount, iterationCount)
-    }
-    
-    public func test_streamDBChanges_shouldWork() {
+    public func test_streamDBChangeEvents_shouldWork() {
         /// Setup
         let observer = scheduler.createObserver(Any.self)
         let expect = expectation(description: "Should have completed")
@@ -103,6 +144,24 @@ public final class CoreDataFRCTest: CoreDataRequestTest {
         waitForExpectations(timeout: timeout, handler: nil)
         
         /// Then
+    }
+}
+
+public extension CoreDataFRCTest {
+    func validateDidChange(_ event: HMCDEvent<Dummy1>,
+                           _ asserts: (([Dummy1]) -> Bool)...) {
+        if case .didChange(let objects) = event {
+            XCTAssertTrue(asserts.map({$0(objects)}).all({$0}))
+        }
+    }
+    
+    func validateInsert(_ event: HMCDEvent<Dummy1>,
+                        _ asserts: ((Dummy1) -> Bool)...) {
+        if case .insert(let object, let change) = event {
+            XCTAssertNil(change.oldIndex)
+            XCTAssertNotNil(change.newIndex)
+            XCTAssertTrue(asserts.map({$0(object)}).all({$0}))
+        }
     }
 }
 

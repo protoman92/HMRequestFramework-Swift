@@ -15,6 +15,7 @@ import CoreData
 public protocol HMCDVersionableType:
     HMVersionableType,              // Minimally versionable.
     HMCDUpsertableType,             // Upsertable in DB.
+    HMCDKeyValueUpdatableType,      // Updatable with key-value pairs.
     HMCDVersionUpdatableType {}     // Updatable w.r.t version.
 
 /// Classes that implement this protocol must be able to update version. Since

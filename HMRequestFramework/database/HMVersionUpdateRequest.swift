@@ -2,11 +2,10 @@
 //  HMVersionUpdateRequest.swift
 //  HMRequestFramework
 //
-//  Created by Hai Pham on 8/11/17.
+//  Created by Hai Pham on 25/8/17.
 //  Copyright © 2017 Holmusk. All rights reserved.
 //
 
-import CoreData
 import SwiftUtilities
 
 /// This request object is only used for update requests. The generics represent
@@ -72,7 +71,7 @@ extension HMVersionUpdateRequest: HMBuildableType {
             request.edited = edited
             return self
         }
-    
+        
         /// Set the conflict strategy.
         ///
         /// - Parameter strategy: A Strategy instance.

@@ -11,16 +11,14 @@ public final class HMIdentifiables {
     
     /// Segment the key-value pairs into buckets, based on the keys.
     ///
-    /// - Parameter identifiables: A Sequence of HMIdentifiableType.
+    /// - Parameter ids: A Sequence of HMIdentifiableType.
     /// - Returns: A Dictionary instance.
-    public static func segment<S>(_ identifiables: S)
-        -> [String : [String]] where
-        S: Sequence,
-        S.Iterator.Element == HMIdentifiableType
+    public static func segment<S>(_ ids: S) -> [String : [String]] where
+        S: Sequence, S.Iterator.Element == HMIdentifiableType
     {
         var segments: [String : [String]] = [:]
         
-        for identifiable in identifiables {
+        for identifiable in ids {
             if let value = identifiable.primaryValue() {
                 let key = identifiable.primaryKey()
                 
@@ -37,14 +35,13 @@ public final class HMIdentifiables {
     
     /// Segment the key-value pairs into buckets, based on the keys.
     ///
-    /// - Parameter identifiables: A Sequence of HMIdentifiableType.
+    /// - Parameter ids: A Sequence of HMIdentifiableType.
     /// - Returns: A Dictionary instance.
-    public static func segment<ID,S>(_ identifiables: S)
-        -> [String : [String]] where
+    public static func segment<ID,S>(_ ids: S) -> [String : [String]] where
         ID: HMIdentifiableType,
         S: Sequence,
         S.Iterator.Element == ID
     {
-        return segment(identifiables.map({$0 as HMIdentifiableType}))
+        return segment(ids.map({$0 as HMIdentifiableType}))
     }
 }

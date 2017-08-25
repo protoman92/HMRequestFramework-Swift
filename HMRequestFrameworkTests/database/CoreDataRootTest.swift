@@ -21,6 +21,7 @@ public class CoreDataRootTest: XCTestCase {
     var dummyCount: Int!
     let dummy: Try<Any> = Try.success(1)
     var manager: HMCDManager!
+    var dbProcessor: HMCDRequestProcessor!
     var disposeBag: DisposeBag!
     var scheduler: TestScheduler!
     
@@ -28,6 +29,7 @@ public class CoreDataRootTest: XCTestCase {
         super.setUp()
         dummyCount = 1000
         manager = Singleton.coreDataManager()
+        dbProcessor = Singleton.dbProcessor(manager!)
         disposeBag = DisposeBag()
         scheduler = TestScheduler(initialClock: 0)
     }

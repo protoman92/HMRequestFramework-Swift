@@ -513,7 +513,7 @@ public extension HMCDRequestProcessor {
     ///
     /// - Parameter cls: The PO class type.
     /// - Returns: A Req instance.
-    public func streamDBChangesRequest<PO>(_ cls: PO.Type) -> Req where
+    public func streamDBEventsRequest<PO>(_ cls: PO.Type) -> Req where
         PO: HMCDPureObjectType,
         PO.CDClass: HMCDPureObjectConvertibleType,
         PO.CDClass.PureObject == PO
@@ -532,8 +532,8 @@ public extension HMCDRequestProcessor {
     ///   - cls: The PO class type.
     ///   - transforms: A Sequence of Request transformers.
     /// - Returns: An Observable instance.
-    public func streamDBChanges<S,PO>(_ cls: PO.Type, _ transforms: S)
-        -> Observable<Try<[PO]>> where
+    public func streamDBEvents<S,PO>(_ cls: PO.Type, _ transforms: S)
+        -> Observable<Try<HMCDEvent<PO>>> where
         PO: HMCDPureObjectType,
         PO.CDClass: HMCDPureObjectConvertibleType,
         PO.CDClass.PureObject == PO,
@@ -541,7 +541,7 @@ public extension HMCDRequestProcessor {
         S.Iterator.Element == HMTransformer<HMCDRequest>
     {
         let manager = coreDataManager()
-        let request = streamDBChangesRequest(cls)
+        let request = streamDBEventsRequest(cls)
         
         do {
             let wrapper = try manager.getFRCWrapperForRequest(request)
@@ -559,7 +559,7 @@ public extension HMCDRequestProcessor {
                     
                     return Disposables.create()
                 })
-                .flatMap({wrapper.rx.stream(cls)})
+                .flatMap({wrapper.rx.streamEvents(cls)})
                 .map(Try.success)
                 .catchErrorJustReturn(Try.failure)
         } catch let e {

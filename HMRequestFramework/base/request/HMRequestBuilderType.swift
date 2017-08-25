@@ -12,18 +12,18 @@ public protocol HMRequestBuilderType: HMBuilderType {
     
     /// Set the middleware filters.
     ///
-    /// - Parameter middlewareFilters: A Sequence of filters.
+    /// - Parameter mwFilters: A Sequence of filters.
     /// - Returns: The current Builder instance.
     @discardableResult
-    func with<S>(middlewareFilters: S) -> Self where
+    func with<S>(mwFilters: S) -> Self where
         S: Sequence, S.Iterator.Element == HMMiddlewareFilter<Buildable>
     
     /// Add a middleware filter.
     ///
-    /// - Parameter middlewareFilter: A filter instance.
+    /// - Parameter mwFilter: A filter instance.
     /// - Returns: The current Builder instance.
     @discardableResult
-    func add(middlewareFilter: HMMiddlewareFilter<Buildable>) -> Self
+    func add(mwFilter: HMMiddlewareFilter<Buildable>) -> Self
     
     /// Set the retry count.
     ///
@@ -51,20 +51,20 @@ public extension HMRequestBuilderType {
     
     /// Set the middleware filters.
     ///
-    /// - Parameter middlewareFilters: A Sequence of filters.
+    /// - Parameter mwFilters: A Sequence of filters.
     /// - Returns: The current Builder instance.
-    public func with<S>(middlewareFilters: S) -> Self where
+    public func with<S>(mwFilters: S) -> Self where
         S: Sequence, S.Iterator.Element == MiddlewareFilter.Filter
     {
-        return with(middlewareFilters: middlewareFilters.map(HMMiddlewareFilter.init))
+        return with(mwFilters: mwFilters.map(HMMiddlewareFilter.init))
     }
     
     /// Add a middleware filter.
     ///
-    /// - Parameter middlewareFilter: A filter instance.
+    /// - Parameter mwFilter: A filter instance.
     /// - Returns: The current Builder instance.
-    public func add(middlewareFilter: @escaping MiddlewareFilter.Filter) -> Self {
-        return add(middlewareFilter: HMMiddlewareFilter(middlewareFilter))
+    public func add(mwFilter: @escaping MiddlewareFilter.Filter) -> Self {
+        return add(mwFilter: HMMiddlewareFilter(mwFilter))
     }
     
     /// Enable middlewares.

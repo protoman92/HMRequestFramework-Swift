@@ -17,17 +17,18 @@ extension Reactive where Base: HMCDResultController {
         try base.controller().performFetch()
     }
     
-    /// Get an Observable stream that only emits pure objects of some type.
+    /// Get an Observable stream that emits DB events. Convert all objects into
+    /// their PureObject forms.
     ///
     /// - Parameter cls: The PO class type.
     /// - Returns: An Observable instance.
-    public func stream<PO>(_ cls: PO.Type) -> Observable<[PO]> where
+    public func streamEvents<PO>(_ cls: PO.Type) -> Observable<HMCDEvent<PO>> where
         PO: HMCDPureObjectType,
         PO.CDClass: HMCDPureObjectConvertibleType,
         PO.CDClass.PureObject == PO
     {
-        return base.cdSubject
-            .map({$0.flatMap({$0 as? PO.CDClass})})
+        return base.eventObservable()
+            .map({$0.cast(to: PO.CDClass.self)})
             .map({$0.map({$0.asPureObject()})})
             .takeUntil(deallocated)
     }

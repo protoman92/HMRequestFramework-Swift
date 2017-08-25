@@ -1,5 +1,5 @@
 //
-//  HMCDManager+Constructor.swift
+//  HMCDManager+Constructor+Rx.swift
 //  HMRequestFramework
 //
 //  Created by Hai Pham on 28/7/17.

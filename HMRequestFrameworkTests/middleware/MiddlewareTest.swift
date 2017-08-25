@@ -83,8 +83,8 @@ public final class MiddlewareTest: XCTestCase {
         // Even if there are some error filters, they will not affect the other
         // filters.
         let request = MockRequest.builder()
-            .add(middlewareFilter: {$0.1 != "middleware1"})
-            .add(middlewareFilter: {$0.1 != "middleware2"})
+            .add(mwFilter: HMMiddlewareFilters.excludingFilters("middleware1"))
+            .add(mwFilter: HMMiddlewareFilters.excludingFilters("middleware2"))
             .with(applyMiddlewares: true)
             .build()
         
@@ -121,8 +121,8 @@ public final class MiddlewareTest: XCTestCase {
             .build()
         
         let request = MockRequest.builder()
-            .add(middlewareFilter: {_ in throw Exception("FilterError1")})
-            .add(middlewareFilter: {_ in throw Exception("FilterError2")})
+            .add(mwFilter: {_ in throw Exception("FilterError1")})
+            .add(mwFilter: {_ in throw Exception("FilterError2")})
             .build()
         
         let tfMiddlewares = rqmManager.tfMiddlewares

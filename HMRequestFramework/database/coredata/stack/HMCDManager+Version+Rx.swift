@@ -1,5 +1,5 @@
 //
-//  HMCDManager+VersionExtension.swift
+//  HMCDManager+Version+Rx.swift
 //  HMRequestFramework
 //
 //  Created by Hai Pham on 8/9/17.
@@ -9,9 +9,6 @@
 import CoreData
 import RxSwift
 import SwiftUtilities
-
-/// For CoreData version control, we use HMCDVersionableType by default.
-public typealias HMCDVersionUpdateRequest = HMVersionUpdateRequest<HMCDVersionableType>
 
 // Just a bit of utility here, not going to expose publicly.
 fileprivate extension HMVersionUpdateRequest where VC == HMCDVersionableType {
