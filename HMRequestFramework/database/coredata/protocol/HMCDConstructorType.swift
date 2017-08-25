@@ -26,7 +26,7 @@ public protocol HMCDConstructorType {
     ///
     /// - Returns: An Array of HMPersistentStoreSettings.
     /// - Throws: Exception if the settings are not available.
-    func storeSettings() throws -> [HMCDPersistentStoreSettings]
+    func storeSettings() throws -> [HMCDStoreSettings]
 }
 
 public extension HMCDConstructorType {

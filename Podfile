@@ -18,5 +18,12 @@ target 'HMRequestFramework' do
     allPods
     pod 'SwiftUtilitiesTests/Main'
   end
+  
+  target 'HMRequestFramework-Demo' do
+      inherit! :search_paths
+      # Pods for testing
+      allPods
+      pod 'RxDataSources', '~> 1.0'
+  end
 
 end

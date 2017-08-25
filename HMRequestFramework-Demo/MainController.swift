@@ -1,5 +1,5 @@
 //
-//  ViewController.swift
+//  MainController.swift
 //  HMRequestFramework-Demo
 //
 //  Created by Hai Pham on 24/8/17.
@@ -8,4 +8,4 @@
 
 import UIKit
 
-class ViewController: UIViewController {}
+class MainController: UIViewController {}

@@ -28,6 +28,10 @@ extension Reactive where Base: HMCDResultController {
         PO.CDClass.PureObject == PO
     {
         return base.eventObservable()
+            
+            // All events' objects will be implicitly converted to PO. For e.g.,
+            // for a section change event, the underlying HMCDEvent<Any> will
+            // be mapped to PO generics.
             .map({$0.cast(to: PO.CDClass.self)})
             .map({$0.map({$0.asPureObject()})})
             .takeUntil(deallocated)

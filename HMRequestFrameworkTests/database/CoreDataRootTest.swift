@@ -24,7 +24,7 @@ public class CoreDataRootTest: RootTest {
     override public func setUp() {
         super.setUp()
         dummyCount = 1000
-        manager = Singleton.coreDataManager()
+        manager = Singleton.coreDataManager(.InMemory)
         dbProcessor = Singleton.dbProcessor(manager!)
     }
 }

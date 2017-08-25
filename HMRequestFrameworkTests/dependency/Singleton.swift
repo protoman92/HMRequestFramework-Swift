@@ -9,23 +9,23 @@
 @testable import HMRequestFramework
 
 public final class Singleton {
-    public static func coreDataManager() -> HMCDManager {
+    public static func coreDataManager(_ store: HMCDStoreSettings.StoreType) -> HMCDManager {
         let fileManager = FileManager.default
         
-        let url = HMCDPersistentStoreURL.builder()
+        let url = HMCDStoreURL.builder()
             .with(fileManager: fileManager)
             .withDocumentDirectory()
             .withUserDomainMask()
             .with(fileName: "HMRequestFramework")
-            .with(storeType: .SQLite)
+            .with(storeType: store)
             .build()
         
-        print("Creating store at \(try! url.storeURL())")
+        print("Creating store at \(String(describing: try? url.storeURL()))")
         
-        try? fileManager.removeItem(at: try! url.storeURL())
+        try? fileManager.removeItem(at: url.storeURL())
         
         let settings = [
-            HMCDPersistentStoreSettings.builder()
+            HMCDStoreSettings.builder()
                 .with(storeType: .InMemory)
                 .with(persistentStoreURL: url)
                 .build()
@@ -47,4 +47,6 @@ public final class Singleton {
             .with(rqmManager: rqmManager)
             .build()
     }
+    
+    private init() {}
 }

@@ -113,8 +113,12 @@ extension HMCDResultController: NSFetchedResultsControllerDelegate {
     /// enable change tracking if you do not care about the individual callbacks.
     public func controllerDidChangeContent(_ controller: Controller) {
         let observer = eventObserver()
-        let objects = controller.fetchedObjects ?? []
-        observer.onNext(Event.didChange(objects))
+        
+        let event = Event.dbChange(controller.sections,
+                                   controller.fetchedObjects,
+                                   {.didChange($0)})
+        
+        observer.onNext(event)
     }
     
     /// Notifies the delegate that section and object changes are about to be
@@ -126,8 +130,12 @@ extension HMCDResultController: NSFetchedResultsControllerDelegate {
     /// an update block for their view.
     public func controllerWillChangeContent(_ controller: Controller) {
         let observer = eventObserver()
-        let objects = controller.fetchedObjects ?? []
-        observer.onNext(Event.willChange(objects))
+        
+        let event = Event.dbChange(controller.sections,
+                                   controller.fetchedObjects,
+                                   {.willChange($0)})
+        
+        observer.onNext(event)
     }
     
     /// Asks the delegate to return the corresponding section index entry for a

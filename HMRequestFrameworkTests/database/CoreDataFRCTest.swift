@@ -23,7 +23,7 @@ public final class CoreDataFRCTest: CoreDataRootTest {
     override public func setUp() {
         super.setUp()
         iterationCount = 5
-        dummyCount = 1000
+        dummyCount = 500
     }
     
     public func test_streamDBInsertsWithProcessor_shouldWork() {
@@ -178,34 +178,42 @@ public final class CoreDataFRCTest: CoreDataRootTest {
 public extension CoreDataFRCTest {
     func validateDidChange(_ event: HMCDEvent<Dummy1>,
                            _ asserts: (([Dummy1]) -> Bool)...) {
-        if case .didChange(let objects) = event {
-            XCTAssertTrue(asserts.map({$0(objects)}).all({$0}))
+        if case .didChange(let change) = event {
+            let sections = change.sections
+            let objects = change.objects
+            XCTAssertTrue(asserts.map({$0(change.objects)}).all({$0}))
+            
+            if sections.isNotEmpty {
+                let sectionObjects = sections.flatMap({$0.objects})
+                XCTAssertEqual(sectionObjects.count, objects.count)
+                XCTAssertTrue(objects.all(sectionObjects.contains))
+            }
         }
     }
     
     func validateInsert(_ event: HMCDEvent<Dummy1>,
                         _ asserts: ((Dummy1) -> Bool)...) {
-        if case .insert(let object, let change) = event {
+        if case .insert(let change) = event {
             XCTAssertNil(change.oldIndex)
             XCTAssertNotNil(change.newIndex)
-            XCTAssertTrue(asserts.map({$0(object)}).all({$0}))
+            XCTAssertTrue(asserts.map({$0(change.object)}).all({$0}))
         }
     }
     
     func validateInsertSection(_ event: HMCDEvent<Dummy1>) {
         if case .insertSection(let change) = event {
-            let sectionInfo = change.sectionInfo
+            let sectionInfo = change.section
             XCTAssertEqual(sectionInfo.numberOfObjects, 1)
-            XCTAssertTrue(sectionInfo.objects?.all({$0 is Dummy1.CDClass}) ?? false)
+            XCTAssertTrue(sectionInfo.objects.count > 0)
         }
     }
     
     func validateUpdate(_ event: HMCDEvent<Dummy1>,
                         _ asserts: ((Dummy1) -> Bool)...) {
-        if case .update(let object, let change) = event {
+        if case .update(let change) = event {
             XCTAssertNotNil(change.oldIndex)
             XCTAssertNotNil(change.newIndex)
-            XCTAssertTrue(asserts.map({$0(object)}).all({$0}))
+            XCTAssertTrue(asserts.map({$0(change.object)}).all({$0}))
         }
     }
     
@@ -213,18 +221,18 @@ public extension CoreDataFRCTest {
     
     func validateDelete(_ event: HMCDEvent<Dummy1>,
                         _ asserts: ((Dummy1) -> Bool)...) {
-        if case .delete(let object, let change) = event {
+        if case .delete(let change) = event {
             XCTAssertNotNil(change.oldIndex)
             XCTAssertNil(change.newIndex)
-            XCTAssertTrue(asserts.map({$0(object)}).all({$0}))
+            XCTAssertTrue(asserts.map({$0(change.object)}).all({$0}))
         }
     }
     
     func validateDeleteSection(_ event: HMCDEvent<Dummy1>) {
         if case .deleteSection(let change) = event {
-            let sectionInfo = change.sectionInfo
+            let sectionInfo = change.section
             XCTAssertEqual(sectionInfo.numberOfObjects, 0)
-            XCTAssertNil(sectionInfo.objects)
+            XCTAssertEqual(sectionInfo.objects.count, 0)
         }
     }
 }

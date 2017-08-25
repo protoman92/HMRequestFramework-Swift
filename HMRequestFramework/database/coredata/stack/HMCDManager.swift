@@ -27,7 +27,7 @@ public struct HMCDManager {
     /// with user
     let mainContext: NSManagedObjectContext
     let coordinator: NSPersistentStoreCoordinator
-    let settings: [HMCDPersistentStoreSettings]
+    let settings: [HMCDStoreSettings]
     
     public init(constructor: HMCDConstructorType) throws {
         let coordinator = try constructor.persistentStoreCoordinator()
@@ -51,9 +51,9 @@ public struct HMCDManager {
     /// for InMemory stores).
     ///
     /// - Returns: A StoreType instance.
-    public func mainStoreType() -> HMCDPersistentStoreSettings.StoreType? {
+    public func mainStoreType() -> HMCDStoreSettings.StoreType? {
         if let type = coordinator.persistentStores.first?.type {
-            return HMCDPersistentStoreSettings.StoreType.from(type: type)
+            return HMCDStoreSettings.StoreType.from(type: type)
         } else {
             return nil
         }
@@ -71,11 +71,11 @@ public struct HMCDManager {
     ///
     /// - Parameters:
     ///   - coordinator: A NSPersistentStoreCoordinator instance.
-    ///   - settings: A Sequence of HMCDPersistentStoreSettings.
+    ///   - settings: A Sequence of HMCDStoreSettings.
     /// - Throws: Exception if the settings cannot be applied.
     func applyStoreSettings<S>(_ coordinator: NSPersistentStoreCoordinator,
                                _ settings: S) throws where
-        S: Sequence, S.Iterator.Element == HMCDPersistentStoreSettings
+        S: Sequence, S.Iterator.Element == HMCDStoreSettings
     {
         try settings.forEach({
             try coordinator.addPersistentStore(

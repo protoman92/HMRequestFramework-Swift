@@ -1,5 +1,5 @@
 //
-//  HMCDPersistentStoreSettings.swift
+//  HMCDStoreSettings.swift
 //  HMRequestFramework
 //
 //  Created by Hai Pham on 7/24/17.
@@ -10,7 +10,7 @@ import CoreData
 import SwiftUtilities
 
 /// Use this class to provide settings when we add persistent stores.
-public struct HMCDPersistentStoreSettings {
+public struct HMCDStoreSettings {
     /// This enum details available store types.
     ///
     /// - SQLite: SQLite store type.
@@ -92,7 +92,7 @@ public struct HMCDPersistentStoreSettings {
     }
 }
 
-extension HMCDPersistentStoreSettings: HMBuildableType {
+extension HMCDStoreSettings: HMBuildableType {
     public static func builder() -> Builder {
         return Builder()
     }
@@ -139,7 +139,7 @@ extension HMCDPersistentStoreSettings: HMBuildableType {
         /// - Parameter url: A HMPersistentStoreURL instance.
         /// - Returns: The current Builder instance.
         @discardableResult
-        public func with(persistentStoreURL url: HMCDPersistentStoreURL) -> Self {
+        public func with(persistentStoreURL url: HMCDStoreURL) -> Self {
             return with(persistentStoreURL: try? url.storeURL())
         }
         
@@ -188,8 +188,8 @@ extension HMCDPersistentStoreSettings: HMBuildableType {
     }
 }
 
-extension HMCDPersistentStoreSettings.Builder: HMBuilderType {
-    public typealias Buildable = HMCDPersistentStoreSettings
+extension HMCDStoreSettings.Builder: HMBuilderType {
+    public typealias Buildable = HMCDStoreSettings
     
     /// Override this method to provide default implementation.
     ///

@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		31BCA874AFE20701A33CCAFC /* Pods_HMRequestFramework.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AD4191EDC58157CBCAE6FEBF /* Pods_HMRequestFramework.framework */; };
+		9D6384E9EBB1234CADF835D4 /* Pods_HMRequestFramework_Demo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 55C23ADC0EEE30FA90C15B88 /* Pods_HMRequestFramework_Demo.framework */; };
 		ABE6A4A654544FD66F9B1369 /* Pods_HMRequestFrameworkTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 259F23974F3AE63652FE6811 /* Pods_HMRequestFrameworkTests.framework */; };
 		D303E86F1F3AFD1E00123EE7 /* VersionConflict.swift in Sources */ = {isa = PBXBuildFile; fileRef = D303E86E1F3AFD1E00123EE7 /* VersionConflict.swift */; };
 		D303E8711F3B1EE600123EE7 /* CoreDataRequestTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = D303E8701F3B1EE600123EE7 /* CoreDataRequestTest.swift */; };
@@ -40,6 +41,12 @@
 		D352E2991F3AD7F0001FD55E /* HMCDManager+Delete+Rx.swift in Sources */ = {isa = PBXBuildFile; fileRef = D352E2981F3AD7F0001FD55E /* HMCDManager+Delete+Rx.swift */; };
 		D352E29B1F3AD820001FD55E /* HMCDManager+Fetch+Rx.swift in Sources */ = {isa = PBXBuildFile; fileRef = D352E29A1F3AD820001FD55E /* HMCDManager+Fetch+Rx.swift */; };
 		D352E29D1F3AF226001FD55E /* HMCDVersionableType.swift in Sources */ = {isa = PBXBuildFile; fileRef = D352E29C1F3AF226001FD55E /* HMCDVersionableType.swift */; };
+		D353BE7B1F5065B6004AD111 /* FRCController.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D353BE791F5065B6004AD111 /* FRCController.storyboard */; };
+		D353BE7D1F5067AA004AD111 /* FRCController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D353BE7C1F5067AA004AD111 /* FRCController.swift */; };
+		D353BE841F507003004AD111 /* Singleton.swift in Sources */ = {isa = PBXBuildFile; fileRef = D39BDAAC1F4E6BEF00A397BD /* Singleton.swift */; };
+		D353BE851F507003004AD111 /* Dummy1.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3FF53631F29E2FE00F78806 /* Dummy1.swift */; };
+		D353BE861F50701F004AD111 /* Dummy2.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3FBDC141F2AF4D50052A94A /* Dummy2.swift */; };
+		D353BE881F508CC3004AD111 /* HMCDSectionInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = D353BE871F508CC3004AD111 /* HMCDSectionInfo.swift */; };
 		D36F19B51F2D12C30053CCBD /* HMRequestBuilderType.swift in Sources */ = {isa = PBXBuildFile; fileRef = D36F19B41F2D12C30053CCBD /* HMRequestBuilderType.swift */; };
 		D3757B651F4D8349001935EC /* HMCDManager+FRC+Rx.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3757B641F4D8349001935EC /* HMCDManager+FRC+Rx.swift */; };
 		D3757B671F4D8869001935EC /* HMCDResultController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3757B661F4D8869001935EC /* HMCDResultController.swift */; };
@@ -71,16 +78,15 @@
 		D37D0BCB1F25F5A90032C6AB /* HMCDConstructor.swift in Sources */ = {isa = PBXBuildFile; fileRef = D37D0BCA1F25F5A90032C6AB /* HMCDConstructor.swift */; };
 		D37D0BCF1F25F7600032C6AB /* HMCDManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D37D0BCE1F25F7600032C6AB /* HMCDManager.swift */; };
 		D38D24991F3DFED00055E5BA /* HMCDUpsertableType.swift in Sources */ = {isa = PBXBuildFile; fileRef = D38D24981F3DFED00055E5BA /* HMCDUpsertableType.swift */; };
-		D3922E081F262B41004A49B9 /* HMCDPersistentStoreSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3922E071F262B41004A49B9 /* HMCDPersistentStoreSettings.swift */; };
-		D3922E0A1F26334A004A49B9 /* HMCDPersistentStoreURL.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3922E091F26334A004A49B9 /* HMCDPersistentStoreURL.swift */; };
+		D3922E081F262B41004A49B9 /* HMCDStoreSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3922E071F262B41004A49B9 /* HMCDStoreSettings.swift */; };
+		D3922E0A1F26334A004A49B9 /* HMCDStoreURL.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3922E091F26334A004A49B9 /* HMCDStoreURL.swift */; };
 		D398B7951F265CAC00DCE4D8 /* HMCDObjectType.swift in Sources */ = {isa = PBXBuildFile; fileRef = D398B7941F265CAC00DCE4D8 /* HMCDObjectType.swift */; };
 		D399C7F21F4AC8A70083C130 /* HMTransformer.swift in Sources */ = {isa = PBXBuildFile; fileRef = D399C7F11F4AC8A70083C130 /* HMTransformer.swift */; };
 		D399C7F41F4ACFF90083C130 /* HMCDGeneralRequestProcessorType.swift in Sources */ = {isa = PBXBuildFile; fileRef = D399C7F31F4ACFF90083C130 /* HMCDGeneralRequestProcessorType.swift */; };
 		D39BDA9D1F4E6B5500A397BD /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D39BDA9C1F4E6B5500A397BD /* AppDelegate.swift */; };
-		D39BDA9F1F4E6B5500A397BD /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D39BDA9E1F4E6B5500A397BD /* ViewController.swift */; };
-		D39BDAA21F4E6B5500A397BD /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D39BDAA01F4E6B5500A397BD /* Main.storyboard */; };
+		D39BDA9F1F4E6B5500A397BD /* MainController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D39BDA9E1F4E6B5500A397BD /* MainController.swift */; };
+		D39BDAA21F4E6B5500A397BD /* MainController.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D39BDAA01F4E6B5500A397BD /* MainController.storyboard */; };
 		D39BDAA41F4E6B5500A397BD /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D39BDAA31F4E6B5500A397BD /* Assets.xcassets */; };
-		D39BDAA71F4E6B5500A397BD /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D39BDAA51F4E6B5500A397BD /* LaunchScreen.storyboard */; };
 		D39BDAAD1F4E6BEF00A397BD /* Singleton.swift in Sources */ = {isa = PBXBuildFile; fileRef = D39BDAAC1F4E6BEF00A397BD /* Singleton.swift */; };
 		D39BDAAF1F4E789600A397BD /* HMMiddlewareFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = D39BDAAE1F4E789600A397BD /* HMMiddlewareFilter.swift */; };
 		D39BDAB21F4E7AC900A397BD /* HMMiddlewareFilterableType.swift in Sources */ = {isa = PBXBuildFile; fileRef = D39BDAB11F4E7AC900A397BD /* HMMiddlewareFilterableType.swift */; };
@@ -111,6 +117,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		D353BE821F506A5D004AD111 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D378D6CB1F25E088009B89B2 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D378D6D31F25E088009B89B2;
+			remoteInfo = HMRequestFramework;
+		};
 		D378D6DF1F25E088009B89B2 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = D378D6CB1F25E088009B89B2 /* Project object */;
@@ -124,6 +137,9 @@
 		12B8326841E8A569B110AF8A /* Pods-HMRequestFrameworkTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-HMRequestFrameworkTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-HMRequestFrameworkTests/Pods-HMRequestFrameworkTests.release.xcconfig"; sourceTree = "<group>"; };
 		1C4D7F81135A8CE6E648AE44 /* Pods-HMRequestFramework.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-HMRequestFramework.release.xcconfig"; path = "Pods/Target Support Files/Pods-HMRequestFramework/Pods-HMRequestFramework.release.xcconfig"; sourceTree = "<group>"; };
 		259F23974F3AE63652FE6811 /* Pods_HMRequestFrameworkTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_HMRequestFrameworkTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		51CCCE8189DE81D865F6F234 /* Pods-HMRequestFramework-Demo.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-HMRequestFramework-Demo.debug.xcconfig"; path = "Pods/Target Support Files/Pods-HMRequestFramework-Demo/Pods-HMRequestFramework-Demo.debug.xcconfig"; sourceTree = "<group>"; };
+		55C23ADC0EEE30FA90C15B88 /* Pods_HMRequestFramework_Demo.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_HMRequestFramework_Demo.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		72ABE922114B7B6E1A33E39E /* Pods-HMRequestFramework-Demo.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-HMRequestFramework-Demo.release.xcconfig"; path = "Pods/Target Support Files/Pods-HMRequestFramework-Demo/Pods-HMRequestFramework-Demo.release.xcconfig"; sourceTree = "<group>"; };
 		AD4191EDC58157CBCAE6FEBF /* Pods_HMRequestFramework.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_HMRequestFramework.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		C4C9084A44030EDC5A620685 /* Pods-HMRequestFrameworkTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-HMRequestFrameworkTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-HMRequestFrameworkTests/Pods-HMRequestFrameworkTests.debug.xcconfig"; sourceTree = "<group>"; };
 		D303E86E1F3AFD1E00123EE7 /* VersionConflict.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VersionConflict.swift; sourceTree = "<group>"; };
@@ -158,6 +174,9 @@
 		D352E2981F3AD7F0001FD55E /* HMCDManager+Delete+Rx.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HMCDManager+Delete+Rx.swift"; sourceTree = "<group>"; };
 		D352E29A1F3AD820001FD55E /* HMCDManager+Fetch+Rx.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HMCDManager+Fetch+Rx.swift"; sourceTree = "<group>"; };
 		D352E29C1F3AF226001FD55E /* HMCDVersionableType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMCDVersionableType.swift; sourceTree = "<group>"; };
+		D353BE7A1F5065B6004AD111 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/FRCController.storyboard; sourceTree = "<group>"; };
+		D353BE7C1F5067AA004AD111 /* FRCController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FRCController.swift; sourceTree = "<group>"; };
+		D353BE871F508CC3004AD111 /* HMCDSectionInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMCDSectionInfo.swift; sourceTree = "<group>"; };
 		D36F19B41F2D12C30053CCBD /* HMRequestBuilderType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMRequestBuilderType.swift; sourceTree = "<group>"; };
 		D3757B641F4D8349001935EC /* HMCDManager+FRC+Rx.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HMCDManager+FRC+Rx.swift"; sourceTree = "<group>"; };
 		D3757B661F4D8869001935EC /* HMCDResultController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMCDResultController.swift; sourceTree = "<group>"; };
@@ -192,17 +211,16 @@
 		D37D0BCA1F25F5A90032C6AB /* HMCDConstructor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMCDConstructor.swift; sourceTree = "<group>"; };
 		D37D0BCE1F25F7600032C6AB /* HMCDManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMCDManager.swift; sourceTree = "<group>"; };
 		D38D24981F3DFED00055E5BA /* HMCDUpsertableType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMCDUpsertableType.swift; sourceTree = "<group>"; };
-		D3922E071F262B41004A49B9 /* HMCDPersistentStoreSettings.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HMCDPersistentStoreSettings.swift; sourceTree = "<group>"; };
-		D3922E091F26334A004A49B9 /* HMCDPersistentStoreURL.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HMCDPersistentStoreURL.swift; sourceTree = "<group>"; };
+		D3922E071F262B41004A49B9 /* HMCDStoreSettings.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HMCDStoreSettings.swift; sourceTree = "<group>"; };
+		D3922E091F26334A004A49B9 /* HMCDStoreURL.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HMCDStoreURL.swift; sourceTree = "<group>"; };
 		D398B7941F265CAC00DCE4D8 /* HMCDObjectType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HMCDObjectType.swift; sourceTree = "<group>"; };
 		D399C7F11F4AC8A70083C130 /* HMTransformer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMTransformer.swift; sourceTree = "<group>"; };
 		D399C7F31F4ACFF90083C130 /* HMCDGeneralRequestProcessorType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMCDGeneralRequestProcessorType.swift; sourceTree = "<group>"; };
 		D39BDA9A1F4E6B5500A397BD /* HMRequestFramework-Demo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "HMRequestFramework-Demo.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D39BDA9C1F4E6B5500A397BD /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		D39BDA9E1F4E6B5500A397BD /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
-		D39BDAA11F4E6B5500A397BD /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		D39BDA9E1F4E6B5500A397BD /* MainController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainController.swift; sourceTree = "<group>"; };
+		D39BDAA11F4E6B5500A397BD /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/MainController.storyboard; sourceTree = "<group>"; };
 		D39BDAA31F4E6B5500A397BD /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		D39BDAA61F4E6B5500A397BD /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		D39BDAA81F4E6B5500A397BD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D39BDAAC1F4E6BEF00A397BD /* Singleton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Singleton.swift; sourceTree = "<group>"; };
 		D39BDAAE1F4E789600A397BD /* HMMiddlewareFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMMiddlewareFilter.swift; sourceTree = "<group>"; };
@@ -256,6 +274,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9D6384E9EBB1234CADF835D4 /* Pods_HMRequestFramework_Demo.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -269,6 +288,8 @@
 				1C4D7F81135A8CE6E648AE44 /* Pods-HMRequestFramework.release.xcconfig */,
 				C4C9084A44030EDC5A620685 /* Pods-HMRequestFrameworkTests.debug.xcconfig */,
 				12B8326841E8A569B110AF8A /* Pods-HMRequestFrameworkTests.release.xcconfig */,
+				51CCCE8189DE81D865F6F234 /* Pods-HMRequestFramework-Demo.debug.xcconfig */,
+				72ABE922114B7B6E1A33E39E /* Pods-HMRequestFramework-Demo.release.xcconfig */,
 			);
 			name = Pods;
 			sourceTree = "<group>";
@@ -278,6 +299,7 @@
 			children = (
 				AD4191EDC58157CBCAE6FEBF /* Pods_HMRequestFramework.framework */,
 				259F23974F3AE63652FE6811 /* Pods_HMRequestFrameworkTests.framework */,
+				55C23ADC0EEE30FA90C15B88 /* Pods_HMRequestFramework_Demo.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -298,6 +320,7 @@
 				D37D0B701F25E1BE0032C6AB /* HMCDOperation.swift */,
 				D37D0B721F25E1BE0032C6AB /* HMCDRequest.swift */,
 				D3DE120C1F3F7B8700F3C86F /* HMCDResult.swift */,
+				D353BE871F508CC3004AD111 /* HMCDSectionInfo.swift */,
 			);
 			path = model;
 			sourceTree = "<group>";
@@ -599,8 +622,8 @@
 				D352E2961F3AD7C3001FD55E /* HMCDManager+Save+Rx.swift */,
 				D3AC071B1F3DAE7C0085D329 /* HMCDManager+Upsert+Rx.swift */,
 				D352E2941F3AD700001FD55E /* HMCDManager+Version+Rx.swift */,
-				D3922E071F262B41004A49B9 /* HMCDPersistentStoreSettings.swift */,
-				D3922E091F26334A004A49B9 /* HMCDPersistentStoreURL.swift */,
+				D3922E071F262B41004A49B9 /* HMCDStoreSettings.swift */,
+				D3922E091F26334A004A49B9 /* HMCDStoreURL.swift */,
 				D3757B661F4D8869001935EC /* HMCDResultController.swift */,
 				D3C2F9CC1F4DF699005E1912 /* HMCDResultController+Rx.swift */,
 			);
@@ -611,11 +634,12 @@
 			isa = PBXGroup;
 			children = (
 				D39BDA9C1F4E6B5500A397BD /* AppDelegate.swift */,
-				D39BDA9E1F4E6B5500A397BD /* ViewController.swift */,
-				D39BDAA01F4E6B5500A397BD /* Main.storyboard */,
+				D39BDA9E1F4E6B5500A397BD /* MainController.swift */,
+				D39BDAA01F4E6B5500A397BD /* MainController.storyboard */,
 				D39BDAA31F4E6B5500A397BD /* Assets.xcassets */,
-				D39BDAA51F4E6B5500A397BD /* LaunchScreen.storyboard */,
 				D39BDAA81F4E6B5500A397BD /* Info.plist */,
+				D353BE791F5065B6004AD111 /* FRCController.storyboard */,
+				D353BE7C1F5067AA004AD111 /* FRCController.swift */,
 			);
 			path = "HMRequestFramework-Demo";
 			sourceTree = "<group>";
@@ -742,13 +766,17 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = D39BDAAB1F4E6B5500A397BD /* Build configuration list for PBXNativeTarget "HMRequestFramework-Demo" */;
 			buildPhases = (
+				32D6B0E493A966925CF8CF31 /* [CP] Check Pods Manifest.lock */,
 				D39BDA961F4E6B5500A397BD /* Sources */,
 				D39BDA971F4E6B5500A397BD /* Frameworks */,
 				D39BDA981F4E6B5500A397BD /* Resources */,
+				F7AD42F9C1FD326D9AB1541F /* [CP] Embed Pods Frameworks */,
+				5AD4D465C0CAA83E24324664 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				D353BE831F506A5D004AD111 /* PBXTargetDependency */,
 			);
 			name = "HMRequestFramework-Demo";
 			productName = "HMRequestFramework-Demo";
@@ -821,9 +849,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D39BDAA71F4E6B5500A397BD /* LaunchScreen.storyboard in Resources */,
 				D39BDAA41F4E6B5500A397BD /* Assets.xcassets in Resources */,
-				D39BDAA21F4E6B5500A397BD /* Main.storyboard in Resources */,
+				D353BE7B1F5065B6004AD111 /* FRCController.storyboard in Resources */,
+				D39BDAA21F4E6B5500A397BD /* MainController.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -845,6 +873,24 @@
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-HMRequestFrameworkTests/Pods-HMRequestFrameworkTests-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
+		32D6B0E493A966925CF8CF31 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-HMRequestFramework-Demo-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
 		3429F23B9A8E11A6232BC753 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -861,6 +907,21 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		5AD4D465C0CAA83E24324664 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-HMRequestFramework-Demo/Pods-HMRequestFramework-Demo-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		8868FED5233C47E919F6438B /* [CP] Copy Pods Resources */ = {
@@ -924,6 +985,30 @@
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-HMRequestFrameworkTests/Pods-HMRequestFrameworkTests-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
+		F7AD42F9C1FD326D9AB1541F /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${SRCROOT}/Pods/Target Support Files/Pods-HMRequestFramework-Demo/Pods-HMRequestFramework-Demo-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/RxCocoa/RxCocoa.framework",
+				"${BUILT_PRODUCTS_DIR}/RxSwift/RxSwift.framework",
+				"${BUILT_PRODUCTS_DIR}/SwiftUtilities/SwiftUtilities.framework",
+				"${BUILT_PRODUCTS_DIR}/RxDataSources/RxDataSources.framework",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxCocoa.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxSwift.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftUtilities.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxDataSources.framework",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-HMRequestFramework-Demo/Pods-HMRequestFramework-Demo-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -931,6 +1016,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D353BE881F508CC3004AD111 /* HMCDSectionInfo.swift in Sources */,
 				D3FC6E801F2F0C7F007471E2 /* HMCDIdentifiableType.swift in Sources */,
 				D36F19B51F2D12C30053CCBD /* HMRequestBuilderType.swift in Sources */,
 				D37D0BC91F25F2EE0032C6AB /* HMCDConstructorType.swift in Sources */,
@@ -979,7 +1065,7 @@
 				D352E29D1F3AF226001FD55E /* HMCDVersionableType.swift in Sources */,
 				D37D0BAB1F25E3A00032C6AB /* HMCDRequest.swift in Sources */,
 				D398B7951F265CAC00DCE4D8 /* HMCDObjectType.swift in Sources */,
-				D3922E0A1F26334A004A49B9 /* HMCDPersistentStoreURL.swift in Sources */,
+				D3922E0A1F26334A004A49B9 /* HMCDStoreURL.swift in Sources */,
 				D3AC071C1F3DAE7C0085D329 /* HMCDManager+Upsert+Rx.swift in Sources */,
 				D37D0BAC1F25E3A00032C6AB /* HMCDRequestType.swift in Sources */,
 				D352E2991F3AD7F0001FD55E /* HMCDManager+Delete+Rx.swift in Sources */,
@@ -997,7 +1083,7 @@
 				D37D0BB31F25E3A00032C6AB /* HMNetworkRequest.swift in Sources */,
 				D3FBDC171F2AFA080052A94A /* HMCDManager+Constructor+Rx.swift in Sources */,
 				D39BDAAF1F4E789600A397BD /* HMMiddlewareFilter.swift in Sources */,
-				D3922E081F262B41004A49B9 /* HMCDPersistentStoreSettings.swift in Sources */,
+				D3922E081F262B41004A49B9 /* HMCDStoreSettings.swift in Sources */,
 				D37D0BB41F25E3A00032C6AB /* HMNetworkRequestType.swift in Sources */,
 				D30B85BE1F4FBCC8008F8CD1 /* HMMiddlewareFilters.swift in Sources */,
 				D32F6C1B1F3C1C94004F7133 /* HMCDObjectAliasType.swift in Sources */,
@@ -1036,7 +1122,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D39BDA9F1F4E6B5500A397BD /* ViewController.swift in Sources */,
+				D353BE861F50701F004AD111 /* Dummy2.swift in Sources */,
+				D353BE841F507003004AD111 /* Singleton.swift in Sources */,
+				D353BE851F507003004AD111 /* Dummy1.swift in Sources */,
+				D39BDA9F1F4E6B5500A397BD /* MainController.swift in Sources */,
+				D353BE7D1F5067AA004AD111 /* FRCController.swift in Sources */,
 				D39BDA9D1F4E6B5500A397BD /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1044,6 +1134,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		D353BE831F506A5D004AD111 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D378D6D31F25E088009B89B2 /* HMRequestFramework */;
+			targetProxy = D353BE821F506A5D004AD111 /* PBXContainerItemProxy */;
+		};
 		D378D6E01F25E088009B89B2 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = D378D6D31F25E088009B89B2 /* HMRequestFramework */;
@@ -1052,20 +1147,20 @@
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
-		D39BDAA01F4E6B5500A397BD /* Main.storyboard */ = {
+		D353BE791F5065B6004AD111 /* FRCController.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				D353BE7A1F5065B6004AD111 /* Base */,
+			);
+			name = FRCController.storyboard;
+			sourceTree = "<group>";
+		};
+		D39BDAA01F4E6B5500A397BD /* MainController.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
 				D39BDAA11F4E6B5500A397BD /* Base */,
 			);
-			name = Main.storyboard;
-			sourceTree = "<group>";
-		};
-		D39BDAA51F4E6B5500A397BD /* LaunchScreen.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				D39BDAA61F4E6B5500A397BD /* Base */,
-			);
-			name = LaunchScreen.storyboard;
+			name = MainController.storyboard;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */
@@ -1221,6 +1316,7 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				DEVELOPMENT_TEAM = 785WJQ47KY;
 				INFOPLIST_FILE = HMRequestFrameworkTests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.holmusk.HMRequestFrameworkTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1235,6 +1331,7 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				DEVELOPMENT_TEAM = 785WJQ47KY;
 				INFOPLIST_FILE = HMRequestFrameworkTests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.holmusk.HMRequestFrameworkTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1244,6 +1341,7 @@
 		};
 		D39BDAA91F4E6B5500A397BD /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 51CCCE8189DE81D865F6F234 /* Pods-HMRequestFramework-Demo.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -1258,17 +1356,18 @@
 				DEVELOPMENT_TEAM = 785WJQ47KY;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = "HMRequestFramework-Demo/Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.holmusk.HMRequestFramework-Demo";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 3.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
 		D39BDAAA1F4E6B5500A397BD /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 72ABE922114B7B6E1A33E39E /* Pods-HMRequestFramework-Demo.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -1283,11 +1382,11 @@
 				DEVELOPMENT_TEAM = 785WJQ47KY;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = "HMRequestFramework-Demo/Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.holmusk.HMRequestFramework-Demo";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 3.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
