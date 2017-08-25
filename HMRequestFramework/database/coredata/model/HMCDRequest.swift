@@ -19,6 +19,8 @@ public struct HMCDRequest {
     fileprivate var cdFetchProperties: [Any]
     fileprivate var cdFetchGroupBy: [Any]
     fileprivate var cdFetchLimit: Int?
+    fileprivate var cdFetchOffset: Int
+    fileprivate var cdFetchBatchSize: Int
     fileprivate var cdInsertedData: [HMCDObjectConvertibleType]
     fileprivate var cdUpsertedData: [HMCDUpsertableType]
     fileprivate var cdDeletedData: [HMCDObjectConvertibleType]
@@ -31,6 +33,8 @@ public struct HMCDRequest {
     fileprivate var rqDescription: String?
     
     fileprivate init() {
+        cdFetchOffset = 0
+        cdFetchBatchSize = 0
         cdFetchProperties = []
         cdFetchGroupBy = []
         cdInsertedData = []
@@ -233,6 +237,26 @@ extension HMCDRequest: HMBuildableType {
             return self
         }
         
+        /// Set the fetch offset.
+        ///
+        /// - Parameter fetchOffset: An Int value.
+        /// - Returns: The current Builder instance.
+        @discardableResult
+        public func with(fetchOffset: Int) -> Self {
+            request.cdFetchOffset = fetchOffset
+            return self
+        }
+        
+        /// Set the fetch batch size.
+        ///
+        /// - Parameter fetchBatchSize: An Int value.
+        /// - Returns: The current Builder instance.
+        @discardableResult
+        public func with(fetchBatchSize: Int) -> Self {
+            request.cdFetchBatchSize = fetchBatchSize
+            return self
+        }
+        
         /// Set the data to insert.
         ///
         /// - Parameter insertedData: A Sequence of HMCDConvertibleType.
@@ -410,6 +434,8 @@ extension HMCDRequest.Builder: HMRequestBuilderType {
             .with(fetchProperties: buildable.fetchProperties())
             .with(fetchGroupBy: buildable.fetchGroupBy())
             .with(fetchLimit: buildable.fetchLimit())
+            .with(fetchOffset: buildable.fetchOffset())
+            .with(fetchBatchSize: buildable.fetchBatchSize())
             .with(insertedData: try? buildable.insertedData())
             .with(upsertedData: try? buildable.upsertedData())
             .with(deletedData: try? buildable.deletedData())
@@ -490,6 +516,14 @@ extension HMCDRequest: HMCDFetchRequestType {
     
     public func fetchLimit() -> Int? {
         return cdFetchLimit
+    }
+    
+    public func fetchOffset() -> Int {
+        return cdFetchOffset
+    }
+    
+    public func fetchBatchSize() -> Int {
+        return cdFetchBatchSize
     }
 }
 

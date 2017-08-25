@@ -32,6 +32,19 @@ public protocol HMCDFetchRequestType {
     /// - Returns: An Int value.
     func fetchLimit() -> Int?
     
+    /// Get the fetch offset for a fetch request. The fetch offset specifies
+    /// the row at which results are started.
+    ///
+    /// - Returns: An Int value.
+    func fetchOffset() -> Int
+    
+    /// Get the fetch batch size for a fetch request. This number specifies how
+    /// many objects are loaded into memory at a time, and is different from
+    /// fetchLimit.
+    ///
+    /// - Returns: An Int value.
+    func fetchBatchSize() -> Int
+    
     /// Get the result type for a fetch request.
     ///
     /// - Returns: A NSFetchRequestResultType instance.
@@ -59,14 +72,14 @@ public extension HMCDFetchRequestType {
     {
         let description = try entityName()
         let resultType = fetchResultType() ?? .managedObjectResultType
-        let propertiesToFetch = fetchProperties()
-        let propertiesToGroupBy = fetchGroupBy()
         let cdRequest = NSFetchRequest<Val>(entityName: description)
         cdRequest.predicate = try predicate()
         cdRequest.sortDescriptors = try sortDescriptors()
+        cdRequest.fetchOffset = fetchOffset()
+        cdRequest.fetchBatchSize = fetchBatchSize()
         cdRequest.resultType = resultType
-        cdRequest.propertiesToFetch = propertiesToFetch
-        cdRequest.propertiesToGroupBy = propertiesToGroupBy
+        cdRequest.propertiesToFetch = fetchProperties()
+        cdRequest.propertiesToGroupBy = fetchGroupBy()
         
         // fetchLimit is an optional because we are not sure what CoreData's
         // default fetchLimit is. We don't want to set the limit unless the
