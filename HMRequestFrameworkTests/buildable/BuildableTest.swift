@@ -9,7 +9,7 @@
 import XCTest
 @testable import HMRequestFramework
 
-public final class BuildableTest: XCTestCase {
+public final class BuildableTest: RootTest {
     public func test_builderInstanceMethod_shouldWork() {
         /// 1
         let v1 = Model1.builder()
@@ -19,19 +19,16 @@ public final class BuildableTest: XCTestCase {
             .build()
         
         let v2 = v1.cloneBuilder().build()
-        print(v1, v2)
         XCTAssertEqual(v1, v2)
         
         /// 2
         let v3 = v2.cloneBuilder().with(a1: "String2").build()
         let v4 = v3.cloneBuilder().with(a1: "String1").build()
-        print(v2, v4)
         XCTAssertEqual(v2, v4)
         
         /// 3
         let v5 = v4.cloneBuilder().with(a1: "String2").with(a2: 2).build()
         let v6 = v5.cloneBuilder().with(a2: 1).build()
-        print(v3, v6)
         XCTAssertEqual(v3, v6)
     }
 }

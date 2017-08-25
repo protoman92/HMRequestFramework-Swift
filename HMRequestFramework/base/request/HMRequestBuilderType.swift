@@ -53,6 +53,7 @@ public extension HMRequestBuilderType {
     ///
     /// - Parameter mwFilters: A Sequence of filters.
     /// - Returns: The current Builder instance.
+    @discardableResult
     public func with<S>(mwFilters: S) -> Self where
         S: Sequence, S.Iterator.Element == MiddlewareFilter.Filter
     {
@@ -63,6 +64,7 @@ public extension HMRequestBuilderType {
     ///
     /// - Parameter mwFilter: A filter instance.
     /// - Returns: The current Builder instance.
+    @discardableResult
     public func add(mwFilter: @escaping MiddlewareFilter.Filter) -> Self {
         return add(mwFilter: HMMiddlewareFilter(mwFilter))
     }
@@ -78,6 +80,7 @@ public extension HMRequestBuilderType {
     /// Disable middlewares.
     ///
     /// - Returns: The current Builder instance.
+    @discardableResult
     public func shouldNotApplyMiddlewares() -> Self {
         return with(applyMiddlewares: false)
     }

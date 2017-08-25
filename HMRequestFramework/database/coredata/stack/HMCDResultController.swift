@@ -18,10 +18,6 @@ public final class HMCDResultController: NSObject {
     fileprivate let eventSubject: BehaviorSubject<Event>
     var frc: Controller?
     
-    deinit {
-        print("Deinit \(self)")
-    }
-    
     override fileprivate init() {
         eventSubject = BehaviorSubject<HMCDEvent<Any>>(value: .dummy)
         super.init()
@@ -39,6 +35,20 @@ public final class HMCDResultController: NSObject {
     
     func eventObserver() -> BehaviorSubject<Event> {
         return eventSubject
+    }
+    
+    /// Get the current objects as identified by the fetch request in DB.
+    ///
+    /// - Parameter cls: The PO class type.
+    /// - Returns: An Array of PO.
+    public func currentObjects<PO>(_ cls: PO.Type) -> [PO] where
+        PO: HMCDPureObjectType,
+        PO.CDClass: HMCDPureObjectConvertibleType,
+        PO.CDClass.PureObject == PO
+    {
+        return (frc?.fetchedObjects ?? [])
+            .flatMap({$0 as? PO.CDClass})
+            .map({$0.asPureObject()})
     }
     
     func controller() -> Controller {
@@ -143,9 +153,9 @@ extension HMCDResultController: NSFetchedResultsControllerDelegate {
     ///
     /// Inserts and Deletes are reported when an object is created, destroyed,
     /// or changed in such a way that changes whether it matches the fetch request's
-    /// predicate. Only the Inserted/Deleted object is reported; like inserting/deleting
-    /// from an array, it's assumed that all objects that come after the affected
-    /// object shift appropriately.
+    /// predicate. Only the Inserted/Deleted object is reported; like inserting/
+    /// deleting from an array, it's assumed that all objects that come after the
+    /// affected object shift appropriately.
     ///
     /// Move is reported when an object changes in a manner that affects its position
     /// in the results.  An update of the object is assumed in this case, no separate

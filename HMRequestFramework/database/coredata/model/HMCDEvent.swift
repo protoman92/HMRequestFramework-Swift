@@ -167,7 +167,7 @@ public extension HMCDEvent {
                                          _ value: V,
                                          _ change: ObjectChange) -> HMCDEvent<V2> {
         if let value = try? f(value) {
-            return .insert(value, change)
+            return m(value, change)
         } else {
             return .dummy
         }

@@ -91,7 +91,7 @@ extension CDDummy2: HMCDUpsertableMasterType {
     }
     
     public final class Builder: Dummy2Builder<CDDummy2> {
-        fileprivate override init(_ cdo: PureObject.CDClass) {
+        override fileprivate init(_ cdo: PureObject.CDClass) {
             super.init(cdo)
         }
     }

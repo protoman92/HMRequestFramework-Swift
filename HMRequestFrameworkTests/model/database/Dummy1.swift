@@ -165,7 +165,7 @@ extension CDDummy1: HMCDVersionableMasterType {
     }
     
     public final class Builder: Dummy1Builder<CDDummy1> {
-        fileprivate override init(_ cdo: PureObject.CDClass) {
+        override fileprivate init(_ cdo: PureObject.CDClass) {
             super.init(cdo)
         }
     }

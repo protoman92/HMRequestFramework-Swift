@@ -15,23 +15,17 @@ import SwiftUtilitiesTests
 import XCTest
 @testable import HMRequestFramework
 
-public class CoreDataRootTest: XCTestCase {
+public class CoreDataRootTest: RootTest {
     public typealias Req = HMCDRequestProcessor.Req
-    let timeout: TimeInterval = 1000
     var dummyCount: Int!
-    let dummy: Try<Any> = Try.success(1)
     var manager: HMCDManager!
     var dbProcessor: HMCDRequestProcessor!
-    var disposeBag: DisposeBag!
-    var scheduler: TestScheduler!
     
     override public func setUp() {
         super.setUp()
         dummyCount = 1000
         manager = Singleton.coreDataManager()
         dbProcessor = Singleton.dbProcessor(manager!)
-        disposeBag = DisposeBag()
-        scheduler = TestScheduler(initialClock: 0)
     }
 }
 

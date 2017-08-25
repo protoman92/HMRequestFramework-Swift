@@ -13,15 +13,11 @@ import SwiftUtilitiesTests
 import XCTest
 @testable import HMRequestFramework
 
-public final class NetworkingTest: XCTestCase {
+public final class NetworkingTest: RootTest {
     fileprivate typealias Req = HMNetworkRequestHandler.Req
-    fileprivate let dummy: Try<Any> = Try.success(())
-    fileprivate let timeout: TimeInterval = 100
-    fileprivate var disposeBag: DisposeBag!
     fileprivate var rqmManager: HMMiddlewareManager<Req>!
     fileprivate var handler: HMNetworkRequestHandler!
     fileprivate var processor: HMNetworkRequestProcessor!
-    fileprivate var scheduler: TestScheduler!
     
     override public func setUp() {
         super.setUp()
@@ -33,8 +29,6 @@ public final class NetworkingTest: XCTestCase {
             .build()
         
         processor = HMNetworkRequestProcessor(handler: handler)
-        disposeBag = DisposeBag()
-        scheduler = TestScheduler(initialClock: 0)
     }
     
     public func test_requestWithParams_shouldBeCorrectlyGenerated() {

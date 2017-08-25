@@ -13,4 +13,3 @@ import CoreData
 public protocol HMCDUpsertableType:
     HMCDIdentifiableType,               // Identifiable in DB.
     HMCDKeyValueRepresentableType {}    // Representable as key-value pairs.
-

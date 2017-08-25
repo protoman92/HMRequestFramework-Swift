@@ -8,14 +8,14 @@
 
 import CoreData
 
-/// Request type for CoreData. Refer to CoreDataOperation for a list of properties
+/// Request type for CoreData. Refer to HMCDOperation for a list of properties
 /// used for each operation.
 public protocol HMCDRequestType: HMDatabaseRequestType, HMCDFetchRequestType {
     
     /// Get the associated CoreData operation.
     ///
-    /// - Returns: A CoreDataOperation instance.
-    func operation() throws -> CoreDataOperation
+    /// - Returns: A HMCDOperation instance.
+    func operation() throws -> HMCDOperation
     
     /// Get the data to be inserted. Only used for save operations
     ///

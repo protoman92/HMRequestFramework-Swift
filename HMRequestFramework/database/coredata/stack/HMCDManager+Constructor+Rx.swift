@@ -44,8 +44,8 @@ extension HMCDManager {
     ///   - pureObjs: A Sequence of PO.
     /// - Returns: An Array of PO.CDClass.
     /// - Throws: Exception if the construction fails.
-    public func constructUnsafely<PO,S>(_ context: NSManagedObjectContext,
-                                        _ pureObjs: S) throws
+    func constructUnsafely<PO,S>(_ context: NSManagedObjectContext,
+                                 _ pureObjs: S) throws
         -> [PO.CDClass] where
         PO: HMCDPureObjectType,
         PO.CDClass: HMCDObjectBuildableType,
@@ -66,9 +66,9 @@ public extension HMCDManager {
     ///   - pureObjs: A Sequence of PO.
     ///   - obs: An ObserverType instance.
     /// - Throws: Exception if the construction fails.
-    public func construct<PO,S,O>(_ context: NSManagedObjectContext,
-                                  _ pureObjs: S,
-                                  _ obs: O) where
+    func construct<PO,S,O>(_ context: NSManagedObjectContext,
+                           _ pureObjs: S,
+                           _ obs: O) where
         PO: HMCDPureObjectType,
         PO.CDClass: HMCDObjectBuildableType,
         PO.CDClass.Builder.PureObject == PO,

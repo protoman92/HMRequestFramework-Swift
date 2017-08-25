@@ -14,7 +14,7 @@ public struct HMCDRequest {
     fileprivate var cdEntityName: String?
     fileprivate var nsPredicate: NSPredicate?
     fileprivate var nsSortDescriptors: [NSSortDescriptor]
-    fileprivate var cdOperation: CoreDataOperation?
+    fileprivate var cdOperation: HMCDOperation?
     fileprivate var cdFetchResultType: NSFetchRequestResultType?
     fileprivate var cdFetchProperties: [Any]
     fileprivate var cdFetchGroupBy: [Any]
@@ -139,10 +139,10 @@ extension HMCDRequest: HMBuildableType {
         
         /// Set the operation.
         ///
-        /// - Parameter operation: A CoreDataOperation instance.
+        /// - Parameter operation: A HMCDOperation instance.
         /// - Returns: The current Builder instance.
         @discardableResult
-        public func with(operation: CoreDataOperation?) -> Self {
+        public func with(operation: HMCDOperation?) -> Self {
             request.cdOperation = operation
             return self
         }
@@ -456,7 +456,7 @@ extension HMCDRequest: HMCDFetchRequestType {
         }
     }
     
-    public func operation() throws -> CoreDataOperation {
+    public func operation() throws -> HMCDOperation {
         if let operation = cdOperation {
             return operation
         } else {

@@ -20,17 +20,12 @@ extension Int: HMMiddlewareFilterableType {
     }
 }
 
-public final class MiddlewareTest: XCTestCase {
-    fileprivate let timeout: TimeInterval = 1000
+public final class MiddlewareTest: RootTest {
     fileprivate var manager: HMMiddlewareManager<Int>!
-    fileprivate var scheduler: TestScheduler!
-    fileprivate var disposeBag: DisposeBag!
     
     override public func setUp() {
         super.setUp()
         manager = HMMiddlewareManager<Int>.builder().build()
-        scheduler = TestScheduler(initialClock: 0)
-        disposeBag = DisposeBag()
     }
     
     public func test_applyValidTransformMiddlewares_shouldWork() {
