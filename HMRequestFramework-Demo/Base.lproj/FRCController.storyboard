@@ -38,15 +38,22 @@
                                                     <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                                 </state>
                                             </button>
-                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="4el-As-ZXi">
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="roC-nM-APx">
                                                 <rect key="frame" x="15" y="105" width="345" height="30"/>
+                                                <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
+                                                <state key="normal" title="Delete a random item">
+                                                    <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                                </state>
+                                            </button>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="4el-As-ZXi">
+                                                <rect key="frame" x="15" y="150" width="345" height="30"/>
                                                 <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
                                                 <state key="normal" title="Delete all items">
                                                     <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                                 </state>
                                             </button>
                                             <tableView contentMode="scaleToFill" alwaysBounceVertical="YES" scrollEnabled="NO" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" dataMode="prototypes" style="plain" separatorStyle="none" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="0Nk-Nr-mbv">
-                                                <rect key="frame" x="15" y="150" width="345" height="502"/>
+                                                <rect key="frame" x="15" y="195" width="345" height="457"/>
                                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                                 <prototypes>
                                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="FRCCell" id="l08-uc-aaa" customClass="FRCCell" customModule="HMRequestFramework_Demo" customModuleProvider="target">
@@ -80,8 +87,10 @@
                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                         <constraints>
                                             <constraint firstItem="0Nk-Nr-mbv" firstAttribute="leading" secondItem="4el-As-ZXi" secondAttribute="leading" id="2TS-Er-bBH"/>
+                                            <constraint firstItem="roC-nM-APx" firstAttribute="top" secondItem="ulx-h6-ulz" secondAttribute="bottom" constant="15" id="5Zz-0d-PDu"/>
                                             <constraint firstItem="cc1-1T-gLg" firstAttribute="top" secondItem="xbB-RW-EAd" secondAttribute="top" constant="15" id="87e-Fr-xCz"/>
-                                            <constraint firstItem="4el-As-ZXi" firstAttribute="top" secondItem="ulx-h6-ulz" secondAttribute="bottom" constant="15" id="DuZ-iL-fC0"/>
+                                            <constraint firstItem="roC-nM-APx" firstAttribute="leading" secondItem="ulx-h6-ulz" secondAttribute="leading" id="IV8-yL-NQt"/>
+                                            <constraint firstItem="roC-nM-APx" firstAttribute="trailing" secondItem="ulx-h6-ulz" secondAttribute="trailing" id="JQ1-Ph-o42"/>
                                             <constraint firstItem="0Nk-Nr-mbv" firstAttribute="trailing" secondItem="4el-As-ZXi" secondAttribute="trailing" id="Jeh-xL-6TX"/>
                                             <constraint firstItem="4el-As-ZXi" firstAttribute="trailing" secondItem="cc1-1T-gLg" secondAttribute="trailing" id="JfW-hI-j0q"/>
                                             <constraint firstAttribute="trailing" secondItem="cc1-1T-gLg" secondAttribute="trailing" constant="15" id="KRU-se-U05"/>
@@ -89,6 +98,7 @@
                                             <constraint firstItem="cc1-1T-gLg" firstAttribute="leading" secondItem="xbB-RW-EAd" secondAttribute="leading" constant="15" id="V79-0m-LXa"/>
                                             <constraint firstItem="0Nk-Nr-mbv" firstAttribute="top" secondItem="4el-As-ZXi" secondAttribute="bottom" constant="15" id="VMg-Gc-f63"/>
                                             <constraint firstAttribute="bottom" secondItem="0Nk-Nr-mbv" secondAttribute="bottom" constant="15" id="VQ7-nS-ebU"/>
+                                            <constraint firstItem="4el-As-ZXi" firstAttribute="top" secondItem="roC-nM-APx" secondAttribute="bottom" constant="15" id="YIY-l7-0fI"/>
                                             <constraint firstItem="ulx-h6-ulz" firstAttribute="leading" secondItem="cc1-1T-gLg" secondAttribute="leading" id="fgO-w1-7kO"/>
                                             <constraint firstItem="ulx-h6-ulz" firstAttribute="trailing" secondItem="cc1-1T-gLg" secondAttribute="trailing" id="pbG-dh-5Jj"/>
                                             <constraint firstItem="ulx-h6-ulz" firstAttribute="top" secondItem="cc1-1T-gLg" secondAttribute="bottom" constant="15" id="xzq-02-75e"/>
@@ -115,11 +125,12 @@
                         <viewLayoutGuide key="safeArea" id="SIV-RF-q44"/>
                     </view>
                     <connections>
-                        <outlet property="deleteBtn" destination="4el-As-ZXi" id="46U-KV-GmP"/>
+                        <outlet property="deleteAllBtn" destination="4el-As-ZXi" id="46U-KV-GmP"/>
+                        <outlet property="deleteRandomBtn" destination="roC-nM-APx" id="maW-L8-zvY"/>
                         <outlet property="frcTableView" destination="0Nk-Nr-mbv" id="aZH-rU-mgx"/>
                         <outlet property="insertBtn" destination="cc1-1T-gLg" id="1TB-Bc-fen"/>
                         <outlet property="scrollView" destination="whn-Vs-oMN" id="RZf-gM-j6O"/>
-                        <outlet property="updateBtn" destination="ulx-h6-ulz" id="Rhc-IS-gMZ"/>
+                        <outlet property="updateRandomBtn" destination="ulx-h6-ulz" id="Rhc-IS-gMZ"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Loi-kQ-Z78" userLabel="First Responder" sceneMemberID="firstResponder"/>

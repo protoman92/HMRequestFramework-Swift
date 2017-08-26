@@ -151,6 +151,24 @@ extension HMCDRequest: HMBuildableType {
             return self
         }
         
+        /// Add an ascending sort descriptor.
+        ///
+        /// - Parameter key: A String value.
+        /// - Returns: The current Builder instance.
+        @discardableResult
+        public func add(ascendingSortWithKey key: String) -> Self {
+            return add(sortDescriptor: NSSortDescriptor(key: key, ascending: true))
+        }
+        
+        /// Add a descending sort descriptor.
+        ///
+        /// - Parameter key: A String value.
+        /// - Returns: The current Builder instance.
+        @discardableResult
+        public func add(descendingSortWithKey key: String) -> Self {
+            return add(sortDescriptor: NSSortDescriptor(key: key, ascending: false))
+        }
+        
         /// Set the operation.
         ///
         /// - Parameter operation: A HMCDOperation instance.

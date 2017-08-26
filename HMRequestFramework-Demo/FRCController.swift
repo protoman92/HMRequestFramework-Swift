@@ -25,8 +25,9 @@ public final class FRCController: UIViewController {
     typealias RxDataSource = RxTableViewSectionedAnimatedDataSource<Section>
     
     @IBOutlet weak var insertBtn: UIButton!
-    @IBOutlet weak var updateBtn: UIButton!
-    @IBOutlet weak var deleteBtn: UIButton!
+    @IBOutlet weak var updateRandomBtn: UIButton!
+    @IBOutlet weak var deleteRandomBtn: UIButton!
+    @IBOutlet weak var deleteAllBtn: UIButton!
     @IBOutlet weak var frcTableView: UITableView!
     @IBOutlet weak var scrollView: UIScrollView!
     
@@ -49,8 +50,17 @@ public final class FRCController: UIViewController {
  
     override public func viewDidLoad() {
         super.viewDidLoad()
-        let frcTableView = self.frcTableView!
-        let insertBtn = self.insertBtn!
+        
+        guard
+            let frcTableView = self.frcTableView,
+            let insertBtn = self.insertBtn,
+            let updateRandomBtn = self.updateRandomBtn,
+            let deleteRandomBtn = self.deleteRandomBtn,
+            let deleteAllBtn = self.deleteAllBtn
+        else {
+            return
+        }
+                
         let dummyCount = self.dummyCount
         let cdManager = Singleton.coreDataManager(.SQLite)
         let dbProcessor = Singleton.dbProcessor(cdManager)
@@ -81,7 +91,7 @@ public final class FRCController: UIViewController {
             .subscribe()
             .disposed(by: disposeBag)
         
-        updateBtn.rx.controlEvent(.touchDown)
+        updateRandomBtn.rx.controlEvent(.touchDown)
             .withLatestFrom(data.asObservable())
             .filter({$0.isNotEmpty})
             .map({$0.randomElement()?.items.randomElement()})
@@ -103,7 +113,23 @@ public final class FRCController: UIViewController {
             .subscribe()
             .disposed(by: disposeBag)
         
-        deleteBtn.rx.controlEvent(.touchDown)
+        deleteRandomBtn.rx.controlEvent(.touchDown)
+            .withLatestFrom(data.asObservable())
+            .filter({$0.isNotEmpty})
+            .map({$0.randomElement()?.items.randomElement()})
+            .map({$0.asTry()})
+            .map({$0.map({[$0]})})
+            .flatMap({[weak self] prev -> Observable<Try<Void>> in
+                if let `self` = self, let dbProcessor = self.dbProcessor {
+                    return dbProcessor.deleteInMemory(prev)
+                } else {
+                    return Observable.empty()
+                }
+            })
+            .subscribe()
+            .disposed(by: disposeBag)
+        
+        deleteAllBtn.rx.controlEvent(.touchDown)
             .map(Try.success)
             .flatMap({[weak self] prev -> Observable<Try<Void>> in
                 if let `self` = self, let dbProcessor = self.dbProcessor {
@@ -167,7 +193,7 @@ public final class FRCController: UIViewController {
             .streamDBEvents(Dummy1.self, {
                 Observable.just($0.cloneBuilder()
                     .with(frcSectionName: "dummyHeader")
-                    .add(sortDescriptor: NSSortDescriptor(key: "date", ascending: true))
+                    .add(ascendingSortWithKey: "date")
                     .build())
             })
             .map({try $0.getOrThrow()})
