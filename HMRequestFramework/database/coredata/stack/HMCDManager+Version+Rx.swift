@@ -185,7 +185,7 @@ public extension HMCDManager {
         O: ObserverType,
         O.E == [HMCDResult]
     {
-        performOnContextThread(mainContext) {
+        performOnContextThread(mainObjectContext()) {
             let requests = requests.map({$0})
             
             if requests.isNotEmpty {

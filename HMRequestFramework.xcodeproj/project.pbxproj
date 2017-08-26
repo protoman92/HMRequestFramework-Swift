@@ -15,6 +15,8 @@
 		D30B85BE1F4FBCC8008F8CD1 /* HMMiddlewareFilters.swift in Sources */ = {isa = PBXBuildFile; fileRef = D30B85BD1F4FBCC8008F8CD1 /* HMMiddlewareFilters.swift */; };
 		D31C58761F278A8A00C8D8CC /* HMProtocolConvertibleType.swift in Sources */ = {isa = PBXBuildFile; fileRef = D31C58751F278A8A00C8D8CC /* HMProtocolConvertibleType.swift */; };
 		D3218AA41F4F2612006BCB66 /* HMIdentifiables.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3218AA31F4F2611006BCB66 /* HMIdentifiables.swift */; };
+		D325C4101F510E1200FC802C /* HMCDSectionInfo+DataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = D325C40F1F510E1200FC802C /* HMCDSectionInfo+DataSource.swift */; };
+		D325C4121F512E1B00FC802C /* HMCDSectionType.swift in Sources */ = {isa = PBXBuildFile; fileRef = D325C4111F512E1B00FC802C /* HMCDSectionType.swift */; };
 		D32649721F288EDC000226FA /* HMCDAttributeDescription.swift in Sources */ = {isa = PBXBuildFile; fileRef = D32649711F288EDC000226FA /* HMCDAttributeDescription.swift */; };
 		D326B1821F2D7B210021216C /* HMBuildableType.swift in Sources */ = {isa = PBXBuildFile; fileRef = D326B1811F2D7B210021216C /* HMBuildableType.swift */; };
 		D32718311F3B8AC9003487FA /* CoreDataVersionTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = D32718301F3B8AC9003487FA /* CoreDataVersionTest.swift */; };
@@ -46,7 +48,7 @@
 		D353BE841F507003004AD111 /* Singleton.swift in Sources */ = {isa = PBXBuildFile; fileRef = D39BDAAC1F4E6BEF00A397BD /* Singleton.swift */; };
 		D353BE851F507003004AD111 /* Dummy1.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3FF53631F29E2FE00F78806 /* Dummy1.swift */; };
 		D353BE861F50701F004AD111 /* Dummy2.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3FBDC141F2AF4D50052A94A /* Dummy2.swift */; };
-		D353BE881F508CC3004AD111 /* HMCDSectionInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = D353BE871F508CC3004AD111 /* HMCDSectionInfo.swift */; };
+		D353BE881F508CC3004AD111 /* HMCDSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = D353BE871F508CC3004AD111 /* HMCDSection.swift */; };
 		D36F19B51F2D12C30053CCBD /* HMRequestBuilderType.swift in Sources */ = {isa = PBXBuildFile; fileRef = D36F19B41F2D12C30053CCBD /* HMRequestBuilderType.swift */; };
 		D3757B651F4D8349001935EC /* HMCDManager+FRC+Rx.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3757B641F4D8349001935EC /* HMCDManager+FRC+Rx.swift */; };
 		D3757B671F4D8869001935EC /* HMCDResultController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3757B661F4D8869001935EC /* HMCDResultController.swift */; };
@@ -147,6 +149,8 @@
 		D30B85BD1F4FBCC8008F8CD1 /* HMMiddlewareFilters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMMiddlewareFilters.swift; sourceTree = "<group>"; };
 		D31C58751F278A8A00C8D8CC /* HMProtocolConvertibleType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HMProtocolConvertibleType.swift; sourceTree = "<group>"; };
 		D3218AA31F4F2611006BCB66 /* HMIdentifiables.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HMIdentifiables.swift; sourceTree = "<group>"; };
+		D325C40F1F510E1200FC802C /* HMCDSectionInfo+DataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HMCDSectionInfo+DataSource.swift"; sourceTree = "<group>"; };
+		D325C4111F512E1B00FC802C /* HMCDSectionType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMCDSectionType.swift; sourceTree = "<group>"; };
 		D32649711F288EDC000226FA /* HMCDAttributeDescription.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMCDAttributeDescription.swift; sourceTree = "<group>"; };
 		D326B1811F2D7B210021216C /* HMBuildableType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMBuildableType.swift; sourceTree = "<group>"; };
 		D32718301F3B8AC9003487FA /* CoreDataVersionTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataVersionTest.swift; sourceTree = "<group>"; };
@@ -176,7 +180,7 @@
 		D352E29C1F3AF226001FD55E /* HMCDVersionableType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMCDVersionableType.swift; sourceTree = "<group>"; };
 		D353BE7A1F5065B6004AD111 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/FRCController.storyboard; sourceTree = "<group>"; };
 		D353BE7C1F5067AA004AD111 /* FRCController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FRCController.swift; sourceTree = "<group>"; };
-		D353BE871F508CC3004AD111 /* HMCDSectionInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMCDSectionInfo.swift; sourceTree = "<group>"; };
+		D353BE871F508CC3004AD111 /* HMCDSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMCDSection.swift; sourceTree = "<group>"; };
 		D36F19B41F2D12C30053CCBD /* HMRequestBuilderType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMRequestBuilderType.swift; sourceTree = "<group>"; };
 		D3757B641F4D8349001935EC /* HMCDManager+FRC+Rx.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HMCDManager+FRC+Rx.swift"; sourceTree = "<group>"; };
 		D3757B661F4D8869001935EC /* HMCDResultController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMCDResultController.swift; sourceTree = "<group>"; };
@@ -320,7 +324,9 @@
 				D37D0B701F25E1BE0032C6AB /* HMCDOperation.swift */,
 				D37D0B721F25E1BE0032C6AB /* HMCDRequest.swift */,
 				D3DE120C1F3F7B8700F3C86F /* HMCDResult.swift */,
-				D353BE871F508CC3004AD111 /* HMCDSectionInfo.swift */,
+				D353BE871F508CC3004AD111 /* HMCDSection.swift */,
+				D325C40F1F510E1200FC802C /* HMCDSectionInfo+DataSource.swift */,
+				D325C4111F512E1B00FC802C /* HMCDSectionType.swift */,
 			);
 			path = model;
 			sourceTree = "<group>";
@@ -965,6 +971,7 @@
 			inputPaths = (
 				"${SRCROOT}/Pods/Target Support Files/Pods-HMRequestFrameworkTests/Pods-HMRequestFrameworkTests-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/RxCocoa/RxCocoa.framework",
+				"${BUILT_PRODUCTS_DIR}/RxDataSources/RxDataSources.framework",
 				"${BUILT_PRODUCTS_DIR}/RxSwift/RxSwift.framework",
 				"${BUILT_PRODUCTS_DIR}/SwiftUtilities/SwiftUtilities.framework",
 				"${BUILT_PRODUCTS_DIR}/RxBlocking/RxBlocking.framework",
@@ -974,6 +981,7 @@
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxCocoa.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxDataSources.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxSwift.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftUtilities.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxBlocking.framework",
@@ -993,16 +1001,16 @@
 			inputPaths = (
 				"${SRCROOT}/Pods/Target Support Files/Pods-HMRequestFramework-Demo/Pods-HMRequestFramework-Demo-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/RxCocoa/RxCocoa.framework",
+				"${BUILT_PRODUCTS_DIR}/RxDataSources/RxDataSources.framework",
 				"${BUILT_PRODUCTS_DIR}/RxSwift/RxSwift.framework",
 				"${BUILT_PRODUCTS_DIR}/SwiftUtilities/SwiftUtilities.framework",
-				"${BUILT_PRODUCTS_DIR}/RxDataSources/RxDataSources.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxCocoa.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxDataSources.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxSwift.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftUtilities.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxDataSources.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -1016,7 +1024,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D353BE881F508CC3004AD111 /* HMCDSectionInfo.swift in Sources */,
+				D353BE881F508CC3004AD111 /* HMCDSection.swift in Sources */,
 				D3FC6E801F2F0C7F007471E2 /* HMCDIdentifiableType.swift in Sources */,
 				D36F19B51F2D12C30053CCBD /* HMRequestBuilderType.swift in Sources */,
 				D37D0BC91F25F2EE0032C6AB /* HMCDConstructorType.swift in Sources */,
@@ -1048,6 +1056,7 @@
 				D34DF2921F2C2D740076D6B1 /* HMMiddleware.swift in Sources */,
 				D3C2F9CD1F4DF699005E1912 /* HMCDResultController+Rx.swift in Sources */,
 				D37D0BA91F25E3A00032C6AB /* HMCDOperation.swift in Sources */,
+				D325C4101F510E1200FC802C /* HMCDSectionInfo+DataSource.swift in Sources */,
 				D3AC07181F3D9C280085D329 /* HMCDKeyValueUpdatableType.swift in Sources */,
 				D33BB3241F469A5900025FD1 /* HMURLComponentProviderType.swift in Sources */,
 				D37D0BCB1F25F5A90032C6AB /* HMCDConstructor.swift in Sources */,
@@ -1075,6 +1084,7 @@
 				D37D0BB11F25E3A00032C6AB /* HMNetworkRequestHandlerType.swift in Sources */,
 				D32718351F3C93DC003487FA /* HMResult.swift in Sources */,
 				D3EBB70C1F2BB6C6003CEB5F /* HMNetworkRequestProcessorType.swift in Sources */,
+				D325C4121F512E1B00FC802C /* HMCDSectionType.swift in Sources */,
 				D3218AA41F4F2612006BCB66 /* HMIdentifiables.swift in Sources */,
 				D3E7B51D1F4AFE62009357F5 /* HMTransformers.swift in Sources */,
 				D352E29B1F3AD820001FD55E /* HMCDManager+Fetch+Rx.swift in Sources */,

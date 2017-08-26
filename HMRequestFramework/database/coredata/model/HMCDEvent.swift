@@ -10,7 +10,7 @@ import CoreData
 import SwiftUtilities
 
 public typealias DBChange<V> = (
-    sections: [HMCDSectionInfo<V>],
+    sections: [HMCDSection<V>],
     objects: [V]
 )
 
@@ -21,7 +21,7 @@ public typealias ObjectChange<V> = (
 )
 
 public typealias SectionChange<V> = (
-    section: HMCDSectionInfo<V>,
+    section: HMCDSection<V>,
     sectionIndex: Int
 )
 
@@ -29,6 +29,7 @@ public typealias SectionChange<V> = (
 ///
 /// - willChange: Used when the underlying DB is about to change data.
 /// - didChange: Used when the underlying DB has changed data.
+/// - anyChange: Used when there is any change in the DB.
 /// - insert: Used when some objects were inserted.
 /// - delete: Used when some objects were deleted.
 /// - move: Used when some objects were moved.
@@ -41,6 +42,7 @@ public typealias SectionChange<V> = (
 public enum HMCDEvent<V> {
     case willChange(DBChange<V>)
     case didChange(DBChange<V>)
+    case anyChange(DBChange<V>)
     case insert(ObjectChange<V>)
     case delete(ObjectChange<V>)
     case move(ObjectChange<V>)
@@ -64,7 +66,7 @@ public enum HMCDEvent<V> {
         -> HMCDEvent<Any>
     {
         let objects = objects ?? []
-        let sections = sections?.map(HMCDSectionInfo<Any>.init) ?? []
+        let sections = sections?.map(HMCDSection<Any>.init) ?? []
         return m(DBChange(sections: sections, objects: objects))
     }
     
@@ -114,7 +116,7 @@ public enum HMCDEvent<V> {
     public static func sectionChange(_ type: NSFetchedResultsChangeType,
                                      _ section: NSFetchedResultsSectionInfo,
                                      _ sectionIndex: Int) -> HMCDEvent<Any> {
-        let section = HMCDSectionInfo<Any>(section)
+        let section = HMCDSection<Any>(section)
         let change = SectionChange(section: section, sectionIndex: sectionIndex)
         
         switch type {
@@ -167,6 +169,9 @@ public enum HMCDEvent<V> {
             
         case .didChange(let change):
             return mapDBChange(f, {.didChange($0)}, change)
+            
+        case .anyChange(let change):
+            return mapDBChange(f, {.anyChange($0)}, change)
             
         case .dummy:
             return .dummy

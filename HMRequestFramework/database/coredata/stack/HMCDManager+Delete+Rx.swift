@@ -45,7 +45,7 @@ public extension HMCDManager {
                    _ obs: O) where
         O: ObserverType, O.E == NSPersistentStoreResult
     {
-        performOnContextThread(mainContext) {
+        performOnContextThread(mainObjectContext()) {
             do {
                 let result = try self.deleteUnsafely(context, request)
                 obs.onNext(result)
@@ -121,7 +121,7 @@ public extension HMCDManager {
         S: Sequence, S.Iterator.Element == NS,
         O: ObserverType, O.E == Void
     {
-        performOnContextThread(mainContext) {
+        performOnContextThread(mainObjectContext()) {
             do {
                 try self.deleteUnsafely(context, data)
                 obs.onNext()
@@ -150,7 +150,7 @@ public extension HMCDManager {
         O: ObserverType,
         O.E == Void
     {
-        performOnContextThread(mainContext) {
+        performOnContextThread(context) {
             do {
                 try self.deleteIdentifiablesUnsafely(context, entityName, ids)
                 obs.onNext()

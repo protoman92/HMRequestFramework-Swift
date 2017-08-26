@@ -69,7 +69,7 @@ public extension HMCDRequestProcessor {
         
         switch operation {
         case .deleteData:
-            return try executeDelete(request)
+            return try executeDeleteData(request)
             
         case .deleteBatch:
             return try executeDeleteWithRequest(request)
@@ -116,8 +116,7 @@ public extension HMCDRequestProcessor {
     /// - Returns: An Observable instance.
     /// - Throws: Exception if the execution fails.
     fileprivate func executeFetch<Val>(_ request: Req, _ cls: Val.Type) throws
-        -> Observable<Try<[Val]>>
-        where Val: NSFetchRequestResult
+        -> Observable<Try<[Val]>> where Val: NSFetchRequestResult
     {
         let manager = coreDataManager()
         let cdRequest = try request.fetchRequest(Val.self)
@@ -198,14 +197,14 @@ public extension HMCDRequestProcessor {
         // If the data requires versioning, we call updateVersionn.
         let versionables = data.flatMap({$0 as? HMCDVersionableType})
         let nonVersionables = data.filter({!($0 is HMCDVersionableType)})
-        let updateRequests = try request.updateRequest(versionables)
-        let context1 = manager.disposableObjectContext()
-        let context2 = manager.disposableObjectContext()
+        let vRequests = try request.updateRequest(versionables)
+        let versionContext = manager.disposableObjectContext()
+        let upsertContext = manager.disposableObjectContext()
         
         return Observable
             .concat(
-                manager.rx.updateVersion(context1, entityName, updateRequests),
-                manager.rx.upsert(context2, entityName, nonVersionables)
+                manager.rx.updateVersion(versionContext, entityName, vRequests),
+                manager.rx.upsert(upsertContext, entityName, nonVersionables)
             )
             .reduce([], accumulator: +)
             .map(Try.success)
@@ -221,39 +220,57 @@ public extension HMCDRequestProcessor {
     /// - Parameter request: A Req instance.
     /// - Returns: An Observable instance.
     /// - Throws: Exception if the execution fails.
-    fileprivate func executeDelete(_ request: Req) throws -> Observable<Try<Void>> {
+    fileprivate func executeDeleteData(_ request: Req) throws -> Observable<Try<Void>> {
         let manager = coreDataManager()
-        let context = manager.disposableObjectContext()
         let entityName = try request.entityName()
-        let data = try request.deletedData()
         
-        // Since both CoreData and PureObject can implement HMCDObjectConvertibleType,
-        // we can convert them all to NSManagedObject and delete them based on
-        // whether they are identifiable or not.
-        //
-        // We delete NSManagedObject using their ObjectID. If not, we construct
-        // the managed objects using a disposable context, and see if any of
-        // these objects is identifiable.
-        let aliases = data.flatMap({$0 as? NSManagedObject})
+        // Putting the context outside the create block allows it to be retained
+        // strongly, preventing inner managed objects from being ARC off.
+        let context = manager.disposableObjectContext()
         
-        let nonAliases = data.filter({!($0 is NSManagedObject)})
-            .flatMap({try? $0.asManagedObject(context)})
-        
-        let objects = [aliases, nonAliases].flatMap({$0})
-        
-        // We deal with identifiables and normal managed objects differently.
-        // For identifiables, we need to fetch their counterparts in the DB
-        // first before deleting.
-        let ids = objects.flatMap({$0 as? HMCDIdentifiableType})
-        let nonIds = objects.filter({!($0 is HMCDIdentifiableType)})
-        let context1 = manager.disposableObjectContext()
-        let context2 = manager.disposableObjectContext()
-        
-        return Observable
-            .concat(
-                manager.rx.deleteIdentifiables(context1, entityName, ids),
-                manager.rx.delete(context2, nonIds)
-            )
+        // We need to use Observable.create to keep a reference to the context
+        // with which NSManagedObjects are constructed. Otherwise, those objects
+        // may become fault as the context is ARC off.
+        return Observable<[NSManagedObject]>
+            .create({
+                do {
+                    let data = try request.deletedData()
+                    
+                    // Since both CoreData and PureObject can be convertible,
+                    // we can convert them all to NSManagedObject and delete them
+                    // based on whether they are identifiable or not.
+                    //
+                    // We delete NSManagedObject using their ObjectID. If not, we
+                    // construct the managed objects using a disposable context,
+                    // and see if any of these objects is identifiable.
+                    let aliases = data.flatMap({$0 as? NSManagedObject})
+                    
+                    let nonAliases = data.filter({!($0 is NSManagedObject)})
+                        .flatMap({try? $0.asManagedObject(context)})
+                    
+                    $0.onNext([aliases, nonAliases].flatMap({$0}))
+                    $0.onCompleted()
+                } catch let e {
+                    $0.onError(e)
+                }
+                
+                return Disposables.create()
+            })
+            .flatMap({objects -> Observable<Void> in
+
+                // We deal with identifiables and normal objects differently.
+                // For identifiables, we need to fetch their counterparts in the
+                // DB first before deleting.
+                let ids = objects.flatMap({$0 as? HMCDIdentifiableType})
+                let nonIds = objects.filter({!($0 is HMCDIdentifiableType)})
+                let context1 = manager.disposableObjectContext()
+                let context2 = manager.disposableObjectContext()
+                
+                return Observable.concat(
+                    manager.rx.deleteIdentifiables(context1, entityName, ids),
+                    manager.rx.delete(context2, nonIds)
+                )
+            })
             .reduce((), accumulator: {_ in ()})
             .retry(request.retries())
             .map(Try.success)
@@ -268,10 +285,12 @@ public extension HMCDRequestProcessor {
     /// - Parameter request: A Req instance.
     /// - Returns: An Observable instance.
     /// - Throws: Exception if the execution fails.
-    fileprivate func executeDeleteWithRequest(_ request: Req) throws -> Observable<Try<Void>> {
+    fileprivate func executeDeleteWithRequest(_ request: Req) throws
+        -> Observable<Try<Void>>
+    {
         let manager = coreDataManager()
         
-        if manager.isMainStoreTypeSQLite() {
+        if manager.areAllStoresSQLite() {
             return try executeBatchDelete(request)
         } else {
             return try executeFetchAndDelete(request)
@@ -283,7 +302,9 @@ public extension HMCDRequestProcessor {
     /// - Parameter request: A Req instance.
     /// - Returns: An Observable instance.
     /// - Throws: Exception if the execution fails.
-    fileprivate func executeBatchDelete(_ request: Req) throws -> Observable<Try<Void>> {
+    fileprivate func executeBatchDelete(_ request: Req) throws
+        -> Observable<Try<Void>>
+    {
         let manager = coreDataManager()
         let deleteRequest = try request.untypedFetchRequest()
         let context = manager.disposableObjectContext()
@@ -301,14 +322,19 @@ public extension HMCDRequestProcessor {
     /// - Parameter request: A Req instance.
     /// - Returns: An Observable instance.
     /// - Throws: Exception if the execution fails.
-    fileprivate func executeFetchAndDelete(_ request: Req) throws -> Observable<Try<Void>> {
+    fileprivate func executeFetchAndDelete(_ request: Req) throws
+        -> Observable<Try<Void>>
+    {
         let manager = coreDataManager()
-        let fetchContext = manager.disposableObjectContext()
-        let deleteContext = manager.disposableObjectContext()
+        let context = manager.disposableObjectContext()
         let fetchRequest = try request.fetchRequest(NSManagedObject.self)
         
-        return manager.rx.fetch(fetchContext, fetchRequest)
-            .flatMap({manager.rx.delete(deleteContext, $0)})
+        // We can reuse the context with which we performed the fetch for the
+        // delete as well - this way, the NSManagedObject refetch will be very
+        // fast. At the same time, this helps keep this context around so that
+        // the inner managed objects are not ARC off.
+        return manager.rx.fetch(context, fetchRequest)
+            .flatMap({manager.rx.delete(context, $0)})
             .map(Try.success)
             .catchErrorJustReturn(Try.failure)
     }
@@ -378,16 +404,89 @@ public extension HMCDRequestProcessor {
         S: Sequence,
         S.Iterator.Element == HMTransformer<Req>
     {
-        let cdManager = coreDataManager()
-        let context = cdManager.disposableObjectContext()
+        let maanger = coreDataManager()
+        let context = maanger.disposableObjectContext()
         
         let generator: HMRequestGenerator<[PO],Req> = HMRequestGenerators.forceGn({
-            cdManager.rx.construct(context, $0)
+            maanger.rx.construct(context, $0)
                 .map(self.saveToMemoryRequest)
                 .flatMap({HMTransformers.applyTransformers($0, transforms)})
         })
         
         return processResult(previous, generator).map({$0.map(toVoid)})
+    }
+}
+
+public extension HMCDRequestProcessor {
+    public func deleteDataRequest<PO,S>(_ data: S) -> Req where
+        PO: HMCDPureObjectType,
+        PO: HMCDObjectConvertibleType,
+        S: Sequence,
+        S.Iterator.Element == PO
+    {
+        return Req.builder()
+            .with(operation: .deleteData)
+            .with(poType: PO.self)
+            .with(deletedData: data)
+            .with(requestDescription: "Delete data \(data) in memory")
+            .build()
+    }
+    
+    /// Override this method to provide default implementation.
+    ///
+    /// - Parameters:
+    ///   - previous: The result of the previous operation.
+    ///   - transforms: A Sequence of Request transformers.
+    /// - Returns: An Observable instance.
+    public func deleteInMemory<PO,S>(_ previous: Try<[PO]>, _ transforms: S)
+        -> Observable<Try<Void>> where
+        PO: HMCDPureObjectType,
+        PO: HMCDObjectConvertibleType,
+        S: Sequence,
+        S.Iterator.Element == HMTransformer<Req>
+    {
+        let generator: HMRequestGenerator<[PO],Req> = HMRequestGenerators.forceGn({
+            let request = self.deleteDataRequest($0)
+            return HMTransformers.applyTransformers(request, transforms)
+        })
+        
+        return processVoid(previous, generator)
+    }
+}
+
+public extension HMCDRequestProcessor {
+    public func deleteAllRequest<PO>(_ cls: PO.Type) -> Req where
+        PO: HMCDPureObjectType,
+        PO.CDClass: HMCDPureObjectConvertibleType,
+        PO.CDClass.PureObject == PO
+    {
+        return fetchAllRequest(cls)
+            .cloneBuilder()
+            .with(operation: .deleteBatch)
+            .with(requestDescription: "Delete all data for \(cls)")
+            .build()
+    }
+    
+    /// Override this method to provide default implementation.
+    ///
+    /// - Parameters:
+    ///   - previous: The result of the previous request.
+    ///   - cls: The PureObject class type.
+    ///   - transforms: A Sequence of Request transformers.
+    /// - Returns: An Observable instance.
+    public func deleteAllInMemory<Prev,PO,S>(_ previous: Try<Prev>,
+                                             _ cls: PO.Type,
+                                             _ transforms: S)
+        -> Observable<Try<Void>> where
+        PO: HMCDPureObjectType,
+        PO.CDClass: HMCDPureObjectConvertibleType,
+        PO.CDClass.PureObject == PO,
+        S: Sequence,
+        S.Iterator.Element == HMTransformer<Req>
+    {
+        let request = deleteAllRequest(cls)
+        let generator = HMRequestGenerators.forceGn(request, Prev.self, transforms)
+        return processVoid(previous, generator)
     }
 }
 
@@ -411,7 +510,7 @@ public extension HMCDRequestProcessor {
         S: Sequence, S.Iterator.Element == HMTransformer<Req>
     {
         let request = resetStackRequest()
-        let generator = HMRequestGenerators.forceGn(request, Prev.self)
+        let generator = HMRequestGenerators.forceGn(request, Prev.self, transforms)
         return processVoid(previous, generator)
     }
 }
@@ -538,33 +637,32 @@ public extension HMCDRequestProcessor {
         PO.CDClass: HMCDPureObjectConvertibleType,
         PO.CDClass.PureObject == PO,
         S: Sequence,
-        S.Iterator.Element == HMTransformer<HMCDRequest>
+        S.Iterator.Element == HMTransformer<Req>
     {
         let manager = coreDataManager()
         let request = streamDBEventsRequest(cls)
-        
-        do {
-            let wrapper = try manager.getFRCWrapperForRequest(request)
-            
-            return Observable<Void>
-                .create({
-                    do {
-                        // Start only when this Observable is subscribed to.
-                        try wrapper.rx.startStream()
-                        $0.onNext(())
-                        $0.onCompleted()
-                    } catch let e {
-                        $0.onError(e)
-                    }
-                    
-                    return Disposables.create()
-                })
-                .flatMap({wrapper.rx.streamEvents(cls)})
-                .map(Try.success)
-                .catchErrorJustReturn(Try.failure)
-        } catch let e {
-            return Observable.just(Try.failure(e))
-        }
+
+        return HMTransformers
+            .applyTransformers(request, transforms)
+            .flatMap({request -> Observable<Try<HMCDEvent<PO>>> in
+                let wrapper = try manager.getFRCWrapperForRequest(request)
+                
+                return Observable<Void>
+                    .create({
+                        do {
+                            // Start only when this Observable is subscribed to.
+                            try wrapper.rx.startStream()
+                            $0.onNext(())
+                            $0.onCompleted()
+                        } catch let e {
+                            $0.onError(e)
+                        }
+                        return Disposables.create()
+                    })
+                    .flatMap({wrapper.rx.streamEvents(cls)})
+                    .map(Try.success)
+                    .catchErrorJustReturn(Try.failure)
+            })
     }
 }
 

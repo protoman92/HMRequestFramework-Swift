@@ -45,8 +45,6 @@ public final class CoreDataManagerTest: CoreDataRootTest {
         let expect = expectation(description: ("Should have completed"))
         let dummyCount = self.dummyCount!
         let manager = self.manager!
-        let mainContext = manager.mainContext
-        let privateContext = manager.privateContext
         let dummies = (0..<dummyCount).map({_ in Dummy1()})
         let fetchRq = try! dummy1FetchRequest().fetchRequest(Dummy1.self)
         
@@ -64,8 +62,6 @@ public final class CoreDataManagerTest: CoreDataRootTest {
             // not persisted.
             .flatMap({manager.rx.fetch(fetchContext1, fetchRq)})
             .doOnNext({XCTAssertEqual($0.count, dummyCount)})
-            .doOnNext({_ in XCTAssertEqual(mainContext.insertedObjects.count, dummyCount)})
-            .doOnNext({_ in XCTAssertTrue(privateContext.insertedObjects.isEmpty)})
             .map(toVoid)
             
             // Persist the data.
@@ -204,7 +200,7 @@ public extension CoreDataManagerTest {
         let manager = self.manager!
         
         // This does not work for in-memory store.
-        if manager.isMainStoreTypeInMemory() {
+        if manager.areAllStoresInMemory() {
             return
         }
         

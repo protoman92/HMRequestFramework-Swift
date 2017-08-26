@@ -154,7 +154,7 @@ public extension HMCDRequestProcessorType {
         PO.CDClass: HMCDPureObjectConvertibleType,
         PO.CDClass.PureObject == PO
     {
-        let processor = HMCDResultProcessors.pureObjectProcessor(poCls)
+        let processor = HMCDResultProcessors.pureObjectPs(poCls)
         return process(previous, generator, processor)
             
             // Since asPureObject() does not throw an error, we can safely

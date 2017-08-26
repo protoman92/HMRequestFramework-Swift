@@ -105,7 +105,7 @@ public extension HMCDManager {
         O: ObserverType,
         O.E == [HMCDResult]
     {
-        performOnContextThread(mainContext) {
+        performOnContextThread(mainObjectContext()) {
             let upsertables = upsertables.map({$0})
             
             if upsertables.isNotEmpty {

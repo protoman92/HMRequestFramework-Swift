@@ -3,6 +3,7 @@
 
 def allPods
     pod 'SwiftUtilities/Main', git: 'https://github.com/protoman92/SwiftUtilities.git'
+    pod 'RxDataSources', '~> 1.0'
 end
 
 target 'HMRequestFramework' do
@@ -23,7 +24,7 @@ target 'HMRequestFramework' do
       inherit! :search_paths
       # Pods for testing
       allPods
-      pod 'RxDataSources', '~> 1.0'
+      
   end
 
 end

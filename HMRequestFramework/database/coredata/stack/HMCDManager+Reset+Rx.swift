@@ -93,8 +93,8 @@ extension Reactive where Base == HMCDManager {
         
         return Observable
             .concat(
-                resetContext(base.mainContext),
-                resetContext(base.privateContext),
+                resetContext(base.mainObjectContext()),
+                resetContext(base.privateObjectContext()),
                 
                 // Store reset must not happen on the main thread.
                 resetStores().subscribeOn(qos: .userInitiated)

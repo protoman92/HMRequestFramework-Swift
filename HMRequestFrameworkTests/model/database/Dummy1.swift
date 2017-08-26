@@ -7,6 +7,7 @@
 //
 
 import CoreData
+import RxDataSources
 import SwiftUtilities
 @testable import HMRequestFramework
 
@@ -54,7 +55,7 @@ public final class Dummy1 {
         Dummy1.counter += 1
         let counter = Dummy1.counter
         id = "id-\(counter)"
-        date = Date()
+        date = Date.random()
         int64 = Int64(Int.randomBetween(0, 10000)) as NSNumber
         float = Float(Int.randomBetween(0, 10000)) as NSNumber
         version = 1
@@ -229,11 +230,19 @@ extension Dummy1: Equatable {
     }
 }
 
+extension Dummy1: IdentifiableType {
+    public var identity: String {
+        return id ?? ""
+    }
+}
+
 extension Dummy1: Dummy1Type {}
 
 extension Dummy1: CustomStringConvertible {
     public var description: String {
-        return "PureObject - id: \(String(describing: id)), version: \(String(describing: version))"
+        return "PureObject - id: \(String(describing: id)), " +
+            "int64: \(String(describing: int64)), " +
+            "version: \(String(describing: version))"
     }
 }
 

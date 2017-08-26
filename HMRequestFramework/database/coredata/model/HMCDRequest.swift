@@ -141,6 +141,16 @@ extension HMCDRequest: HMBuildableType {
             return with(sortDescriptors: sortDescriptors.map({$0 as NSSortDescriptor}))
         }
         
+        /// Add a sort descriptor.
+        ///
+        /// - Parameter sortDescriptor: A NSSortDescriptor instance.
+        /// - Returns: The current Builder instance.
+        @discardableResult
+        public func add(sortDescriptor: NSSortDescriptor) -> Self {
+            request.nsSortDescriptors.append(sortDescriptor)
+            return self
+        }
+        
         /// Set the operation.
         ///
         /// - Parameter operation: A HMCDOperation instance.

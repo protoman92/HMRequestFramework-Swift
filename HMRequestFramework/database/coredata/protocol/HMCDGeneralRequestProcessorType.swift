@@ -46,6 +46,36 @@ public protocol HMCDGeneralRequestProcessorType {
         S: Sequence,
         S.Iterator.Element == HMTransformer<HMCDRequest>
     
+    /// Delete some data in memory.
+    ///
+    /// - Parameters:
+    ///   - previous: The result of the previous operation.
+    ///   - transforms: A Sequence of Request transformers.
+    /// - Returns: An Observable instance.
+    func deleteInMemory<PO,S>(_ previous: Try<[PO]>, _ transforms: S)
+        -> Observable<Try<Void>> where
+        PO: HMCDPureObjectType,
+        PO: HMCDObjectConvertibleType,
+        S: Sequence,
+        S.Iterator.Element == HMTransformer<HMCDRequest>
+    
+    /// Delete all data of some type in memory.
+    ///
+    /// - Parameters:
+    ///   - previous: The result of the previous operation.
+    ///   - cls: A PO class type.
+    ///   - transforms: A Sequence of Request transformers.
+    /// - Returns: An Observable instance.
+    func deleteAllInMemory<Prev,PO,S>(_ previous: Try<Prev>,
+                                      _ cls: PO.Type,
+                                      _ transforms: S)
+        -> Observable<Try<Void>> where
+        PO: HMCDPureObjectType,
+        PO.CDClass: HMCDPureObjectConvertibleType,
+        PO.CDClass.PureObject == PO,
+        S: Sequence,
+        S.Iterator.Element == HMTransformer<HMCDRequest>
+    
     /// Reset the CoreData stack and wipe DB.
     ///
     /// - Parameters:
@@ -132,6 +162,26 @@ public extension HMCDGeneralRequestProcessorType {
         PO.CDClass.Builder.PureObject == PO
     {
         return saveToMemory(previous, transforms)
+    }
+    
+    public func deleteInMemory<PO>(_ previous: Try<[PO]>,
+                                   _ transforms: HMTransformer<HMCDRequest>...)
+        -> Observable<Try<Void>> where
+        PO: HMCDPureObjectType,
+        PO: HMCDObjectConvertibleType
+    {
+        return deleteInMemory(previous, transforms)
+    }
+    
+    public func deleteAllInMemory<Prev,PO>(_ previous: Try<Prev>,
+                                           _ cls: PO.Type,
+                                           _ transforms: HMTransformer<HMCDRequest>...)
+        -> Observable<Try<Void>> where
+        PO: HMCDPureObjectType,
+        PO.CDClass: HMCDPureObjectConvertibleType,
+        PO.CDClass.PureObject == PO
+    {
+        return deleteAllInMemory(previous, cls, transforms)
     }
     
     public func resetStack<Prev>(_ previous: Try<Prev>,

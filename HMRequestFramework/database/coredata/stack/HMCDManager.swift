@@ -20,12 +20,12 @@ public struct HMCDManager {
     
     /// This context is not accessible outside of this class. It runs in
     /// background thread and acts as root of all managed object contexts.
-    let privateContext: NSManagedObjectContext
+    private let privateContext: NSManagedObjectContext
     
     /// This context is a child of the private managed object context. It runs
     /// concurrently on main thread and should be used strictly for interfacing
     /// with user
-    let mainContext: NSManagedObjectContext
+    private let mainContext: NSManagedObjectContext
     let coordinator: NSPersistentStoreCoordinator
     let settings: [HMCDStoreSettings]
     
@@ -51,20 +51,25 @@ public struct HMCDManager {
     /// for InMemory stores).
     ///
     /// - Returns: A StoreType instance.
-    public func mainStoreType() -> HMCDStoreSettings.StoreType? {
-        if let type = coordinator.persistentStores.first?.type {
-            return HMCDStoreSettings.StoreType.from(type: type)
-        } else {
-            return nil
-        }
+    func allStoreTypes() -> [HMCDStoreSettings.StoreType] {
+        return coordinator.persistentStores.map({$0.type})
+            .flatMap(HMCDStoreSettings.StoreType.from)
     }
     
-    public func isMainStoreTypeInMemory() -> Bool {
-        return mainStoreType() == .some(.InMemory)
+    /// Check if all stores are of a certain type.
+    ///
+    /// - Parameter type: A StoreType instance.
+    /// - Returns: A Bool value.
+    func allStoresOfType(_ type: HMCDStoreSettings.StoreType) -> Bool {
+        return allStoreTypes().all({$0 == type})
     }
     
-    public func isMainStoreTypeSQLite() -> Bool {
-        return mainStoreType() == .some(.SQLite)
+    public func areAllStoresInMemory() -> Bool {
+        return allStoresOfType(.InMemory)
+    }
+    
+    public func areAllStoresSQLite() -> Bool {
+        return allStoresOfType(.SQLite)
     }
     
     /// Apply settings to a store coordinator.
@@ -85,15 +90,19 @@ public struct HMCDManager {
                 options: $0.options())
         })
     }
-}
-
-extension HMCDManager {
-
+    
+    /// This context is used to persist changes to DB.
+    ///
+    /// - Returns: A NSManagedObjectContext instance.
+    func privateObjectContext() -> NSManagedObjectContext {
+        return privateContext
+    }
+    
     /// This context is used to store changes before saving to file.
     ///
     /// - Returns: A NSManagedObjectContext instance.
     public func mainObjectContext() -> NSManagedObjectContext {
-        return mainContext
+        return privateContext
     }
     
     /// Override this method to provide default implementation.

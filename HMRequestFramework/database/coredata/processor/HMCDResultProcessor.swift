@@ -9,20 +9,13 @@
 import RxSwift
 import SwiftUtilities
 
-/// The result processors below provide coupling between NSManagedObject subtype
-/// and the specific data type we are trying to get.
-
-public typealias HMCDTypedResultProcessor<Res: HMCDPureObjectType> =
-    HMResultProcessor<Res.CDClass,Res>
-
 /// Common CoreData result processors.
 public final class HMCDResultProcessors {
     
     /// Result processor that converts a CoreData object into a Pure Object.
     ///
     /// - Returns: A HMCDTypedResultProcessor instance.
-    public static func pureObjectProcessor<PO>()
-        -> HMCDTypedResultProcessor<PO> where
+    public static func pureObjectPs<PO>() -> HMResultProcessor<PO.CDClass,PO> where
         PO: HMCDPureObjectType,
         PO.CDClass: HMCDPureObjectConvertibleType,
         PO.CDClass.PureObject == PO
@@ -34,13 +27,12 @@ public final class HMCDResultProcessors {
     ///
     /// - Parameter cls: The PureObject class type.
     /// - Returns: A HMCDTypedResultProcessor instance.
-    public static func pureObjectProcessor<PO>(_ cls: PO.Type)
-        -> HMCDTypedResultProcessor<PO> where
+    public static func pureObjectPs<PO>(_ cls: PO.Type) -> HMResultProcessor<PO.CDClass,PO> where
         PO: HMCDPureObjectType,
         PO.CDClass: HMCDPureObjectConvertibleType,
         PO.CDClass.PureObject == PO
     {
-        return pureObjectProcessor()
+        return pureObjectPs()
     }
     
     private init() {}

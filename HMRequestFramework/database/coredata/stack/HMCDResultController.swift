@@ -113,11 +113,7 @@ extension HMCDResultController: NSFetchedResultsControllerDelegate {
     /// enable change tracking if you do not care about the individual callbacks.
     public func controllerDidChangeContent(_ controller: Controller) {
         let observer = eventObserver()
-        
-        let event = Event.dbChange(controller.sections,
-                                   controller.fetchedObjects,
-                                   {.didChange($0)})
-        
+        let event = dbChange(controller, Event.didChange)
         observer.onNext(event)
     }
     
@@ -130,11 +126,7 @@ extension HMCDResultController: NSFetchedResultsControllerDelegate {
     /// an update block for their view.
     public func controllerWillChangeContent(_ controller: Controller) {
         let observer = eventObserver()
-        
-        let event = Event.dbChange(controller.sections,
-                                   controller.fetchedObjects,
-                                   {.willChange($0)})
-        
+        let event = dbChange(controller, Event.willChange)
         observer.onNext(event)
     }
     
@@ -206,5 +198,24 @@ extension HMCDResultController: NSFetchedResultsControllerDelegate {
         let observer = eventObserver()
         let event = Event.sectionChange(type, sectionInfo, sectionIndex)
         observer.onNext(event)
+    }
+    
+    /// Get a DB change Event from the associated result controller.
+    ///
+    /// - Parameter controller: A Controller instance.
+    /// - Returns: An Event instance.
+    private func dbChange(_ controller: Controller,
+                          _ mapper: (DBChange<Any>) -> Event) -> Event {
+        return Event.dbChange(controller.sections,
+                              controller.fetchedObjects,
+                              mapper)
+    }
+    
+    /// Get an anyChange Event from the associated result controller.
+    ///
+    /// - Parameter controller: A Controller instance.
+    /// - Returns: An Event instance.
+    private func anyChange(_ controller: Controller) -> Event {
+        return dbChange(controller, Event.anyChange)
     }
 }

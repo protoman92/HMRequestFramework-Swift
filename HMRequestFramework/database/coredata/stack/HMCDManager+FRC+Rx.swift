@@ -30,7 +30,7 @@ public extension HMCDManager {
         // can set it as the target context for the FRC.
         return NSFetchedResultsController<Val>(
             fetchRequest: fetchRequest,
-            managedObjectContext: mainContext,
+            managedObjectContext: mainObjectContext(),
             sectionNameKeyPath: sectionName,
             cacheName: cacheName
         )

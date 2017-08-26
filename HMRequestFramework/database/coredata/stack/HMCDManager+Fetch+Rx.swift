@@ -123,12 +123,13 @@ public extension HMCDManager {
     ///   - rCls: The type to cast the results to.
     /// - Returns: An Array of NSManagedObject.
     /// - Throws: Exception if the fetch fails.
-    private func blockingFetchIdentifiables<S,ID,FR>(_ context: NSManagedObjectContext,
-                                                     _ entityName: String,
-                                                     _ ids: S,
-                                                     _ predicate: NSPredicate,
-                                                     _ iCls: ID.Type,
-                                                     _ rCls: FR.Type) throws -> [FR] where
+    private func blockingFetchIdentifiables<S,ID,FR>(
+        _ context: NSManagedObjectContext,
+        _ entityName: String,
+        _ ids: S,
+        _ predicate: NSPredicate,
+        _ iCls: ID.Type,
+        _ rCls: FR.Type) throws -> [FR] where
         FR: NSFetchRequestResult,
         S: Sequence,
         S.Iterator.Element == ID
@@ -155,10 +156,11 @@ public extension HMCDManager {
     ///   - rCls: The type to cast the results to.
     /// - Returns: An Array of NSManagedObject.
     /// - Throws: Exception if the fetch fails.
-    private func blockingFetchIdentifiables<S,FR>(_ context: NSManagedObjectContext,
-                                                  _ entityName: String,
-                                                  _ ids: S,
-                                                  _ rCls: FR.Type) throws -> [FR] where
+    private func blockingFetchIdentifiables<S,FR>(
+        _ context: NSManagedObjectContext,
+        _ entityName: String,
+        _ ids: S,
+        _ rCls: FR.Type) throws -> [FR] where
         FR: NSFetchRequestResult,
         S: Sequence,
         S.Iterator.Element == HMCDIdentifiableType

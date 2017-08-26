@@ -26,8 +26,8 @@ public extension HMCDManager {
     ///
     /// - Throws: Exception if the operation fails.
     func persistChangesUnsafely() throws {
-        try saveUnsafely(mainContext)
-        try saveUnsafely(privateContext)
+        try saveUnsafely(mainObjectContext())
+        try saveUnsafely(privateObjectContext())
     }
 }
 
@@ -37,7 +37,7 @@ public extension HMCDManager {
     ///
     /// - Parameter obs: An ObserverType instance.
     func persistChanges<O>(_ obs: O) where O: ObserverType, O.E == Void {
-        performOnContextThread(mainContext) {
+        performOnContextThread(mainObjectContext()) {
             do {
                 try self.persistChangesUnsafely()
                 obs.onNext(())
@@ -86,7 +86,7 @@ public extension HMCDManager {
     func save<O>(_ context: NSManagedObjectContext, _ obs: O)
         where O: ObserverType, O.E == Void
     {
-        performOnContextThread(mainContext) {
+        performOnContextThread(mainObjectContext()) {
             do {
                 try self.saveUnsafely(context)
                 obs.onNext()
@@ -164,7 +164,7 @@ public extension HMCDManager {
         O: ObserverType,
         O.E == [HMCDResult]
     {
-        performOnContextThread(mainContext) {
+        performOnContextThread(mainObjectContext()) {
             let convertibles = convertibles.map({$0})
             
             if convertibles.isNotEmpty {
@@ -223,7 +223,7 @@ public extension HMCDManager {
         O: ObserverType,
         O.E == Void
     {
-        performOnContextThread(mainContext) {
+        performOnContextThread(mainObjectContext()) {
             do {
                 try self.saveUnsafely(context, pureObjects)
                 obs.onNext()

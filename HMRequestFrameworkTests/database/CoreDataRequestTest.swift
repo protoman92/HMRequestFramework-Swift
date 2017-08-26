@@ -83,26 +83,20 @@ public class CoreDataRequestTest: CoreDataRootTest {
         /// When
         // Save the changes in the disposable context.
         dbProcessor.saveToMemory(Try.success(pureObjects))
-            .map({$0.map({$0 as Any})})
-
-            // Persist changes to DB.
             .flatMap({dbProcessor.persistToDB($0)})
-            .map({$0.map({$0 as Any})})
 
             // Fetch to verify that data have been persisted.
             .flatMap({dbProcessor.fetchAllDataFromDB($0, Dummy1.self)})
             .map({try $0.getOrThrow()})
             .doOnNext({XCTAssertEqual($0.count, dummyCount)})
             .doOnNext({XCTAssertTrue(pureObjects.all($0.contains))})
-            .map({$0 as Any}).map(Try.success)
+            .map(Try.success)
 
             // Delete data from memory, but do not persist to DB yet.
             .flatMap({dbProcessor.processVoid($0, deleteGn)})
-            .map({$0.map({$0 as Any})})
 
             // Persist changes to DB.
             .flatMap({dbProcessor.persistToDB($0)})
-            .map({$0.map({$0 as Any})})
 
             // Fetch to verify that the data have been deleted.
             .flatMap({dbProcessor.fetchAllDataFromDB($0, Dummy1.self)})
@@ -119,6 +113,45 @@ public class CoreDataRequestTest: CoreDataRootTest {
         XCTAssertEqual(nextElements.count, 0)
     }
     
+    public func test_deletePureObjects_shouldWork() {
+        /// Setup
+        let observer = scheduler.createObserver(Dummy1.self)
+        let expect = expectation(description: "Should have completed")
+        let dbProcessor = self.dbProcessor!
+        let dummyCount = self.dummyCount!
+        let pureObjects = (0..<dummyCount).map({_ in Dummy1()})
+        
+        /// When
+        // Save the original objects to DB.
+        dbProcessor.saveToMemory(Try.success(pureObjects))
+            .flatMap({dbProcessor.persistToDB($0)})
+            
+            // Fetch to verify that data have been persisted.
+            .flatMap({dbProcessor.fetchAllDataFromDB($0, Dummy1.self)})
+            .map({try $0.getOrThrow()})
+            .doOnNext({XCTAssertEqual($0.count, dummyCount)})
+            .doOnNext({XCTAssertTrue(pureObjects.all($0.contains))})
+            .map(Try.success)
+            
+            // Delete pure objects from DB and persist changes.
+            .flatMap({_ in dbProcessor.deleteInMemory(Try.success(pureObjects))})
+            .flatMap({dbProcessor.persistToDB($0)})
+            
+            // Fetch to verify that the data have been deleted.
+            .flatMap({dbProcessor.fetchAllDataFromDB($0, Dummy1.self)})
+            .map({try $0.getOrThrow()})
+            .flatMap({Observable.from($0)})
+            .doOnDispose(expect.fulfill)
+            .subscribe(observer)
+            .disposed(by: disposeBag)
+        
+        waitForExpectations(timeout: timeout, handler: nil)
+        
+        /// Then
+        let nextElements = observer.nextElements()
+        XCTAssertEqual(nextElements.count, 0)
+    }
+    
     public func test_batchDelete_shouldWork() {
         /// Setup
         let observer = scheduler.createObserver(Dummy1.self)
@@ -126,31 +159,24 @@ public class CoreDataRequestTest: CoreDataRootTest {
         let dbProcessor = self.dbProcessor!
         let dummyCount = self.dummyCount!
         let pureObjects = (0..<dummyCount).map({_ in Dummy1()})
-        let deleteGn = dummy1BatchDeleteRgn()
 
         /// When
         // Save the changes in the disposable context.
         dbProcessor.saveToMemory(Try.success(pureObjects))
-            .map({$0.map({$0 as Any})})
-
-            // Persist changes to DB.
             .flatMap({dbProcessor.persistToDB($0)})
-            .map({$0.map({$0 as Any})})
 
             // Fetch to verify that data have been persisted.
             .flatMap({dbProcessor.fetchAllDataFromDB($0, Dummy1.self)})
             .map({try $0.getOrThrow()})
             .doOnNext({XCTAssertEqual($0.count, dummyCount)})
             .doOnNext({XCTAssertTrue(pureObjects.all($0.contains))})
-            .map({$0 as Any}).map(Try.success)
+            .map(Try.success)
 
             // Delete data from DB. Make sure this is a SQLite store though.
-            .flatMap({dbProcessor.processVoid($0, deleteGn)})
-            .map({$0.map({$0 as Any})})
+            .flatMap({dbProcessor.deleteAllInMemory($0, Dummy1.self)})
 
             // Persist changes to DB.
             .flatMap({dbProcessor.persistToDB($0)})
-            .map({$0.map({$0 as Any})})
 
             // Fetch to verify that the data have been deleted.
             .flatMap({dbProcessor.fetchAllDataFromDB($0, Dummy1.self)})
@@ -196,11 +222,7 @@ public class CoreDataRequestTest: CoreDataRootTest {
         /// When
         // Insert the first set of data.
         dbProcessor.saveToMemory(Try.success(pureObjects1))
-            .map({$0.map({$0 as Any})})
-
-            // Persist changes to DB.
             .flatMap({dbProcessor.persistToDB($0)})
-            .map({$0.map({$0 as Any})})
 
             .flatMap({dbProcessor.fetchAllDataFromDB($0, Dummy1.self)})
             .map({try $0.getOrThrow()})
@@ -211,11 +233,9 @@ public class CoreDataRequestTest: CoreDataRootTest {
             // Upsert the second set of data. This set of data contains some
             // data with the same ids as the first set of data.
             .flatMap({dbProcessor.process($0, upsertGn, upsertPs)})
-            .map({$0.map({$0 as Any})})
 
             // Persist changes to DB.
             .flatMap({dbProcessor.persistToDB($0)})
-            .map({$0.map({$0 as Any})})
 
             // Fetch all data to check that the upsert was successful.
             .flatMap({dbProcessor.fetchAllDataFromDB($0, Dummy1.self)})
@@ -417,17 +437,6 @@ extension CoreDataRequestTest {
     
     func dummy1UpsertRps() -> HMResultProcessor<HMCDResult,Void> {
         return {Observable.just($0).map(toVoid).map(Try.success)}
-    }
-    
-    func dumm1BatchDeleteRequest() -> Req {
-        return Req.builder()
-            .with(poType: Dummy1.self)
-            .with(predicate: NSPredicate(value: true))
-            .build()
-    }
-    
-    func dummy1BatchDeleteRgn() -> HMAnyRequestGenerator<Req> {
-        return HMRequestGenerators.forceGn(dumm1BatchDeleteRequest(), Any.self)
     }
 
     func dummyMemoryDeleteRequest(_ data: [HMCDObjectConvertibleType]) -> Req {
