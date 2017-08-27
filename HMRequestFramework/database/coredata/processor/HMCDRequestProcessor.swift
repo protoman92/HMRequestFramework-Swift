@@ -644,11 +644,12 @@ public extension HMCDRequestProcessor {
 
         return HMTransforms
             .applyTransformers(request, transforms)
-            .flatMap({try manager
-                .getFRCWrapperForRequest($0).rx
-                .startStream(cls)
-                .map(Try.success)
-                .catchErrorJustReturn(Try.failure)
+            .flatMap({request -> Observable<Try<HMCDEvent<PO>>> in
+                let wrapper = try manager.getFRCWrapperForRequest(request)
+                
+                return wrapper.rx.startStream(cls)
+                    .map(Try.success)
+                    .catchErrorJustReturn(Try.failure)
             })
             .catchErrorJustReturn(Try.failure)
     }

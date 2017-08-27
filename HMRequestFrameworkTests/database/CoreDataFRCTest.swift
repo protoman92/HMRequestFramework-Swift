@@ -22,8 +22,8 @@ public final class CoreDataFRCTest: CoreDataRootTest {
     
     override public func setUp() {
         super.setUp()
-        iterationCount = 5
-        dummyCount = 500
+        iterationCount = 20
+        dummyCount = 100
     }
     
     public func test_streamDBInsertsWithProcessor_shouldWork() {
@@ -53,11 +53,8 @@ public final class CoreDataFRCTest: CoreDataRootTest {
                 default: break
                 }
             })
-            .doOnNext({self.validateDidChange($0, {allDummies.all($0.contains)})})
-            
-            // The insert event is broadcast before didChange, so allDummies
-            // do not contain the inner object yet.
-            .doOnNext({self.validateInsert($0, {!allDummies.contains($0)})})
+            .doOnNext({self.validateDidChange($0)})
+            .doOnNext({self.validateInsert($0)})
             .cast(to: Any.self)
             .subscribe(frcObserver)
             .disposed(by: disposeBag)
@@ -179,7 +176,7 @@ public extension CoreDataFRCTest {
         if case .didChange(let change) = event {
             let sections = change.sections
             let objects = change.objects
-            XCTAssertTrue(asserts.map({$0(change.objects)}).all({$0}))
+            XCTAssertTrue(asserts.map({$0(objects)}).all({$0}))
             
             if sections.isNotEmpty {
                 let sectionObjects = sections.flatMap({$0.objects})
@@ -254,6 +251,7 @@ public extension CoreDataFRCTest {
                     )
                     .reduce((), accumulator: {_ in ()})
                     .doOnNext({onSave(pureObjects)})
+                    .delay(0.2, scheduler: MainScheduler.instance)
             })
             .reduce((), accumulator: {_ in ()})
             .cast(to: Any.self)

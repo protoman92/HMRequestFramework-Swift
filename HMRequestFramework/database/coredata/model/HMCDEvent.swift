@@ -193,6 +193,25 @@ public enum HMCDEvent<V> {
     }
 }
 
+extension HMCDEvent: CustomStringConvertible {
+    public var description: String {
+        switch self {
+        case .insert:           return "insert"
+        case .delete:           return "delete"
+        case .move:             return "move"
+        case .update:           return "update"
+        case .insertSection:    return "insertSection"
+        case .deleteSection:    return "deleteSection"
+        case .moveSection:      return "moveSection"
+        case .updateSection:    return "updateSection"
+        case .willChange:       return "willChange"
+        case .didChange:        return "didChange"
+        case .anyChange:        return "anyChange"
+        case .dummy:            return "dummy"
+        }
+    }
+}
+
 public extension HMCDEvent {
     
     /// Map an DB event to another DB event with a different generics.
