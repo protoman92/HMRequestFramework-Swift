@@ -71,7 +71,7 @@ public final class FRCController: UIViewController {
         
         insertBtn.setTitle("Insert \(dummyCount) items", for: .normal)
         
-        insertBtn.rx.controlEvent(.touchDown)
+        insertBtn.rx.tap
             .map({_ in (0..<dummyCount).map({_ in Dummy1()})})
             .map(Try.success)
             .flatMap({[weak self] prev -> Observable<Try<Void>> in
@@ -91,7 +91,7 @@ public final class FRCController: UIViewController {
             .subscribe()
             .disposed(by: disposeBag)
         
-        updateRandomBtn.rx.controlEvent(.touchDown)
+        updateRandomBtn.rx.tap
             .withLatestFrom(data.asObservable())
             .filter({$0.isNotEmpty})
             .map({$0.randomElement()?.items.randomElement()})
@@ -109,11 +109,18 @@ public final class FRCController: UIViewController {
                     return Observable.empty()
                 }
             })
+            .flatMap({[weak self] prev -> Observable<Try<Void>> in
+                if let `self` = self, let dbProcessor = self.dbProcessor {
+                    return dbProcessor.persistToDB(prev)
+                } else {
+                    return Observable.empty()
+                }
+            })
             .map(toVoid)
             .subscribe()
             .disposed(by: disposeBag)
         
-        deleteRandomBtn.rx.controlEvent(.touchDown)
+        deleteRandomBtn.rx.tap
             .withLatestFrom(data.asObservable())
             .filter({$0.isNotEmpty})
             .map({$0.randomElement()?.items.randomElement()})
@@ -126,10 +133,17 @@ public final class FRCController: UIViewController {
                     return Observable.empty()
                 }
             })
+            .flatMap({[weak self] prev -> Observable<Try<Void>> in
+                if let `self` = self, let dbProcessor = self.dbProcessor {
+                    return dbProcessor.persistToDB(prev)
+                } else {
+                    return Observable.empty()
+                }
+            })
             .subscribe()
             .disposed(by: disposeBag)
         
-        deleteAllBtn.rx.controlEvent(.touchDown)
+        deleteAllBtn.rx.tap
             .map(Try.success)
             .flatMap({[weak self] prev -> Observable<Try<Void>> in
                 if let `self` = self, let dbProcessor = self.dbProcessor {

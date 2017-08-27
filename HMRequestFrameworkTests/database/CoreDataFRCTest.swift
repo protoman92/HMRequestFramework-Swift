@@ -93,8 +93,6 @@ public final class CoreDataFRCTest: CoreDataRootTest {
         let dummyCount = self.dummyCount!
         var originalObjects: [Dummy1] = []
         
-        try! frc.rx.startStream()
-        
         // Call count is -1 initially to take care of first empty event. The
         // willChange and didChange counts will be higher than update count
         // because they apply to inserts and deletes as well.
@@ -109,7 +107,7 @@ public final class CoreDataFRCTest: CoreDataRootTest {
         var deleteSectionCount = 0
         
         /// When
-        frc.rx.streamEvents(Dummy1.self)
+        frc.rx.startStream(Dummy1.self)
             .doOnNext({_ in callCount += 1})
             .doOnNext({
                 switch $0 {

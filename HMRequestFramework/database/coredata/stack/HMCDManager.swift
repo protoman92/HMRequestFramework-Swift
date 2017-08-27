@@ -17,14 +17,13 @@ import SwiftUtilities
 /// context that is passed in as parameter should be a blank disposable one
 /// created using HMCDManager.disposableObjectContext().
 public struct HMCDManager {
+    public typealias Context = NSManagedObjectContext
     
     /// This context is not accessible outside of this class. It runs in
     /// background thread and acts as root of all managed object contexts.
     private let privateContext: NSManagedObjectContext
     
-    /// This context is a child of the private managed object context. It runs
-    /// concurrently on main thread and should be used strictly for interfacing
-    /// with user
+    /// This context is a child of the private managed object context.
     private let mainContext: NSManagedObjectContext
     let coordinator: NSPersistentStoreCoordinator
     let settings: [HMCDStoreSettings]
@@ -33,7 +32,7 @@ public struct HMCDManager {
         let coordinator = try constructor.persistentStoreCoordinator()
         let settings = try constructor.storeSettings()
         let privateContext = NSManagedObjectContext(concurrencyType: .privateQueueConcurrencyType)
-        let mainContext = NSManagedObjectContext(concurrencyType: .mainQueueConcurrencyType)
+        let mainContext = NSManagedObjectContext(concurrencyType: .privateQueueConcurrencyType)
         privateContext.persistentStoreCoordinator = coordinator
         mainContext.parent = privateContext
         self.coordinator = coordinator
@@ -102,7 +101,7 @@ public struct HMCDManager {
     ///
     /// - Returns: A NSManagedObjectContext instance.
     public func mainObjectContext() -> NSManagedObjectContext {
-        return privateContext
+        return mainContext
     }
     
     /// Override this method to provide default implementation.

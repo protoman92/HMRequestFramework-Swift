@@ -288,13 +288,13 @@ public extension HMCDRequestProcessor {
     fileprivate func executeDeleteWithRequest(_ request: Req) throws
         -> Observable<Try<Void>>
     {
-        let manager = coreDataManager()
+//        let manager = coreDataManager()
         
-        if manager.areAllStoresSQLite() {
-            return try executeBatchDelete(request)
-        } else {
-            return try executeFetchAndDelete(request)
-        }
+//        if manager.areAllStoresSQLite() {
+//            return try executeBatchDelete(request)
+//        } else {
+        return try executeFetchAndDelete(request)
+//        }
     }
     
     /// Perform a batch delete operation. This only works for SQLite stores.
@@ -644,25 +644,13 @@ public extension HMCDRequestProcessor {
 
         return HMTransforms
             .applyTransformers(request, transforms)
-            .flatMap({request -> Observable<Try<HMCDEvent<PO>>> in
-                let wrapper = try manager.getFRCWrapperForRequest(request)
-                
-                return Observable<Void>
-                    .create({
-                        do {
-                            // Start only when this Observable is subscribed to.
-                            try wrapper.rx.startStream()
-                            $0.onNext(())
-                            $0.onCompleted()
-                        } catch let e {
-                            $0.onError(e)
-                        }
-                        return Disposables.create()
-                    })
-                    .flatMap({wrapper.rx.streamEvents(cls)})
-                    .map(Try.success)
-                    .catchErrorJustReturn(Try.failure)
+            .flatMap({try manager
+                .getFRCWrapperForRequest($0).rx
+                .startStream(cls)
+                .map(Try.success)
+                .catchErrorJustReturn(Try.failure)
             })
+            .catchErrorJustReturn(Try.failure)
     }
 }
 

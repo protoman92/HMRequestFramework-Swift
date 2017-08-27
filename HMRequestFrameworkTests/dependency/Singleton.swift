@@ -26,7 +26,7 @@ public final class Singleton {
         
         let settings = [
             HMCDStoreSettings.builder()
-                .with(storeType: .InMemory)
+                .with(storeType: store)
                 .with(persistentStoreURL: url)
                 .build()
         ]

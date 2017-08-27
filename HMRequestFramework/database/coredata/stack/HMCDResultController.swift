@@ -29,12 +29,19 @@ public final class HMCDResultController: NSObject {
         frc?.delegate = self
     }
     
+    /// Start events stream.
+    ///
+    /// - Throws: Exception if the stream cannot be started.
+    func startStream() throws {
+        try controller().performFetch()
+    }
+    
     func eventObservable() -> Observable<Event> {
         return eventSubject.asObservable()
     }
     
-    func eventObserver() -> BehaviorSubject<Event> {
-        return eventSubject
+    func eventObserver() -> AnyObserver<Event> {
+        return eventSubject.asObserver()
     }
     
     /// Get the current objects as identified by the fetch request in DB.

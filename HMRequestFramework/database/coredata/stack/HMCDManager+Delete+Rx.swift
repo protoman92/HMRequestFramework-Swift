@@ -24,14 +24,16 @@ public extension HMCDManager {
     /// - Throws: Exception if the operation fails.
     func deleteUnsafely(_ context: NSManagedObjectContext,
                         _ request: NSFetchRequest<NSFetchRequestResult>) throws
-        -> NSPersistentStoreResult
+        -> NSBatchDeleteResult
     {
         let deleteRequest = NSBatchDeleteRequest(fetchRequest: request)
-        return try context.execute(deleteRequest)
-    }
-}
 
-public extension HMCDManager {
+        if let result = try context.execute(deleteRequest) as? NSBatchDeleteResult {
+            return result
+        } else {
+            throw Exception("Invalid batch delete result")
+        }
+    }
     
     /// Delete items in DB using some fetch request and observe the result.
     /// Beware that this is only available for SQLite stores.
@@ -43,7 +45,7 @@ public extension HMCDManager {
     func delete<O>(_ context: NSManagedObjectContext,
                    _ request: NSFetchRequest<NSFetchRequestResult>,
                    _ obs: O) where
-        O: ObserverType, O.E == NSPersistentStoreResult
+        O: ObserverType, O.E == NSBatchDeleteResult
     {
         performOnContextThread(mainObjectContext()) {
             do {
@@ -173,9 +175,9 @@ public extension Reactive where Base == HMCDManager {
     /// - Return: An Observable instance.
     public func delete(_ context: NSManagedObjectContext,
                        _ request: NSFetchRequest<NSFetchRequestResult>)
-        -> Observable<NSPersistentStoreResult>
+        -> Observable<NSBatchDeleteResult>
     {
-        return Observable<NSPersistentStoreResult>.create({
+        return Observable<NSBatchDeleteResult>.create({
             self.base.delete(context, request, $0)
             return Disposables.create()
         })

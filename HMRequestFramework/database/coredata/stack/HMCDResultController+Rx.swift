@@ -12,9 +12,28 @@ extension Reactive where Base: HMCDResultController {
     
     /// Start the stream.
     ///
+    /// - Parameter cls: The PO class type.
     /// - Throws: Exception if the stream cannot be started.
-    public func startStream() throws {
-        try base.controller().performFetch()
+    public func startStream<PO>(_ cls: PO.Type) -> Observable<HMCDEvent<PO>> where
+        PO: HMCDPureObjectType,
+        PO.CDClass: HMCDPureObjectConvertibleType,
+        PO.CDClass.PureObject == PO
+    {
+        let base = self.base
+        
+        return Observable<Void>
+            .create({
+                do {
+                    try base.startStream()
+                    $0.onNext(())
+                    $0.onCompleted()
+                } catch let e {
+                    $0.onError(e)
+                }
+                
+                return Disposables.create()
+            })
+            .flatMap({self.streamEvents(cls)})
     }
     
     /// Get an Observable stream that emits DB events. Convert all objects into
@@ -22,7 +41,7 @@ extension Reactive where Base: HMCDResultController {
     ///
     /// - Parameter cls: The PO class type.
     /// - Returns: An Observable instance.
-    public func streamEvents<PO>(_ cls: PO.Type) -> Observable<HMCDEvent<PO>> where
+    private func streamEvents<PO>(_ cls: PO.Type) -> Observable<HMCDEvent<PO>> where
         PO: HMCDPureObjectType,
         PO.CDClass: HMCDPureObjectConvertibleType,
         PO.CDClass.PureObject == PO
@@ -35,5 +54,6 @@ extension Reactive where Base: HMCDResultController {
             .map({$0.cast(to: PO.CDClass.self)})
             .map({$0.map({$0.asPureObject()})})
             .takeUntil(deallocated)
+            .observeOn(MainScheduler.instance)
     }
 }
