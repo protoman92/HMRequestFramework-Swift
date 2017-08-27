@@ -242,6 +242,8 @@ extension Dummy1: CustomStringConvertible {
     public var description: String {
         return "PureObject - id: \(String(describing: id)), " +
             "int64: \(String(describing: int64)), " +
+            "float: \(String(describing: float)), " +
+            "date: \(String(describing: date)), " +
             "version: \(String(describing: version))"
     }
 }

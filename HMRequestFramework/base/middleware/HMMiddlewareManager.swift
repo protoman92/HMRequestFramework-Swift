@@ -52,7 +52,7 @@ public struct HMMiddlewareManager<Target: HMMiddlewareFilterableType> {
         S: Sequence, S.Iterator.Element == (Filterable, Transform)
     {
         let filtered = filterMiddlewares(result, middlewares).map({$0.1})
-        return HMTransformers.applyTransformers(result, filtered)
+        return HMTransforms.applyTransformers(result, filtered)
     }
     
     /// Sequentially apply a Sequence of side effect middlewares.

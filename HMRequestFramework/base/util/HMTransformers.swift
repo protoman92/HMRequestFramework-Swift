@@ -1,5 +1,5 @@
 //
-//  HMTransformers.swift
+//  HMTransforms.swift
 //  HMRequestFramework
 //
 //  Created by Hai Pham on 8/21/17.
@@ -8,8 +8,8 @@
 
 import RxSwift
 
-/// Utility class for HMTransformer.
-public final class HMTransformers {
+/// Utility class for HMTransform.
+public final class HMTransforms {
     
     /// Sequentially apply some transformers to a value.
     ///
@@ -19,7 +19,7 @@ public final class HMTransformers {
     /// - Returns: An Observable instance.
     public static func applyTransformers<A,S>(_ value: A, _ transforms: S)
         -> Observable<A> where
-        S: Sequence, S.Iterator.Element == HMTransformer<A>
+        S: Sequence, S.Iterator.Element == HMTransform<A>
     {
         var chain = Observable.just(value)
         

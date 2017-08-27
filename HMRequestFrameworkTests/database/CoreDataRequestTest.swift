@@ -152,6 +152,42 @@ public class CoreDataRequestTest: CoreDataRootTest {
         XCTAssertEqual(nextElements.count, 0)
     }
     
+    public func test_fetchWithProperties_shouldWork() {
+        /// Setup
+        let observer = scheduler.createObserver(Dummy1.self)
+        let expect = expectation(description: "Should have completed")
+        let dbProcessor = self.dbProcessor!
+        let dummyCount = self.dummyCount!
+        let pureObjects = (0..<dummyCount).map({_ in Dummy1()})
+        
+        var fetchedProperties: [String : [CVarArg]] = [:]
+        fetchedProperties["id"] = pureObjects.flatMap({$0.id})
+        fetchedProperties["date"] = pureObjects.flatMap({$0.date.map({$0 as NSDate})})
+        fetchedProperties["float"] = pureObjects.flatMap({$0.float})
+        fetchedProperties["int64"] = pureObjects.flatMap({$0.int64})
+        
+        /// When
+        // Save the pure objects to DB.
+        dbProcessor.saveToMemory(Try.success(pureObjects))
+            .flatMap({dbProcessor.persistToDB($0)})
+            .map({$0.map({_ in fetchedProperties})})
+            
+            // Fetch with properties and confirm that they match randomObjects.
+            .flatMap({dbProcessor.fetchWithProperties($0, Dummy1.self)})
+            .map({try $0.getOrThrow()})
+            .flatMap({Observable.from($0)})
+            .doOnDispose(expect.fulfill)
+            .subscribe(observer)
+            .disposed(by: disposeBag)
+        
+        waitForExpectations(timeout: timeout, handler: nil)
+        
+        /// Then
+        let nextElements = observer.nextElements()
+        XCTAssertEqual(nextElements.count, pureObjects.count)
+        XCTAssertTrue(pureObjects.all(nextElements.contains))
+    }
+    
     public func test_batchDelete_shouldWork() {
         /// Setup
         let observer = scheduler.createObserver(Dummy1.self)
@@ -164,8 +200,6 @@ public class CoreDataRequestTest: CoreDataRootTest {
         // Save the changes in the disposable context.
         dbProcessor.saveToMemory(Try.success(pureObjects))
             .flatMap({dbProcessor.persistToDB($0)})
-
-            // Fetch to verify that data have been persisted.
             .flatMap({dbProcessor.fetchAllDataFromDB($0, Dummy1.self)})
             .map({try $0.getOrThrow()})
             .doOnNext({XCTAssertEqual($0.count, dummyCount)})
@@ -174,8 +208,6 @@ public class CoreDataRequestTest: CoreDataRootTest {
 
             // Delete data from DB. Make sure this is a SQLite store though.
             .flatMap({dbProcessor.deleteAllInMemory($0, Dummy1.self)})
-
-            // Persist changes to DB.
             .flatMap({dbProcessor.persistToDB($0)})
 
             // Fetch to verify that the data have been deleted.
