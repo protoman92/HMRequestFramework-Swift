@@ -439,7 +439,7 @@ extension HMCDRequest.Builder: HMRequestBuilderType {
 
     /// Override this method to provide default implementation.
     ///
-    /// - Parameter requestDescription: A String value.
+    /// - Parameter description: A String value.
     /// - Returns: The current Builder instance.
     @discardableResult
     public func with(description: String?) -> Self {

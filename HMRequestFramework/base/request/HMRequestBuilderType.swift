@@ -41,7 +41,7 @@ public protocol HMRequestBuilderType: HMBuilderType {
     
     /// Set the request description.
     ///
-    /// - Parameter requestDescription: A String value.
+    /// - Parameter description: A String value.
     /// - Returns: The current Builder instance.
     @discardableResult
     func with(description: String?) -> Self

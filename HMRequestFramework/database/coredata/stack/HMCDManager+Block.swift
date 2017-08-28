@@ -12,12 +12,24 @@ import SwiftUtilities
 /// Classes that implement this protocol must be able to perform some actions
 /// on a queue.
 public protocol HMCDBlockPerformerType: class {
-    func perform(_ block: @escaping () -> Swift.Void)
-    func performAndWait(_ block: () -> Swift.Void)
+    func perform(_ block: @escaping () -> Void)
+    
+    // In XCode8, the performAndWait block escapes, so we need this for cross-XCode
+    // compatibility.
+    func performEscapingBlockAndWait(_ block: @escaping () -> Void)
 }
 
-extension NSManagedObjectContext: HMCDBlockPerformerType {}
-extension NSPersistentStoreCoordinator: HMCDBlockPerformerType {}
+extension NSManagedObjectContext: HMCDBlockPerformerType {
+    public func performEscapingBlockAndWait(_ block: @escaping () -> Void) {
+        self.performAndWait(block)
+    }
+}
+
+extension NSPersistentStoreCoordinator: HMCDBlockPerformerType {
+    public func performEscapingBlockAndWait(_ block: @escaping () -> Void) {
+        self.performAndWait(block)
+    }
+}
 
 public enum BlockPerformaStrategy: EnumerableType {
     case perform
@@ -44,7 +56,7 @@ public extension HMCDManager {
             performer.perform(block)
             
         case .performAndWait:
-            performer.performAndWait(block)
+            performer.performEscapingBlockAndWait(block)
         }
     }
     

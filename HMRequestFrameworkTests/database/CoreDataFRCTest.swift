@@ -33,9 +33,11 @@ public final class CoreDataFRCTest: CoreDataRootTest {
         let expect = expectation(description: "Should have completed")
         let processor = self.dbProcessor!
         let iterationCount = self.iterationCount!
+        let dummyCount = self.dummyCount!
         var allDummies: [Dummy1] = []
         
         var callCount = 0
+        var initializeCount = 0
         var willChangeCount = 0
         var didChangeCount = 0
         var insertCount = 0
@@ -46,6 +48,7 @@ public final class CoreDataFRCTest: CoreDataRootTest {
             .map({try $0.getOrThrow()})
             .doOnNext({
                 switch $0 {
+                case .initialize: initializeCount += 1
                 case .didChange: didChangeCount += 1
                 case .willChange: willChangeCount += 1
                 case .insert: insertCount += 1
@@ -67,9 +70,16 @@ public final class CoreDataFRCTest: CoreDataRootTest {
         
         // Then
         XCTAssertTrue(callCount >= iterationCount)
+        XCTAssertEqual(initializeCount, 1)
         XCTAssertEqual(didChangeCount, iterationCount)
         XCTAssertEqual(willChangeCount, iterationCount)
-        XCTAssertEqual(callCount, didChangeCount + willChangeCount + insertCount)
+        XCTAssertEqual(insertCount, iterationCount * dummyCount)
+        
+        XCTAssertEqual(callCount, 0 +
+            initializeCount +
+            didChangeCount +
+            willChangeCount +
+            insertCount)
     }
     
     // For this test, we are introducing section events as well, so we need
@@ -91,7 +101,8 @@ public final class CoreDataFRCTest: CoreDataRootTest {
         
         // The willChange and didChange counts will be higher than update count
         // because they apply to inserts and deletes as well.
-        var callCount = -0
+        var callCount = 0
+        var initializeCount = 0
         var willChangeCount = 0
         var didChangeCount = 0
         var insertCount = 0
@@ -106,6 +117,7 @@ public final class CoreDataFRCTest: CoreDataRootTest {
             .doOnNext({_ in callCount += 1})
             .doOnNext({
                 switch $0 {
+                case .initialize: initializeCount += 1
                 case .willChange: willChangeCount += 1
                 case .didChange: didChangeCount += 1
                 case .insert: insertCount += 1
@@ -144,6 +156,7 @@ public final class CoreDataFRCTest: CoreDataRootTest {
         /// Then
         let currentObjects = frc.currentObjects(Dummy1.self)
         XCTAssertTrue(callCount > iterationCount)
+        XCTAssertEqual(initializeCount, 1)
         XCTAssertEqual(willChangeCount, iterationCount + 2)
         XCTAssertEqual(didChangeCount, iterationCount + 2)
         XCTAssertEqual(insertCount, dummyCount)
@@ -154,6 +167,7 @@ public final class CoreDataFRCTest: CoreDataRootTest {
         XCTAssertEqual(deleteSectionCount, dummyCount)
         
         XCTAssertEqual(callCount, 0 +
+            initializeCount +
             willChangeCount +
             didChangeCount +
             insertCount +

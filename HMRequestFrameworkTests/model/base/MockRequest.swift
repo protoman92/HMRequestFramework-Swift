@@ -82,8 +82,8 @@ public extension MockRequest {
         }
         
         @discardableResult
-        public func with(requestDescription: String?) -> Self {
-            request.rqDescription = requestDescription
+        public func with(description: String?) -> Self {
+            request.rqDescription = description
             return self
         }
         
@@ -92,7 +92,7 @@ public extension MockRequest {
                 .with(mwFilters: buildable.middlewareFilters())
                 .with(applyMiddlewares: buildable.applyMiddlewares())
                 .with(retries: buildable.retries())
-                .with(requestDescription: buildable.requestDescription())
+                .with(description: buildable.requestDescription())
         }
         
         public func build() -> Buildable {
