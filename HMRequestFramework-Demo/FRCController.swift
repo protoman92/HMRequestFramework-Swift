@@ -72,19 +72,11 @@ public final class FRCController: UIViewController {
         insertBtn.rx.tap
             .map({_ in (0..<dummyCount).map({_ in Dummy1()})})
             .map(Try.success)
-            .flatMap({[weak self] prev -> Observable<Try<Void>> in
-                if let `self` = self, let dbProcessor = self.dbProcessor {
-                    return dbProcessor.saveToMemory(prev)
-                } else {
-                    return Observable.empty()
-                }
+            .flatMapNonNilOrEmpty({[weak self] in
+                self?.dbProcessor?.saveToMemory($0)
             })
-            .flatMap({[weak self] prev -> Observable<Try<Void>> in
-                if let `self` = self, let dbProcessor = self.dbProcessor {
-                    return dbProcessor.persistToDB(prev)
-                } else {
-                    return Observable.empty()
-                }
+            .flatMapNonNilOrEmpty({[weak self] in
+                self?.dbProcessor?.persistToDB($0)
             })
             .subscribe()
             .disposed(by: disposeBag)
@@ -96,23 +88,11 @@ public final class FRCController: UIViewController {
             .map({$0.asTry()})
             .map({$0.map({Dummy1().cloneBuilder().with(id: $0.id).build()})})
             .map({$0.map({[$0]})})
-            .flatMap({[weak self] prev -> Observable<Try<[HMCDResult]>> in
-                if let `self` = self, let dbProcessor = self.dbProcessor {
-                    return dbProcessor.upsertInMemory(prev, {
-                        Observable.just($0.cloneBuilder()
-                            .with(vcStrategy: .overwrite)
-                            .build())
-                    })
-                } else {
-                    return Observable.empty()
-                }
+            .flatMapNonNilOrEmpty({[weak self] in
+                self?.dbProcessor?.upsertInMemory($0)
             })
-            .flatMap({[weak self] prev -> Observable<Try<Void>> in
-                if let `self` = self, let dbProcessor = self.dbProcessor {
-                    return dbProcessor.persistToDB(prev)
-                } else {
-                    return Observable.empty()
-                }
+            .flatMapNonNilOrEmpty({[weak self] in
+                self?.dbProcessor?.persistToDB($0)
             })
             .map(toVoid)
             .subscribe()
@@ -124,38 +104,22 @@ public final class FRCController: UIViewController {
             .map({$0.randomElement()?.items.randomElement()})
             .map({$0.asTry()})
             .map({$0.map({[$0]})})
-            .flatMap({[weak self] prev -> Observable<Try<Void>> in
-                if let `self` = self, let dbProcessor = self.dbProcessor {
-                    return dbProcessor.deleteInMemory(prev)
-                } else {
-                    return Observable.empty()
-                }
+            .flatMapNonNilOrEmpty({[weak self] in
+                self?.dbProcessor?.deleteInMemory($0)
             })
-            .flatMap({[weak self] prev -> Observable<Try<Void>> in
-                if let `self` = self, let dbProcessor = self.dbProcessor {
-                    return dbProcessor.persistToDB(prev)
-                } else {
-                    return Observable.empty()
-                }
+            .flatMapNonNilOrEmpty({[weak self] in
+                self?.dbProcessor?.persistToDB($0)
             })
             .subscribe()
             .disposed(by: disposeBag)
         
         deleteAllBtn.rx.tap
             .map(Try.success)
-            .flatMap({[weak self] prev -> Observable<Try<Void>> in
-                if let `self` = self, let dbProcessor = self.dbProcessor {
-                    return dbProcessor.deleteAllInMemory(prev, Dummy1.self)
-                } else {
-                    return Observable.empty()
-                }
+            .flatMapNonNilOrEmpty({[weak self] in
+                self?.dbProcessor?.deleteAllInMemory($0, Dummy1.self)
             })
-            .flatMap({[weak self] prev -> Observable<Try<Void>> in
-                if let `self` = self, let dbProcessor = self.dbProcessor {
-                    return dbProcessor.persistToDB(prev)
-                } else {
-                    return Observable.empty()
-                }
+            .flatMapNonNilOrEmpty({[weak self] in
+                self?.dbProcessor?.persistToDB($0)
             })
             .subscribe()
             .disposed(by: disposeBag)
@@ -182,19 +146,11 @@ public final class FRCController: UIViewController {
                 .element(at: $0.row)})
             .map({$0.asTry()})
             .map({$0.map({[$0]})})
-            .flatMap({[weak self] prev -> Observable<Try<Void>> in
-                if let `self` = self, let dbProcessor = self.dbProcessor {
-                    return dbProcessor.deleteInMemory(prev)
-                } else {
-                    return Observable.empty()
-                }
+            .flatMapNonNilOrEmpty({[weak self] in
+                self?.dbProcessor?.deleteInMemory($0)
             })
-            .flatMap({[weak self] prev -> Observable<Try<Void>> in
-                if let `self` = self, let dbProcessor = self.dbProcessor {
-                    return dbProcessor.persistToDB(prev)
-                } else {
-                    return Observable.empty()
-                }
+            .flatMapNonNilOrEmpty({[weak self] in
+                self?.dbProcessor?.persistToDB($0)
             })
             .map(toVoid)
             .catchErrorJustReturn(())

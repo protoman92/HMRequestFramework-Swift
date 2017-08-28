@@ -101,7 +101,7 @@ public class CoreDataRequestTest: CoreDataRootTest {
             // Fetch to verify that the data have been deleted.
             .flatMap({dbProcessor.fetchAllDataFromDB($0, Dummy1.self)})
             .map({try $0.getOrThrow()})
-            .flatMap({Observable.from($0)})
+            .flattenSequence()
             .doOnDispose(expect.fulfill)
             .subscribe(observer)
             .disposed(by: disposeBag)
@@ -140,7 +140,7 @@ public class CoreDataRequestTest: CoreDataRootTest {
             // Fetch to verify that the data have been deleted.
             .flatMap({dbProcessor.fetchAllDataFromDB($0, Dummy1.self)})
             .map({try $0.getOrThrow()})
-            .flatMap({Observable.from($0)})
+            .flattenSequence()
             .doOnDispose(expect.fulfill)
             .subscribe(observer)
             .disposed(by: disposeBag)
@@ -175,7 +175,7 @@ public class CoreDataRequestTest: CoreDataRootTest {
             // Fetch with properties and confirm that they match randomObjects.
             .flatMap({dbProcessor.fetchWithProperties($0, Dummy1.self)})
             .map({try $0.getOrThrow()})
-            .flatMap({Observable.from($0)})
+            .flattenSequence()
             .doOnDispose(expect.fulfill)
             .subscribe(observer)
             .disposed(by: disposeBag)
@@ -213,7 +213,7 @@ public class CoreDataRequestTest: CoreDataRootTest {
             // Fetch to verify that the data have been deleted.
             .flatMap({dbProcessor.fetchAllDataFromDB($0, Dummy1.self)})
             .map({try $0.getOrThrow()})
-            .flatMap({Observable.from($0)})
+            .flattenSequence()
             .doOnDispose(expect.fulfill)
             .subscribe(observer)
             .disposed(by: disposeBag)
@@ -272,7 +272,7 @@ public class CoreDataRequestTest: CoreDataRootTest {
             // Fetch all data to check that the upsert was successful.
             .flatMap({dbProcessor.fetchAllDataFromDB($0, Dummy1.self)})
             .map({try $0.getOrThrow()})
-            .flatMap({Observable.from($0)})
+            .flattenSequence()
             .doOnDispose(expect.fulfill)
             .subscribe(observer)
             .disposed(by: disposeBag)
@@ -335,7 +335,7 @@ public class CoreDataRequestTest: CoreDataRootTest {
             // Fetch all data to check that the upsert failed.
             .flatMap({dbProcessor.fetchAllDataFromDB($0, Dummy1.self)})
             .map({try $0.getOrThrow()})
-            .flatMap({Observable.from($0)})
+            .flattenSequence()
             .doOnDispose(expect.fulfill)
             .subscribe(observer)
             .disposed(by: disposeBag)
@@ -367,7 +367,7 @@ public class CoreDataRequestTest: CoreDataRootTest {
             .map({$0.map({$0 as Any})})
             .flatMap({dbProcessor.fetchAllDataFromDB($0, Dummy1.self)})
             .map({try $0.getOrThrow()})
-            .flatMap({Observable.from($0)})
+            .flattenSequence()
             .doOnDispose(expect.fulfill)
             .subscribe(observer)
             .disposed(by: disposeBag)
@@ -398,7 +398,7 @@ public class CoreDataRequestTest: CoreDataRootTest {
             .flatMap({dbProcessor.resetStack($0)})
             .flatMap({dbProcessor.fetchAllDataFromDB($0, Dummy1.self)})
             .map({try $0.getOrThrow()})
-            .flatMap({Observable.from($0)})
+            .flattenSequence()
             .doOnDispose(expect.fulfill)
             .subscribe(observer)
             .disposed(by: disposeBag)
