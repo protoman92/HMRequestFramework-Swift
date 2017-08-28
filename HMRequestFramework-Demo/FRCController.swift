@@ -59,7 +59,8 @@ public final class FRCController: UIViewController {
         else {
             return
         }
-                
+        
+        let disposeBag = self.disposeBag
         let dummyCount = self.dummyCount
         let dbProcessor = DemoSingleton.dbProcessor
         self.dbProcessor = dbProcessor
@@ -203,7 +204,7 @@ public final class FRCController: UIViewController {
         let dbEventStream = dbProcessor
             .streamDBEvents(Dummy1.self, {
                 Observable.just($0.cloneBuilder()
-                    .with(frcSectionName: "id")
+                    .with(frcSectionName: "dummyHeader")
                     .add(ascendingSortWithKey: "date")
                     .build())
             })

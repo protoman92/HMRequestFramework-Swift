@@ -80,7 +80,7 @@ public extension HMCDRequestProcessor {
         case .resetStack:
             return try executeResetStack(request)
             
-        case .fetch, .saveData, .upsert:
+        case .fetch, .saveData, .upsert, .stream:
             throw Exception("Please use typed execute for \(operation)")
         }
     }
@@ -619,7 +619,7 @@ public extension HMCDRequestProcessor {
     {
         return Req.builder()
             .with(poType: cls)
-            .with(operation: .fetch)
+            .with(operation: .stream)
             .with(predicate: NSPredicate(value: true))
             .shouldApplyMiddlewares()
             .build()

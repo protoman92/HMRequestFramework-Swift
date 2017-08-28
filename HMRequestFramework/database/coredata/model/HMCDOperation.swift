@@ -18,6 +18,7 @@ import SwiftUtilities
 /// - persistLocally: Save operation. This saves some data to the local DB file.
 /// - upsert: Update or insert. Persist new data and update existing data.
 /// - resetStack: Wipe DB and reset the stack.
+/// - stream: Stream DB changes.
 public enum HMCDOperation: EnumerableType {
     // For this operation, the request should contain:
     //  - entityName
@@ -62,6 +63,10 @@ public enum HMCDOperation: EnumerableType {
     // For this operation, the request should contain:
     //  - operation.
     case resetStack
+    
+    // For this operation, the request should contain similar parameters as if
+    // it were a fetch request.
+    case stream
     
     public static func allValues() -> [HMCDOperation] {
         return [
