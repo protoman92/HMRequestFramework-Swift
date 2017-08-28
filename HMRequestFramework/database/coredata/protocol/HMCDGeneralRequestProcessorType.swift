@@ -142,6 +142,19 @@ public protocol HMCDGeneralRequestProcessorType {
 
 public extension HMCDGeneralRequestProcessorType {
     
+    /// Get the predicate from some object properties for a fetch/delete
+    /// operation.
+    ///
+    /// - Parameter properties: A Dictionary of properties.
+    /// - Returns: A NSPredicate instance.
+    private func predicateForProperties(_ properties: [String : [CVarArg]])
+        -> NSPredicate
+    {
+        return NSCompoundPredicate(andPredicateWithSubpredicates:
+            properties.map({NSPredicate(format: "%K in %@", $0.0, $0.1)})
+        )
+    }
+    
     /// Fetch all data that have some properties. These properties will be
     /// mapped into a series of predicates and joined together with AND.
     ///
@@ -162,13 +175,10 @@ public extension HMCDGeneralRequestProcessorType {
     {
         do {
             let properties = try previous.getOrThrow()
-            
-            let predicate = NSCompoundPredicate(andPredicateWithSubpredicates:
-                properties.map({NSPredicate(format: "%K in %@", $0.0, $0.1)})
-            )
+            let predicate = predicateForProperties(properties)
             
             let propTransform: HMTransform<HMCDRequest> = {
-                return Observable.just($0.cloneBuilder()
+                Observable.just($0.cloneBuilder()
                     .with(predicate: predicate)
                     .with(description: "Fetching \(cls) with \(properties)")
                     .build())
@@ -176,6 +186,41 @@ public extension HMCDGeneralRequestProcessorType {
             
             let allTransforms = [propTransform] + transforms
             return fetchAllDataFromDB(Try.success(()), cls, allTransforms)
+        } catch let e {
+            return Observable.just(Try.failure(e))
+        }
+    }
+    
+    /// Delete all objects that have some properties.
+    ///
+    /// - Parameters:
+    ///   - previous: The result of the previous request.
+    ///   - cls: The PO class type.
+    ///   - transforms: A Sequence of Request transformers.
+    /// - Returns: An Observable instance.
+    public func deleteWithProperties<PO,S>(_ previous: Try<[String : [CVarArg]]>,
+                                           _ cls: PO.Type,
+                                           _ transforms: S)
+        -> Observable<Try<Void>> where
+        PO: HMCDPureObjectType,
+        PO.CDClass: HMCDPureObjectConvertibleType,
+        PO.CDClass.PureObject == PO,
+        S: Sequence,
+        S.Iterator.Element == HMTransform<HMCDRequest>
+    {
+        do {
+            let properties = try previous.getOrThrow()
+            let predicate = predicateForProperties(properties)
+            
+            let propTransform: HMTransform<HMCDRequest> = {
+                Observable.just($0.cloneBuilder()
+                    .with(predicate: predicate)
+                    .with(description: "Deleting \(cls) with \(properties)")
+                    .build())
+            }
+            
+            let allTransforms = [propTransform] + transforms
+            return deleteAllInMemory(previous, cls, allTransforms)
         } catch let e {
             return Observable.just(Try.failure(e))
         }
@@ -235,6 +280,17 @@ public extension HMCDGeneralRequestProcessorType {
         PO.CDClass.PureObject == PO
     {
         return deleteAllInMemory(previous, cls, transforms)
+    }
+    
+    public func deleteWithProperties<PO>(_ previous: Try<[String : [CVarArg]]>,
+                                         _ cls: PO.Type,
+                                         _ transforms: HMTransform<HMCDRequest>...)
+        -> Observable<Try<Void>> where
+        PO: HMCDPureObjectType,
+        PO.CDClass: HMCDPureObjectConvertibleType,
+        PO.CDClass.PureObject == PO
+    {
+        return deleteWithProperties(previous, cls, transforms)
     }
     
     public func resetStack<Prev>(_ previous: Try<Prev>,

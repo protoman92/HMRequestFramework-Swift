@@ -152,7 +152,7 @@ public class CoreDataRequestTest: CoreDataRootTest {
         XCTAssertEqual(nextElements.count, 0)
     }
     
-    public func test_fetchWithProperties_shouldWork() {
+    public func test_fetchAndDeleteWithProperties_shouldWork() {
         /// Setup
         let observer = scheduler.createObserver(Dummy1.self)
         let expect = expectation(description: "Should have completed")
@@ -170,9 +170,22 @@ public class CoreDataRequestTest: CoreDataRootTest {
         // Save the pure objects to DB.
         dbProcessor.saveToMemory(Try.success(pureObjects))
             .flatMap({dbProcessor.persistToDB($0)})
-            .map({$0.map({_ in fetchedProperties})})
             
             // Fetch with properties and confirm that they match randomObjects.
+            .map({$0.map({_ in fetchedProperties})})
+            .flatMap({dbProcessor.fetchWithProperties($0, Dummy1.self)})
+            .map({try $0.getOrThrow()})
+            .doOnNext({XCTAssertEqual($0.count, pureObjects.count)})
+            .doOnNext({XCTAssertTrue(pureObjects.all($0.contains))})
+            
+            // Delete with properties and confirm that the DB is empty.
+            .map(Try.success)
+            .map({$0.map({_ in fetchedProperties})})
+            .flatMap({dbProcessor.deleteWithProperties($0, Dummy1.self)})
+            .flatMap({dbProcessor.persistToDB($0)})
+            
+            // Fetch with properties again to check that all objects are gone.
+            .map({$0.map({_ in fetchedProperties})})
             .flatMap({dbProcessor.fetchWithProperties($0, Dummy1.self)})
             .map({try $0.getOrThrow()})
             .flattenSequence()
@@ -184,8 +197,7 @@ public class CoreDataRequestTest: CoreDataRootTest {
         
         /// Then
         let nextElements = observer.nextElements()
-        XCTAssertEqual(nextElements.count, pureObjects.count)
-        XCTAssertTrue(pureObjects.all(nextElements.contains))
+        XCTAssertEqual(nextElements.count, 0)
     }
     
     public func test_batchDelete_shouldWork() {
