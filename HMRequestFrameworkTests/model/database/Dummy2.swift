@@ -28,7 +28,7 @@ public final class CDDummy2: NSManagedObject {
     @NSManaged public var id2: String
     @NSManaged public var count: Int64
     
-    public convenience required init(_ context: NSManagedObjectContext) throws {
+    public convenience required init(_ context: Context) throws {
         let entity = try CDDummy2.entityDescription(in: context)
         self.init(entity: entity, insertInto: context)
     }
@@ -86,7 +86,7 @@ extension CDDummy2: HMCDUpsertableMasterType {
         ]
     }
     
-    public static func builder(_ context: NSManagedObjectContext) throws -> Builder {
+    public static func builder(_ context: Context) throws -> Builder {
         return try Builder(CDDummy2(context))
     }
     

@@ -30,12 +30,12 @@ public extension HMCDManager {
     /// insertions.
     ///
     /// - Parameters:
-    ///   - context: A NSManagedObjectContext instance.
+    ///   - context: A Context instance.
     ///   - entityName: A String value. representing the entity's name.
     ///   - upsertables: A Sequence of upsertable objects.
     /// - Returns: An Array of HMResult.
     /// - Throws: Exception if the conversion fails.
-    func convert<S>(_ context: NSManagedObjectContext,
+    func convert<S>(_ context: Context,
                     _ entityName: String,
                     _ upsertables: S) throws -> [HMCDResult] where
         S: Sequence, S.Iterator.Element == HMCDUpsertableType
@@ -70,12 +70,12 @@ public extension HMCDManager {
     /// insertions.
     ///
     /// - Parameters:
-    ///   - context: A NSManagedObjectContext instance.
+    ///   - context: A Context instance.
     ///   - entityName: A String value. representing the entity's name.
     ///   - upsertables: A Sequence of upsertable objects.
     /// - Returns: An Array of HMResult.
     /// - Throws: Exception if the conversion fails.
-    func convert<U,S>(_ context: NSManagedObjectContext,
+    func convert<U,S>(_ context: Context,
                       _ entityName: String,
                       _ upsertables: S) throws -> [HMCDResult] where
         U: HMCDUpsertableType,
@@ -92,11 +92,11 @@ public extension HMCDManager {
     /// assumed that the data that are passed in do not require such feature.
     ///
     /// - Parameters:
-    ///   - context: A NSManagedObjectContext instance.
+    ///   - context: A Context instance.
     ///   - entityName: A String value. representing the entity's name.
     ///   - upsertables: A Sequence of upsertable objects.
     ///   - obs: An ObserverType instance.
-    func upsert<S,O>(_ context: NSManagedObjectContext,
+    func upsert<S,O>(_ context: Context,
                      _ entityName: String,
                      _ upsertables: S,
                      _ obs: O) where
@@ -105,7 +105,7 @@ public extension HMCDManager {
         O: ObserverType,
         O.E == [HMCDResult]
     {
-        performOnContextThread(mainObjectContext()) {
+        serializeBlock({
             let upsertables = upsertables.map({$0})
             
             if upsertables.isNotEmpty {
@@ -121,18 +121,18 @@ public extension HMCDManager {
                 obs.onNext([])
                 obs.onCompleted()
             }
-        }
+        })
     }
     
     /// Perform an upsert operation for some upsertable data. For items that
     /// do not exist in the DB yet, we simply insert them.
     ///
     /// - Parameters:
-    ///   - context: A NSManagedObjectContext instance.
+    ///   - context: A Context instance.
     ///   - entityName: A String value. representing the entity's name.
     ///   - upsertables: A Sequence of upsertable objects.
     ///   - obs: An ObserverType instance.
-    func upsert<U,S,O>(_ context: NSManagedObjectContext,
+    func upsert<U,S,O>(_ context: Context,
                        _ entityName: String,
                        _ upsertables: S,
                        _ obs: O) where
@@ -152,11 +152,11 @@ extension Reactive where Base == HMCDManager {
     /// Perform an upsert request on a Sequence of upsertable objects.
     ///
     /// - Parameters:
-    ///   - context: A NSManagedObjectContext instance.
+    ///   - context: A Context instance.
     ///   - entityName: A String value. representing the entity's name.
     ///   - upsertables: A Sequence of upsertable objects.
     /// - Returns: An Observable instane.
-    func upsert<S>(_ context: NSManagedObjectContext,
+    func upsert<S>(_ context: HMCDManager.Context,
                    _ entityName: String,
                    _ upsertables: S)
         -> Observable<[HMCDResult]> where
@@ -171,11 +171,11 @@ extension Reactive where Base == HMCDManager {
     /// Perform an upsert request on a Sequence of upsertable objects.
     ///
     /// - Parameters:
-    ///   - context: A NSManagedObjectContext instance.
+    ///   - context: A Context instance.
     ///   - entityName: A String value. representing the entity's name.
     ///   - upsertables: A Sequence of upsertable objects.
     /// - Returns: An Observable instane.
-    func upsert<U,S>(_ context: NSManagedObjectContext,
+    func upsert<U,S>(_ context: HMCDManager.Context,
                      _ entityName: String,
                      _ upsertables: S)
         -> Observable<[HMCDResult]> where

@@ -35,8 +35,7 @@ public final class CoreDataFRCTest: CoreDataRootTest {
         let iterationCount = self.iterationCount!
         var allDummies: [Dummy1] = []
         
-        // Call count is -1 initially to take care of first empty event.
-        var callCount = -1
+        var callCount = 0
         var willChangeCount = 0
         var didChangeCount = 0
         var insertCount = 0
@@ -53,7 +52,7 @@ public final class CoreDataFRCTest: CoreDataRootTest {
                 default: break
                 }
             })
-            .doOnNext({self.validateDidChange($0)})
+            .doOnNext({self.validateDidChange($0, {allDummies.all($0.contains)})})
             .doOnNext({self.validateInsert($0)})
             .cast(to: Any.self)
             .subscribe(frcObserver)
@@ -90,10 +89,9 @@ public final class CoreDataFRCTest: CoreDataRootTest {
         let dummyCount = self.dummyCount!
         var originalObjects: [Dummy1] = []
         
-        // Call count is -1 initially to take care of first empty event. The
-        // willChange and didChange counts will be higher than update count
+        // The willChange and didChange counts will be higher than update count
         // because they apply to inserts and deletes as well.
-        var callCount = -1
+        var callCount = -0
         var willChangeCount = 0
         var didChangeCount = 0
         var insertCount = 0

@@ -23,11 +23,11 @@ extension HMCDManager {
     /// save this to the local DB.
     ///
     /// - Parameter:
-    ///   - context: A NSManagedObjectContext instance.
+    ///   - context: A Context instance.
     ///   - pureObj: A PO instance.
     /// - Returns: A PO.CDClass object.
     /// - Throws: Exception if the construction fails.
-    func constructUnsafely<PO>(_ context: NSManagedObjectContext,
+    func constructUnsafely<PO>(_ context: Context,
                                _ pureObj: PO) throws
         -> PO.CDClass where
         PO: HMCDPureObjectType,
@@ -40,11 +40,11 @@ extension HMCDManager {
     /// Construct CoreData objects from multiple pure objects.
     ///
     /// - Parameters:
-    ///   - context: A NSManagedObjectContext instance.
+    ///   - context: A Context instance.
     ///   - pureObjs: A Sequence of PO.
     /// - Returns: An Array of PO.CDClass.
     /// - Throws: Exception if the construction fails.
-    func constructUnsafely<PO,S>(_ context: NSManagedObjectContext,
+    func constructUnsafely<PO,S>(_ context: Context,
                                  _ pureObjs: S) throws
         -> [PO.CDClass] where
         PO: HMCDPureObjectType,
@@ -62,11 +62,11 @@ public extension HMCDManager {
     /// the process.
     ///
     /// - Parameters:
-    ///   - context: A NSManagedObjectContext instance.
+    ///   - context: A Context instance.
     ///   - pureObjs: A Sequence of PO.
     ///   - obs: An ObserverType instance.
     /// - Throws: Exception if the construction fails.
-    func construct<PO,S,O>(_ context: NSManagedObjectContext,
+    func construct<PO,S,O>(_ context: Context,
                            _ pureObjs: S,
                            _ obs: O) where
         PO: HMCDPureObjectType,
@@ -75,7 +75,7 @@ public extension HMCDManager {
         S: Sequence, S.Iterator.Element == PO,
         O: ObserverType, O.E == [PO.CDClass]
     {
-        performOnContextThread(context) {
+        performOnQueue(context) {
             do {
                 let data = try self.constructUnsafely(context, pureObjs)
                 obs.onNext(data)
@@ -92,11 +92,11 @@ public extension Reactive where Base == HMCDManager {
     /// Construct CoreData objects from multiple pure objects.
     ///
     /// - Parameters:
-    ///   - context: A NSManagedObjectContext instance.
+    ///   - context: A Context instance.
     ///   - pureObjs: A Sequence of PO.
     /// - Returns: An Observable instance.
     /// - Throws: Exception if the construction fails.
-    public func construct<PO,S>(_ context: NSManagedObjectContext, _ pureObjs: S)
+    public func construct<PO,S>(_ context: HMCDManager.Context, _ pureObjs: S)
         -> Observable<[PO.CDClass]> where
         PO: HMCDPureObjectType,
         PO.CDClass: HMCDObjectBuildableType,

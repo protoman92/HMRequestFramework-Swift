@@ -10,24 +10,24 @@ import CoreData
 
 /// Classes that implement this protocol must be able to convert itself into
 /// a NSManagedObject.
-public protocol HMCDObjectConvertibleType {
+public protocol HMCDObjectConvertibleType: HMCDTypealiasType {
     
     /// Convert the current object into a NSManagedObject. If this is already
     /// a NSManagedObject, clone it and insert the clone into the specified
     /// context. We can use this technique to "pass" objects among different
     /// contexts.
     ///
-    /// - Parameter context: A NSManagedObjectContext instance.
+    /// - Parameter context: A Context instance.
     /// - Returns: A NSManagedObject instance.
     /// - Throws: Exception if the conversion fails.
-    func asManagedObject(_ context: NSManagedObjectContext) throws -> NSManagedObject
+    func asManagedObject(_ context: Context) throws -> NSManagedObject
 }
 
 public extension HMCDObjectConvertibleType where
     Self: HMCDObjectBuildableType,
     Self.Builder.Buildable == Self
 {
-    public func asManagedObject(_ context: NSManagedObjectContext) throws
+    public func asManagedObject(_ context: Context) throws
         -> NSManagedObject
     {
         return try cloneBuilder(context).build()
@@ -41,7 +41,7 @@ public extension HMCDObjectConvertibleType where
     Self.CDClass: HMCDObjectBuildableType,
     Self.CDClass.Builder.PureObject == Self
 {
-    public func asManagedObject(_ context: NSManagedObjectContext) throws
+    public func asManagedObject(_ context: Context) throws
         -> NSManagedObject
     {
         return try CDClass.builder(context).with(pureObject: self).build()

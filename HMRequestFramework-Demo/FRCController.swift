@@ -40,7 +40,6 @@ public final class FRCController: UIViewController {
     var data: Variable<[Section]> = Variable([])
     let disposeBag: DisposeBag = DisposeBag()
     
-    var cdManager: HMCDManager?
     var dbProcessor: HMCDRequestProcessor?
     var dateFormatter = DateFormatter()
     
@@ -62,13 +61,11 @@ public final class FRCController: UIViewController {
         }
                 
         let dummyCount = self.dummyCount
-        let cdManager = Singleton.coreDataManager(.SQLite)
-        let dbProcessor = Singleton.dbProcessor(cdManager)
-        
-        self.cdManager = cdManager
+        let dbProcessor = DemoSingleton.dbProcessor
         self.dbProcessor = dbProcessor
         dateFormatter.dateFormat = "dd/MMMM/yyyy hh:mm:ss a"
         
+        frcTableView.setEditing(true, animated: true)
         insertBtn.setTitle("Insert \(dummyCount) items", for: .normal)
         
         insertBtn.rx.tap
@@ -206,14 +203,15 @@ public final class FRCController: UIViewController {
         let dbEventStream = dbProcessor
             .streamDBEvents(Dummy1.self, {
                 Observable.just($0.cloneBuilder()
-                    .with(frcSectionName: "dummyHeader")
+                    .with(frcSectionName: "id")
                     .add(ascendingSortWithKey: "date")
                     .build())
             })
             .map({try $0.getOrThrow()})
             .flatMap({(event) -> Observable<DBChange<Dummy1>> in
                 switch event {
-                case .didChange(let change): return .just(change)
+                case .initialize(let change): return Observable.just(change)
+                case .didChange(let change): return Observable.just(change)
                 default: return .empty()
                 }
             })
@@ -230,11 +228,6 @@ public final class FRCController: UIViewController {
         dbEventStream
             .bind(to: frcTableView.rx.items(dataSource: dataSource))
             .disposed(by: disposeBag)
-    }
-    
-    override public func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        frcTableView?.setEditing(true, animated: true)
     }
     
     func contentSizeChanged(_ ctSize: CGSize, _ vc: FRCController) {
