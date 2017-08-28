@@ -170,7 +170,7 @@ public extension HMCDGeneralRequestProcessorType {
             let propTransform: HMTransform<HMCDRequest> = {
                 return Observable.just($0.cloneBuilder()
                     .with(predicate: predicate)
-                    .with(requestDescription: "Fetching \(cls) with \(properties)")
+                    .with(description: "Fetching \(cls) with \(properties)")
                     .build())
             }
             

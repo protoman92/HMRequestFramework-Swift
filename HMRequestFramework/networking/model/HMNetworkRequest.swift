@@ -240,8 +240,8 @@ extension HMNetworkRequest.Builder: HMRequestBuilderType {
     /// - Parameter requestDescription: A String value.
     /// - Returns: The current Builder instance.
     @discardableResult
-    public func with(requestDescription: String?) -> Self {
-        request.rqDescription = requestDescription
+    public func with(description: String?) -> Self {
+        request.rqDescription = description
         return self
     }
     
@@ -263,7 +263,7 @@ extension HMNetworkRequest.Builder: HMRequestBuilderType {
             .with(mwFilters: buildable.middlewareFilters())
             .with(retries: buildable.retries())
             .with(applyMiddlewares: buildable.applyMiddlewares())
-            .with(requestDescription: buildable.requestDescription())
+            .with(description: buildable.requestDescription())
     }
     
     public func build() -> Buildable {

@@ -384,7 +384,7 @@ public extension HMCDRequestProcessor {
             .with(cdType: CD.self)
             .with(operation: .saveData)
             .with(insertedData: data)
-            .with(requestDescription: "Save \(CD.self) to memory")
+            .with(description: "Save \(CD.self) to memory")
             .shouldApplyMiddlewares()
             .build()
     }
@@ -428,7 +428,7 @@ public extension HMCDRequestProcessor {
             .with(operation: .deleteData)
             .with(poType: PO.self)
             .with(deletedData: data)
-            .with(requestDescription: "Delete data \(data) in memory")
+            .with(description: "Delete data \(data) in memory")
             .build()
     }
     
@@ -463,7 +463,7 @@ public extension HMCDRequestProcessor {
         return fetchAllRequest(cls)
             .cloneBuilder()
             .with(operation: .deleteBatch)
-            .with(requestDescription: "Delete all data for \(cls)")
+            .with(description: "Delete all data for \(cls)")
             .build()
     }
     
@@ -494,7 +494,7 @@ public extension HMCDRequestProcessor {
     public func resetStackRequest() -> Req {
         return Req.builder()
             .with(operation: .resetStack)
-            .with(requestDescription: "Reset CoreData stack")
+            .with(description: "Reset CoreData stack")
             .shouldApplyMiddlewares()
             .build()
     }
@@ -527,7 +527,7 @@ public extension HMCDRequestProcessor {
             .with(operation: .upsert)
             .with(upsertedData: data.map({$0 as HMCDUpsertableType}))
             .with(vcStrategy: .overwrite)
-            .with(requestDescription: "Upsert \(U.self) in memory")
+            .with(description: "Upsert \(U.self) in memory")
             .shouldApplyMiddlewares()
             .build()
     }
@@ -584,7 +584,7 @@ public extension HMCDRequestProcessor {
     public func persistToDBRequest() -> Req {
         return Req.builder()
             .with(operation: .persistLocally)
-            .with(requestDescription: "Persist all data to DB")
+            .with(description: "Persist all data to DB")
             .shouldApplyMiddlewares()
             .build()
     }
