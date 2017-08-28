@@ -240,7 +240,7 @@ public extension CoreDataFRCTest {
         
         return Observable
             .range(start: 0, count: iterationCount)
-            .concatMap({(_) -> Observable<Void> in
+            .flatMap({(_) -> Observable<Void> in
                 let context = manager.disposableObjectContext()
                 let pureObjects = (0..<dummyCount).map({_ in Dummy1()})
                 
@@ -251,7 +251,7 @@ public extension CoreDataFRCTest {
                     )
                     .reduce((), accumulator: {_ in ()})
                     .doOnNext({onSave(pureObjects)})
-                    .delay(0.2, scheduler: MainScheduler.instance)
+                    .subscribeOn(qos: .background)
             })
             .reduce((), accumulator: {_ in ()})
             .cast(to: Any.self)
@@ -272,7 +272,7 @@ public extension CoreDataFRCTest {
             .flatMap({manager.rx.persistLocally()})
             .doOnNext({onInsert(original)})
             .flatMap({Observable.range(start: 0, count: iterationCount)
-                .concatMap({(_) -> Observable<Void> in
+                .flatMap({(_) -> Observable<Void> in
                     let context = manager.disposableObjectContext()
                     let upsertCtx = manager.disposableObjectContext()
                     
@@ -293,6 +293,7 @@ public extension CoreDataFRCTest {
                         )
                         .reduce((), accumulator: {_ in ()})
                         .doOnNext({onUpsert(replace)})
+                        .subscribeOn(qos: .background)
                 })
                 .reduce((), accumulator: {_ in ()})
             })
