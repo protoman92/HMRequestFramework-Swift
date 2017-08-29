@@ -11,7 +11,7 @@ import RxSwift
 import SwiftUtilities
 
 /// This class is used to manage CoreData-related operations. All operations
-/// take a NSManagedObjectContext instance as the first parameter, because in
+/// take a Context instance as the first parameter, because in
 /// many cases the upper layers need to keep a reference to the context in
 /// which data is inserted (otherwise, ARC may deallocate properties). The
 /// context that is passed in as parameter should be a blank disposable one
@@ -21,18 +21,18 @@ public struct HMCDManager {
     
     /// This context is not accessible outside of this class. It runs in
     /// background thread and acts as root of all managed object contexts.
-    private let privateContext: NSManagedObjectContext
+    private let privateContext: Context
     
     /// This context is a child of the private managed object context.
-    private let mainContext: NSManagedObjectContext
-    let coordinator: NSPersistentStoreCoordinator
+    private let mainContext: Context
+    private let coordinator: NSPersistentStoreCoordinator
     let settings: [HMCDStoreSettings]
     
     public init(constructor: HMCDConstructorType) throws {
         let coordinator = try constructor.persistentStoreCoordinator()
         let settings = try constructor.storeSettings()
-        let privateContext = NSManagedObjectContext(concurrencyType: .privateQueueConcurrencyType)
-        let mainContext = NSManagedObjectContext(concurrencyType: .privateQueueConcurrencyType)
+        let privateContext = Context(concurrencyType: .privateQueueConcurrencyType)
+        let mainContext = Context(concurrencyType: .mainQueueConcurrencyType)
         privateContext.persistentStoreCoordinator = coordinator
         mainContext.parent = privateContext
         self.coordinator = coordinator
@@ -43,6 +43,10 @@ public struct HMCDManager {
         // Apply store settings and initialize data stores. This method can be
         // called again to refresh/reset all data.
         try applyStoreSettings(coordinator, settings)
+    }
+    
+    func storeCoordinator() -> NSPersistentStoreCoordinator {
+        return coordinator
     }
     
     /// Get the main store type. This is useful e.g. when we are doing a
@@ -92,28 +96,28 @@ public struct HMCDManager {
     
     /// This context is used to persist changes to DB.
     ///
-    /// - Returns: A NSManagedObjectContext instance.
-    func privateObjectContext() -> NSManagedObjectContext {
+    /// - Returns: A Context instance.
+    func privateObjectContext() -> Context {
         return privateContext
     }
     
     /// This context is used to store changes before saving to file.
     ///
-    /// - Returns: A NSManagedObjectContext instance.
-    public func mainObjectContext() -> NSManagedObjectContext {
+    /// - Returns: A Context instance.
+    public func mainObjectContext() -> Context {
         return mainContext
     }
     
     /// Override this method to provide default implementation.
     ///
-    /// - Returns: A NSManagedObjectContext instance.
-    public func disposableObjectContext() -> NSManagedObjectContext {
+    /// - Returns: A Context instance.
+    public func disposableObjectContext() -> Context {
         let mainContext = mainObjectContext()
-        let context = NSManagedObjectContext(concurrencyType: .privateQueueConcurrencyType)
+        let context = Context(concurrencyType: .privateQueueConcurrencyType)
         context.parent = mainContext
         return context
     }
 }
 
-extension HMCDManager: HMCDBlockPerformerType {}
+extension HMCDManager: HMCDTypealiasType {}
 extension HMCDManager: ReactiveCompatible {}

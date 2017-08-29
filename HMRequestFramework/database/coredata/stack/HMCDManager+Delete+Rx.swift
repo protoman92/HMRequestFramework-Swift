@@ -18,11 +18,11 @@ public extension HMCDManager {
     /// Beware that this is only available for SQLite stores.
     ///
     /// - Parameters:
-    ///   - context: A NSManagedObjectContext instance.
+    ///   - context: A Context instance.
     ///   - request: A NSFetchRequest instance.
     /// - Returns: A NSBatchDeleteResult instance.
     /// - Throws: Exception if the operation fails.
-    func deleteUnsafely(_ context: NSManagedObjectContext,
+    func deleteUnsafely(_ context: Context,
                         _ request: NSFetchRequest<NSFetchRequestResult>) throws
         -> NSBatchDeleteResult
     {
@@ -39,15 +39,15 @@ public extension HMCDManager {
     /// Beware that this is only available for SQLite stores.
     ///
     /// - Parameters:
-    ///   - context: A NSManagedObjectContext instance.
+    ///   - context: A Context instance.
     ///   - request: A NSFetchRequest instance.
     ///   - obs: An ObserverType instance.
-    func delete<O>(_ context: NSManagedObjectContext,
+    func delete<O>(_ context: Context,
                    _ request: NSFetchRequest<NSFetchRequestResult>,
                    _ obs: O) where
         O: ObserverType, O.E == NSBatchDeleteResult
     {
-        performOnContextThread(mainObjectContext()) {
+        serializeBlock({
             do {
                 let result = try self.deleteUnsafely(context, request)
                 obs.onNext(result)
@@ -55,7 +55,7 @@ public extension HMCDManager {
             } catch let e {
                 obs.onError(e)
             }
-        }
+        })
     }
 }
 
@@ -65,10 +65,10 @@ public extension HMCDManager {
     /// context. This operation is not thread-safe.
     ///
     /// - Parameters:
-    ///   - context: A NSManagedObjectContext instance.
+    ///   - context: A Context instance.
     ///   - data: A Sequence of NSManagedObject.
     /// - Throws: Exception if the delete fails.
-    func deleteUnsafely<NS,S>(_ context: NSManagedObjectContext, _ data: S) throws where
+    func deleteUnsafely<NS,S>(_ context: Context, _ data: S) throws where
         NS: NSManagedObject, S: Sequence, S.Iterator.Element == NS
     {
         let data = data.map({$0})
@@ -88,11 +88,11 @@ public extension HMCDManager {
     /// This operation is not thread-safe.
     ///
     /// - Parameters:
-    ///   - context: A NSManagedObjectContext instance.
+    ///   - context: A Context instance.
     ///   - entityName: A String value representing the entity's name.
     ///   - ids: A Sequence of NSManagedObject.
     /// - Throws: Exception if the delete fails.
-    func deleteIdentifiablesUnsafely<S>(_ context: NSManagedObjectContext,
+    func deleteIdentifiablesUnsafely<S>(_ context: Context,
                                         _ entityName: String,
                                         _ ids: S) throws where
         S: Sequence, S.Iterator.Element == HMCDIdentifiableType
@@ -112,18 +112,18 @@ public extension HMCDManager {
     /// context and observe the process.
     ///
     /// - Parameters:
-    ///   - context: A NSManagedObjectContext instance.
+    ///   - context: A Context instance.
     ///   - data: A Sequence of NSManagedObject.
     ///   - obs: An ObserverType instance.
     /// - Throws: Exception if the delete fails.
-    public func delete<NS,S,O>(_ context: NSManagedObjectContext,
+    public func delete<NS,S,O>(_ context: Context,
                                _ data: S,
                                _ obs: O) where
         NS: NSManagedObject,
         S: Sequence, S.Iterator.Element == NS,
         O: ObserverType, O.E == Void
     {
-        performOnContextThread(mainObjectContext()) {
+        serializeBlock({
             do {
                 try self.deleteUnsafely(context, data)
                 obs.onNext()
@@ -131,19 +131,19 @@ public extension HMCDManager {
             } catch let e {
                 obs.onError(e)
             }
-        }
+        })
     }
     
     /// Delete a Sequence of identifiable data from memory by refetching them
     /// using some context and observe the process.
     ///
     /// - Parameters:
-    ///   - context: A NSManagedObjectContext instance.
+    ///   - context: A Context instance.
     ///   - entityName: A String value representing the entity's name.
     ///   - ids: A Sequence of HMCDIdentifiableType.
     ///   - obs: An ObserverType instance.
     /// - Throws: Exception if the delete fails.
-    public func deleteIdentifiables<S,O>(_ context: NSManagedObjectContext,
+    public func deleteIdentifiables<S,O>(_ context: Context,
                                          _ entityName: String,
                                          _ ids: S,
                                          _ obs: O) where
@@ -152,7 +152,7 @@ public extension HMCDManager {
         O: ObserverType,
         O.E == Void
     {
-        performOnContextThread(context) {
+        serializeBlock({
             do {
                 try self.deleteIdentifiablesUnsafely(context, entityName, ids)
                 obs.onNext()
@@ -160,7 +160,7 @@ public extension HMCDManager {
             } catch let e {
                 obs.onError(e)
             }
-        }
+        })
     }
 }
 
@@ -170,10 +170,10 @@ public extension Reactive where Base == HMCDManager {
     /// available for SQLite stores.
     ///
     /// - Parameters:
-    ///   - context: A NSManagedObjectContext instance.
+    ///   - context: A Context instance.
     ///   - request: A NSFetchRequest instance.
     /// - Return: An Observable instance.
-    public func delete(_ context: NSManagedObjectContext,
+    public func delete(_ context: HMCDManager.Context,
                        _ request: NSFetchRequest<NSFetchRequestResult>)
         -> Observable<NSBatchDeleteResult>
     {
@@ -190,10 +190,10 @@ public extension Reactive where Base == HMCDManager {
     /// context.
     ///
     /// - Parameters:
-    ///   - context: A NSManagedObjectContext instance.
+    ///   - context: A Context instance.
     ///   - data: A Sequence of NSManagedObject.
     /// - Throws: Exception if the delete fails.
-    public func delete<S>(_ context: NSManagedObjectContext, _ data: S)
+    public func delete<S>(_ context: HMCDManager.Context, _ data: S)
         -> Observable<Void> where
         S: Sequence, S.Iterator.Element: NSManagedObject
     {
@@ -210,11 +210,11 @@ public extension Reactive where Base == HMCDManager {
     /// using some context.
     ///
     /// - Parameters:
-    ///   - context: A NSManagedObjectContext instance.
+    ///   - context: A Context instance.
     ///   - entityName: A String value representing the entity's name.
     ///   - ids: A Sequence of HMCDIdentifiableType.
     /// - Throws: Exception if the delete fails.
-    public func deleteIdentifiables<S>(_ context: NSManagedObjectContext,
+    public func deleteIdentifiables<S>(_ context: HMCDManager.Context,
                                        _ entityName: String,
                                        _ ids: S)
         -> Observable<Void> where
@@ -230,11 +230,11 @@ public extension Reactive where Base == HMCDManager {
     /// using some context.
     ///
     /// - Parameters:
-    ///   - context: A NSManagedObjectContext instance.
+    ///   - context: A Context instance.
     ///   - entityName: A String value representing the entity's name.
     ///   - ids: A Sequence of HMCDIdentifiableType.
     /// - Throws: Exception if the delete fails.
-    public func deleteIdentifiables<U,S>(_ context: NSManagedObjectContext,
+    public func deleteIdentifiables<U,S>(_ context: HMCDManager.Context,
                                          _ entityName: String,
                                          _ ids: S)
         -> Observable<Void> where

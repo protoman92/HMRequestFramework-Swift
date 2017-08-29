@@ -11,7 +11,7 @@ import SwiftUtilities
 
 /// Classes that implement this protocol should be able to construct the
 /// data needed to create a CoreData model description.
-public protocol HMCDObjectType: class, HMCDObjectAliasType {
+public protocol HMCDObjectType: class, HMCDObjectAliasType, HMCDTypealiasType {
     
     /// Get the associated attributes.
     ///
@@ -24,7 +24,7 @@ public protocol HMCDObjectType: class, HMCDObjectAliasType {
     /// - Throws: Exception if entity name is not available.
     static func entityName() throws -> String
     
-    init(_ context: NSManagedObjectContext) throws
+    init(_ context: Context) throws
 }
 
 public extension HMCDObjectType {
@@ -43,10 +43,10 @@ public extension HMCDObjectType {
     
     /// Get the associated entity description in a context.
     ///
-    /// - Parameter context: A NSManagedObjectContext instance.
+    /// - Parameter context: A Context instance.
     /// - Returns: A NSEntityDescription Optional.
     /// - Throws: Exception if the description is not found.
-    public static func entityDescription(in context: NSManagedObjectContext) throws
+    public static func entityDescription(in context: Context) throws
         -> NSEntityDescription
     {
         let entityName = try self.entityName()
@@ -112,19 +112,19 @@ public protocol HMCDObjectBuilderType {
 ///
 /// This protocol is not related to HMBuildableType, because the initializer
 /// requirements are different.
-public protocol HMCDObjectBuildableType {
+public protocol HMCDObjectBuildableType: HMCDTypealiasType {
     associatedtype Builder: HMCDObjectBuilderType
     
-    static func builder(_ context: NSManagedObjectContext) throws -> Builder
+    static func builder(_ context: Context) throws -> Builder
 }
 
 public extension HMCDObjectBuildableType where Builder.Buildable == Self {
     /// Clone the current CD Object and expose a Builder with the clone.
     ///
-    /// - Parameter context: A NSManagedObjectContext instance.
+    /// - Parameter context: A Context instance.
     /// - Returns: A Builder instance.
     /// - Throws: Exception if the clone fails.
-    public func cloneBuilder(_ context: NSManagedObjectContext) throws -> Builder {
+    public func cloneBuilder(_ context: Context) throws -> Builder {
         return try Self.builder(context).with(buildable: self)
     }
 }

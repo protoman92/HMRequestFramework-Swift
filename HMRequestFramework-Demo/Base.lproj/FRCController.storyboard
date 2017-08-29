@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="13189.4" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="GQa-Qn-2gv">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="13178.6" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="GQa-Qn-2gv">
     <device id="retina4_7" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13165.3"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13156.2"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -25,35 +25,35 @@
                                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                                         <subviews>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="cc1-1T-gLg">
-                                                <rect key="frame" x="15" y="15" width="345" height="30"/>
+                                                <rect key="frame" x="15" y="58" width="345" height="30"/>
                                                 <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
                                                 <state key="normal" title="Insert">
                                                     <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                                 </state>
                                             </button>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ulx-h6-ulz">
-                                                <rect key="frame" x="15" y="60" width="345" height="30"/>
+                                                <rect key="frame" x="15" y="103" width="345" height="30"/>
                                                 <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
                                                 <state key="normal" title="Update a random item">
                                                     <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                                 </state>
                                             </button>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="roC-nM-APx">
-                                                <rect key="frame" x="15" y="105" width="345" height="30"/>
+                                                <rect key="frame" x="15" y="148" width="345" height="30"/>
                                                 <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
                                                 <state key="normal" title="Delete a random item">
                                                     <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                                 </state>
                                             </button>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="4el-As-ZXi">
-                                                <rect key="frame" x="15" y="150" width="345" height="30"/>
+                                                <rect key="frame" x="15" y="193" width="345" height="30"/>
                                                 <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
                                                 <state key="normal" title="Delete all items">
                                                     <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                                 </state>
                                             </button>
                                             <tableView contentMode="scaleToFill" alwaysBounceVertical="YES" scrollEnabled="NO" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" dataMode="prototypes" style="plain" separatorStyle="none" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="0Nk-Nr-mbv">
-                                                <rect key="frame" x="15" y="195" width="345" height="457"/>
+                                                <rect key="frame" x="15" y="238" width="345" height="414"/>
                                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                                 <prototypes>
                                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="FRCCell" id="l08-uc-aaa" customClass="FRCCell" customModule="HMRequestFramework_Demo" customModuleProvider="target">
@@ -83,23 +83,33 @@
                                                     </tableViewCell>
                                                 </prototypes>
                                             </tableView>
+                                            <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="Igs-c8-8FG">
+                                                <rect key="frame" x="15" y="15" width="345" height="29"/>
+                                                <segments>
+                                                    <segment title="First"/>
+                                                    <segment title="Second"/>
+                                                </segments>
+                                            </segmentedControl>
                                         </subviews>
                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                         <constraints>
                                             <constraint firstItem="0Nk-Nr-mbv" firstAttribute="leading" secondItem="4el-As-ZXi" secondAttribute="leading" id="2TS-Er-bBH"/>
                                             <constraint firstItem="roC-nM-APx" firstAttribute="top" secondItem="ulx-h6-ulz" secondAttribute="bottom" constant="15" id="5Zz-0d-PDu"/>
-                                            <constraint firstItem="cc1-1T-gLg" firstAttribute="top" secondItem="xbB-RW-EAd" secondAttribute="top" constant="15" id="87e-Fr-xCz"/>
+                                            <constraint firstAttribute="trailing" secondItem="Igs-c8-8FG" secondAttribute="trailing" constant="15" id="DrZ-uW-mgJ"/>
                                             <constraint firstItem="roC-nM-APx" firstAttribute="leading" secondItem="ulx-h6-ulz" secondAttribute="leading" id="IV8-yL-NQt"/>
+                                            <constraint firstItem="cc1-1T-gLg" firstAttribute="trailing" secondItem="Igs-c8-8FG" secondAttribute="trailing" id="Igb-iK-wZe"/>
                                             <constraint firstItem="roC-nM-APx" firstAttribute="trailing" secondItem="ulx-h6-ulz" secondAttribute="trailing" id="JQ1-Ph-o42"/>
                                             <constraint firstItem="0Nk-Nr-mbv" firstAttribute="trailing" secondItem="4el-As-ZXi" secondAttribute="trailing" id="Jeh-xL-6TX"/>
                                             <constraint firstItem="4el-As-ZXi" firstAttribute="trailing" secondItem="cc1-1T-gLg" secondAttribute="trailing" id="JfW-hI-j0q"/>
-                                            <constraint firstAttribute="trailing" secondItem="cc1-1T-gLg" secondAttribute="trailing" constant="15" id="KRU-se-U05"/>
+                                            <constraint firstItem="cc1-1T-gLg" firstAttribute="leading" secondItem="Igs-c8-8FG" secondAttribute="leading" id="K0L-0y-SRz"/>
                                             <constraint firstItem="4el-As-ZXi" firstAttribute="leading" secondItem="cc1-1T-gLg" secondAttribute="leading" id="Res-B9-Myj"/>
-                                            <constraint firstItem="cc1-1T-gLg" firstAttribute="leading" secondItem="xbB-RW-EAd" secondAttribute="leading" constant="15" id="V79-0m-LXa"/>
+                                            <constraint firstItem="cc1-1T-gLg" firstAttribute="top" secondItem="Igs-c8-8FG" secondAttribute="bottom" constant="15" id="U2q-b7-siF"/>
                                             <constraint firstItem="0Nk-Nr-mbv" firstAttribute="top" secondItem="4el-As-ZXi" secondAttribute="bottom" constant="15" id="VMg-Gc-f63"/>
                                             <constraint firstAttribute="bottom" secondItem="0Nk-Nr-mbv" secondAttribute="bottom" constant="15" id="VQ7-nS-ebU"/>
                                             <constraint firstItem="4el-As-ZXi" firstAttribute="top" secondItem="roC-nM-APx" secondAttribute="bottom" constant="15" id="YIY-l7-0fI"/>
                                             <constraint firstItem="ulx-h6-ulz" firstAttribute="leading" secondItem="cc1-1T-gLg" secondAttribute="leading" id="fgO-w1-7kO"/>
+                                            <constraint firstItem="Igs-c8-8FG" firstAttribute="top" secondItem="xbB-RW-EAd" secondAttribute="top" constant="15" id="mbg-5x-VrL"/>
+                                            <constraint firstItem="Igs-c8-8FG" firstAttribute="leading" secondItem="xbB-RW-EAd" secondAttribute="leading" constant="15" id="nTE-C0-1UQ"/>
                                             <constraint firstItem="ulx-h6-ulz" firstAttribute="trailing" secondItem="cc1-1T-gLg" secondAttribute="trailing" id="pbG-dh-5Jj"/>
                                             <constraint firstItem="ulx-h6-ulz" firstAttribute="top" secondItem="cc1-1T-gLg" secondAttribute="bottom" constant="15" id="xzq-02-75e"/>
                                         </constraints>
@@ -130,6 +140,7 @@
                         <outlet property="frcTableView" destination="0Nk-Nr-mbv" id="aZH-rU-mgx"/>
                         <outlet property="insertBtn" destination="cc1-1T-gLg" id="1TB-Bc-fen"/>
                         <outlet property="scrollView" destination="whn-Vs-oMN" id="RZf-gM-j6O"/>
+                        <outlet property="segmentedCtrl" destination="Igs-c8-8FG" id="xkr-1d-u66"/>
                         <outlet property="updateRandomBtn" destination="ulx-h6-ulz" id="Rhc-IS-gMZ"/>
                     </connections>
                 </viewController>

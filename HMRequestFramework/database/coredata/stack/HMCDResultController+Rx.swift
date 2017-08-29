@@ -23,6 +23,8 @@ extension Reactive where Base: HMCDResultController {
         
         return Observable<Void>
             .create({
+                base.deleteCache()
+                
                 do {
                     try base.startStream()
                     $0.onNext(())

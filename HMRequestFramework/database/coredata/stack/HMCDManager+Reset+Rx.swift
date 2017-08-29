@@ -15,7 +15,7 @@ public extension HMCDManager {
     ///
     /// - Throws: Exception if the reset fails.
     func resetStoresUnsafely() throws {
-        let coordinator = self.coordinator
+        let coordinator = storeCoordinator()
         let stores = coordinator.persistentStores
         
         if stores.isNotEmpty {
@@ -26,20 +26,20 @@ public extension HMCDManager {
     
     /// Reset some context to its initial state. This operation is not thread-safe.
     ///
-    /// - Parameter context: A NSManagedObjectContext instance.
-    func resetContextUnsafely(_ context: NSManagedObjectContext) {
+    /// - Parameter context: A Context instance.
+    func resetContextUnsafely(_ context: Context) {
         context.reset()
     }
     
     /// Reset some context to its initial state and observe the process.
     ///
     /// - Parameters:
-    ///   - context: A NSManagedObjectContext instance.
+    ///   - context: A Context instance.
     ///   - obs: An ObserverType instance.
-    func resetContext<O>(_ context: NSManagedObjectContext, _ obs: O) where
+    func resetContext<O>(_ context: Context, _ obs: O) where
         O: ObserverType, O.E == Void
     {
-        performOnContextThread(context) {
+        performOnQueue(context) {
             self.resetContextUnsafely(context)
             obs.onNext(())
             obs.onCompleted()
@@ -50,6 +50,8 @@ public extension HMCDManager {
     ///
     /// - Parameter obs: An ObserverType instance.
     func resetStores<O>(_ obs: O) where O: ObserverType, O.E == Void {
+        let coordinator = storeCoordinator()
+        
         coordinator.perform({
             do {
                 try self.resetStoresUnsafely()
@@ -66,9 +68,9 @@ extension Reactive where Base == HMCDManager {
     
     /// Reset some context reactively.
     ///
-    /// - Parameter context: A NSManagedObjectContext instance.
+    /// - Parameter context: A Context instance.
     /// - Returns: An Observable instance.
-    func resetContext(_ context: NSManagedObjectContext) -> Observable<Void> {
+    func resetContext(_ context: HMCDManager.Context) -> Observable<Void> {
         return Observable<Void>.create({
             self.base.resetContext(context, $0)
             return Disposables.create()

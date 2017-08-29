@@ -46,7 +46,7 @@ public final class HMResultProcessors {
         return {Observable.just(Try.success($0))}
     }
     
-    /// Get a result processor that does not transformation.
+    /// Get a result processor that does no transformation.
     ///
     /// - Parameter cls: The Val class type.
     /// - Returns: A HMResultProcessor instance.

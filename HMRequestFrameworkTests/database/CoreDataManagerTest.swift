@@ -26,7 +26,7 @@ public final class CoreDataManagerTest: CoreDataRootTest {
         
         /// When
         manager.rx.construct(context, dummies)
-            .flatMap({Observable.from($0)})
+            .flattenSequence()
             .map({$0.asPureObject()})
             .doOnDispose(expect.fulfill)
             .subscribe(observer)
@@ -70,7 +70,7 @@ public final class CoreDataManagerTest: CoreDataRootTest {
             // Fetch the data and verify that they have been persisted.
             .flatMap({manager.rx.fetch(fetchContext2, fetchRq)})
             .map({$0.map({$0.asPureObject()})})
-            .flatMap({Observable.from($0)})
+            .flattenSequence()
             .doOnDispose(expect.fulfill)
             .subscribe(observer)
             .disposed(by: disposeBag)
@@ -111,7 +111,7 @@ public extension CoreDataManagerTest {
             // data to contain the same properties.
             .flatMap({manager.rx.fetchIdentifiables(refetchContext, entityName, cdObjects)})
             .map({$0.map({$0.asPureObject()})})
-            .flatMap({Observable.from($0)})
+            .flattenSequence()
             .doOnDispose(expect.fulfill)
             .subscribe(observer)
             .disposed(by: disposeBag)
@@ -182,7 +182,7 @@ public extension CoreDataManagerTest {
             
             // Fetch to verify that the DB is now empty.
             .flatMap({manager.rx.fetch(fetchContext2, fetchRq)})
-            .flatMap({Observable.from($0)})
+            .flattenSequence()
             .doOnDispose(expect.fulfill)
             .subscribe(observer)
             .disposed(by: disposeBag)
@@ -229,7 +229,7 @@ public extension CoreDataManagerTest {
             .flatMap({_ in manager.rx.persistLocally()})
             .flatMap({_ in manager.rx.fetch(fetchContext2, fetchRequest)})
             .map({$0.map({$0.asPureObject()})})
-            .flatMap({Observable.from($0)})
+            .flattenSequence()
             .cast(to: Any.self)
             .doOnDispose(expect.fulfill)
             .subscribe(observer)
@@ -299,7 +299,7 @@ public extension CoreDataManagerTest {
             // Fetch to verify that the data have been deleted.
             .flatMap({manager.rx.fetch(fetchContext2, request).subscribeOn(qos: .background)})
             .map({$0.map({$0.asPureObject()})})
-            .flatMap({Observable.from($0)})
+            .flattenSequence()
             .cast(to: Any.self)
             .doOnDispose(expect.fulfill)
             .subscribe(observer)
@@ -362,7 +362,7 @@ public extension CoreDataManagerTest {
             .flatMap({_ in manager.rx.persistLocally()})
             .flatMap({manager.rx.fetch(fetchContext, fetchRq)})
             .map({$0.map({$0.asPureObject()})})
-            .flatMap({Observable.from($0)})
+            .flattenSequence()
             .doOnDispose(expect.fulfill)
             .subscribe(observer)
             .disposed(by: disposeBag)
@@ -411,7 +411,7 @@ public extension CoreDataManagerTest {
             .flatMap({_ in manager.rx.persistLocally()})
             .flatMap({manager.rx.fetch(fetchContext, fetchRq)})
             .map({$0.map({$0.asPureObject()})})
-            .flatMap({Observable.from($0)})
+            .flattenSequence()
             .doOnDispose(expect.fulfill)
             .subscribe(observer)
             .disposed(by: disposeBag)
@@ -452,7 +452,7 @@ public extension CoreDataManagerTest {
             // limited to the predefined fetchLimit.
             .flatMap({manager.rx.fetch(fetchContext, fetchRq)})
             .map({$0.map({$0.asPureObject()})})
-            .flatMap({Observable.from($0)})
+            .flattenSequence()
             .doOnDispose(expect.fulfill)
             .subscribe(observer)
             .disposed(by: disposeBag)
@@ -500,7 +500,7 @@ public extension CoreDataManagerTest {
             .flatMap({manager.rx.persistLocally()})
             .flatMap({manager.rx.fetch(fetchContext3, fetchRq)})
             .map({$0.map({$0.asPureObject()})})
-            .flatMap({Observable.from($0)})
+            .flattenSequence()
             .doOnDispose(expect.fulfill)
             .subscribe(observer)
             .disposed(by: disposeBag)

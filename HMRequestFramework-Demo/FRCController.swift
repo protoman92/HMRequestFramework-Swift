@@ -24,25 +24,37 @@ public final class FRCController: UIViewController {
     typealias DataSource = TableViewSectionedDataSource<Section>
     typealias RxDataSource = RxTableViewSectionedAnimatedDataSource<Section>
     
-    @IBOutlet weak var insertBtn: UIButton!
-    @IBOutlet weak var updateRandomBtn: UIButton!
-    @IBOutlet weak var deleteRandomBtn: UIButton!
-    @IBOutlet weak var deleteAllBtn: UIButton!
-    @IBOutlet weak var frcTableView: UITableView!
-    @IBOutlet weak var scrollView: UIScrollView!
+    @IBOutlet private weak var segmentedCtrl: UISegmentedControl!
+    @IBOutlet private weak var insertBtn: UIButton!
+    @IBOutlet private weak var updateRandomBtn: UIButton!
+    @IBOutlet private weak var deleteRandomBtn: UIButton!
+    @IBOutlet private weak var deleteAllBtn: UIButton!
+    @IBOutlet private weak var frcTableView: UITableView!
+    @IBOutlet private weak var scrollView: UIScrollView!
     
-    let dummyCount = 10
+    private let dummyCount = 10
+    private let dateMilestone = Date.random() ?? Date()
     
-    var contentHeight: NSLayoutConstraint? {
+    private lazy var settings: [(NSPredicate, [NSSortDescriptor])] = [
+        (NSPredicate(value: true),
+         [NSSortDescriptor(key: "date", ascending: true)]),
+        
+        (NSPredicate(format: "%K > %@", "date", self.dateMilestone as NSDate),
+         [NSSortDescriptor(key: "int64", ascending: false)]),
+        
+        (NSPredicate(format: "%K < %@", "date", self.dateMilestone as NSDate), [])
+    ]
+    
+    private var contentHeight: NSLayoutConstraint? {
         return view?.constraints.first(where: {$0.identifier == "contentHeight"})
     }
     
-    var data: Variable<[Section]> = Variable([])
-    let disposeBag: DisposeBag = DisposeBag()
+    private var data: Variable<[Section]> = Variable([])
+    private var currentSegment: Variable<Int> = Variable(-1)
+    private let disposeBag: DisposeBag = DisposeBag()
     
-    var cdManager: HMCDManager?
-    var dbProcessor: HMCDRequestProcessor?
-    var dateFormatter = DateFormatter()
+    private var dbProcessor: HMCDRequestProcessor?
+    private var dateFormatter = DateFormatter()
     
     deinit {
         print("Deinit \(self)")
@@ -56,112 +68,68 @@ public final class FRCController: UIViewController {
             let insertBtn = self.insertBtn,
             let updateRandomBtn = self.updateRandomBtn,
             let deleteRandomBtn = self.deleteRandomBtn,
-            let deleteAllBtn = self.deleteAllBtn
+            let deleteAllBtn = self.deleteAllBtn,
+            let segmentedCtrl = self.segmentedCtrl
         else {
             return
         }
-                
-        let dummyCount = self.dummyCount
-        let cdManager = Singleton.coreDataManager(.SQLite)
-        let dbProcessor = Singleton.dbProcessor(cdManager)
         
-        self.cdManager = cdManager
+        let disposeBag = self.disposeBag
+        let dummyCount = self.dummyCount
+        let settings = self.settings
+        let dbProcessor = DemoSingleton.dbProcessor
         self.dbProcessor = dbProcessor
         dateFormatter.dateFormat = "dd/MMMM/yyyy hh:mm:ss a"
         
-        insertBtn.setTitle("Insert \(dummyCount) items", for: .normal)
+        /// Segmented control setup.
         
-        insertBtn.rx.tap
-            .map({_ in (0..<dummyCount).map({_ in Dummy1()})})
-            .map(Try.success)
-            .flatMap({[weak self] prev -> Observable<Try<Void>> in
-                if let `self` = self, let dbProcessor = self.dbProcessor {
-                    return dbProcessor.saveToMemory(prev)
-                } else {
-                    return Observable.empty()
+        segmentedCtrl.removeAllSegments()
+        
+        for (index, (predicate, _)) in settings.enumerated() {
+            segmentedCtrl.insertSegment(withTitle: predicate.description,
+                                        at: index,
+                                        animated: true)
+        }
+        
+        segmentedCtrl.addTarget(self,
+                                action: #selector(self.segmentChanged(_:)),
+                                for: .valueChanged)
+
+        currentSegment.asObservable()
+            .filter({$0 > -1})
+            .map(settings.element)
+            .map({try $0.asTry().getOrThrow()})
+            .flatMapLatest({
+                [weak self] setting -> Observable<Try<HMCDEvent<Dummy1>>> in
+                let predicate = setting.0
+                let sorts = setting.1
+                
+                return self?.dbProcessor?.streamDBEvents(Dummy1.self, {
+                    Observable.just($0.cloneBuilder()
+                        .with(predicate: predicate)
+                        .with(sortDescriptors: sorts)
+                        .with(frcSectionName: "dummyHeader")
+                        .with(frcCacheName: "FRC_Dummy1")
+                        .build())
+                }) ?? .empty()
+            })
+            .map({try $0.getOrThrow()})
+            .flatMap({(event) -> Observable<DBChange<Dummy1>> in
+                switch event {
+                case .initialize(let change): return Observable.just(change)
+                case .didChange(let change): return Observable.just(change)
+                default: return .empty()
                 }
             })
-            .flatMap({[weak self] prev -> Observable<Try<Void>> in
-                if let `self` = self, let dbProcessor = self.dbProcessor {
-                    return dbProcessor.persistToDB(prev)
-                } else {
-                    return Observable.empty()
-                }
-            })
-            .subscribe()
+            .map({$0.sections.map({$0.animated()})})
+            .catchErrorJustReturn([])
+            .bind(to: data)
             .disposed(by: disposeBag)
         
-        updateRandomBtn.rx.tap
-            .withLatestFrom(data.asObservable())
-            .filter({$0.isNotEmpty})
-            .map({$0.randomElement()?.items.randomElement()})
-            .map({$0.asTry()})
-            .map({$0.map({Dummy1().cloneBuilder().with(id: $0.id).build()})})
-            .map({$0.map({[$0]})})
-            .flatMap({[weak self] prev -> Observable<Try<[HMCDResult]>> in
-                if let `self` = self, let dbProcessor = self.dbProcessor {
-                    return dbProcessor.upsertInMemory(prev, {
-                        Observable.just($0.cloneBuilder()
-                            .with(vcStrategy: .overwrite)
-                            .build())
-                    })
-                } else {
-                    return Observable.empty()
-                }
-            })
-            .flatMap({[weak self] prev -> Observable<Try<Void>> in
-                if let `self` = self, let dbProcessor = self.dbProcessor {
-                    return dbProcessor.persistToDB(prev)
-                } else {
-                    return Observable.empty()
-                }
-            })
-            .map(toVoid)
-            .subscribe()
-            .disposed(by: disposeBag)
+        /// Table View setup.
         
-        deleteRandomBtn.rx.tap
-            .withLatestFrom(data.asObservable())
-            .filter({$0.isNotEmpty})
-            .map({$0.randomElement()?.items.randomElement()})
-            .map({$0.asTry()})
-            .map({$0.map({[$0]})})
-            .flatMap({[weak self] prev -> Observable<Try<Void>> in
-                if let `self` = self, let dbProcessor = self.dbProcessor {
-                    return dbProcessor.deleteInMemory(prev)
-                } else {
-                    return Observable.empty()
-                }
-            })
-            .flatMap({[weak self] prev -> Observable<Try<Void>> in
-                if let `self` = self, let dbProcessor = self.dbProcessor {
-                    return dbProcessor.persistToDB(prev)
-                } else {
-                    return Observable.empty()
-                }
-            })
-            .subscribe()
-            .disposed(by: disposeBag)
-        
-        deleteAllBtn.rx.tap
-            .map(Try.success)
-            .flatMap({[weak self] prev -> Observable<Try<Void>> in
-                if let `self` = self, let dbProcessor = self.dbProcessor {
-                    return dbProcessor.deleteAllInMemory(prev, Dummy1.self)
-                } else {
-                    return Observable.empty()
-                }
-            })
-            .flatMap({[weak self] prev -> Observable<Try<Void>> in
-                if let `self` = self, let dbProcessor = self.dbProcessor {
-                    return dbProcessor.persistToDB(prev)
-                } else {
-                    return Observable.empty()
-                }
-            })
-            .subscribe()
-            .disposed(by: disposeBag)
-        
+        let dataSource = setupDataSource()
+        frcTableView.setEditing(true, animated: true)
         frcTableView.rx.setDelegate(self).disposed(by: disposeBag)
         
         frcTableView.rx.observe(CGSize.self, "contentSize")
@@ -184,57 +152,83 @@ public final class FRCController: UIViewController {
                 .element(at: $0.row)})
             .map({$0.asTry()})
             .map({$0.map({[$0]})})
-            .flatMap({[weak self] prev -> Observable<Try<Void>> in
-                if let `self` = self, let dbProcessor = self.dbProcessor {
-                    return dbProcessor.deleteInMemory(prev)
-                } else {
-                    return Observable.empty()
-                }
+            .flatMapNonNilOrEmpty({[weak self] in
+                self?.dbProcessor?.deleteInMemory($0)
             })
-            .flatMap({[weak self] prev -> Observable<Try<Void>> in
-                if let `self` = self, let dbProcessor = self.dbProcessor {
-                    return dbProcessor.persistToDB(prev)
-                } else {
-                    return Observable.empty()
-                }
+            .flatMapNonNilOrEmpty({[weak self] in
+                self?.dbProcessor?.persistToDB($0)
             })
             .map(toVoid)
             .catchErrorJustReturn(())
             .subscribe()
             .disposed(by: disposeBag)
         
-        let dbEventStream = dbProcessor
-            .streamDBEvents(Dummy1.self, {
-                Observable.just($0.cloneBuilder()
-                    .with(frcSectionName: "dummyHeader")
-                    .add(ascendingSortWithKey: "date")
-                    .build())
-            })
-            .map({try $0.getOrThrow()})
-            .flatMap({(event) -> Observable<DBChange<Dummy1>> in
-                switch event {
-                case .didChange(let change): return .just(change)
-                default: return .empty()
-                }
-            })
-            .map({$0.sections.map({$0.animated()})})
-            .catchErrorJustReturn([])
-            .shareReplay(1)
-        
-        let dataSource = setupDataSource()
-        
-        dbEventStream
-            .bind(to: data)
+        data.asObservable()
+            .bind(to: frcTableView.rx.items(dataSource: dataSource))
             .disposed(by: disposeBag)
         
-        dbEventStream
-            .bind(to: frcTableView.rx.items(dataSource: dataSource))
+        /// Button setup.
+        
+        insertBtn.setTitle("Insert \(dummyCount) items", for: .normal)
+        
+        insertBtn.rx.tap
+            .map({_ in (0..<dummyCount).map({_ in Dummy1()})})
+            .map(Try.success)
+            .flatMapNonNilOrEmpty({[weak self] in
+                self?.dbProcessor?.saveToMemory($0)
+            })
+            .flatMapNonNilOrEmpty({[weak self] in
+                self?.dbProcessor?.persistToDB($0)
+            })
+            .subscribe()
+            .disposed(by: disposeBag)
+        
+        updateRandomBtn.rx.tap
+            .withLatestFrom(data.asObservable())
+            .filter({$0.isNotEmpty})
+            .map({$0.randomElement()?.items.randomElement()})
+            .map({$0.asTry()})
+            .map({$0.map({Dummy1().cloneBuilder().with(id: $0.id).build()})})
+            .map({$0.map({[$0]})})
+            .flatMapNonNilOrEmpty({[weak self] in
+                self?.dbProcessor?.upsertInMemory($0)
+            })
+            .flatMapNonNilOrEmpty({[weak self] in
+                self?.dbProcessor?.persistToDB($0)
+            })
+            .map(toVoid)
+            .subscribe()
+            .disposed(by: disposeBag)
+        
+        deleteRandomBtn.rx.tap
+            .withLatestFrom(data.asObservable())
+            .filter({$0.isNotEmpty})
+            .map({$0.randomElement()?.items.randomElement()})
+            .map({$0.asTry()})
+            .map({$0.map({[$0]})})
+            .flatMapNonNilOrEmpty({[weak self] in
+                self?.dbProcessor?.deleteInMemory($0)
+            })
+            .flatMapNonNilOrEmpty({[weak self] in
+                self?.dbProcessor?.persistToDB($0)
+            })
+            .subscribe()
+            .disposed(by: disposeBag)
+        
+        deleteAllBtn.rx.tap
+            .map(Try.success)
+            .flatMapNonNilOrEmpty({[weak self] in
+                self?.dbProcessor?.deleteAllInMemory($0, Dummy1.self)
+            })
+            .flatMapNonNilOrEmpty({[weak self] in
+                self?.dbProcessor?.persistToDB($0)
+            })
+            .subscribe()
             .disposed(by: disposeBag)
     }
     
-    override public func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        frcTableView?.setEditing(true, animated: true)
+    func segmentChanged(_ control: UISegmentedControl) {
+        currentSegment.value = control.selectedSegmentIndex
     }
     
     func contentSizeChanged(_ ctSize: CGSize, _ vc: FRCController) {

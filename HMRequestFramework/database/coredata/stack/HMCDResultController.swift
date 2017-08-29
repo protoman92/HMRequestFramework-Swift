@@ -8,6 +8,7 @@
 
 import CoreData
 import RxSwift
+import SwiftUtilities
 
 /// Controller that wraps a NSFetchedResultController and deliver events with
 /// Observable.
@@ -19,6 +20,11 @@ public final class HMCDResultController: NSObject {
     fileprivate let objectChangeSubject: BehaviorSubject<Event>
     fileprivate let sectionChangeSubject: BehaviorSubject<Event>
     var frc: Controller?
+    
+    deinit {
+        // Make sure references are properly disposed of.
+        debugPrint("Deinit \(self)")
+    }
     
     override fileprivate init() {
         dbChangeSubject = BehaviorSubject<Event>(value: .dummy)
@@ -37,15 +43,27 @@ public final class HMCDResultController: NSObject {
     ///
     /// - Throws: Exception if the stream cannot be started.
     func startStream() throws {
-        try controller().performFetch()
+        let controller = self.controller()
+        try controller.performFetch()
+        let observer = dbChangeObserver()
+        observer.onNext(dbChange(controller, Event.initialize))
+    }
+    
+    /// Delete a cache to prepare for streaming.
+    func deleteCache() {
+        if let cacheName = controller().cacheName {
+            Controller.deleteCache(withName: cacheName)
+        }
     }
     
     func eventObservable() -> Observable<Event> {
-        return Observable.merge(
-            dbChangeSubject,
-            objectChangeSubject,
-            sectionChangeSubject
-        )
+        return Observable
+            .merge(
+                dbChangeSubject,
+                objectChangeSubject,
+                sectionChangeSubject
+            )
+            .filter({$0.isValidEvent()})
     }
     
     func dbChangeObserver() -> AnyObserver<Event> {
@@ -227,18 +245,10 @@ extension HMCDResultController: NSFetchedResultsControllerDelegate {
     ///
     /// - Parameter controller: A Controller instance.
     /// - Returns: An Event instance.
-    private func dbChange(_ controller: Controller,
-                          _ mapper: (DBChange<Any>) -> Event) -> Event {
+    fileprivate func dbChange(_ controller: Controller,
+                              _ mapper: (DBChange<Any>) -> Event) -> Event {
         return Event.dbChange(controller.sections,
                               controller.fetchedObjects,
                               mapper)
-    }
-    
-    /// Get an anyChange Event from the associated result controller.
-    ///
-    /// - Parameter controller: A Controller instance.
-    /// - Returns: An Event instance.
-    private func anyChange(_ controller: Controller) -> Event {
-        return dbChange(controller, Event.anyChange)
     }
 }

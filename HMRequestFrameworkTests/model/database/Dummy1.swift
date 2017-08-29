@@ -36,7 +36,7 @@ public final class CDDummy1: NSManagedObject {
     @NSManaged public var float: NSNumber?
     @NSManaged public var version: NSNumber?
     
-    public convenience init(_ context: NSManagedObjectContext) throws {
+    public convenience init(_ context: Context) throws {
         let entity = try CDDummy1.entityDescription(in: context)
         self.init(entity: entity, insertInto: context)
     }
@@ -161,7 +161,7 @@ extension CDDummy1: HMCDVersionableMasterType {
         ]
     }
     
-    public static func builder(_ context: NSManagedObjectContext) throws -> Builder {
+    public static func builder(_ context: Context) throws -> Builder {
         return try Builder(Dummy1.CDClass.init(context))
     }
     

@@ -28,11 +28,11 @@ public extension HMCDManager {
     /// is not thread-safe.
     ///
     /// - Parameters:
-    ///   - context: A NSManagedObjectContext instance.
+    ///   - context: A Context instance.
     ///   - request: A HMVersionUpdateRequest instance.
     /// - Throws: Exception if the operation fails.
     func resolveVersionConflictUnsafely(
-        _ context: NSManagedObjectContext,
+        _ context: Context,
         _ request: HMCDVersionUpdateRequest) throws
     {
         let original = try request.originalVC()
@@ -62,10 +62,10 @@ public extension HMCDManager {
     /// This operation is not thread-safe.
     ///
     /// - Parameters:
-    ///   - context: A NSManagedObjectContext instance.
+    ///   - context: A Context instance.
     ///   - request: A HMCDVersionUpdateRequest instance.
     /// - Throws: Exception if the operation fails.
-    func attempVersionUpdateUnsafely(_ context: NSManagedObjectContext,
+    func attempVersionUpdateUnsafely(_ context: Context,
                                      _ request: HMCDVersionUpdateRequest) throws
     {
         let original = try request.originalVC()
@@ -83,10 +83,10 @@ public extension HMCDManager {
     /// This operation is not thread-safe.
     ///
     /// - Parameters:
-    ///   - context: A NSManagedObjectContext instance.
+    ///   - context: A Context instance.
     ///   - request: A HMVersionUpdateRequest instance.
     /// - Throws: Exception if the operation fails.
-    func updateVersionUnsafely(_ context: NSManagedObjectContext,
+    func updateVersionUnsafely(_ context: Context,
                                _ request: HMCDVersionUpdateRequest) throws {
         let originalVersion = try request.originalVC().currentVersion()
         let editedVersion = try request.editedVC().currentVersion()
@@ -105,11 +105,11 @@ public extension HMCDManager {
     /// context and and get the results back.
     ///
     /// - Parameters:
-    ///   - context: A NSManagedObjectContext instance.
+    ///   - context: A Context instance.
     ///   - entityName: A String value representing the entity's name.
     ///   - requests: A Sequence of HMVersionUpdateRequest.
     /// - Throws: Exception if the operation fails.
-    func convert<S>(_ context: NSManagedObjectContext,
+    func convert<S>(_ context: Context,
                     _ entityName: String,
                     _ requests: S) throws -> [HMCDResult] where
         S: Sequence, S.Iterator.Element == HMCDVersionUpdateRequest
@@ -171,12 +171,12 @@ public extension HMCDManager {
     /// will be called just as many times.
     ///
     /// - Parameters:
-    ///   - context: A NSManagedObjectContext instance.
+    ///   - context: A Context instance.
     ///   - entityName: A String value representing the entity's name.
     ///   - requests: A Sequence of HMVersionUpdateRequest.
     ///   - obs: An ObserverType instance.
     /// - Throws: Exception if the operation fails.
-    func updateVersion<S,O>(_ context: NSManagedObjectContext,
+    func updateVersion<S,O>(_ context: Context,
                             _ entityName: String,
                             _ requests: S,
                             _ obs: O) where
@@ -185,7 +185,7 @@ public extension HMCDManager {
         O: ObserverType,
         O.E == [HMCDResult]
     {
-        performOnContextThread(mainObjectContext()) {
+        serializeBlock({
             let requests = requests.map({$0})
             
             if requests.isNotEmpty {
@@ -201,7 +201,7 @@ public extension HMCDManager {
                 obs.onNext([])
                 obs.onCompleted()
             }
-        }
+        })
     }
 }
 
@@ -210,12 +210,12 @@ extension Reactive where Base == HMCDManager {
     /// Update a Sequence of versioned objects and save to memory.
     ///
     /// - Parameters:
-    ///   - context: A NSManagedObjectContext instance.
+    ///   - context: A Context instance.
     ///   - entityName: A String value representing the entity's name.
     ///   - requests: A Sequence of HMVersionUpdateRequest.
     /// - Return: An Observable instance.
     /// - Throws: Exception if the operation fails.
-    public func updateVersion<S>(_ context: NSManagedObjectContext,
+    public func updateVersion<S>(_ context: HMCDManager.Context,
                                  _ entityName: String,
                                  _ requests: S)
         -> Observable<[HMCDResult]> where

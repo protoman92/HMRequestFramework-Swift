@@ -27,6 +27,7 @@ public typealias SectionChange<V> = (
 
 /// Use this enum to represent stream events from CoreData.
 ///
+/// - initialize: Used when the stream is first initialized.
 /// - willChange: Used when the underlying DB is about to change data.
 /// - didChange: Used when the underlying DB has changed data.
 /// - anyChange: Used when there is any change in the DB.
@@ -40,6 +41,7 @@ public typealias SectionChange<V> = (
 /// - updateSection: Used when a section is updated.
 /// - dummy: Used when we cannot categorize this even anywhere else.
 public enum HMCDEvent<V> {
+    case initialize(DBChange<V>)
     case willChange(DBChange<V>)
     case didChange(DBChange<V>)
     case anyChange(DBChange<V>)
@@ -141,37 +143,40 @@ public enum HMCDEvent<V> {
     public func map<V2>(_ f: (V) throws -> V2) -> HMCDEvent<V2> {
         switch self {
         case .insert(let change):
-            return mapObject(f, {.insert($0)}, change)
+            return mapObject(f, HMCDEvent<V2>.insert, change)
             
         case .delete(let change):
-            return mapObject(f, {.delete($0)}, change)
+            return mapObject(f, HMCDEvent<V2>.delete, change)
             
         case .move(let change):
-            return mapObject(f, {.move($0)}, change)
+            return mapObject(f, HMCDEvent<V2>.move, change)
             
         case .update(let change):
-            return mapObject(f, {.update($0)}, change)
+            return mapObject(f, HMCDEvent<V2>.update, change)
             
         case .insertSection(let change):
-            return mapSection(f, {.insertSection($0)}, change)
+            return mapSection(f, HMCDEvent<V2>.insertSection, change)
             
         case .deleteSection(let change):
-            return mapSection(f, {.deleteSection($0)}, change)
+            return mapSection(f, HMCDEvent<V2>.deleteSection, change)
             
         case .moveSection(let change):
-            return mapSection(f, {.moveSection($0)}, change)
+            return mapSection(f, HMCDEvent<V2>.moveSection, change)
             
         case .updateSection(let change):
-            return mapSection(f, {.updateSection($0)}, change)
+            return mapSection(f, HMCDEvent<V2>.updateSection, change)
+            
+        case .initialize(let change):
+            return mapDBChange(f, HMCDEvent<V2>.initialize, change)
             
         case .willChange(let change):
-            return mapDBChange(f, {.willChange($0)}, change)
+            return mapDBChange(f, HMCDEvent<V2>.willChange, change)
             
         case .didChange(let change):
-            return mapDBChange(f, {.didChange($0)}, change)
+            return mapDBChange(f, HMCDEvent<V2>.didChange, change)
             
         case .anyChange(let change):
-            return mapDBChange(f, {.anyChange($0)}, change)
+            return mapDBChange(f, HMCDEvent<V2>.anyChange, change)
             
         case .dummy:
             return .dummy
@@ -191,6 +196,18 @@ public enum HMCDEvent<V> {
             }
         })
     }
+    
+    
+    /// Check if the current event is a valid streamable one.
+    public func isValidEvent() -> Bool {
+        switch self {
+        case .dummy:
+            return false
+            
+        default:
+            return true
+        }
+    }
 }
 
 extension HMCDEvent: CustomStringConvertible {
@@ -204,6 +221,7 @@ extension HMCDEvent: CustomStringConvertible {
         case .deleteSection:    return "deleteSection"
         case .moveSection:      return "moveSection"
         case .updateSection:    return "updateSection"
+        case .initialize:       return "initialize"
         case .willChange:       return "willChange"
         case .didChange:        return "didChange"
         case .anyChange:        return "anyChange"

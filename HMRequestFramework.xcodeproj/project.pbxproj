@@ -32,6 +32,8 @@
 		D32F6C1B1F3C1C94004F7133 /* HMCDObjectAliasType.swift in Sources */ = {isa = PBXBuildFile; fileRef = D32F6C1A1F3C1C94004F7133 /* HMCDObjectAliasType.swift */; };
 		D32FF8051F468254005608C0 /* HttpOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = D32FF8041F468253005608C0 /* HttpOperation.swift */; };
 		D333335F1F4F4C45007DE849 /* HMCDEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = D333335E1F4F4C45007DE849 /* HMCDEvent.swift */; };
+		D3351DC41F53BEB2001EC2B1 /* HMCDTypealiasType.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3351DC31F53BEB2001EC2B1 /* HMCDTypealiasType.swift */; };
+		D3351DC61F53C70F001EC2B1 /* DemoSingleton.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3351DC51F53C70F001EC2B1 /* DemoSingleton.swift */; };
 		D33BB3241F469A5900025FD1 /* HMURLComponentProviderType.swift in Sources */ = {isa = PBXBuildFile; fileRef = D33BB3231F469A5900025FD1 /* HMURLComponentProviderType.swift */; };
 		D33BB3271F46A3BF00025FD1 /* HMURLSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = D33BB3261F46A3BF00025FD1 /* HMURLSession.swift */; };
 		D33CAAB11F3C4D9B0000EE13 /* CoreDataRootTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = D33CAAB01F3C4D9B0000EE13 /* CoreDataRootTest.swift */; };
@@ -41,6 +43,9 @@
 		D34DF2941F2C323A0076D6B1 /* HMMiddlewareManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D34DF2931F2C323A0076D6B1 /* HMMiddlewareManager.swift */; };
 		D34DF2971F2C52740076D6B1 /* MiddlewareTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = D34DF2961F2C52740076D6B1 /* MiddlewareTest.swift */; };
 		D34DF2991F2C530F0076D6B1 /* HMMiddlewareManagerType.swift in Sources */ = {isa = PBXBuildFile; fileRef = D34DF2981F2C530F0076D6B1 /* HMMiddlewareManagerType.swift */; };
+		D35186251F552740000517E9 /* HMRequestFramework.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D378D6D41F25E088009B89B2 /* HMRequestFramework.framework */; };
+		D35186261F5527AE000517E9 /* HMRequestFramework.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D378D6D41F25E088009B89B2 /* HMRequestFramework.framework */; };
+		D35186271F5527AE000517E9 /* HMRequestFramework.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = D378D6D41F25E088009B89B2 /* HMRequestFramework.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		D352E2931F3ACA89001FD55E /* HMVersionableType.swift in Sources */ = {isa = PBXBuildFile; fileRef = D352E2921F3ACA89001FD55E /* HMVersionableType.swift */; };
 		D352E2951F3AD700001FD55E /* HMCDManager+Version+Rx.swift in Sources */ = {isa = PBXBuildFile; fileRef = D352E2941F3AD700001FD55E /* HMCDManager+Version+Rx.swift */; };
 		D352E2971F3AD7C3001FD55E /* HMCDManager+Save+Rx.swift in Sources */ = {isa = PBXBuildFile; fileRef = D352E2961F3AD7C3001FD55E /* HMCDManager+Save+Rx.swift */; };
@@ -105,8 +110,8 @@
 		D3B3866B1F4FE52200A641F8 /* HMCDVersionUpdateRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3B3866A1F4FE52200A641F8 /* HMCDVersionUpdateRequest.swift */; };
 		D3B54E071F283BAE006A46E9 /* HMRequestFramework.podspec in Resources */ = {isa = PBXBuildFile; fileRef = D3B54E061F283BAE006A46E9 /* HMRequestFramework.podspec */; };
 		D3C043DD1F3B35CC005948B9 /* HMCDMasterType.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3C043DC1F3B35CC005948B9 /* HMCDMasterType.swift */; };
-		D3C128D41F39F2B5009BCB21 /* HMCDBlockPerformerType.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3C128D31F39F2B5009BCB21 /* HMCDBlockPerformerType.swift */; };
 		D3C2F9CD1F4DF699005E1912 /* HMCDResultController+Rx.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3C2F9CC1F4DF699005E1912 /* HMCDResultController+Rx.swift */; };
+		D3DCDEE91F53B7AF009F8E6B /* HMCDManager+Block.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3DCDEE81F53B7AF009F8E6B /* HMCDManager+Block.swift */; };
 		D3DE120D1F3F7B8700F3C86F /* HMCDResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3DE120C1F3F7B8700F3C86F /* HMCDResult.swift */; };
 		D3E7B51D1F4AFE62009357F5 /* HMTransformers.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3E7B51C1F4AFE62009357F5 /* HMTransformers.swift */; };
 		D3EBB70C1F2BB6C6003CEB5F /* HMNetworkRequestProcessorType.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3EBB70B1F2BB6C6003CEB5F /* HMNetworkRequestProcessorType.swift */; };
@@ -138,6 +143,20 @@
 			remoteInfo = HMRequestFramework;
 		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		D35186281F5527AE000517E9 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				D35186271F5527AE000517E9 /* HMRequestFramework.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		12B8326841E8A569B110AF8A /* Pods-HMRequestFrameworkTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-HMRequestFrameworkTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-HMRequestFrameworkTests/Pods-HMRequestFrameworkTests.release.xcconfig"; sourceTree = "<group>"; };
@@ -171,6 +190,8 @@
 		D32FF8041F468253005608C0 /* HttpOperation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HttpOperation.swift; sourceTree = "<group>"; };
 		D331B6E01F2DEC29009CEDC0 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		D333335E1F4F4C45007DE849 /* HMCDEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMCDEvent.swift; sourceTree = "<group>"; };
+		D3351DC31F53BEB2001EC2B1 /* HMCDTypealiasType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMCDTypealiasType.swift; sourceTree = "<group>"; };
+		D3351DC51F53C70F001EC2B1 /* DemoSingleton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoSingleton.swift; sourceTree = "<group>"; };
 		D33BB3231F469A5900025FD1 /* HMURLComponentProviderType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMURLComponentProviderType.swift; sourceTree = "<group>"; };
 		D33BB3261F46A3BF00025FD1 /* HMURLSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMURLSession.swift; sourceTree = "<group>"; };
 		D33CAAB01F3C4D9B0000EE13 /* CoreDataRootTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataRootTest.swift; sourceTree = "<group>"; };
@@ -246,8 +267,8 @@
 		D3B3866A1F4FE52200A641F8 /* HMCDVersionUpdateRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMCDVersionUpdateRequest.swift; sourceTree = "<group>"; };
 		D3B54E061F283BAE006A46E9 /* HMRequestFramework.podspec */ = {isa = PBXFileReference; lastKnownFileType = text; path = HMRequestFramework.podspec; sourceTree = "<group>"; };
 		D3C043DC1F3B35CC005948B9 /* HMCDMasterType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMCDMasterType.swift; sourceTree = "<group>"; };
-		D3C128D31F39F2B5009BCB21 /* HMCDBlockPerformerType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMCDBlockPerformerType.swift; sourceTree = "<group>"; };
 		D3C2F9CC1F4DF699005E1912 /* HMCDResultController+Rx.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HMCDResultController+Rx.swift"; sourceTree = "<group>"; };
+		D3DCDEE81F53B7AF009F8E6B /* HMCDManager+Block.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HMCDManager+Block.swift"; sourceTree = "<group>"; };
 		D3DE120C1F3F7B8700F3C86F /* HMCDResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMCDResult.swift; sourceTree = "<group>"; };
 		D3E7B51C1F4AFE62009357F5 /* HMTransformers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMTransformers.swift; sourceTree = "<group>"; };
 		D3EBB70B1F2BB6C6003CEB5F /* HMNetworkRequestProcessorType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMNetworkRequestProcessorType.swift; sourceTree = "<group>"; };
@@ -286,7 +307,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D35186251F552740000517E9 /* HMRequestFramework.framework in Frameworks */,
 				9D6384E9EBB1234CADF835D4 /* Pods_HMRequestFramework_Demo.framework in Frameworks */,
+				D35186261F5527AE000517E9 /* HMRequestFramework.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -385,7 +408,6 @@
 		D34767131F5003F1006C8E9E /* protocol */ = {
 			isa = PBXGroup;
 			children = (
-				D3C128D31F39F2B5009BCB21 /* HMCDBlockPerformerType.swift */,
 				D37D0BC81F25F2EE0032C6AB /* HMCDConstructorType.swift */,
 				D375B1731F4DD386007A3B01 /* HMCDFetchedResultRequestType.swift */,
 				D375B1711F4DD2ED007A3B01 /* HMCDFetchRequestType.swift */,
@@ -405,6 +427,7 @@
 				D3B3866A1F4FE52200A641F8 /* HMCDVersionUpdateRequest.swift */,
 				D3206FB81F55C445006AEDDF /* HMCDPaginationProviderType.swift */,
 				D3206FBA1F55C68C006AEDDF /* HMCDPaginationMultipleType.swift */,
+				D3351DC31F53BEB2001EC2B1 /* HMCDTypealiasType.swift */,
 			);
 			path = protocol;
 			sourceTree = "<group>";
@@ -644,6 +667,7 @@
 				D3922E091F26334A004A49B9 /* HMCDStoreURL.swift */,
 				D3757B661F4D8869001935EC /* HMCDResultController.swift */,
 				D3C2F9CC1F4DF699005E1912 /* HMCDResultController+Rx.swift */,
+				D3DCDEE81F53B7AF009F8E6B /* HMCDManager+Block.swift */,
 			);
 			path = stack;
 			sourceTree = "<group>";
@@ -658,6 +682,7 @@
 				D39BDAA81F4E6B5500A397BD /* Info.plist */,
 				D353BE791F5065B6004AD111 /* FRCController.storyboard */,
 				D353BE7C1F5067AA004AD111 /* FRCController.swift */,
+				D3351DC51F53C70F001EC2B1 /* DemoSingleton.swift */,
 			);
 			path = "HMRequestFramework-Demo";
 			sourceTree = "<group>";
@@ -790,6 +815,7 @@
 				D39BDA981F4E6B5500A397BD /* Resources */,
 				F7AD42F9C1FD326D9AB1541F /* [CP] Embed Pods Frameworks */,
 				5AD4D465C0CAA83E24324664 /* [CP] Copy Pods Resources */,
+				D35186281F5527AE000517E9 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -1045,12 +1071,12 @@
 				D352E2951F3AD700001FD55E /* HMCDManager+Version+Rx.swift in Sources */,
 				D3DE120D1F3F7B8700F3C86F /* HMCDResult.swift in Sources */,
 				D399C7F41F4ACFF90083C130 /* HMCDGeneralRequestProcessorType.swift in Sources */,
-				D3C128D41F39F2B5009BCB21 /* HMCDBlockPerformerType.swift in Sources */,
 				D37D0BA21F25E3A00032C6AB /* HMRequestHandlerType.swift in Sources */,
 				D3757B671F4D8869001935EC /* HMCDResultController.swift in Sources */,
 				D3206FBD1F55CA48006AEDDF /* HMCDPagination.swift in Sources */,
 				D37D0BA31F25E3A00032C6AB /* HMRequestProcessorType.swift in Sources */,
 				D3206FBF1F55D596006AEDDF /* HMCDPaginationMode.swift in Sources */,
+				D3351DC41F53BEB2001EC2B1 /* HMCDTypealiasType.swift in Sources */,
 				D37D0BA41F25E3A00032C6AB /* HMResultProcessor.swift in Sources */,
 				D32649721F288EDC000226FA /* HMCDAttributeDescription.swift in Sources */,
 				D33CAAB31F3C50060000EE13 /* HMCDObjectConvertibleType.swift in Sources */,
@@ -1084,6 +1110,7 @@
 				D33BB3271F46A3BF00025FD1 /* HMURLSession.swift in Sources */,
 				D375B1721F4DD2ED007A3B01 /* HMCDFetchRequestType.swift in Sources */,
 				D352E2971F3AD7C3001FD55E /* HMCDManager+Save+Rx.swift in Sources */,
+				D3DCDEE91F53B7AF009F8E6B /* HMCDManager+Block.swift in Sources */,
 				D303E86F1F3AFD1E00123EE7 /* VersionConflict.swift in Sources */,
 				D3206FB91F55C445006AEDDF /* HMCDPaginationProviderType.swift in Sources */,
 				D375B1741F4DD386007A3B01 /* HMCDFetchedResultRequestType.swift in Sources */,
@@ -1153,6 +1180,7 @@
 				D353BE851F507003004AD111 /* Dummy1.swift in Sources */,
 				D39BDA9F1F4E6B5500A397BD /* MainController.swift in Sources */,
 				D353BE7D1F5067AA004AD111 /* FRCController.swift in Sources */,
+				D3351DC61F53C70F001EC2B1 /* DemoSingleton.swift in Sources */,
 				D39BDA9D1F4E6B5500A397BD /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1297,7 +1325,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = FC726CF994EA0A543CC7E354 /* Pods-HMRequestFramework.debug.xcconfig */;
 			buildSettings = {
-				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = 785WJQ47KY;
 				DYLIB_COMPATIBILITY_VERSION = 1;
@@ -1318,7 +1346,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 1C4D7F81135A8CE6E648AE44 /* Pods-HMRequestFramework.release.xcconfig */;
 			buildSettings = {
-				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = 785WJQ47KY;
 				DYLIB_COMPATIBILITY_VERSION = 1;
@@ -1369,6 +1397,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 51CCCE8189DE81D865F6F234 /* Pods-HMRequestFramework-Demo.debug.xcconfig */;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
 				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
@@ -1395,6 +1424,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 72ABE922114B7B6E1A33E39E /* Pods-HMRequestFramework-Demo.release.xcconfig */;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
 				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
