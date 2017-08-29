@@ -8,8 +8,8 @@
 
 /// Default pagination provider class.
 public struct HMCDPagination {
-    fileprivate var cdFetchLimit: Int
-    fileprivate var cdFetchOffset: Int
+    fileprivate var cdFetchLimit: UInt
+    fileprivate var cdFetchOffset: UInt
     fileprivate var cdPaginationMode: HMCDPaginationMode
     
     fileprivate init() {
@@ -36,7 +36,7 @@ extension HMCDPagination: HMBuildableType {
         /// - Parameter fetchLimit: An Int value.
         /// - Returns: The current Builder instance.
         @discardableResult
-        public func with(fetchLimit: Int) -> Self {
+        public func with(fetchLimit: UInt) -> Self {
             pagination.cdFetchLimit = fetchLimit
             return self
         }
@@ -46,7 +46,7 @@ extension HMCDPagination: HMBuildableType {
         /// - Parameter fetchOffset: An Int value.
         /// - Returns: The current Builder instance.
         @discardableResult
-        public func with(fetchOffset: Int) -> Self {
+        public func with(fetchOffset: UInt) -> Self {
             pagination.cdFetchOffset = fetchOffset
             return self
         }
@@ -93,11 +93,11 @@ extension HMCDPagination: HMProtocolConvertibleType {
 }
 
 extension HMCDPagination: HMCDPaginationProviderType {
-    public func fetchLimit() -> Int {
+    public func fetchLimit() -> UInt {
         return cdFetchLimit
     }
     
-    public func fetchOffset() -> Int {
+    public func fetchOffset() -> UInt {
         return cdFetchOffset
     }
     

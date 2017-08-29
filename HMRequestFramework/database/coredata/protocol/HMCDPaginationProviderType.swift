@@ -16,13 +16,13 @@ public protocol HMCDPaginationProviderType: HMCDPaginationMultipleType {
     /// items are fetched from DB every time a stream requests for more data.
     ///
     /// - Returns: An Int value.
-    func fetchLimit() -> Int
+    func fetchLimit() -> UInt
     
     /// Specify the fetch offset for a fetch request. This determines the cut
     /// off at which data start being collected.
     ///
     /// - Returns: An Int value.
-    func fetchOffset() -> Int
+    func fetchOffset() -> UInt
     
     /// Specify the pagination mode.
     ///
@@ -31,21 +31,32 @@ public protocol HMCDPaginationProviderType: HMCDPaginationMultipleType {
 }
 
 public extension HMCDPaginationProviderType {
-    public func fetchLimitWithMultiple(_ multiple: Int) -> Int {
+    public func fetchLimitWithMultiple(_ multiple: UInt) -> UInt {
         let fetchLimit = self.fetchLimit()
         
         switch paginationMode() {
-        case .fixedPageCount: return fetchLimit
-        case .variablePageCount: return fetchLimit * multiple
+        case .fixedPageCount:
+            return fetchLimit
+            
+        case .variablePageCount:
+            return fetchLimit * multiple
         }
     }
     
-    public func fetchOffsetWithMultiple(_ multiple: Int) -> Int {
+    // If paginationMode is fixedPageCount, we need to increment the fetchOffset
+    // by multiples of fetchLimit to simulate page flipping. We also need to
+    // decrement the multiple by 1 because we need the first page's fetchOffset
+    // to be the base fetchOffset (in case the multiple is 0 or larger than 1).
+    public func fetchOffsetWithMultiple(_ multiple: UInt) -> UInt {
         let fetchOffset = self.fetchOffset()
+        let fetchLimit = self.fetchLimit()
         
         switch paginationMode() {
-        case .fixedPageCount: return fetchOffset * multiple
-        case .variablePageCount: return fetchOffset
+        case .fixedPageCount:
+            return fetchOffset + fetchLimit * (Swift.max(multiple, 1) - 1)
+            
+        case .variablePageCount:
+            return fetchOffset
         }
     }
 }

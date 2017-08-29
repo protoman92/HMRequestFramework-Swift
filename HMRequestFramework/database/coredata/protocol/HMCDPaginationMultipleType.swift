@@ -15,11 +15,11 @@ public protocol HMCDPaginationMultipleType {
     ///
     /// - Parameter multiple: An Int value.
     /// - Returns: An Int value.
-    func fetchLimitWithMultiple(_ multiple: Int) -> Int
+    func fetchLimitWithMultiple(_ multiple: UInt) -> UInt
     
     /// Specify the amount with which to increment fetch offset.
     ///
     /// - Parameter multiple: An Int value.
     /// - Returns: An Int value.
-    func fetchOffsetWithMultiple(_ multiple: Int) -> Int
+    func fetchOffsetWithMultiple(_ multiple: UInt) -> UInt
 }

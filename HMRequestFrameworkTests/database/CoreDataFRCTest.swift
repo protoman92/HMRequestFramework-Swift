@@ -180,6 +180,99 @@ public final class CoreDataFRCTest: CoreDataRootTest {
         
         XCTAssertEqual(currentObjects.count, 0)
     }
+    
+    public func test_streamDBEventsWithPagination_shouldWork(_ mode: HMCDPaginationMode) {
+        /// Setup
+        let observer = scheduler.createObserver(Any.self)
+        let streamObserver = scheduler.createObserver(Any.self)
+        let expect = expectation(description: "Should have completed")
+        let disposeBag = self.disposeBag!
+        let dummyCount = 1000
+        let pureObjects = (0..<dummyCount).map({_ in Dummy1()})
+        let sortedPureObjects = pureObjects.sorted(by: {$0.0.id! < $0.1.id!})
+        let dbProcessor = self.dbProcessor!
+        let pageSubject = PublishSubject<Void>()
+        
+        let fetchLimit: UInt = 10
+        let fetchOffset: UInt = 0
+        let pageLoadTimes = dummyCount / Int(fetchLimit)
+        
+        let original = HMCDPagination.builder()
+            .with(fetchLimit: fetchLimit)
+            .with(fetchOffset: fetchOffset)
+            .with(paginationMode: mode)
+            .build()
+    
+        dbProcessor.saveToMemory(Try.success(pureObjects))
+            .flatMap({dbProcessor.persistToDB($0)})
+            .map({$0.map({$0 as Any})})
+            .doOnDispose(expect.fulfill)
+            .subscribe(observer)
+            .disposed(by: disposeBag)
+        
+        waitForExpectations(timeout: timeout, handler: nil)
+        
+        /// When & Then
+        var currentPage: UInt = 0
+        
+        dbProcessor
+            .streamPaginatedDBEvents(Dummy1.self, pageSubject, original, {
+                Observable.just($0.cloneBuilder()
+                    .add(ascendingSortWithKey: "id")
+                    .build())
+            })
+            .map({try $0.getOrThrow()})
+            .flatMap({event -> Observable<DBChange<Dummy1>> in
+                // There is only one initialize event, because we are not
+                // changing/updating anything in the DB. This event contains
+                // only the original, unchanged objects.
+                switch event {
+                case .initialize(let change): return .just(change)
+                default: return .empty()
+                }
+            })
+            .map({$0.objects})
+            .ifEmpty(default: [Dummy1]())
+            .doOnNext({XCTAssertTrue($0.count > 0)})
+            .doOnNext({
+                let count = UInt($0.count)
+                let start: Int
+                let end: Int
+                
+                switch mode {
+                case .fixedPageCount:
+                    start = Int(fetchOffset + (currentPage - 1) * fetchLimit)
+                    end = start + Int(fetchLimit)
+                    XCTAssertEqual(count, fetchLimit)
+                    
+                case .variablePageCount:
+                    start = 0
+                    end = Int(fetchLimit * currentPage)
+                    XCTAssertEqual(count, fetchLimit * currentPage)
+                }
+                
+                let slice = sortedPureObjects[start..<end].map({$0})
+                XCTAssertEqual($0, slice)
+            })
+            .cast(to: Any.self)
+            .subscribe(streamObserver)
+            .disposed(by: disposeBag)
+        
+        for _ in (0..<pageLoadTimes) {
+            currentPage += 1
+            pageSubject.onNext(())
+        }
+        
+        pageSubject.onCompleted()
+    }
+    
+    public func test_streamDBEventsWithFixedPageCount_shouldWork() {
+        test_streamDBEventsWithPagination_shouldWork(.fixedPageCount)
+    }
+    
+    public func test_streamDBEventsWithVariablePageCount_shouldWork() {
+        test_streamDBEventsWithPagination_shouldWork(.variablePageCount)
+    }
 }
 
 public extension CoreDataFRCTest {
