@@ -14,6 +14,10 @@
 		D303E8711F3B1EE600123EE7 /* CoreDataRequestTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = D303E8701F3B1EE600123EE7 /* CoreDataRequestTest.swift */; };
 		D30B85BE1F4FBCC8008F8CD1 /* HMMiddlewareFilters.swift in Sources */ = {isa = PBXBuildFile; fileRef = D30B85BD1F4FBCC8008F8CD1 /* HMMiddlewareFilters.swift */; };
 		D31C58761F278A8A00C8D8CC /* HMProtocolConvertibleType.swift in Sources */ = {isa = PBXBuildFile; fileRef = D31C58751F278A8A00C8D8CC /* HMProtocolConvertibleType.swift */; };
+		D3206FB91F55C445006AEDDF /* HMCDPaginationProviderType.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3206FB81F55C445006AEDDF /* HMCDPaginationProviderType.swift */; };
+		D3206FBB1F55C68C006AEDDF /* HMCDPaginationMultipleType.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3206FBA1F55C68C006AEDDF /* HMCDPaginationMultipleType.swift */; };
+		D3206FBD1F55CA48006AEDDF /* HMCDPagination.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3206FBC1F55CA48006AEDDF /* HMCDPagination.swift */; };
+		D3206FBF1F55D596006AEDDF /* HMCDPaginationMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3206FBE1F55D596006AEDDF /* HMCDPaginationMode.swift */; };
 		D3218AA41F4F2612006BCB66 /* HMIdentifiables.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3218AA31F4F2611006BCB66 /* HMIdentifiables.swift */; };
 		D325C4101F510E1200FC802C /* HMCDSectionInfo+DataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = D325C40F1F510E1200FC802C /* HMCDSectionInfo+DataSource.swift */; };
 		D325C4121F512E1B00FC802C /* HMCDSectionType.swift in Sources */ = {isa = PBXBuildFile; fileRef = D325C4111F512E1B00FC802C /* HMCDSectionType.swift */; };
@@ -148,6 +152,10 @@
 		D303E8701F3B1EE600123EE7 /* CoreDataRequestTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataRequestTest.swift; sourceTree = "<group>"; };
 		D30B85BD1F4FBCC8008F8CD1 /* HMMiddlewareFilters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMMiddlewareFilters.swift; sourceTree = "<group>"; };
 		D31C58751F278A8A00C8D8CC /* HMProtocolConvertibleType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HMProtocolConvertibleType.swift; sourceTree = "<group>"; };
+		D3206FB81F55C445006AEDDF /* HMCDPaginationProviderType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMCDPaginationProviderType.swift; sourceTree = "<group>"; };
+		D3206FBA1F55C68C006AEDDF /* HMCDPaginationMultipleType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMCDPaginationMultipleType.swift; sourceTree = "<group>"; };
+		D3206FBC1F55CA48006AEDDF /* HMCDPagination.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMCDPagination.swift; sourceTree = "<group>"; };
+		D3206FBE1F55D596006AEDDF /* HMCDPaginationMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMCDPaginationMode.swift; sourceTree = "<group>"; };
 		D3218AA31F4F2611006BCB66 /* HMIdentifiables.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HMIdentifiables.swift; sourceTree = "<group>"; };
 		D325C40F1F510E1200FC802C /* HMCDSectionInfo+DataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HMCDSectionInfo+DataSource.swift"; sourceTree = "<group>"; };
 		D325C4111F512E1B00FC802C /* HMCDSectionType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMCDSectionType.swift; sourceTree = "<group>"; };
@@ -327,6 +335,8 @@
 				D353BE871F508CC3004AD111 /* HMCDSection.swift */,
 				D325C40F1F510E1200FC802C /* HMCDSectionInfo+DataSource.swift */,
 				D325C4111F512E1B00FC802C /* HMCDSectionType.swift */,
+				D3206FBC1F55CA48006AEDDF /* HMCDPagination.swift */,
+				D3206FBE1F55D596006AEDDF /* HMCDPaginationMode.swift */,
 			);
 			path = model;
 			sourceTree = "<group>";
@@ -393,6 +403,8 @@
 				D38D24981F3DFED00055E5BA /* HMCDUpsertableType.swift */,
 				D352E29C1F3AF226001FD55E /* HMCDVersionableType.swift */,
 				D3B3866A1F4FE52200A641F8 /* HMCDVersionUpdateRequest.swift */,
+				D3206FB81F55C445006AEDDF /* HMCDPaginationProviderType.swift */,
+				D3206FBA1F55C68C006AEDDF /* HMCDPaginationMultipleType.swift */,
 			);
 			path = protocol;
 			sourceTree = "<group>";
@@ -1036,7 +1048,9 @@
 				D3C128D41F39F2B5009BCB21 /* HMCDBlockPerformerType.swift in Sources */,
 				D37D0BA21F25E3A00032C6AB /* HMRequestHandlerType.swift in Sources */,
 				D3757B671F4D8869001935EC /* HMCDResultController.swift in Sources */,
+				D3206FBD1F55CA48006AEDDF /* HMCDPagination.swift in Sources */,
 				D37D0BA31F25E3A00032C6AB /* HMRequestProcessorType.swift in Sources */,
+				D3206FBF1F55D596006AEDDF /* HMCDPaginationMode.swift in Sources */,
 				D37D0BA41F25E3A00032C6AB /* HMResultProcessor.swift in Sources */,
 				D32649721F288EDC000226FA /* HMCDAttributeDescription.swift in Sources */,
 				D33CAAB31F3C50060000EE13 /* HMCDObjectConvertibleType.swift in Sources */,
@@ -1046,6 +1060,7 @@
 				D34DF2991F2C530F0076D6B1 /* HMMiddlewareManagerType.swift in Sources */,
 				D39BDAB21F4E7AC900A397BD /* HMMiddlewareFilterableType.swift in Sources */,
 				D37D0BA61F25E3A00032C6AB /* HMCDRequestProcessor.swift in Sources */,
+				D3206FBB1F55C68C006AEDDF /* HMCDPaginationMultipleType.swift in Sources */,
 				D3FC61921F2F88430006188D /* HMRequestGenerators.swift in Sources */,
 				D333335F1F4F4C45007DE849 /* HMCDEvent.swift in Sources */,
 				D38D24991F3DFED00055E5BA /* HMCDUpsertableType.swift in Sources */,
@@ -1070,6 +1085,7 @@
 				D375B1721F4DD2ED007A3B01 /* HMCDFetchRequestType.swift in Sources */,
 				D352E2971F3AD7C3001FD55E /* HMCDManager+Save+Rx.swift in Sources */,
 				D303E86F1F3AFD1E00123EE7 /* VersionConflict.swift in Sources */,
+				D3206FB91F55C445006AEDDF /* HMCDPaginationProviderType.swift in Sources */,
 				D375B1741F4DD386007A3B01 /* HMCDFetchedResultRequestType.swift in Sources */,
 				D352E29D1F3AF226001FD55E /* HMCDVersionableType.swift in Sources */,
 				D37D0BAB1F25E3A00032C6AB /* HMCDRequest.swift in Sources */,

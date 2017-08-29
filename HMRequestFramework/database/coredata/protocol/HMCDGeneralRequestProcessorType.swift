@@ -182,6 +182,84 @@ public extension HMCDGeneralRequestProcessorType {
     }
 }
 
+public extension HMCDGeneralRequestProcessorType {
+    
+    /// Start a paginated stream that relies on another Observable to produce
+    /// pagination. Everytime the pagination Observable emits an event, we
+    /// initialize a new stream and unsubscribe from old ones.
+    ///
+    /// - Parameters:
+    ///   - cls: The PO class type.
+    ///   - pageObs: An ObservableConvertibleType instance that emits paginations.
+    ///   - transforms: A Sequence of Request transformers.
+    /// - Returns: An Observable instance.
+    public func streamPaginatedDBEvents<PO,O,S>(_ cls: PO.Type,
+                                                _ pageObs: O,
+                                                _ transforms: S)
+        -> Observable<Try<HMCDEvent<PO>>> where
+        PO: HMCDPureObjectType,
+        PO.CDClass: HMCDPureObjectConvertibleType,
+        PO.CDClass.PureObject == PO,
+        O: ObservableConvertibleType,
+        O.E == HMCDPaginationProviderType,
+        S: Sequence,
+        S.Iterator.Element == HMTransform<HMCDRequest>
+    {
+        return pageObs.asObservable()
+            .flatMapLatest({page -> Observable<Try<HMCDEvent<PO>>> in
+                let pageTransform: HMTransform<HMCDRequest> = {
+                    Observable.just($0.cloneBuilder()
+                        .with(fetchLimit: page.fetchLimit())
+                        .with(fetchOffset: page.fetchOffset())
+                        .build())
+                }
+                
+                let allTransforms = [pageTransform] + transforms
+                return self.streamDBEvents(cls, allTransforms)
+            })
+    }
+    
+    /// Stream events paginated by increments. The most likely uses for this
+    /// method are:
+    ///
+    /// - A stream that gradually increases fetch limit count while keeping
+    ///   fetch offset the same (e.g. a chat application).
+    ///
+    /// - A stream that gradually increases fetch offset while keeping fetch
+    ///   limit the same (e.g. content by page).
+    ///
+    /// - Parameters:
+    ///   - cls: The PO class type.
+    ///   - pageObs: An ObservableConvertibleType instance that emits anything.
+    ///   - pagination: The original HMCDPagination instance.
+    ///   - transforms: A Sequence of Request transformers.
+    /// - Returns: An Observable instance.
+    public func streamPaginatedDBEvents<PO,O,S>(_ cls: PO.Type,
+                                                _ pageObs: O,
+                                                _ pagination: HMCDPagination,
+                                                _ transforms: S)
+        -> Observable<Try<HMCDEvent<PO>>> where
+        PO: HMCDPureObjectType,
+        PO.CDClass: HMCDPureObjectConvertibleType,
+        PO.CDClass.PureObject == PO,
+        O: ObservableConvertibleType,
+        S: Sequence,
+        S.Iterator.Element == HMTransform<HMCDRequest>
+    {
+        let paginationObs = pageObs.asObservable()
+            .map(toVoid)
+            .scan(0, accumulator: {$0.0 + 1})
+            .map({pagination.cloneBuilder()
+                .with(fetchLimit: pagination.fetchLimitWithMultiple($0))
+                .with(fetchOffset: pagination.fetchOffsetWithMultiple($0))
+                .build()
+            })
+            .map({$0.asProtocol()})
+        
+        return streamPaginatedDBEvents(cls, paginationObs, transforms)
+    }
+}
+
 /// Convenience method for varargs.
 public extension HMCDGeneralRequestProcessorType {
     public func fetchAllDataFromDB<Prev,PO>(_ previous: Try<Prev>,
