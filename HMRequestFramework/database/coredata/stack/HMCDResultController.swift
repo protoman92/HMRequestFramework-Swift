@@ -8,6 +8,7 @@
 
 import CoreData
 import RxSwift
+import SwiftUtilities
 
 /// Controller that wraps a NSFetchedResultController and deliver events with
 /// Observable.
@@ -19,6 +20,11 @@ public final class HMCDResultController: NSObject {
     fileprivate let objectChangeSubject: BehaviorSubject<Event>
     fileprivate let sectionChangeSubject: BehaviorSubject<Event>
     var frc: Controller?
+    
+    deinit {
+        // Make sure references are properly disposed of.
+        debugPrint("Deinit \(self)")
+    }
     
     override fileprivate init() {
         dbChangeSubject = BehaviorSubject<Event>(value: .dummy)
@@ -41,6 +47,13 @@ public final class HMCDResultController: NSObject {
         try controller.performFetch()
         let observer = dbChangeObserver()
         observer.onNext(dbChange(controller, Event.initialize))
+    }
+    
+    /// Delete a cache to prepare for streaming.
+    func deleteCache() {
+        if let cacheName = controller().cacheName {
+            Controller.deleteCache(withName: cacheName)
+        }
     }
     
     func eventObservable() -> Observable<Event> {
