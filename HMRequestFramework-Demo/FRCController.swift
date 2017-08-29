@@ -110,7 +110,6 @@ public final class FRCController: UIViewController {
                         .with(sortDescriptors: sorts)
                         .with(frcSectionName: "dummyHeader")
                         .with(frcCacheName: "FRC_Dummy1")
-                        .add(ascendingSortWithKey: "date")
                         .build())
                 }) ?? .empty()
             })

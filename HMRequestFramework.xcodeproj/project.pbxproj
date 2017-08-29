@@ -39,6 +39,9 @@
 		D34DF2941F2C323A0076D6B1 /* HMMiddlewareManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D34DF2931F2C323A0076D6B1 /* HMMiddlewareManager.swift */; };
 		D34DF2971F2C52740076D6B1 /* MiddlewareTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = D34DF2961F2C52740076D6B1 /* MiddlewareTest.swift */; };
 		D34DF2991F2C530F0076D6B1 /* HMMiddlewareManagerType.swift in Sources */ = {isa = PBXBuildFile; fileRef = D34DF2981F2C530F0076D6B1 /* HMMiddlewareManagerType.swift */; };
+		D35186251F552740000517E9 /* HMRequestFramework.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D378D6D41F25E088009B89B2 /* HMRequestFramework.framework */; };
+		D35186261F5527AE000517E9 /* HMRequestFramework.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D378D6D41F25E088009B89B2 /* HMRequestFramework.framework */; };
+		D35186271F5527AE000517E9 /* HMRequestFramework.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = D378D6D41F25E088009B89B2 /* HMRequestFramework.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		D352E2931F3ACA89001FD55E /* HMVersionableType.swift in Sources */ = {isa = PBXBuildFile; fileRef = D352E2921F3ACA89001FD55E /* HMVersionableType.swift */; };
 		D352E2951F3AD700001FD55E /* HMCDManager+Version+Rx.swift in Sources */ = {isa = PBXBuildFile; fileRef = D352E2941F3AD700001FD55E /* HMCDManager+Version+Rx.swift */; };
 		D352E2971F3AD7C3001FD55E /* HMCDManager+Save+Rx.swift in Sources */ = {isa = PBXBuildFile; fileRef = D352E2961F3AD7C3001FD55E /* HMCDManager+Save+Rx.swift */; };
@@ -136,6 +139,20 @@
 			remoteInfo = HMRequestFramework;
 		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		D35186281F5527AE000517E9 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				D35186271F5527AE000517E9 /* HMRequestFramework.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		12B8326841E8A569B110AF8A /* Pods-HMRequestFrameworkTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-HMRequestFrameworkTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-HMRequestFrameworkTests/Pods-HMRequestFrameworkTests.release.xcconfig"; sourceTree = "<group>"; };
@@ -282,7 +299,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D35186251F552740000517E9 /* HMRequestFramework.framework in Frameworks */,
 				9D6384E9EBB1234CADF835D4 /* Pods_HMRequestFramework_Demo.framework in Frameworks */,
+				D35186261F5527AE000517E9 /* HMRequestFramework.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -784,6 +803,7 @@
 				D39BDA981F4E6B5500A397BD /* Resources */,
 				F7AD42F9C1FD326D9AB1541F /* [CP] Embed Pods Frameworks */,
 				5AD4D465C0CAA83E24324664 /* [CP] Copy Pods Resources */,
+				D35186281F5527AE000517E9 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -1289,7 +1309,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = FC726CF994EA0A543CC7E354 /* Pods-HMRequestFramework.debug.xcconfig */;
 			buildSettings = {
-				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = 785WJQ47KY;
 				DYLIB_COMPATIBILITY_VERSION = 1;
@@ -1310,7 +1330,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 1C4D7F81135A8CE6E648AE44 /* Pods-HMRequestFramework.release.xcconfig */;
 			buildSettings = {
-				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = 785WJQ47KY;
 				DYLIB_COMPATIBILITY_VERSION = 1;
@@ -1361,6 +1381,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 51CCCE8189DE81D865F6F234 /* Pods-HMRequestFramework-Demo.debug.xcconfig */;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
 				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
@@ -1387,6 +1408,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 72ABE922114B7B6E1A33E39E /* Pods-HMRequestFramework-Demo.release.xcconfig */;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
 				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
