@@ -87,7 +87,7 @@ extension HMCDPagination.Builder: HMProtocolConvertibleBuilderType {
 extension HMCDPagination: HMProtocolConvertibleType {
     public typealias PTCType = HMCDPaginationProviderType
     
-    public func asProtocol() -> HMCDPaginationProviderType {
+    public func asProtocol() -> PTCType {
         return self
     }
 }

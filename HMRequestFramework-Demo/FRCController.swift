@@ -32,7 +32,8 @@ public final class FRCController: UIViewController {
     @IBOutlet private weak var frcTableView: UITableView!
     @IBOutlet private weak var scrollView: UIScrollView!
     
-    private let dummyCount = 1000
+    private let dummyCount = 100
+    private let overscrollThreshold: CGFloat = 100
     private let dateMilestone = Date.random() ?? Date()
     
     private lazy var settings: [(NSPredicate, [NSSortDescriptor])] = [
@@ -69,17 +70,33 @@ public final class FRCController: UIViewController {
             let updateRandomBtn = self.updateRandomBtn,
             let deleteRandomBtn = self.deleteRandomBtn,
             let deleteAllBtn = self.deleteAllBtn,
-            let segmentedCtrl = self.segmentedCtrl
+            let segmentedCtrl = self.segmentedCtrl,
+            let scrollView = self.scrollView
         else {
             return
         }
         
         let disposeBag = self.disposeBag
+        let overscrollThreshold = self.overscrollThreshold
         let dummyCount = self.dummyCount
         let settings = self.settings
         let dbProcessor = DemoSingleton.dbProcessor
         self.dbProcessor = dbProcessor
         dateFormatter.dateFormat = "dd/MMMM/yyyy hh:mm:ss a"
+        
+        /// Scroll view setup
+        
+        let pageObs = Observable<HMCursorDirection>
+            .merge(
+                scrollView.rx.didEndDragging
+                    .withLatestFrom(scrollView.rx.contentOffset)
+                    .map({$0.y})
+                    .filter({Swift.abs($0) > overscrollThreshold})
+                    .map({Int($0)})
+                    .map({HMCursorDirection(from: $0)})
+                    .startWith(.forward)
+                    .delay(0.8, scheduler: MainScheduler.instance)
+            )
         
         /// Segmented control setup.
         
@@ -94,36 +111,6 @@ public final class FRCController: UIViewController {
         segmentedCtrl.addTarget(self,
                                 action: #selector(self.segmentChanged(_:)),
                                 for: .valueChanged)
-
-        currentSegment.asObservable()
-            .filter({$0 > -1})
-            .map(settings.element)
-            .map({try $0.asTry().getOrThrow()})
-            .flatMapLatest({
-                [weak self] setting -> Observable<Try<HMCDEvent<Dummy1>>> in
-                let predicate = setting.0
-                let sorts = setting.1
-                
-                return self?.dbProcessor?.streamDBEvents(Dummy1.self, {
-                    Observable.just($0.cloneBuilder()
-                        .with(predicate: predicate)
-                        .with(sortDescriptors: sorts)
-                        .with(frcSectionName: "dummyHeader")
-                        .with(frcCacheName: "FRC_Dummy1")
-                        .build())
-                }) ?? .empty()
-            })
-            .map({try $0.getOrThrow()})
-            .flatMap({(event) -> Observable<DBLevel<Dummy1>> in
-                switch event {
-                case .didLoad(let change): return Observable.just(change)
-                default: return .empty()
-                }
-            })
-            .map({$0.sections.map({$0.animated()})})
-            .catchErrorJustReturn([])
-            .bind(to: data)
-            .disposed(by: disposeBag)
         
         /// Table View setup.
         
@@ -223,6 +210,45 @@ public final class FRCController: UIViewController {
                 self?.dbProcessor?.persistToDB($0)
             })
             .subscribe()
+            .disposed(by: disposeBag)
+        
+        /// Data source setup
+        
+        currentSegment.asObservable()
+            .filter({$0 > -1})
+            .map(settings.element)
+            .map({try $0.asTry().getOrThrow()})
+            .flatMapLatest({
+                [weak self] setting -> Observable<Try<HMCDEvent<Dummy1>>> in
+                let predicate = setting.0
+                let sorts = setting.1
+                
+                return self?.dbProcessor?.streamPaginatedDBEvents(
+                    Dummy1.self, pageObs,
+                    HMCDPagination.builder()
+                        .with(fetchLimit: 5)
+                        .with(fetchOffset: 0)
+                        .with(paginationMode: .variablePageCount)
+                        .build(),
+                    {
+                        Observable.just($0.cloneBuilder()
+                            .with(predicate: predicate)
+                            .with(sortDescriptors: sorts)
+                            .with(frcSectionName: "dummyHeader")
+                            .with(frcCacheName: "FRC_Dummy1")
+                            .build())
+                    }) ?? .empty()
+            })
+            .map({try $0.getOrThrow()})
+            .flatMap({(event) -> Observable<DBLevel<Dummy1>> in
+                switch event {
+                case .didLoad(let change): return Observable.just(change)
+                default: return .empty()
+                }
+            })
+            .map({$0.sections.map({$0.animated()})})
+            .catchErrorJustReturn([])
+            .bind(to: data)
             .disposed(by: disposeBag)
     }
     

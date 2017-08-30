@@ -279,28 +279,36 @@ public extension HMCDGeneralRequestProcessorType {
     ///   - pagination: The original HMCDPagination instance.
     ///   - transforms: A Sequence of Request transformers.
     /// - Returns: An Observable instance.
-    public func streamPaginatedDBEvents<PO,O,PG,S>(_ cls: PO.Type,
-                                                   _ pageObs: O,
-                                                   _ pagination: HMCDPagination,
-                                                   _ transforms: S)
+    public func streamPaginatedDBEvents<PO,O,S>(_ cls: PO.Type,
+                                                _ pageObs: O,
+                                                _ pagination: HMCDPagination,
+                                                _ transforms: S)
         -> Observable<Try<HMCDEvent<PO>>> where
         PO: HMCDPureObjectType,
         PO.CDClass: HMCDPureObjectConvertibleType,
         PO.CDClass.PureObject == PO,
         O: ObservableConvertibleType,
-        O.E == PG,
+        O.E == HMCursorDirection,
         S: Sequence,
         S.Iterator.Element == HMTransform<HMCDRequest>
     {
         let paginationObs = pageObs.asObservable()
-            .map(toVoid)
-            .scan(0, accumulator: {$0.0 + 1})
+            
+            // The cursor direction specifies whether to go forward or backwards.
+            .map({$0.rawValue})
+            
+            // We want to minimum page number to be 1 so that it's easier to
+            // produce a positive fetch limit when multiplied with this. If the
+            // min is 0, we may need to do extra work to ensure the limit is
+            // larger than 0.
+            .scan(0, accumulator: {Swift.max($0.0 + 1 * $0.1, 1)})
             .map({UInt($0)})
             .map({pagination.cloneBuilder()
                 .with(fetchLimit: pagination.fetchLimitWithMultiple($0))
                 .with(fetchOffset: pagination.fetchOffsetWithMultiple($0))
                 .build()
             })
+            .logNext()
             .map({$0.asProtocol()})
         
         return streamPaginatedDBEvents(cls, paginationObs, transforms)
@@ -416,17 +424,16 @@ public extension HMCDGeneralRequestProcessorType {
         return streamDBEvents(cls, transforms)
     }
     
-    public func streamPaginatedDBEvents<PO,PG,O>(
-        _ cls: PO.Type,
-        _ pageObs: O,
-        _ pagination: HMCDPagination,
-        _ transforms: HMTransform<HMCDRequest>...)
+    public func streamPaginatedDBEvents<PO,O>(_ cls: PO.Type,
+                                              _ pageObs: O,
+                                              _ pagination: HMCDPagination,
+                                              _ transforms: HMTransform<HMCDRequest>...)
         -> Observable<Try<HMCDEvent<PO>>> where
         PO: HMCDPureObjectType,
         PO.CDClass: HMCDPureObjectConvertibleType,
         PO.CDClass.PureObject == PO,
         O: ObservableConvertibleType,
-        O.E == PG
+        O.E == HMCursorDirection
     {
         return streamPaginatedDBEvents(cls, pageObs, pagination, transforms)
     }
