@@ -75,7 +75,9 @@ public enum HMCDOperation: EnumerableType {
             .deleteBatch,
             .saveData,
             .persistLocally,
-            .upsert
+            .upsert,
+            .resetStack,
+            .stream
         ]
     }
 }

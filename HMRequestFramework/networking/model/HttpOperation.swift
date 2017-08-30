@@ -16,7 +16,7 @@ public enum HttpOperation: EnumerableType {
     case upload
     
     public static func allValues() -> [HttpOperation] {
-        return [.get, .post, .head, .put]
+        return [.get, .post, .head, .put, .upload]
     }
     
     public func method() -> String {
