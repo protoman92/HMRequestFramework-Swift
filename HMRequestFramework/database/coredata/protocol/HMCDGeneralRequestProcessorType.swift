@@ -293,25 +293,33 @@ public extension HMCDGeneralRequestProcessorType {
         S.Iterator.Element == HMTransform<HMCDRequest>
     {
         let paginationObs = pageObs.asObservable()
-            
-            // The cursor direction specifies whether to go forward or backwards.
-            .map({$0.rawValue})
+            .catchErrorJustReturn(.remain)
             
             // We want to minimum page number to be 1 so that it's easier to
             // produce a positive fetch limit when multiplied with this. If the
             // min is 0, we may need to do extra work to ensure the limit is
             // larger than 0.
-            .scan(0, accumulator: {Swift.max($0.0 + 1 * $0.1, 1)})
+            .scan(0, accumulator: self.currentPage)
+            .distinctUntilChanged()
             .map({UInt($0)})
             .map({pagination.cloneBuilder()
                 .with(fetchLimit: pagination.fetchLimitWithMultiple($0))
                 .with(fetchOffset: pagination.fetchOffsetWithMultiple($0))
                 .build()
             })
-            .logNext()
             .map({$0.asProtocol()})
         
         return streamPaginatedDBEvents(cls, paginationObs, transforms)
+    }
+    
+    /// Get the current page based on the cursor direction.
+    ///
+    /// - Parameters:
+    ///   - accumulator: The previous page number.
+    ///   - direction: A HMCursorDirection instance.
+    /// - Returns: An Int value.
+    func currentPage(_ accumulator: Int, _ direction: HMCursorDirection) -> Int {
+        return Swift.max(accumulator + 1 * direction.rawValue, 1)
     }
 }
 

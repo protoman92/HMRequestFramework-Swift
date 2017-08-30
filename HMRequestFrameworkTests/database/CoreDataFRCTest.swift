@@ -23,7 +23,7 @@ public final class CoreDataFRCTest: CoreDataRootTest {
     override public func setUp() {
         super.setUp()
         iterationCount = 5
-        dummyCount = 3
+        dummyCount = 100
     }
     
     public func test_streamDBInsertsWithProcessor_shouldWork() {
@@ -43,7 +43,6 @@ public final class CoreDataFRCTest: CoreDataRootTest {
         
         /// When
         processor.streamDBEvents(Dummy1.self)
-            .logNext()
             .doOnNext({_ in callCount += 1})
             .map({try $0.getOrThrow()})
             .doOnNext({
@@ -112,7 +111,6 @@ public final class CoreDataFRCTest: CoreDataRootTest {
         
         /// When
         frc.rx.startStream(Dummy1.self)
-            .logNext()
             .doOnNext({_ in callCount += 1})
             .doOnNext({
                 switch $0 {
@@ -181,17 +179,36 @@ public final class CoreDataFRCTest: CoreDataRootTest {
     
     public func test_streamDBEventsWithPagination_shouldWork(_ mode: HMCDPaginationMode) {
         /// Setup
-        let observer = scheduler.createObserver(Any.self)
+        let observer = scheduler.createObserver(Dummy1.self)
         let streamObserver = scheduler.createObserver(Any.self)
         let expect = expectation(description: "Should have completed")
         let disposeBag = self.disposeBag!
         let dummyCount = 1000
         let pureObjects = (0..<dummyCount).map({_ in Dummy1()})
-        let sortedPureObjects = pureObjects.sorted(by: {$0.0.id! < $0.1.id!})
         let dbProcessor = self.dbProcessor!
-        let pageSubject = PublishSubject<Void>()
+    
+        dbProcessor.saveToMemory(Try.success(pureObjects))
+            .flatMap({dbProcessor.persistToDB($0)})
+            .flatMap({dbProcessor.fetchAllDataFromDB($0, Dummy1.self)})
+            .map({try $0.getOrThrow()})
+            .flattenSequence()
+            .doOnDispose(expect.fulfill)
+            .subscribe(observer)
+            .disposed(by: disposeBag)
         
-        let fetchLimit: UInt = 10
+        waitForExpectations(timeout: timeout, handler: nil)
+        let nextElements = observer.nextElements()
+        XCTAssertEqual(nextElements.count, pureObjects.count)
+        XCTAssertTrue(pureObjects.all(nextElements.contains))
+        
+        // Here comes the actual streams.
+        let sortedPureObjects = pureObjects.sorted(by: {$0.0.id! < $0.1.id!})
+        let pageSubject = BehaviorSubject<HMCursorDirection>(value: .remain)
+        var currentPage: UInt = 0
+        var direction: HMCursorDirection = .forward
+        var callCount = 0
+        
+        let fetchLimit: UInt = 50
         let fetchOffset: UInt = 0
         let pageLoadTimes = dummyCount / Int(fetchLimit)
         
@@ -200,19 +217,8 @@ public final class CoreDataFRCTest: CoreDataRootTest {
             .with(fetchOffset: fetchOffset)
             .with(paginationMode: mode)
             .build()
-    
-        dbProcessor.saveToMemory(Try.success(pureObjects))
-            .flatMap({dbProcessor.persistToDB($0)})
-            .map({$0.map({$0 as Any})})
-            .doOnDispose(expect.fulfill)
-            .subscribe(observer)
-            .disposed(by: disposeBag)
         
-        waitForExpectations(timeout: timeout, handler: nil)
-        
-        /// When & Then
-        var currentPage: UInt = 0
-        
+        /// When
         dbProcessor
             .streamPaginatedDBEvents(Dummy1.self, pageSubject, original, {
                 Observable.just($0.cloneBuilder()
@@ -231,6 +237,8 @@ public final class CoreDataFRCTest: CoreDataRootTest {
             })
             .map({$0.objects})
             .ifEmpty(default: [Dummy1]())
+            .doOnNext({_ in callCount += 1})
+            .doOnNext({_ in print("Current page \(currentPage)")})
             .doOnNext({XCTAssertTrue($0.count > 0)})
             .doOnNext({
                 let count = UInt($0.count)
@@ -253,15 +261,32 @@ public final class CoreDataFRCTest: CoreDataRootTest {
                 XCTAssertEqual($0, slice)
             })
             .cast(to: Any.self)
+            .delay(0.5, scheduler: MainScheduler.instance)
+            .subscribeOn(qos: .background)
             .subscribe(streamObserver)
             .disposed(by: disposeBag)
         
-        for _ in (0..<pageLoadTimes) {
-            currentPage += 1
-            pageSubject.onNext(())
+        for _ in (0...pageLoadTimes) {
+            let oldPage = Int(currentPage)
+            direction = HMCursorDirection.randomValue()!
+            currentPage = UInt(dbProcessor.currentPage(oldPage, direction))
+            pageSubject.onNext(direction)
+            
+            _ = try? Observable<Int>
+                .timer(0.8, scheduler: MainScheduler.instance)
+                .toBlocking()
+                .first()
         }
         
         pageSubject.onCompleted()
+        
+        /// Then
+        let nextStreamElements = streamObserver.nextElements()
+        XCTAssertTrue(nextStreamElements.count > 0)
+        
+        // Call count may be different from pageLoadTimes because repeat events
+        // are discarded until changed.
+        XCTAssertTrue(callCount > 0)
     }
     
     public func test_streamDBEventsWithFixedPageCount_shouldWork() {

@@ -308,7 +308,6 @@ public extension CoreDataManagerTest {
         waitForExpectations(timeout: timeout, handler: nil)
         
         /// Then
-        print(observer.events)
         let elements = observer.nextElements()
         XCTAssertEqual(elements.count, 0)
     }

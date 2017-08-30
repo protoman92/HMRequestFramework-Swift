@@ -24,7 +24,6 @@ public final class FRCController: UIViewController {
     typealias DataSource = TableViewSectionedDataSource<Section>
     typealias RxDataSource = RxTableViewSectionedAnimatedDataSource<Section>
     
-    @IBOutlet private weak var segmentedCtrl: UISegmentedControl!
     @IBOutlet private weak var insertBtn: UIButton!
     @IBOutlet private weak var updateRandomBtn: UIButton!
     @IBOutlet private weak var deleteRandomBtn: UIButton!
@@ -36,22 +35,11 @@ public final class FRCController: UIViewController {
     private let overscrollThreshold: CGFloat = 100
     private let dateMilestone = Date.random() ?? Date()
     
-    private lazy var settings: [(NSPredicate, [NSSortDescriptor])] = [
-        (NSPredicate(value: true),
-         [NSSortDescriptor(key: "date", ascending: true)]),
-        
-        (NSPredicate(format: "%K > %@", "date", self.dateMilestone as NSDate),
-         [NSSortDescriptor(key: "int64", ascending: false)]),
-        
-        (NSPredicate(format: "%K < %@", "date", self.dateMilestone as NSDate), [])
-    ]
-    
     private var contentHeight: NSLayoutConstraint? {
         return view?.constraints.first(where: {$0.identifier == "contentHeight"})
     }
     
     private var data: Variable<[Section]> = Variable([])
-    private var currentSegment: Variable<Int> = Variable(-1)
     private let disposeBag: DisposeBag = DisposeBag()
     
     private var dbProcessor: HMCDRequestProcessor?
@@ -70,7 +58,6 @@ public final class FRCController: UIViewController {
             let updateRandomBtn = self.updateRandomBtn,
             let deleteRandomBtn = self.deleteRandomBtn,
             let deleteAllBtn = self.deleteAllBtn,
-            let segmentedCtrl = self.segmentedCtrl,
             let scrollView = self.scrollView
         else {
             return
@@ -79,7 +66,6 @@ public final class FRCController: UIViewController {
         let disposeBag = self.disposeBag
         let overscrollThreshold = self.overscrollThreshold
         let dummyCount = self.dummyCount
-        let settings = self.settings
         let dbProcessor = DemoSingleton.dbProcessor
         self.dbProcessor = dbProcessor
         dateFormatter.dateFormat = "dd/MMMM/yyyy hh:mm:ss a"
@@ -94,23 +80,10 @@ public final class FRCController: UIViewController {
                     .filter({Swift.abs($0) > overscrollThreshold})
                     .map({Int($0)})
                     .map({HMCursorDirection(from: $0)})
-                    .startWith(.forward)
+                    .startWith(.remain)
                     .delay(0.8, scheduler: MainScheduler.instance)
             )
-        
-        /// Segmented control setup.
-        
-        segmentedCtrl.removeAllSegments()
-        
-        for (index, (predicate, _)) in settings.enumerated() {
-            segmentedCtrl.insertSegment(withTitle: predicate.description,
-                                        at: index,
-                                        animated: true)
-        }
-        
-        segmentedCtrl.addTarget(self,
-                                action: #selector(self.segmentChanged(_:)),
-                                for: .valueChanged)
+            .observeOn(MainScheduler.instance)
         
         /// Table View setup.
         
@@ -213,32 +186,24 @@ public final class FRCController: UIViewController {
             .disposed(by: disposeBag)
         
         /// Data source setup
-        
-        currentSegment.asObservable()
-            .filter({$0 > -1})
-            .map(settings.element)
-            .map({try $0.asTry().getOrThrow()})
-            .flatMapLatest({
-                [weak self] setting -> Observable<Try<HMCDEvent<Dummy1>>> in
-                let predicate = setting.0
-                let sorts = setting.1
                 
-                return self?.dbProcessor?.streamPaginatedDBEvents(
-                    Dummy1.self, pageObs,
-                    HMCDPagination.builder()
-                        .with(fetchLimit: 5)
-                        .with(fetchOffset: 0)
-                        .with(paginationMode: .variablePageCount)
-                        .build(),
-                    {
-                        Observable.just($0.cloneBuilder()
-                            .with(predicate: predicate)
-                            .with(sortDescriptors: sorts)
-                            .with(frcSectionName: "dummyHeader")
-                            .with(frcCacheName: "FRC_Dummy1")
-                            .build())
-                    }) ?? .empty()
-            })
+        dbProcessor
+            .streamPaginatedDBEvents(
+                Dummy1.self, pageObs,
+                HMCDPagination.builder()
+                    .with(fetchLimit: 5)
+                    .with(fetchOffset: 0)
+                    .with(paginationMode: .fixedPageCount)
+                    .build(),
+                {
+                    Observable.just($0.cloneBuilder()
+                        .with(predicate: NSPredicate(value: true))
+                        .add(ascendingSortWithKey: "date")
+                        .with(frcSectionName: "dummyHeader")
+                        .with(frcCacheName: "FRC_Dummy1")
+                        .build())
+                }
+            )
             .map({try $0.getOrThrow()})
             .flatMap({(event) -> Observable<DBLevel<Dummy1>> in
                 switch event {
@@ -250,10 +215,6 @@ public final class FRCController: UIViewController {
             .catchErrorJustReturn([])
             .bind(to: data)
             .disposed(by: disposeBag)
-    }
-    
-    func segmentChanged(_ control: UISegmentedControl) {
-        currentSegment.value = control.selectedSegmentIndex
     }
     
     func contentSizeChanged(_ ctSize: CGSize, _ vc: FRCController) {

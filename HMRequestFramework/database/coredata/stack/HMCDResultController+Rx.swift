@@ -6,7 +6,9 @@
 //  Copyright © 2017 Holmusk. All rights reserved.
 //
 
+import CoreData
 import RxSwift
+import SwiftUtilities
 
 extension Reactive where Base: HMCDResultController {
     
@@ -41,8 +43,8 @@ extension Reactive where Base: HMCDResultController {
         PO.CDClass.PureObject == PO
     {
         return Observable<Void>
-            .create({
-                self.startStream($0)
+            .create({obs in
+                self.startStream(obs)
                 return Disposables.create()
             })
             

@@ -38,7 +38,7 @@ extension HMCDSection where V: Equatable, V: IdentifiableType {
 
 /// Instead of asking HMCDSection to implement AnimatableSectionModelType, we
 /// can delegate that to a subtype. This is because the FRC requires the section
-/// objects to be of type Any at first when delegate methods are called.
+/// objects to be of Any generics at first when delegate methods are called.
 public struct HMCDAnimatableSection<V: Equatable & IdentifiableType> {
     public let indexTitle: String?
     public let name: String

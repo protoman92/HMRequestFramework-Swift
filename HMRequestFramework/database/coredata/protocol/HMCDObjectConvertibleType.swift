@@ -27,9 +27,7 @@ public extension HMCDObjectConvertibleType where
     Self: HMCDObjectBuildableType,
     Self.Builder.Buildable == Self
 {
-    public func asManagedObject(_ context: Context) throws
-        -> NSManagedObject
-    {
+    public func asManagedObject(_ context: Context) throws -> NSManagedObject {
         return try cloneBuilder(context).build()
     }
 }
@@ -41,9 +39,7 @@ public extension HMCDObjectConvertibleType where
     Self.CDClass: HMCDObjectBuildableType,
     Self.CDClass.Builder.PureObject == Self
 {
-    public func asManagedObject(_ context: Context) throws
-        -> NSManagedObject
-    {
+    public func asManagedObject(_ context: Context) throws -> NSManagedObject {
         return try CDClass.builder(context).with(pureObject: self).build()
     }
 }

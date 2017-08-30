@@ -20,6 +20,7 @@ import SwiftUtilities
 /// - resetStack: Wipe DB and reset the stack.
 /// - stream: Stream DB changes.
 public enum HMCDOperation: EnumerableType {
+    
     // For this operation, the request should contain:
     //  - entityName
     //  - operation

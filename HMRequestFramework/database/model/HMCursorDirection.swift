@@ -6,6 +6,8 @@
 //  Copyright © 2017 Holmusk. All rights reserved.
 //
 
+import SwiftUtilities
+
 /// In a paginated DB stream, this enum provides a means to determine backward
 /// or forward pagination.
 ///
@@ -29,5 +31,11 @@ public enum HMCursorDirection: Int {
         } else {
             self = .remain
         }
+    }
+}
+
+extension HMCursorDirection: EnumerableType {
+    public static func allValues() -> [HMCursorDirection] {
+        return [.backward, .remain, .forward]
     }
 }

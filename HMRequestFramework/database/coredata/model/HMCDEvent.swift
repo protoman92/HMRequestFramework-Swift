@@ -27,7 +27,6 @@ public typealias SectionLevel<V> = (
 
 /// Use this enum to represent stream events from CoreData.
 ///
-/// - initialize: Used when the stream is first initialized.
 /// - willLoad: Used when the underlying DB is about to change data.
 /// - didLoad: Used when the underlying DB has changed data.
 /// - anyChange: Used when there is any change in the DB.
