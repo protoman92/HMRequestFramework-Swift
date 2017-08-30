@@ -295,7 +295,7 @@ public extension HMCDGeneralRequestProcessorType {
         let paginationObs = pageObs.asObservable()
             .map(toVoid)
             .scan(0, accumulator: {$0.0 + 1})
-            .map(UInt.init)
+            .map({UInt($0)})
             .map({pagination.cloneBuilder()
                 .with(fetchLimit: pagination.fetchLimitWithMultiple($0))
                 .with(fetchOffset: pagination.fetchOffsetWithMultiple($0))

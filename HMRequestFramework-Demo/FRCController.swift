@@ -32,7 +32,7 @@ public final class FRCController: UIViewController {
     @IBOutlet private weak var frcTableView: UITableView!
     @IBOutlet private weak var scrollView: UIScrollView!
     
-    private let dummyCount = 10
+    private let dummyCount = 1000
     private let dateMilestone = Date.random() ?? Date()
     
     private lazy var settings: [(NSPredicate, [NSSortDescriptor])] = [
@@ -114,10 +114,9 @@ public final class FRCController: UIViewController {
                 }) ?? .empty()
             })
             .map({try $0.getOrThrow()})
-            .flatMap({(event) -> Observable<DBChange<Dummy1>> in
+            .flatMap({(event) -> Observable<DBLevel<Dummy1>> in
                 switch event {
-                case .initialize(let change): return Observable.just(change)
-                case .didChange(let change): return Observable.just(change)
+                case .didLoad(let change): return Observable.just(change)
                 default: return .empty()
                 }
             })
@@ -307,10 +306,10 @@ public final class FRCController: UIViewController {
         let tableView = vc.frcTableView!
         
         switch event {
-        case .willChange:
+        case .willLoad:
             tableView.beginUpdates()
             
-        case .didChange:
+        case .didLoad:
             tableView.endUpdates()
             
         case .insert(let change):

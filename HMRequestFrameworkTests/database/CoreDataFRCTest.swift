@@ -22,8 +22,8 @@ public final class CoreDataFRCTest: CoreDataRootTest {
     
     override public func setUp() {
         super.setUp()
-        iterationCount = 20
-        dummyCount = 100
+        iterationCount = 5
+        dummyCount = 3
     }
     
     public func test_streamDBInsertsWithProcessor_shouldWork() {
@@ -37,25 +37,24 @@ public final class CoreDataFRCTest: CoreDataRootTest {
         var allDummies: [Dummy1] = []
         
         var callCount = 0
-        var initializeCount = 0
-        var willChangeCount = 0
-        var didChangeCount = 0
+        var willLoadCount = 0
+        var didLoadCount = 0
         var insertCount = 0
         
         /// When
         processor.streamDBEvents(Dummy1.self)
+            .logNext()
             .doOnNext({_ in callCount += 1})
             .map({try $0.getOrThrow()})
             .doOnNext({
                 switch $0 {
-                case .initialize: initializeCount += 1
-                case .didChange: didChangeCount += 1
-                case .willChange: willChangeCount += 1
+                case .didLoad: didLoadCount += 1
+                case .willLoad: willLoadCount += 1
                 case .insert: insertCount += 1
                 default: break
                 }
             })
-            .doOnNext({self.validateDidChange($0, {allDummies.all($0.contains)})})
+            .doOnNext({self.validateDidLoad($0, {allDummies.all($0.contains)})})
             .doOnNext({self.validateInsert($0)})
             .cast(to: Any.self)
             .subscribe(frcObserver)
@@ -68,17 +67,17 @@ public final class CoreDataFRCTest: CoreDataRootTest {
         
         waitForExpectations(timeout: timeout, handler: nil)
         
-        // Then
+        /// Then
         XCTAssertTrue(callCount >= iterationCount)
-        XCTAssertEqual(initializeCount, 1)
-        XCTAssertEqual(didChangeCount, iterationCount)
-        XCTAssertEqual(willChangeCount, iterationCount)
+        
+        // Initialize event adds 1 to the count.
+        XCTAssertEqual(didLoadCount, iterationCount + 1)
+        XCTAssertEqual(willLoadCount, iterationCount + 1)
         XCTAssertEqual(insertCount, iterationCount * dummyCount)
         
         XCTAssertEqual(callCount, 0 +
-            initializeCount +
-            didChangeCount +
-            willChangeCount +
+            didLoadCount +
+            willLoadCount +
             insertCount)
     }
     
@@ -99,12 +98,11 @@ public final class CoreDataFRCTest: CoreDataRootTest {
         let dummyCount = self.dummyCount!
         var originalObjects: [Dummy1] = []
         
-        // The willChange and didChange counts will be higher than update count
+        // The willLoad and didLoad counts will be higher than update count
         // because they apply to inserts and deletes as well.
         var callCount = 0
-        var initializeCount = 0
-        var willChangeCount = 0
-        var didChangeCount = 0
+        var willLoadCount = 0
+        var didLoadCount = 0
         var insertCount = 0
         var insertSectionCount = 0
         var updateCount = 0
@@ -114,12 +112,12 @@ public final class CoreDataFRCTest: CoreDataRootTest {
         
         /// When
         frc.rx.startStream(Dummy1.self)
+            .logNext()
             .doOnNext({_ in callCount += 1})
             .doOnNext({
                 switch $0 {
-                case .initialize: initializeCount += 1
-                case .willChange: willChangeCount += 1
-                case .didChange: didChangeCount += 1
+                case .willLoad: willLoadCount += 1
+                case .didLoad: didLoadCount += 1
                 case .insert: insertCount += 1
                 case .insertSection: insertSectionCount += 1
                 case .update: updateCount += 1
@@ -129,7 +127,7 @@ public final class CoreDataFRCTest: CoreDataRootTest {
                 default: break
                 }
             })
-            .doOnNext({self.validateDidChange($0)})
+            .doOnNext({self.validateDidLoad($0)})
             .doOnNext({self.validateInsert($0)})
             .doOnNext(self.validateInsertSection)
             .doOnNext({self.validateUpdate(
@@ -156,9 +154,10 @@ public final class CoreDataFRCTest: CoreDataRootTest {
         /// Then
         let currentObjects = frc.currentObjects(Dummy1.self)
         XCTAssertTrue(callCount > iterationCount)
-        XCTAssertEqual(initializeCount, 1)
-        XCTAssertEqual(willChangeCount, iterationCount + 2)
-        XCTAssertEqual(didChangeCount, iterationCount + 2)
+        
+        // Initialize event adds 1 to the count.
+        XCTAssertEqual(willLoadCount, iterationCount + 3)
+        XCTAssertEqual(didLoadCount, iterationCount + 3)
         XCTAssertEqual(insertCount, dummyCount)
         XCTAssertEqual(insertSectionCount, dummyCount)
         XCTAssertEqual(updateCount, iterationCount * dummyCount)
@@ -167,9 +166,8 @@ public final class CoreDataFRCTest: CoreDataRootTest {
         XCTAssertEqual(deleteSectionCount, dummyCount)
         
         XCTAssertEqual(callCount, 0 +
-            initializeCount +
-            willChangeCount +
-            didChangeCount +
+            willLoadCount +
+            didLoadCount +
             insertCount +
             insertSectionCount +
             updateCount +
@@ -222,12 +220,12 @@ public final class CoreDataFRCTest: CoreDataRootTest {
                     .build())
             })
             .map({try $0.getOrThrow()})
-            .flatMap({event -> Observable<DBChange<Dummy1>> in
+            .flatMap({event -> Observable<DBLevel<Dummy1>> in
                 // There is only one initialize event, because we are not
                 // changing/updating anything in the DB. This event contains
                 // only the original, unchanged objects.
                 switch event {
-                case .initialize(let change): return .just(change)
+                case .didLoad(let change): return .just(change)
                 default: return .empty()
                 }
             })
@@ -276,9 +274,9 @@ public final class CoreDataFRCTest: CoreDataRootTest {
 }
 
 public extension CoreDataFRCTest {
-    func validateDidChange(_ event: HMCDEvent<Dummy1>,
+    func validateDidLoad(_ event: HMCDEvent<Dummy1>,
                            _ asserts: (([Dummy1]) -> Bool)...) {
-        if case .didChange(let change) = event {
+        if case .didLoad(let change) = event {
             let sections = change.sections
             let objects = change.objects
             XCTAssertTrue(asserts.map({$0(objects)}).all({$0}))

@@ -16,9 +16,9 @@ public final class HMCDResultController: NSObject {
     public typealias Event = HMCDEvent<Any>
     public typealias Result = NSFetchRequestResult
     public typealias Controller = NSFetchedResultsController<Result>
-    fileprivate let dbChangeSubject: BehaviorSubject<Event>
-    fileprivate let objectChangeSubject: BehaviorSubject<Event>
-    fileprivate let sectionChangeSubject: BehaviorSubject<Event>
+    fileprivate let dbLevelSubject: BehaviorSubject<Event>
+    fileprivate let objectLevelSubject: BehaviorSubject<Event>
+    fileprivate let sectionLevelSubject: BehaviorSubject<Event>
     var frc: Controller?
     
     deinit {
@@ -27,9 +27,9 @@ public final class HMCDResultController: NSObject {
     }
     
     override fileprivate init() {
-        dbChangeSubject = BehaviorSubject<Event>(value: .dummy)
-        objectChangeSubject = BehaviorSubject<Event>(value: .dummy)
-        sectionChangeSubject = BehaviorSubject<Event>(value: .dummy)
+        dbLevelSubject = BehaviorSubject<Event>(value: .dummy)
+        objectLevelSubject = BehaviorSubject<Event>(value: .dummy)
+        sectionLevelSubject = BehaviorSubject<Event>(value: .dummy)
         super.init()
     }
     
@@ -37,16 +37,6 @@ public final class HMCDResultController: NSObject {
     /// set-ups.
     fileprivate func onInstanceBuilt() {
         frc?.delegate = self
-    }
-    
-    /// Start events stream.
-    ///
-    /// - Throws: Exception if the stream cannot be started.
-    func startStream() throws {
-        let controller = self.controller()
-        try controller.performFetch()
-        let observer = dbChangeObserver()
-        observer.onNext(dbChange(controller, Event.initialize))
     }
     
     /// Delete a cache to prepare for streaming.
@@ -59,23 +49,23 @@ public final class HMCDResultController: NSObject {
     func eventObservable() -> Observable<Event> {
         return Observable
             .merge(
-                dbChangeSubject,
-                objectChangeSubject,
-                sectionChangeSubject
+                dbLevelSubject,
+                objectLevelSubject,
+                sectionLevelSubject
             )
             .filter({$0.isValidEvent()})
     }
     
-    func dbChangeObserver() -> AnyObserver<Event> {
-        return dbChangeSubject.asObserver()
+    func dbLevelObserver() -> AnyObserver<Event> {
+        return dbLevelSubject.asObserver()
     }
     
-    func objectChangeObserver() -> AnyObserver<Event> {
-        return objectChangeSubject.asObserver()
+    func objectLevelObserver() -> AnyObserver<Event> {
+        return objectLevelSubject.asObserver()
     }
     
-    func sectionChangeObserver() -> AnyObserver<Event> {
-        return sectionChangeSubject.asObserver()
+    func sectionLevelObserver() -> AnyObserver<Event> {
+        return sectionLevelSubject.asObserver()
     }
     
     /// Get the current objects as identified by the fetch request in DB.
@@ -153,8 +143,8 @@ extension HMCDResultController: NSFetchedResultsControllerDelegate {
     /// an update block for their view. Providing an empty implementation will
     /// enable change tracking if you do not care about the individual callbacks.
     public func controllerDidChangeContent(_ controller: Controller) {
-        let observer = dbChangeObserver()
-        let event = dbChange(controller, Event.didChange)
+        let observer = dbLevelObserver()
+        let event = dbLevel(controller, Event.didLoad)
         observer.onNext(event)
     }
     
@@ -166,9 +156,8 @@ extension HMCDResultController: NSFetchedResultsControllerDelegate {
     /// Clients may prepare for a batch of updates by using this method to begin
     /// an update block for their view.
     public func controllerWillChangeContent(_ controller: Controller) {
-        let observer = dbChangeObserver()
-        let event = dbChange(controller, Event.willChange)
-        observer.onNext(event)
+        let observer = dbLevelObserver()
+        observer.onNext(Event.willLoad)
     }
     
     /// Asks the delegate to return the corresponding section index entry for a
@@ -216,8 +205,8 @@ extension HMCDResultController: NSFetchedResultsControllerDelegate {
                            at indexPath: IndexPath?,
                            for type: NSFetchedResultsChangeType,
                            newIndexPath: IndexPath?) {
-        let observer = objectChangeObserver()
-        let event = Event.objectChange(type, anObject, indexPath, newIndexPath)
+        let observer = objectLevelObserver()
+        let event = Event.objectLevel(type, anObject, indexPath, newIndexPath)
         observer.onNext(event)
     }
     
@@ -236,8 +225,8 @@ extension HMCDResultController: NSFetchedResultsControllerDelegate {
                            didChange sectionInfo: NSFetchedResultsSectionInfo,
                            atSectionIndex sectionIndex: Int,
                            for type: NSFetchedResultsChangeType) {
-        let observer = sectionChangeObserver()
-        let event = Event.sectionChange(type, sectionInfo, sectionIndex)
+        let observer = sectionLevelObserver()
+        let event = Event.sectionLevel(type, sectionInfo, sectionIndex)
         observer.onNext(event)
     }
     
@@ -245,10 +234,10 @@ extension HMCDResultController: NSFetchedResultsControllerDelegate {
     ///
     /// - Parameter controller: A Controller instance.
     /// - Returns: An Event instance.
-    fileprivate func dbChange(_ controller: Controller,
-                              _ mapper: (DBChange<Any>) -> Event) -> Event {
-        return Event.dbChange(controller.sections,
-                              controller.fetchedObjects,
-                              mapper)
+    func dbLevel(_ controller: Controller,
+                 _ mapper: (DBLevel<Any>) -> Event) -> Event {
+        return Event.dbLevel(controller.sections,
+                             controller.fetchedObjects,
+                             mapper)
     }
 }

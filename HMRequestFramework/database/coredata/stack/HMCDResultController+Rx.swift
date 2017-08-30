@@ -10,6 +10,27 @@ import RxSwift
 
 extension Reactive where Base: HMCDResultController {
     
+    /// Start events stream and observe the process.
+    ///
+    /// - Parameter obs: An ObserverType instance.
+    /// - Throws: Exception if the stream cannot be started.
+    private func startStream<O>(_ obs: O) where O: ObserverType, O.E == Void {
+        base.deleteCache()
+        let controller = base.controller()
+        let dbLevelObserver = base.dbLevelObserver()
+        dbLevelObserver.onNext(Base.Event.willLoad)
+        
+        do {
+            try controller.performFetch()
+            obs.onNext(())
+            obs.onCompleted()
+        } catch let e {
+            obs.onError(e)
+        }
+        
+        dbLevelObserver.onNext(base.dbLevel(controller, Base.Event.didLoad))
+    }
+    
     /// Start the stream.
     ///
     /// - Parameter cls: The PO class type.
@@ -19,22 +40,15 @@ extension Reactive where Base: HMCDResultController {
         PO.CDClass: HMCDPureObjectConvertibleType,
         PO.CDClass.PureObject == PO
     {
-        let base = self.base
-        
         return Observable<Void>
             .create({
-                base.deleteCache()
-                
-                do {
-                    try base.startStream()
-                    $0.onNext(())
-                    $0.onCompleted()
-                } catch let e {
-                    $0.onError(e)
-                }
-                
+                self.startStream($0)
                 return Disposables.create()
             })
+            
+            // If we subscribe on a background thread, there might be unexpected
+            // behaviors due to different threading.
+            .subscribeOn(MainScheduler.instance)
             .flatMap({self.streamEvents(cls)})
     }
     
