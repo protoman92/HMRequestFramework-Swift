@@ -7,24 +7,23 @@ def allPods
 end
 
 target 'HMRequestFramework' do
-  # Comment the next line if you're not using Swift and don't want to use dynamic frameworks
-  use_frameworks!
+    # Comment the next line if you're not using Swift and don't want to use dynamic frameworks
+    use_frameworks!
 
-  # Pods for HMRequestFramework
-  allPods
-
-  target 'HMRequestFrameworkTests' do
-    inherit! :search_paths
-    # Pods for testing
+    # Pods for HMRequestFramework
     allPods
-    pod 'SwiftUtilitiesTests/Main'
-  end
-  
-  target 'HMRequestFramework-Demo' do
-      inherit! :search_paths
-      # Pods for testing
-      allPods
-      
-  end
 
+    target 'HMRequestFrameworkTests' do
+        inherit! :search_paths
+        # Pods for testing
+        allPods
+        pod 'SwiftUtilitiesTests/Main'
+    end
+    
+    target 'HMRequestFramework-Demo' do
+        inherit! :search_paths
+        # Pods for testing
+        allPods
+        pod 'SwiftUIUtilities/Main', git: 'https://github.com/protoman92/SwiftUIUtilities.git'
+    end
 end

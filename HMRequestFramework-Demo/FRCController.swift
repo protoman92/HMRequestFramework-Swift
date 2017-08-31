@@ -11,6 +11,7 @@ import HMRequestFramework
 import RxDataSources
 import RxSwift
 import SwiftUtilities
+import SwiftUIUtilities
 
 extension CDDummy1 {
     public func dummyHeader() -> String {
@@ -32,7 +33,6 @@ public final class FRCController: UIViewController {
     @IBOutlet private weak var scrollView: UIScrollView!
     
     private let dummyCount = 100
-    private let overscrollThreshold: CGFloat = 100
     private let dateMilestone = Date.random() ?? Date()
     
     private var contentHeight: NSLayoutConstraint? {
@@ -64,21 +64,18 @@ public final class FRCController: UIViewController {
         }
         
         let disposeBag = self.disposeBag
-        let overscrollThreshold = self.overscrollThreshold
         let dummyCount = self.dummyCount
         let dbProcessor = DemoSingleton.dbProcessor
         self.dbProcessor = dbProcessor
-        dateFormatter.dateFormat = "dd/MMMM/yyyy hh:mm:ss a"
+        dateFormatter.dateFormat = "dd/MMM/yyyy hh:mm:ss a"
         
         /// Scroll view setup
         
         let pageObs = Observable<HMCursorDirection>
             .merge(
-                scrollView.rx.didEndDragging
-                    .withLatestFrom(scrollView.rx.contentOffset)
-                    .map({$0.y})
-                    .filter({Swift.abs($0) > overscrollThreshold})
-                    .map({Int($0)})
+                scrollView.rx
+                    .didOverscroll(threshold: 120, directions: .up, .down)
+                    .map({$0.rawValue})
                     .map({HMCursorDirection(from: $0)})
                     .startWith(.remain)
                     .delay(0.8, scheduler: MainScheduler.instance)
@@ -91,17 +88,13 @@ public final class FRCController: UIViewController {
         frcTableView.setEditing(true, animated: true)
         frcTableView.rx.setDelegate(self).disposed(by: disposeBag)
         
-        frcTableView.rx.observe(CGSize.self, "contentSize")
-            .distinctUntilChanged({$0.0 == $0.1})
-            .map({$0.asTry()})
-            .map({try $0.getOrThrow()})
+        frcTableView.rx.contentSize()
             .doOnNext({[weak self] in
                 if let `self` = self {
                     self.contentSizeChanged($0, self)
                 }
             })
             .map(toVoid)
-            .catchErrorJustReturn(())
             .subscribe()
             .disposed(by: disposeBag)
         
