@@ -34,7 +34,7 @@ EXTERNAL SOURCES:
 
 CHECKOUT OPTIONS:
   SwiftUIUtilities:
-    :commit: bd25e3213d8df43b12dbdb7fc42fe4d9861764ad
+    :commit: f4ea921fc18de669bb72ac6ed63d21b5063417d8
     :git: https://github.com/protoman92/SwiftUIUtilities.git
   SwiftUtilities:
     :commit: 010ab36071fccf2e7e20448ba874b7a0face97cd

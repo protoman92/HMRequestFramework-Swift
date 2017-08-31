@@ -74,11 +74,12 @@ public final class FRCController: UIViewController {
         let pageObs = Observable<HMCursorDirection>
             .merge(
                 scrollView.rx
-                    .didOverscroll(threshold: 120, directions: .up, .down)
+                    .didOverscroll(threshold: 100, directions: .up, .down)
+                    .debounce(0.6, scheduler: MainScheduler.instance)
                     .map({$0.rawValue})
                     .map({HMCursorDirection(from: $0)})
                     .startWith(.remain)
-                    .delay(0.8, scheduler: MainScheduler.instance)
+                    .delay(0.5, scheduler: MainScheduler.instance)
             )
             .observeOn(MainScheduler.instance)
         
@@ -88,7 +89,7 @@ public final class FRCController: UIViewController {
         frcTableView.setEditing(true, animated: true)
         frcTableView.rx.setDelegate(self).disposed(by: disposeBag)
         
-        frcTableView.rx.contentSize()
+        frcTableView.rx.contentSize
             .doOnNext({[weak self] in
                 if let `self` = self {
                     self.contentSizeChanged($0, self)
