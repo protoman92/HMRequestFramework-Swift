@@ -23,7 +23,7 @@ public final class CoreDataFRCTest: CoreDataRootTest {
     override public func setUp() {
         super.setUp()
         iterationCount = 5
-        dummyCount = 100
+        dummyCount = 1000
     }
     
     public func test_streamDBInsertsWithProcessor_shouldWork() {
@@ -39,6 +39,8 @@ public final class CoreDataFRCTest: CoreDataRootTest {
         var callCount = 0
         var willLoadCount = 0
         var didLoadCount = 0
+        var willChangeCount = 0
+        var didChangeCount = 0
         var insertCount = 0
         
         /// When
@@ -49,6 +51,8 @@ public final class CoreDataFRCTest: CoreDataRootTest {
                 switch $0 {
                 case .didLoad: didLoadCount += 1
                 case .willLoad: willLoadCount += 1
+                case .didChange: didChangeCount += 1
+                case .willChange: willChangeCount += 1
                 case .insert: insertCount += 1
                 default: break
                 }
@@ -72,12 +76,17 @@ public final class CoreDataFRCTest: CoreDataRootTest {
         // Initialize event adds 1 to the count.
         XCTAssertEqual(didLoadCount, iterationCount + 1)
         XCTAssertEqual(willLoadCount, iterationCount + 1)
+        XCTAssertEqual(didChangeCount, iterationCount)
+        XCTAssertEqual(willChangeCount, iterationCount)
         XCTAssertEqual(insertCount, iterationCount * dummyCount)
         
-        XCTAssertEqual(callCount, 0 +
-            didLoadCount +
-            willLoadCount +
-            insertCount)
+        XCTAssertEqual(callCount, 0
+            + didLoadCount
+            + willLoadCount
+            + didChangeCount
+            + willChangeCount
+            + insertCount
+        )
     }
     
     // For this test, we are introducing section events as well, so we need
@@ -102,6 +111,8 @@ public final class CoreDataFRCTest: CoreDataRootTest {
         var callCount = 0
         var willLoadCount = 0
         var didLoadCount = 0
+        var willChangeCount = 0
+        var didChangeCount = 0
         var insertCount = 0
         var insertSectionCount = 0
         var updateCount = 0
@@ -116,6 +127,8 @@ public final class CoreDataFRCTest: CoreDataRootTest {
                 switch $0 {
                 case .willLoad: willLoadCount += 1
                 case .didLoad: didLoadCount += 1
+                case .willChange: willChangeCount += 1
+                case .didChange: didChangeCount += 1
                 case .insert: insertCount += 1
                 case .insertSection: insertSectionCount += 1
                 case .update: updateCount += 1
@@ -153,7 +166,10 @@ public final class CoreDataFRCTest: CoreDataRootTest {
         let currentObjects = frc.currentObjects(Dummy1.self)
         XCTAssertTrue(callCount > iterationCount)
         
-        // Initialize event adds 1 to the count.
+        // Initialize event adds 1 to the count, and so did delete event. That's
+        // why we add 2 to the iterationCount.
+        XCTAssertEqual(willChangeCount, iterationCount + 2)
+        XCTAssertEqual(didChangeCount, iterationCount + 2)
         XCTAssertEqual(willLoadCount, iterationCount + 3)
         XCTAssertEqual(didLoadCount, iterationCount + 3)
         XCTAssertEqual(insertCount, dummyCount)
@@ -163,15 +179,17 @@ public final class CoreDataFRCTest: CoreDataRootTest {
         XCTAssertEqual(deleteCount, dummyCount)
         XCTAssertEqual(deleteSectionCount, dummyCount)
         
-        XCTAssertEqual(callCount, 0 +
-            willLoadCount +
-            didLoadCount +
-            insertCount +
-            insertSectionCount +
-            updateCount +
-            updateSectionCount +
-            deleteCount +
-            deleteSectionCount
+        XCTAssertEqual(callCount, 0
+            + willLoadCount
+            + didLoadCount
+            + willChangeCount
+            + didChangeCount
+            + insertCount
+            + insertSectionCount
+            + updateCount
+            + updateSectionCount
+            + deleteCount
+            + deleteSectionCount
         )
         
         XCTAssertEqual(currentObjects.count, 0)

@@ -25,10 +25,22 @@ public typealias SectionLevel<V> = (
     sectionIndex: Int
 )
 
-/// Use this enum to represent stream events from CoreData.
+/// Use this enum to represent stream events from CoreData. There are two ways
+/// we can use these events to represent DB data:
+///
+/// - Only subscribe to didLoad, and whenever data arrives, reload the view or
+///   diff the data set to detect changes and animate them. This is suitable
+///   for smaller data set.
+///
+/// - Subscribe to all events and treat them as if we were using FRC delegate.
+///   E.g. when willChange arrives we begin updating the view, and stop doing
+///   so upon didChange. The other events carry information about the specific
+///   objects/sections that have changed.
 ///
 /// - willLoad: Used when the underlying DB is about to change data.
 /// - didLoad: Used when the underlying DB has changed data.
+/// - willChange: Used when the data set is about to change.
+/// - didChange: Used when the data set has just changed.
 /// - anyChange: Used when there is any change in the DB.
 /// - insert: Used when some objects were inserted.
 /// - delete: Used when some objects were deleted.
@@ -42,6 +54,8 @@ public typealias SectionLevel<V> = (
 public enum HMCDEvent<V> {
     case willLoad
     case didLoad(DBLevel<V>)
+    case willChange
+    case didChange
     case insert(ObjectLevel<V>)
     case delete(ObjectLevel<V>)
     case move(ObjectLevel<V>)
@@ -169,6 +183,12 @@ public enum HMCDEvent<V> {
         case .didLoad(let change):
             return mapDBLevel(f, HMCDEvent<V2>.didLoad, change)
             
+        case .willChange:
+            return .willChange
+            
+        case .didChange:
+            return .didChange
+            
         case .dummy:
             return .dummy
         }
@@ -214,6 +234,8 @@ extension HMCDEvent: CustomStringConvertible {
         case .updateSection:    return "updateSection"
         case .willLoad:         return "willLoad"
         case .didLoad:          return "didLoad"
+        case .willChange:       return "willChange"
+        case .didChange:        return "didChange"
         case .dummy:            return "dummy"
         }
     }
