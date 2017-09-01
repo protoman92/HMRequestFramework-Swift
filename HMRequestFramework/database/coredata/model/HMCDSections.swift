@@ -15,7 +15,7 @@ public final class HMCDSections {
     ///   - sections: A Sequence of HMCDSectionType.
     ///   - indexPath: An IndexPath instance.
     /// - Returns: A ST.V instance.
-    public func object<ST,S>(_ sections: S, _ indexPath: IndexPath) -> ST.V? where
+    public static func object<ST,S>(_ sections: S, _ indexPath: IndexPath) -> ST.V? where
         ST: HMCDSectionType,
         S: Sequence,
         S.Iterator.Element == ST
@@ -25,4 +25,6 @@ public final class HMCDSections {
         let row = indexPath.row
         return sections.element(at: section)?.objects.element(at: row)
     }
+    
+    private init() {}
 }
