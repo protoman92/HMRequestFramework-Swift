@@ -29,6 +29,7 @@
 		D32995531F2CC8DD00715932 /* MockRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = D32995521F2CC8DD00715932 /* MockRequest.swift */; };
 		D32995551F2CC9BB00715932 /* RequestHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = D32995541F2CC9BB00715932 /* RequestHandler.swift */; };
 		D32D1C071F2DA7F5005099D2 /* BuildableTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = D32D1C061F2DA7F5005099D2 /* BuildableTest.swift */; };
+		D32E78021F59229400A60D50 /* HMCDSections.swift in Sources */ = {isa = PBXBuildFile; fileRef = D32E78011F59229400A60D50 /* HMCDSections.swift */; };
 		D32F6C1B1F3C1C94004F7133 /* HMCDObjectAliasType.swift in Sources */ = {isa = PBXBuildFile; fileRef = D32F6C1A1F3C1C94004F7133 /* HMCDObjectAliasType.swift */; };
 		D32FF8051F468254005608C0 /* HttpOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = D32FF8041F468253005608C0 /* HttpOperation.swift */; };
 		D333335F1F4F4C45007DE849 /* HMCDEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = D333335E1F4F4C45007DE849 /* HMCDEvent.swift */; };
@@ -190,6 +191,7 @@
 		D32995521F2CC8DD00715932 /* MockRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockRequest.swift; sourceTree = "<group>"; };
 		D32995541F2CC9BB00715932 /* RequestHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RequestHandler.swift; sourceTree = "<group>"; };
 		D32D1C061F2DA7F5005099D2 /* BuildableTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BuildableTest.swift; sourceTree = "<group>"; };
+		D32E78011F59229400A60D50 /* HMCDSections.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMCDSections.swift; sourceTree = "<group>"; };
 		D32F6C1A1F3C1C94004F7133 /* HMCDObjectAliasType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMCDObjectAliasType.swift; sourceTree = "<group>"; };
 		D32FF8041F468253005608C0 /* HttpOperation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HttpOperation.swift; sourceTree = "<group>"; };
 		D331B6E01F2DEC29009CEDC0 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
@@ -361,13 +363,13 @@
 			children = (
 				D333335E1F4F4C45007DE849 /* HMCDEvent.swift */,
 				D37D0B701F25E1BE0032C6AB /* HMCDOperation.swift */,
+				D3206FBC1F55CA48006AEDDF /* HMCDPagination.swift */,
+				D3206FBE1F55D596006AEDDF /* HMCDPaginationMode.swift */,
 				D37D0B721F25E1BE0032C6AB /* HMCDRequest.swift */,
 				D3DE120C1F3F7B8700F3C86F /* HMCDResult.swift */,
 				D353BE871F508CC3004AD111 /* HMCDSection.swift */,
 				D325C40F1F510E1200FC802C /* HMCDSectionInfo+DataSource.swift */,
-				D325C4111F512E1B00FC802C /* HMCDSectionType.swift */,
-				D3206FBC1F55CA48006AEDDF /* HMCDPagination.swift */,
-				D3206FBE1F55D596006AEDDF /* HMCDPaginationMode.swift */,
+				D32E78011F59229400A60D50 /* HMCDSections.swift */,
 			);
 			path = model;
 			sourceTree = "<group>";
@@ -428,15 +430,16 @@
 				D32F6C1A1F3C1C94004F7133 /* HMCDObjectAliasType.swift */,
 				D33CAAB21F3C50060000EE13 /* HMCDObjectConvertibleType.swift */,
 				D398B7941F265CAC00DCE4D8 /* HMCDObjectType.swift */,
+				D3206FBA1F55C68C006AEDDF /* HMCDPaginationMultipleType.swift */,
+				D3206FB81F55C445006AEDDF /* HMCDPaginationProviderType.swift */,
 				D37D0B711F25E1BE0032C6AB /* HMCDPureObjectType.swift */,
 				D37D0B6D1F25E1BE0032C6AB /* HMCDRequestProcessorType.swift */,
 				D37D0B731F25E1BE0032C6AB /* HMCDRequestType.swift */,
+				D325C4111F512E1B00FC802C /* HMCDSectionType.swift */,
+				D3351DC31F53BEB2001EC2B1 /* HMCDTypealiasType.swift */,
 				D38D24981F3DFED00055E5BA /* HMCDUpsertableType.swift */,
 				D352E29C1F3AF226001FD55E /* HMCDVersionableType.swift */,
 				D3B3866A1F4FE52200A641F8 /* HMCDVersionUpdateRequest.swift */,
-				D3206FB81F55C445006AEDDF /* HMCDPaginationProviderType.swift */,
-				D3206FBA1F55C68C006AEDDF /* HMCDPaginationMultipleType.swift */,
-				D3351DC31F53BEB2001EC2B1 /* HMCDTypealiasType.swift */,
 			);
 			path = protocol;
 			sourceTree = "<group>";
@@ -1108,6 +1111,7 @@
 				D38D24991F3DFED00055E5BA /* HMCDUpsertableType.swift in Sources */,
 				D37D0BA71F25E3A00032C6AB /* HMCDRequestProcessorType.swift in Sources */,
 				D34DF2941F2C323A0076D6B1 /* HMMiddlewareManager.swift in Sources */,
+				D32E78021F59229400A60D50 /* HMCDSections.swift in Sources */,
 				D37D0BA81F25E3A00032C6AB /* HMCDResultProcessor.swift in Sources */,
 				D3C043DD1F3B35CC005948B9 /* HMCDMasterType.swift in Sources */,
 				D34DF2921F2C2D740076D6B1 /* HMMiddleware.swift in Sources */,
