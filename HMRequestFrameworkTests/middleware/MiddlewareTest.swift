@@ -84,11 +84,7 @@ public final class MiddlewareTest: RootTest {
             .build()
         
         let generator = HMRequestGenerators.forceGn(request, Any.self)
-        
-        let perform: (MockRequest) throws -> Observable<Try<Void>> = {_ in
-            return Observable.just(Try.success(()))
-        }
-        
+        let perform = HMRequestPerformers.eqPerformer(MockRequest.self)
         let handler = RequestHandler(requestMiddlewareManager: rqmManager)
         
         /// When
@@ -207,11 +203,11 @@ public final class MiddlewareTest: RootTest {
             .shouldApplyMiddlewares()
             .build()
         
-        let generator: HMAnyRequestGenerator<HMNetworkRequest> = {_ in
+        let generator: HMRequestGenerator<Any,HMNetworkRequest> = {_ in
             Observable.just(Try.success(request))
         }
         
-        let processor: HMEQResultProcessor<Any> = HMResultProcessors.eqProcessor()
+        let processor = HMResultProcessors.eqProcessor(Any.self)
         let headers = ["Key1" : "Value1"]
         
         // We set this as a side effect to verify that the method was called.

@@ -30,13 +30,11 @@ public final class RequestTest: RootTest {
         let observer = scheduler.createObserver(Try<Any>.self)
         let expect = expectation(description: "Should have completed")
         
-        let generator: HMAnyRequestGenerator<MockRequest> = {
+        let generator: HMRequestGenerator<Any,MockRequest> = {
             _ in throw Exception(message)
         }
         
-        let perform: (Any) throws -> Observable<Try<Any>> = {
-            return Observable.just(Try.success($0))
-        }
+        let perform = HMRequestPerformers.eqPerformer(Any.self)
         
         /// When
         handler.execute(dummy, generator, perform)
@@ -68,13 +66,11 @@ public final class RequestTest: RootTest {
             Observable.error("This error should be ignored")
         })
         
-        let generator2: HMAnyRequestGenerator<MockRequest> = {
+        let generator2: HMRequestGenerator<Any,MockRequest> = {
             _ in throw Exception(message)
         }
         
-        let perform: (Any) throws -> Observable<Try<Any>> = {
-            return Observable.just(Try.success($0))
-        }
+        let perform = HMRequestPerformers.eqPerformer(Any.self)
         
         /// When
         handler.execute(previous, generator1, perform)
@@ -108,7 +104,7 @@ public final class RequestTest: RootTest {
         let expect = expectation(description: "Should have completed")
         
         // Multiple requests
-        let generator: HMAnyRequestGenerator<MockRequest> = {_ in
+        let generator: HMRequestGenerator<Any,MockRequest> = {_ in
             return Observable.range(start: 0, count: times)
                 .map({
                     if $0.isEven {
@@ -121,7 +117,7 @@ public final class RequestTest: RootTest {
         }
         
         // Multiple failures
-        let perform: (MockRequest) -> Observable<Try<Any>> = {
+        let perform: HMRequestPerformer<MockRequest,Any> = {
             Observable.just(Try<MockRequest>.success($0))
                 .map({try $0.getOrThrow()})
                 .flatMap({(request) -> Observable<MockRequest> in

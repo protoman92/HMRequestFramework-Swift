@@ -9,9 +9,6 @@
 import RxSwift
 import SwiftUtilities
 
-public typealias HMAnyRequestGenerator<Req> = HMRequestGenerator<Any,Req>
-public typealias HMVoidRequestGenerator<Req> = HMRequestGenerator<Void,Req>
-
 /// Common request generators.
 public final class HMRequestGenerators {
     
@@ -27,10 +24,17 @@ public final class HMRequestGenerators {
             .catchErrorJustReturn(Try<Req>.failure)}
     }
     
+    /// Create a request generator from a simple map function.
+    public static func forceGn<Prev,Req>(_ f: @escaping (Prev) throws -> Req)
+        -> HMRequestGenerator<Prev,Req>
+    {
+        return forceGn({try Observable.just(f($0))})
+    }
+    
     /// Create a request generator just from a request object, ignoring the
     /// previous value completely.
     public static func forceGn<Prev,Req>(_ request: Req) -> HMRequestGenerator<Prev,Req> {
-        return forceGn({_ in Observable.just(request)})
+        return forceGn({_ in request})
     }
     
     /// Create a request generator just from a request object, ignoring the
@@ -39,7 +43,7 @@ public final class HMRequestGenerators {
     public static func forceGn<Prev,Req>(_ request: Req, _ pcls: Prev.Type)
         -> HMRequestGenerator<Prev,Req>
     {
-        return forceGn({_ in Observable.just(request)})
+        return forceGn(request)
     }
     
     /// Create a request generator from a request object and some transformers.

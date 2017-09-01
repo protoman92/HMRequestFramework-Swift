@@ -41,7 +41,6 @@ public typealias SectionLevel<V> = (
 /// - didLoad: Used when the underlying DB has changed data.
 /// - willChange: Used when the data set is about to change.
 /// - didChange: Used when the data set has just changed.
-/// - anyChange: Used when there is any change in the DB.
 /// - insert: Used when some objects were inserted.
 /// - delete: Used when some objects were deleted.
 /// - move: Used when some objects were moved.

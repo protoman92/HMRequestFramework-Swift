@@ -25,10 +25,10 @@ public extension HMRequestHandlerType {
     ///
     /// - Parameters:
     ///   - previous: The result of the upstream request.
-    ///   - generator: Generator function to create the current request.
+    ///   - generator: A HMRequestGenerator instance.
     /// - Returns: An Observable instance.
     func request<Prev>(_ previous: Try<Prev>,
-                 _ generator: @escaping HMRequestGenerator<Prev,Req>)
+                       _ generator: @escaping HMRequestGenerator<Prev,Req>)
         -> Observable<Try<Req>>
     {
         return Observable.just(previous)
@@ -41,13 +41,12 @@ public extension HMRequestHandlerType {
     ///
     /// - Parameters:
     ///   - previous: The result of the upstream request.
-    ///   - generator: Generator function to create the current request.
-    ///   - perform: Execution method.
+    ///   - generator: A HMRequestGenerator instance.
+    ///   - perform: A HMRequestPerformer instance.
     /// - Returns: An Observable instance.
-    public func execute<Prev,Val>(
-        _ previous: Try<Prev>,
-        _ generator: @escaping (Try<Prev>) throws -> Observable<Try<Req>>,
-        _ perform: @escaping (Req) throws -> Observable<Try<Val>>)
+    public func execute<Prev,Val>(_ previous: Try<Prev>,
+                                  _ generator: @escaping HMRequestGenerator<Prev,Req>,
+                                  _ perform: @escaping HMRequestPerformer<Req,Val>)
         -> Observable<Try<Val>>
     {
         return request(previous, generator)

@@ -473,7 +473,7 @@ extension CoreDataRequestTest {
     
     func dummy1UpsertRgn(_ data: [Dummy1.CDClass],
                          _ strategy: VersionConflict.Strategy)
-        -> HMAnyRequestGenerator<Req>
+        -> HMRequestGenerator<Any,Req>
     {
         let request = dummy1UpsertRequest(data, strategy)
         return HMRequestGenerators.forceGn(request, Any.self)
@@ -490,13 +490,13 @@ extension CoreDataRequestTest {
             .build()
     }
 
-    func dummyMemoryDeleteRgn(_ data: [HMCDObjectConvertibleType]) -> HMAnyRequestGenerator<Req> {
+    func dummyMemoryDeleteRgn(_ data: [HMCDObjectConvertibleType]) -> HMRequestGenerator<Any,Req> {
         return HMRequestGenerators.forceGn(dummyMemoryDeleteRequest(data))
     }
 }
 
 extension CoreDataRequestTest {
-    func errorDBRgn() -> HMAnyRequestGenerator<Req> {
+    func errorDBRgn() -> HMRequestGenerator<Any,Req> {
         return {_ in throw Exception(self.generatorError)}
     }
 

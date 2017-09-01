@@ -1,5 +1,5 @@
 //
-//  HMRequest.swift
+//  HMRequestType.swift
 //  HMRequestFramework
 //
 //  Created by Hai Pham on 6/7/17.

@@ -1,5 +1,5 @@
 //
-//  HMTransformMiddleware.swift
+//  HMMiddleware.swift
 //  HMRequestFramework
 //
 //  Created by Hai Pham on 7/29/17.

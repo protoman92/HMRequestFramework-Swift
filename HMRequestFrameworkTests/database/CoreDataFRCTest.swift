@@ -290,6 +290,10 @@ public final class CoreDataFRCTest: CoreDataRootTest {
             currentPage = UInt(dbProcessor.currentPage(oldPage, direction))
             pageSubject.onNext(direction)
             
+            // We need to block for some time because the stream uses flatMapLatest.
+            // Everytime we push an event with the subject, the old streams are
+            // killed and thus we don't see any result. It's important to have
+            // some delay between consecutive triggers for DB events to appear.
             _ = try? Observable<Int>
                 .timer(0.8, scheduler: MainScheduler.instance)
                 .toBlocking()

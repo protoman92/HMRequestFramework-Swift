@@ -7,7 +7,7 @@
 //
 
 /// Classes that implement this protocol must be able to provide pagination
-/// information by multiple that will be continually increase (for e.g. everytime
+/// information by multiple that will be continually increased (for e.g. everytime
 /// an user swipes to load more).
 public protocol HMCDPaginationMultipleType {
     

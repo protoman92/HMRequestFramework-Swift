@@ -50,14 +50,14 @@ public extension HMCDRequestProcessorType {
     ///
     /// - Parameters:
     ///   - previous: The result of the upstream request.
-    ///   - generator: Generator function to create the current request.
-    ///   - perform: Perform function to execute the request.
-    ///   - processor: Processor function to process the request result.
+    ///   - generator: A HMRequestGenerator instance.
+    ///   - perform: A HMRequestPerformer instance.
+    ///   - processor: A HMResultProcessor instance.
     /// - Returns: An Observable instance.
     private func process<Prev,Val,Res>(
         _ previous: Try<Prev>,
         _ generator: @escaping HMRequestGenerator<Prev,Req>,
-        _ perform: @escaping (Req) throws -> Observable<Try<[Val]>>,
+        _ perform: @escaping HMRequestPerformer<Req,[Val]>,
         _ processor: @escaping HMResultProcessor<Val,Res>)
         -> Observable<Try<[Try<Res>]>>
     {
