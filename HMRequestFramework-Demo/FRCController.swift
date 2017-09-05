@@ -198,15 +198,7 @@ public final class FRCController: UIViewController {
                         .build())
                 }
             )
-            .map({try $0.getOrThrow()})
-            .flatMap({(event) -> Observable<DBLevel<Dummy1>> in
-                switch event {
-                case .didLoad(let change): return Observable.just(change)
-                default: return .empty()
-                }
-            })
-            .map({$0.sections.map({$0.animated()})})
-            .catchErrorJustReturn([])
+            .flatMap(HMCDEvents.didLoadSections)
             .bind(to: data)
             .disposed(by: disposeBag)
     }

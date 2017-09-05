@@ -24,6 +24,17 @@ public protocol HMCDSectionType {
 }
 
 public extension HMCDSectionType {
+    
+    /// Get an empty section object.
+    ///
+    /// - Returns: A Self instance.
+    static func empty() -> Self {
+        return Self.init(indexTitle: nil,
+                         name: "",
+                         numberOfObjects: 0,
+                         objects: [])
+    }
+    
     public init<ST>(_ type: ST) where ST: HMCDSectionType, ST.V == V {
         self.init(indexTitle: type.indexTitle,
                   name: type.name,

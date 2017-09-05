@@ -102,6 +102,7 @@
 		D39BDAAD1F4E6BEF00A397BD /* Singleton.swift in Sources */ = {isa = PBXBuildFile; fileRef = D39BDAAC1F4E6BEF00A397BD /* Singleton.swift */; };
 		D39BDAAF1F4E789600A397BD /* HMMiddlewareFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = D39BDAAE1F4E789600A397BD /* HMMiddlewareFilter.swift */; };
 		D39BDAB21F4E7AC900A397BD /* HMMiddlewareFilterableType.swift in Sources */ = {isa = PBXBuildFile; fileRef = D39BDAB11F4E7AC900A397BD /* HMMiddlewareFilterableType.swift */; };
+		D39E5EA31F5F02C20056C8A3 /* HMCDEvents.swift in Sources */ = {isa = PBXBuildFile; fileRef = D39E5EA21F5F02C20056C8A3 /* HMCDEvents.swift */; };
 		D3A03AEA1F4C0065006CBA02 /* HMCDManager+Reset+Rx.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3A03AE91F4C0065006CBA02 /* HMCDManager+Reset+Rx.swift */; };
 		D3AC07181F3D9C280085D329 /* HMCDKeyValueUpdatableType.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3AC07171F3D9C280085D329 /* HMCDKeyValueUpdatableType.swift */; };
 		D3AC071A1F3DA0FA0085D329 /* CoreDataObjectTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3AC07191F3DA0FA0085D329 /* CoreDataObjectTest.swift */; };
@@ -264,6 +265,7 @@
 		D39BDAAC1F4E6BEF00A397BD /* Singleton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Singleton.swift; sourceTree = "<group>"; };
 		D39BDAAE1F4E789600A397BD /* HMMiddlewareFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMMiddlewareFilter.swift; sourceTree = "<group>"; };
 		D39BDAB11F4E7AC900A397BD /* HMMiddlewareFilterableType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMMiddlewareFilterableType.swift; sourceTree = "<group>"; };
+		D39E5EA21F5F02C20056C8A3 /* HMCDEvents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMCDEvents.swift; sourceTree = "<group>"; };
 		D3A03AE91F4C0065006CBA02 /* HMCDManager+Reset+Rx.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HMCDManager+Reset+Rx.swift"; sourceTree = "<group>"; };
 		D3AC07171F3D9C280085D329 /* HMCDKeyValueUpdatableType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMCDKeyValueUpdatableType.swift; sourceTree = "<group>"; };
 		D3AC07191F3DA0FA0085D329 /* CoreDataObjectTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataObjectTest.swift; sourceTree = "<group>"; };
@@ -370,6 +372,7 @@
 				D353BE871F508CC3004AD111 /* HMCDSection.swift */,
 				D325C40F1F510E1200FC802C /* HMCDSectionInfo+DataSource.swift */,
 				D32E78011F59229400A60D50 /* HMCDSections.swift */,
+				D39E5EA21F5F02C20056C8A3 /* HMCDEvents.swift */,
 			);
 			path = model;
 			sourceTree = "<group>";
@@ -1139,6 +1142,7 @@
 				D352E29D1F3AF226001FD55E /* HMCDVersionableType.swift in Sources */,
 				D37D0BAB1F25E3A00032C6AB /* HMCDRequest.swift in Sources */,
 				D398B7951F265CAC00DCE4D8 /* HMCDObjectType.swift in Sources */,
+				D39E5EA31F5F02C20056C8A3 /* HMCDEvents.swift in Sources */,
 				D3922E0A1F26334A004A49B9 /* HMCDStoreURL.swift in Sources */,
 				D3AC071C1F3DAE7C0085D329 /* HMCDManager+Upsert+Rx.swift in Sources */,
 				D37D0BAC1F25E3A00032C6AB /* HMCDRequestType.swift in Sources */,
