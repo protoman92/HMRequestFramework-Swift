@@ -92,10 +92,12 @@ extension HMCDConstructor: HMBuildableType {
         
         /// Set the objectModel from a model name.
         ///
-        /// - Parameter modelName: A String value.
+        /// - Parameters:
+        ///   - modelName: A String value.
+        ///   - cls: Any class object.
         /// - Returns: The current Builder instance.
         @discardableResult
-        public func with(modelName: String) -> Self {
+        public func with(modelName: String, for cls: AnyClass) -> Self {
             let bundle = Bundle(for: Builder.self)
             
             if let modelURL = bundle.url(forResource: modelName, withExtension: "momd") {

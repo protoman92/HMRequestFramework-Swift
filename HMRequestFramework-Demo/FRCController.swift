@@ -74,12 +74,11 @@ public final class FRCController: UIViewController {
         let pageObs = Observable<HMCursorDirection>
             .merge(
                 scrollView.rx
-                    .didOverscroll(threshold: 100, directions: .up, .down)
+                    .didOverscroll(100, .up, .down)
                     .debounce(0.6, scheduler: MainScheduler.instance)
                     .map({$0.rawValue})
                     .map({HMCursorDirection(from: $0)})
                     .startWith(.remain)
-                    .delay(0.5, scheduler: MainScheduler.instance)
             )
             .observeOn(MainScheduler.instance)
         
