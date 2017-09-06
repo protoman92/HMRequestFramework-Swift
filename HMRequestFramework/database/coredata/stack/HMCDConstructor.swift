@@ -98,7 +98,7 @@ extension HMCDConstructor: HMBuildableType {
         /// - Returns: The current Builder instance.
         @discardableResult
         public func with(modelName: String, for cls: AnyClass) -> Self {
-            let bundle = Bundle(for: Builder.self)
+            let bundle = Bundle(for: cls)
             
             if let modelURL = bundle.url(forResource: modelName, withExtension: "momd") {
                 return with(objectModel: NSManagedObjectModel(contentsOf: modelURL))
