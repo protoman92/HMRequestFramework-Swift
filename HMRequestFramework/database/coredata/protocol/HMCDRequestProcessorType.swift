@@ -62,20 +62,20 @@ public extension HMCDRequestProcessorType {
         -> Observable<Try<[Try<Res>]>>
     {
         return execute(previous, generator, perform)
-            .map({try $0.getOrThrow()})
-            .flatMap({(vals: [Val]) -> Observable<[Try<Res>]> in
+            .flatMap({(vals: Try<[Val]>) -> Observable<[Try<Res>]> in
                 // We need to process the CoreData objects right within the
                 // vals Array, instead of using Observable.from and process
                 // each emission individually, because it could lead to properties
                 // being reset to nil (ARC-releated).
-                return Observable
-                    .from(vals.map({(val) -> Observable<Try<Res>> in
+                return Observable.just(vals)
+                    .map({try $0.getOrThrow()})
+                    .flatMapSequence({$0.map({(val) -> Observable<Try<Res>> in
                         do {
                             return try processor(val)
                         } catch let e {
                             return Observable.just(Try.failure(e))
                         }
-                    }))
+                    })})
                     .flatMap({$0})
                     .catchErrorJustReturn(Try.failure)
                     .toArray()

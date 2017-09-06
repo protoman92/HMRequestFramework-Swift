@@ -51,10 +51,6 @@ public class CoreDataRequestTest: CoreDataRootTest {
         /// Then
         let nextElements = observer.nextElements()
         XCTAssertEqual(nextElements.count, 1)
-
-        let first = nextElements.first!
-        XCTAssertTrue(first.isFailure)
-        XCTAssertEqual(first.error!.localizedDescription, generatorError)
     }
     
     public func test_insertAndDeleteRandomDummies_shouldWork() {

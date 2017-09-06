@@ -13,17 +13,15 @@ import SwiftUtilities
 /// HMCDEvent utilities.
 public final class HMCDEvents {
     
-    /// Extract didLoad event. Be wary that this Observable does not catch
-    /// error.
+    /// Extract didLoad event.
     ///
     /// - Parameter event: A Try HMCDEvent instance.
     /// - Returns: An Observable instance.
     private static func didLoad<PO>(_ event: Try<HMCDEvent<PO>>) -> Observable<DBLevel<PO>> {
         return Observable.just(event)
-            .map({try $0.getOrThrow()})
             .flatMap({event -> Observable<DBLevel<PO>> in
                 switch event {
-                case .didLoad(let change): return .just(change)
+                case .success(.didLoad(let change)): return .just(change)
                 default: return .empty()
                 }
             })
