@@ -9,9 +9,9 @@ PODS:
   - RxSwift (3.6.1)
   - RxTest (3.6.1):
     - RxSwift (~> 3.6)
-  - SwiftUIUtilities/Main (1.5.9):
+  - SwiftUIUtilities/Main (1.6.0):
     - SwiftUtilities/Main
-  - SwiftUtilities/Main (1.4.3):
+  - SwiftUtilities/Main (1.4.4):
     - RxCocoa (~> 3.0)
     - RxSwift (~> 3.0)
   - SwiftUtilitiesTests/Main (1.4.3):
@@ -34,10 +34,10 @@ EXTERNAL SOURCES:
 
 CHECKOUT OPTIONS:
   SwiftUIUtilities:
-    :commit: d6f8de932c73a34889b2eac0d3effe89eeebd7d8
+    :commit: 3377f96708d12f4348760c16d4a75ccb5429a130
     :git: https://github.com/protoman92/SwiftUIUtilities.git
   SwiftUtilities:
-    :commit: 010ab36071fccf2e7e20448ba874b7a0face97cd
+    :commit: aa9ceb71bf94c58325d9c8698f7583fce2fd3bda
     :git: https://github.com/protoman92/SwiftUtilities.git
 
 SPEC CHECKSUMS:
@@ -46,8 +46,8 @@ SPEC CHECKSUMS:
   RxDataSources: b3389acc5fe2eefb8fcd81a2b76a876ad08bc82a
   RxSwift: f9de85ea20cd2f7716ee5409fc13523dc638e4e4
   RxTest: 1d00348a7848c91ab5bf5d197d2378aa6b2bb356
-  SwiftUIUtilities: 1312f9c15cf3de033a407af51b2e85189c0d3ba5
-  SwiftUtilities: c4902210acefbbecde68c72c5abc7a76793ae357
+  SwiftUIUtilities: f283a6b34a08dcebc9086509bd4c3bb91e022a4b
+  SwiftUtilities: 92664319ce3ed97b4657fcbdc4e687dc0224d9de
   SwiftUtilitiesTests: 689e167fae59e8ebda6b7e5121f75e6a0dd16a39
 
 PODFILE CHECKSUM: 7e0967551decb3dd4eb312b7da46fb97b16944ec
