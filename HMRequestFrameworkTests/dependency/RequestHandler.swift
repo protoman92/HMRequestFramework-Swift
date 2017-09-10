@@ -9,9 +9,9 @@
 @testable import HMRequestFramework
 
 public struct RequestHandler {
-    let rqmManager: HMMiddlewareManager<Req>
+    let rqmManager: HMFilterMiddlewareManager<Req>
     
-    public init(requestMiddlewareManager: HMMiddlewareManager<Req>) {
+    public init(requestMiddlewareManager: HMFilterMiddlewareManager<Req>) {
         rqmManager = requestMiddlewareManager
     }
 }
@@ -19,7 +19,7 @@ public struct RequestHandler {
 extension RequestHandler: HMRequestHandlerType {
     public typealias Req = MockRequest
     
-    public func requestMiddlewareManager() -> HMMiddlewareManager<Req>? {
+    public func requestMiddlewareManager() -> HMFilterMiddlewareManager<Req>? {
         return rqmManager
     }
 }

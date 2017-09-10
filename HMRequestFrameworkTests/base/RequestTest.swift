@@ -15,12 +15,12 @@ import XCTest
 
 public final class RequestTest: RootTest {
     fileprivate typealias Req = RequestHandler.Req
-    fileprivate var rqmManager: HMMiddlewareManager<Req>!
+    fileprivate var rqmManager: HMFilterMiddlewareManager<Req>!
     fileprivate var handler: RequestHandler!
     
     override public func setUp() {
         super.setUp()
-        rqmManager = HMMiddlewareManager<Req>.builder().build()
+        rqmManager = HMFilterMiddlewareManager<Req>.builder().build()
         handler = RequestHandler(requestMiddlewareManager: rqmManager)
     }
     

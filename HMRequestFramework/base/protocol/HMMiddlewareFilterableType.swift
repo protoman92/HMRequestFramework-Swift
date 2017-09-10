@@ -25,3 +25,18 @@ public protocol HMMiddlewareFilterableType {
     /// - Returns: An Array of filters.
     func middlewareFilters() -> [HMMiddlewareFilter<Self>]
 }
+
+/// Use this protocol to disable middleware filters. All middlewares that
+/// implement this protocol apply to all targets.
+public protocol HMMiddlewareGlobalApplicableType: HMMiddlewareFilterableType {}
+
+public extension HMMiddlewareGlobalApplicableType {
+    public typealias Filterable = String
+    
+    /// Get an Array of filters of Self type.
+    ///
+    /// - Returns: An Array of filters.
+    public func middlewareFilters() -> [HMMiddlewareFilter<Self>] {
+        return []
+    }
+}

@@ -15,8 +15,8 @@ public protocol HMRequestHandlerType {
     
     /// Get the associated middleware manager for requests.
     ///
-    /// - Returns: A HMMiddlewareManager instance.
-    func requestMiddlewareManager() -> HMMiddlewareManager<Req>?
+    /// - Returns: A HMFilterMiddlewareManager instance.
+    func requestMiddlewareManager() -> HMFilterMiddlewareManager<Req>?
 }
 
 public extension HMRequestHandlerType {

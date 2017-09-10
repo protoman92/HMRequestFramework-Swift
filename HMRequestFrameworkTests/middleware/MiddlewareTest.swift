@@ -21,11 +21,11 @@ extension Int: HMMiddlewareFilterableType {
 }
 
 public final class MiddlewareTest: RootTest {
-    fileprivate var manager: HMMiddlewareManager<Int>!
+    fileprivate var manager: HMFilterMiddlewareManager<Int>!
     
     override public func setUp() {
         super.setUp()
-        manager = HMMiddlewareManager<Int>.builder().build()
+        manager = HMFilterMiddlewareManager<Int>.builder().build()
     }
     
     public func test_applyValidTransformMiddlewares_shouldWork() {
@@ -69,7 +69,7 @@ public final class MiddlewareTest: RootTest {
         
         // If we filter these middlewares out, we'd expect them not to be applied
         // to the request.
-        let rqmManager = HMMiddlewareManager<MockRequest>.builder()
+        let rqmManager = HMFilterMiddlewareManager<MockRequest>.builder()
             .add(transform: {_ in throw Exception("Error1") }, forKey: "middleware1")
             .add(transform: {_ in throw Exception("Error2") }, forKey: "middleware2")
             .add(transform: {_ in throw Exception(finalError)}, forKey: "middleware3")
@@ -105,7 +105,7 @@ public final class MiddlewareTest: RootTest {
     
     public func test_filterMiddlewareFailedWithError_shouldInvalidateAllMiddlewares() {
         /// Setup
-        let rqmManager = HMMiddlewareManager<MockRequest>.builder()
+        let rqmManager = HMFilterMiddlewareManager<MockRequest>.builder()
             .add(transform: {_ in throw Exception("Error1")}, forKey: "middleware1")
             .add(transform: {_ in throw Exception("Error2")}, forKey: "middleware2")
             .add(transform: {_ in throw Exception("Error3")}, forKey: "middleware3")
@@ -170,8 +170,8 @@ public final class MiddlewareTest: RootTest {
         // This request object should be nil if the middlewares are not called.
         var requestObject: MockRequest? = nil
         
-        let rqmManager: HMMiddlewareManager<MockRequest> =
-            HMMiddlewareManager<MockRequest>.builder()
+        let rqmManager: HMFilterMiddlewareManager<MockRequest> =
+            HMFilterMiddlewareManager<MockRequest>.builder()
                 .add(transform: {_ in throw Exception("Should not be fired") }, forKey: "E1")
                 .add(sideEffect: {_ in throw Exception("Should not be fired") }, forKey: "E2")
                 .add(sideEffect: { requestObject = $0 }, forKey: "SE1")
@@ -215,8 +215,8 @@ public final class MiddlewareTest: RootTest {
         var requestObject: HMNetworkRequest? = nil
         
         // Need to reset properties here because these are all structs
-        let rqmManager: HMMiddlewareManager<HMNetworkRequest> =
-            HMMiddlewareManager<HMNetworkRequest>.builder()
+        let rqmManager: HMFilterMiddlewareManager<HMNetworkRequest> =
+            HMFilterMiddlewareManager<HMNetworkRequest>.builder()
                 .add(transform: {
                     Observable.just($0.cloneBuilder()
                         .with(headers: headers)

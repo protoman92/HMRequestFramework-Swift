@@ -45,8 +45,8 @@ extension HMNetworkRequestProcessor: HMNetworkRequestHandlerType {
     
     /// Override this method to provide default implementation.
     ///
-    /// - Returns: A HMMiddlewareManager instance.
-    public func requestMiddlewareManager() -> HMMiddlewareManager<Req>? {
+    /// - Returns: A HMFilterMiddlewareManager instance.
+    public func requestMiddlewareManager() -> HMFilterMiddlewareManager<Req>? {
         return handler.requestMiddlewareManager()
     }
     

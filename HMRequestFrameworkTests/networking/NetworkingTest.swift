@@ -15,13 +15,13 @@ import XCTest
 
 public final class NetworkingTest: RootTest {
     fileprivate typealias Req = HMNetworkRequestHandler.Req
-    fileprivate var rqmManager: HMMiddlewareManager<Req>!
+    fileprivate var rqmManager: HMFilterMiddlewareManager<Req>!
     fileprivate var handler: HMNetworkRequestHandler!
     fileprivate var processor: HMNetworkRequestProcessor!
     
     override public func setUp() {
         super.setUp()
-        rqmManager = HMMiddlewareManager<Req>.builder().build()
+        rqmManager = HMFilterMiddlewareManager<Req>.builder().build()
         
         handler = HMNetworkRequestHandler.builder()
             .with(urlSession: .shared)

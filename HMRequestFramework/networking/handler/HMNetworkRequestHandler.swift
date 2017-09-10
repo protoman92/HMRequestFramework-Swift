@@ -13,7 +13,7 @@ import SwiftUtilities
 /// Use this class to perform network requests.
 public struct HMNetworkRequestHandler {
     fileprivate var nwUrlSession: URLSession?
-    fileprivate var rqmManager: HMMiddlewareManager<Req>?
+    fileprivate var rqmManager: HMFilterMiddlewareManager<Req>?
     
     fileprivate init() {}
     
@@ -101,8 +101,8 @@ extension HMNetworkRequestHandler: HMNetworkRequestHandlerType {
     
     /// Override this method to provide default implementation.
     ///
-    /// - Returns: A HMMiddlewareManager instance.
-    public func requestMiddlewareManager() -> HMMiddlewareManager<Req>? {
+    /// - Returns: A HMFilterMiddlewareManager instance.
+    public func requestMiddlewareManager() -> HMFilterMiddlewareManager<Req>? {
         return rqmManager
     }
 }
@@ -132,10 +132,10 @@ extension HMNetworkRequestHandler: HMBuildableType {
         
         /// Set the request middleware manager instance.
         ///
-        /// - Parameter rqmManager: A HMMiddlewareManager instance.
+        /// - Parameter rqmManager: A HMFilterMiddlewareManager instance.
         /// - Returns: The current Builder instance.
         @discardableResult
-        public func with(rqmManager: HMMiddlewareManager<Req>?) -> Self {
+        public func with(rqmManager: HMFilterMiddlewareManager<Req>?) -> Self {
             handler.rqmManager = rqmManager
             return self
         }
