@@ -75,6 +75,8 @@ public final class MiddlewareTest: RootTest {
             .add(transform: {_ in throw Exception(finalError)}, forKey: "middleware3")
             .build()
         
+        let errManager = HMGlobalMiddlewareManager<HMErrorHolder>.builder().build()
+        
         // Even if there are some error filters, they will not affect the other
         // filters.
         let request = MockRequest.builder()
@@ -85,7 +87,9 @@ public final class MiddlewareTest: RootTest {
         
         let generator = HMRequestGenerators.forceGn(request, Any.self)
         let perform = HMRequestPerformers.eqPerformer(MockRequest.self)
-        let handler = RequestHandler(requestMiddlewareManager: rqmManager)
+        
+        let handler = RequestHandler(rqMiddlewareManager: rqmManager,
+                                     errMiddlewareManager: errManager)
         
         /// When
         handler.execute(Try.success(()), generator, perform)
@@ -177,7 +181,10 @@ public final class MiddlewareTest: RootTest {
                 .add(sideEffect: { requestObject = $0 }, forKey: "SE1")
                 .build()
         
-        let handler = RequestHandler(requestMiddlewareManager: rqmManager)
+        let errManager = HMGlobalMiddlewareManager<HMErrorHolder>.builder().build()
+        
+        let handler = RequestHandler(rqMiddlewareManager: rqmManager,
+                                     errMiddlewareManager: errManager)
         
         /// When
         handler.execute(dummy, generator, perform)
@@ -246,5 +253,101 @@ public final class MiddlewareTest: RootTest {
         
         /// Then
         XCTAssertNotNil(requestObject)
+    }
+    
+    public func test_errorMiddlewareManager_shouldWork() {
+        /// Setup
+        let observer = scheduler.createObserver(Try<Any>.self)
+        let expect = expectation(description: "Should have completed")
+        let dummy = Try<Any>.success(())
+        let mockRequest = MockRequest.builder().build()
+        let generator = HMRequestGenerators.forceGn(mockRequest, Any.self)
+        
+        let perform: HMRequestPerformer<MockRequest,MockRequest> = {_ in
+            throw Exception("Perform error!")
+        }
+        
+        let rqmManager = HMFilterMiddlewareManager<MockRequest>.builder().build()
+        
+        let errManager = HMGlobalMiddlewareManager<HMErrorHolder>.builder()
+            .add(transform: {Observable.just($0.cloneBuilder()
+                .with(error: Exception("Transformed 1"))
+                .build())})
+            .add(transform: {Observable.just($0.cloneBuilder()
+                .with(error: Exception("Transformed 2"))
+                .build())})
+            .add(transform: {Observable.just($0.cloneBuilder()
+                .with(error: Exception("Transformed 3"))
+                .build())})
+            .add(sideEffect: {print($0)})
+            .build()
+        
+        let handler = RequestHandler(rqMiddlewareManager: rqmManager,
+                                     errMiddlewareManager: errManager)
+        
+        /// When
+        handler.execute(dummy, generator, perform)
+            .map({$0.map({$0 as Any})})
+            .doOnDispose(expect.fulfill)
+            .subscribe(observer)
+            .disposed(by: disposeBag)
+        
+        waitForExpectations(timeout: timeout, handler: nil)
+        
+        /// Then
+        let nextElements = observer.nextElements()
+        XCTAssertEqual(nextElements.count, 1)
+        
+        let first = nextElements.first!
+        XCTAssertTrue(first.isFailure)
+        XCTAssertEqual(first.error?.localizedDescription, "Transformed 3")
+    }
+    
+    public func test_applyErrorMiddlewaresFailed_shouldNotThrowError() {
+        /// Setup
+        let observer = scheduler.createObserver(Try<Any>.self)
+        let expect = expectation(description: "Should have completed")
+        let dummy = Try<Any>.success(())
+        let mockRequest = MockRequest.builder().build()
+        let generator = HMRequestGenerators.forceGn(mockRequest, Any.self)
+        
+        let perform: HMRequestPerformer<MockRequest,MockRequest> = {_ in
+            throw Exception("Perform error!")
+        }
+        
+        let rqmManager = HMFilterMiddlewareManager<MockRequest>.builder().build()
+        
+        let errManager = HMGlobalMiddlewareManager<HMErrorHolder>.builder()
+            .add(transform: {Observable.just($0.cloneBuilder()
+                .with(error: Exception("Transformed 1"))
+                .build())})
+            .add(transform: {Observable.just($0.cloneBuilder()
+                .with(error: Exception("Transformed 2"))
+                .build())})
+            .add(transform: {_ in throw Exception("Not possible!")})
+            .add(transform: {Observable.just($0.cloneBuilder()
+                .with(error: Exception("Transformed 3"))
+                .build())})
+            .build()
+        
+        let handler = RequestHandler(rqMiddlewareManager: rqmManager,
+                                     errMiddlewareManager: errManager)
+        
+        /// When
+        handler.execute(dummy, generator, perform)
+            .map({$0.map({$0 as Any})})
+            .doOnDispose(expect.fulfill)
+            .subscribe(observer)
+            .disposed(by: disposeBag)
+        
+        waitForExpectations(timeout: timeout, handler: nil)
+        
+        /// Then
+        let nextElements = observer.nextElements()
+        XCTAssertEqual(nextElements.count, 1)
+        
+        let first = nextElements.first!
+        XCTAssertTrue(first.isFailure)
+        XCTAssertEqual(first.error?.localizedDescription, "Not possible!")
     }
 }

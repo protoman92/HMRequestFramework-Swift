@@ -14,6 +14,7 @@ import SwiftUtilities
 public struct HMNetworkRequestHandler {
     fileprivate var nwUrlSession: URLSession?
     fileprivate var rqmManager: HMFilterMiddlewareManager<Req>?
+    fileprivate var emManager: HMGlobalMiddlewareManager<HMErrorHolder>?
     
     fileprivate init() {}
     
@@ -105,6 +106,13 @@ extension HMNetworkRequestHandler: HMNetworkRequestHandlerType {
     public func requestMiddlewareManager() -> HMFilterMiddlewareManager<Req>? {
         return rqmManager
     }
+    
+    /// Override this method to provide default implementation.
+    ///
+    /// - Returns: A HMFilterMiddlewareManager instance.
+    public func errorMiddlewareManager() -> HMFilterMiddlewareManager<HMErrorHolder>? {
+        return emManager
+    }
 }
 
 extension HMNetworkRequestHandler: HMBuildableType {
@@ -139,6 +147,16 @@ extension HMNetworkRequestHandler: HMBuildableType {
             handler.rqmManager = rqmManager
             return self
         }
+        
+        /// Set the error middleware manager.
+        ///
+        /// - Parameter emManager: A HMGlobalMiddlewareManager instance.
+        /// - Returns: The current Builder instance.
+        @discardableResult
+        public func with(emManager: HMGlobalMiddlewareManager<HMErrorHolder>?) -> Self {
+            handler.emManager = emManager
+            return self
+        }
     }
 }
 
@@ -154,6 +172,7 @@ extension HMNetworkRequestHandler.Builder: HMBuilderType {
         return self
             .with(urlSession: buildable.urlSession())
             .with(rqmManager: buildable.requestMiddlewareManager())
+            .with(emManager: buildable.errorMiddlewareManager())
     }
     
     public func build() -> Buildable {

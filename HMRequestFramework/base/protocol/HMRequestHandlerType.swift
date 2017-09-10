@@ -17,6 +17,11 @@ public protocol HMRequestHandlerType {
     ///
     /// - Returns: A HMFilterMiddlewareManager instance.
     func requestMiddlewareManager() -> HMFilterMiddlewareManager<Req>?
+    
+    /// Get the associated middleware manager for errors.
+    ///
+    /// - Returns: A HMGlobalMiddlewareManager instance.
+    func errorMiddlewareManager() -> HMGlobalMiddlewareManager<HMErrorHolder>?
 }
 
 public extension HMRequestHandlerType {
@@ -53,10 +58,11 @@ public extension HMRequestHandlerType {
             /// If we nest the request like this, even if there are multiple
             /// requests generated (each emitting a Try<Req>), the error
             /// catching would still work correctly.
-            .flatMap({$0.rx.get()
+            .flatMap({(req: Try<Req>) in req.rx.get()
                 .flatMap(self.applyRequestMiddlewares)
                 .flatMap(perform)
-                .catchErrorJustReturn(Try<Val>.failure)
+                .catchError({self.applyErrorMiddlewares(req, $0)})
+                .catchErrorJustReturn(Try.failure)
             })
     }
     
@@ -70,6 +76,29 @@ public extension HMRequestHandlerType {
                 .doOnNext(manager.applySideEffectMiddlewares)
         } else {
             return Observable.just(request)
+        }
+    }
+    
+    /// Apply error middlewares if necessary.
+    ///
+    /// - Parameters:
+    ///   - request: A Try Req instance.
+    ///   - error: An Error instance.
+    /// - Returns: An Observable instance.
+    func applyErrorMiddlewares<Val>(_ request: Try<Req>, _ error: Error)
+        -> Observable<Try<Val>>
+    {
+        if let manager = errorMiddlewareManager() {
+            let holder = HMErrorHolder.builder()
+                .with(error: error)
+                .with(requestDescription: request.value?.requestDescription())
+                .build()
+            
+            return manager.applyTransformMiddlewares(holder)
+                .doOnNext(manager.applySideEffectMiddlewares)
+                .map({Try.failure($0)})
+        } else {
+            return Observable.just(Try.failure(error))
         }
     }
 }

@@ -16,12 +16,16 @@ import XCTest
 public final class RequestTest: RootTest {
     fileprivate typealias Req = RequestHandler.Req
     fileprivate var rqmManager: HMFilterMiddlewareManager<Req>!
+    fileprivate var errManager: HMGlobalMiddlewareManager<HMErrorHolder>!
     fileprivate var handler: RequestHandler!
     
     override public func setUp() {
         super.setUp()
         rqmManager = HMFilterMiddlewareManager<Req>.builder().build()
-        handler = RequestHandler(requestMiddlewareManager: rqmManager)
+        errManager = HMGlobalMiddlewareManager<HMErrorHolder>.builder().build()
+        
+        handler = RequestHandler(rqMiddlewareManager: rqmManager,
+                                 errMiddlewareManager: errManager)
     }
     
     public func test_requestGeneratorFailed_shouldNotThrowError() {

@@ -15,6 +15,7 @@ import SwiftUtilities
 public struct HMCDRequestProcessor {
     fileprivate var manager: HMCDManager?
     fileprivate var rqmManager: HMFilterMiddlewareManager<Req>?
+    fileprivate var emManager: HMGlobalMiddlewareManager<HMErrorHolder>?
     
     fileprivate init() {}
     
@@ -35,6 +36,13 @@ extension HMCDRequestProcessor: HMCDRequestProcessorType {
     /// - Returns: A HMFilterMiddlewareManager instance.
     public func requestMiddlewareManager() -> HMFilterMiddlewareManager<Req>? {
         return rqmManager
+    }
+    
+    /// Override this method to provide default implementation.
+    ///
+    /// - Returns: A HMFilterMiddlewareManager instance.
+    public func errorMiddlewareManager() -> HMFilterMiddlewareManager<HMErrorHolder>? {
+        return emManager
     }
 }
 
@@ -687,6 +695,16 @@ extension HMCDRequestProcessor: HMBuildableType {
             processor.rqmManager = rqmManager
             return self
         }
+        
+        /// Set the error middleware manager.
+        ///
+        /// - Parameter emManager: A HMGlobalMiddlewareManager instance.
+        /// - Returns: The current Builder instance.
+        @discardableResult
+        public func with(emManager: HMGlobalMiddlewareManager<HMErrorHolder>?) -> Self {
+            processor.emManager = emManager
+            return self
+        }
     }
 }
 
@@ -702,6 +720,7 @@ extension HMCDRequestProcessor.Builder: HMBuilderType {
         return self
             .with(manager: buildable.coreDataManager())
             .with(rqmManager: buildable.requestMiddlewareManager())
+            .with(emManager: buildable.errorMiddlewareManager())
     }
     
     

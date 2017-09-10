@@ -10,9 +10,12 @@
 
 public struct RequestHandler {
     let rqmManager: HMFilterMiddlewareManager<Req>
+    let errManager: HMGlobalMiddlewareManager<HMErrorHolder>
     
-    public init(requestMiddlewareManager: HMFilterMiddlewareManager<Req>) {
-        rqmManager = requestMiddlewareManager
+    public init(rqMiddlewareManager: HMFilterMiddlewareManager<Req>,
+                errMiddlewareManager: HMGlobalMiddlewareManager<HMErrorHolder>) {
+        rqmManager = rqMiddlewareManager
+        errManager = errMiddlewareManager
     }
 }
 
@@ -21,5 +24,9 @@ extension RequestHandler: HMRequestHandlerType {
     
     public func requestMiddlewareManager() -> HMFilterMiddlewareManager<Req>? {
         return rqmManager
+    }
+    
+    public func errorMiddlewareManager() -> HMFilterMiddlewareManager<HMErrorHolder>? {
+        return errManager
     }
 }
