@@ -51,6 +51,7 @@ public final class NetworkingTest: RootTest {
         
         let request = HMNetworkRequest.builder()
             .with(resource: MockResource.empty)
+            .with(baseUrl: "www.google.com")
             .with(operation: .get)
             .build()
         

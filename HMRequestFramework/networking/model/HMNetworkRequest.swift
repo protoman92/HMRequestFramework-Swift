@@ -56,6 +56,32 @@ extension HMNetworkRequest: HMBuildableType {
             return self
         }
         
+        /// Transform the url string if it is available.
+        ///
+        /// - Parameter urlTransform: Transform function.
+        /// - Returns: The current Builder instance.
+        @discardableResult
+        public func with(urlTransform: (String) throws -> String?) -> Self {
+            if let url1 = try? request.urlString(), let url2 = try? urlTransform(url1) {
+                return with(urlString: url2)
+            } else {
+                return self
+            }
+        }
+        
+        /// Add base url to the request's existing url string if available.
+        ///
+        /// - Parameter baseUrl: A String value.
+        /// - Returns: The current Builder instance.
+        @discardableResult
+        public func with(baseUrl: String?) -> Self {
+            if let baseUrl = baseUrl {
+                return with(urlTransform: {"\(baseUrl)/\($0)"})
+            } else {
+                return self
+            }
+        }
+        
         /// Set the endPoint and baseUrl using a resource type.
         ///
         /// - Parameter resource: A HMNetworkResourceType instance.

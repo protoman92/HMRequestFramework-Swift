@@ -7,8 +7,6 @@
 //
 
 public protocol HMURLComponentProviderType: HMNetworkResourceType {
-    func baseUrl() throws -> String
-    
     func endPoint() throws -> String
 }
 
@@ -19,6 +17,6 @@ public extension HMURLComponentProviderType {
     /// - Returns: A String value.
     /// - Throws: Exception if the baseUrl and endPoint are not available.
     func urlString() throws -> String {
-        return try "\(baseUrl())/\(endPoint())"
+        return try endPoint()
     }
 }
