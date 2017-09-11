@@ -61,6 +61,10 @@ public extension HMRequestHandlerType {
             .flatMap({(req: Try<Req>) in req.rx.get()
                 .flatMap(self.applyRequestMiddlewares)
                 .flatMap(perform)
+                
+                // We need to force get here to catch and transform errors.
+                .map({try $0.getOrThrow()})
+                .map(Try.success)
                 .catchError({self.applyErrorMiddlewares(req, $0)})
                 .catchErrorJustReturn(Try.failure)
             })
