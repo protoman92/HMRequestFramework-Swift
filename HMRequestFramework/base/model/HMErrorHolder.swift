@@ -61,7 +61,7 @@ extension HMErrorHolder: HMBuildableType {
         ///
         /// - Parameter errorTransform: Transformer function.
         /// - Returns: The current Builder instance.
-        public func with<E>(errorTransform: (E) throws -> E?) -> Self where E: Error {
+        public func with<E>(errorTransform: (E) throws -> Error?) -> Self where E: Error {
             return with(errorTransform: {
                 if let error = $0 as? E {
                     return try errorTransform(error)
@@ -77,7 +77,7 @@ extension HMErrorHolder: HMBuildableType {
         ///   - cls: The E class type.
         ///   - errorTransformer: Transformer function.
         /// - Returns: The current Builder instance.
-        public func with<E>(_ cls: E.Type, errorTransform: (E) throws -> E?)
+        public func with<E>(_ cls: E.Type, errorTransform: (E) throws -> Error?)
             -> Self where E: Error
         {
             return with(errorTransform: errorTransform)
