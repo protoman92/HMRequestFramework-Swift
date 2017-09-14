@@ -23,6 +23,7 @@ public class RootTest: XCTestCase {
         scheduler = TestScheduler(initialClock: 0)
         timeout = 1000
         dummy = Try.success(())
+//        continueAfterFailure = false
     }
     
     override public func tearDown() {

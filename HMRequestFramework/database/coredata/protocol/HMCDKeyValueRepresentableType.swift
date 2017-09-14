@@ -6,6 +6,8 @@
 //  Copyright © 2017 Holmusk. All rights reserved.
 //
 
+import CoreData
+
 /// Classes that implement this protocol must be able to produce a Dictionary
 /// of their instance properties.
 public protocol HMCDKeyValueRepresentableType {
@@ -27,13 +29,21 @@ public extension HMCDKeyValueRepresentableType where Self: NSObject {
     ///
     /// - Returns: A Dictionary instance.
     public func updateDictionary() -> [String : Any?] {
-        var dict: [String : Any?] = [:]
         let keys = updateKeys()
+        var properties: [String : Any?] = [:]
         
         for key in keys {
-            dict.updateValue(value(forKey: key), forKey: key)
+            properties.updateValue(value(forKey: key), forKey: key)
         }
         
-        return dict
+        return properties
+    }
+}
+
+/// If a NSManagedObject conforms to this protocol, it automatically has
+/// updateKeys() implemented.
+public extension HMCDKeyValueRepresentableType where Self: NSManagedObject {
+    public func updateKeys() -> [String] {
+        return entity.attributesByName.keys.map({$0})
     }
 }

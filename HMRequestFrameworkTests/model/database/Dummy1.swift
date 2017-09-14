@@ -108,6 +108,16 @@ public class Dummy1Builder<D1: Dummy1Type> {
         }
     }
     
+    @discardableResult
+    public func with(json: [String : Any?]) -> Self {
+        return self
+            .with(id: json["id"] as? String)
+            .with(date: json["date"] as? Date)
+            .with(int64: json["int64"] as? NSNumber)
+            .with(float: json["float"] as? NSNumber)
+            .with(version: json["version"] as? NSNumber)
+    }
+    
     public func with(dummy1: Dummy1Type) -> Self {
         return self
             .with(id: dummy1.id)
@@ -200,10 +210,6 @@ extension CDDummy1: HMCDVersionableMasterType {
             self.version = NSNumber(value: dbl).intValue as NSNumber
         }
     }
-    
-    public func updateKeys() -> [String] {
-        return ["id", "date", "int64", "float", "version"]
-    }
 }
 
 extension CDDummy1.Builder: HMCDObjectBuilderMasterType {
@@ -241,7 +247,7 @@ extension Dummy1: Dummy1Type {}
 extension Dummy1: CustomStringConvertible {
     public var description: String {
         return ""
-            + "PureObject - id: \(String(describing: id)), "
+            + "id: \(String(describing: id)), "
 //            + "int64: \(String(describing: int64)), "
 //            + "float: \(String(describing: float)), "
 //            + "date: \(String(describing: date)), "

@@ -11,6 +11,24 @@ import XCTest
 @testable import HMRequestFramework
 
 public final class CoreDataObjectTest: CoreDataRootTest {
+    public func test_convertCDObjectsToDict_shouldWork() {
+        /// Setup
+        let manager = self.manager!
+        let context = manager.disposableObjectContext()
+        let dummyCount = self.dummyCount!
+        let dummies = (0..<dummyCount).map({_ in Dummy1()})
+        let cdObjects = dummies.map({try! manager.constructUnsafely(context, $0)})
+        
+        for (dummy, cdObject) in zip(dummies, cdObjects) {
+            /// When
+            let properties = cdObject.updateDictionary()
+            let reconstructed = Dummy1.builder().with(json: properties).build()
+            
+            /// Then
+            XCTAssertEqual(dummy, reconstructed)
+        }
+    }
+    
     public func test_updateCDObjectsWithDict_shouldWork() {
         /// Setup
         let manager = self.manager!

@@ -143,6 +143,11 @@ extension HMCDResultController: NSFetchedResultsControllerDelegate {
     /// an update block for their view. Providing an empty implementation will
     /// enable change tracking if you do not care about the individual callbacks.
     public func controllerDidChangeContent(_ controller: Controller) {
+        // Need to do this if we specify fetchLimit/fetchOffset.
+        if shouldRefetchOnChange(controller) {
+            try? controller.performFetch()
+        }
+        
         let observer = dbLevelObserver()
         observer.onNext(dbLevel(controller, Event.didLoad))
         observer.onNext(Event.didChange)
@@ -240,5 +245,17 @@ extension HMCDResultController: NSFetchedResultsControllerDelegate {
         return Event.dbLevel(controller.sections,
                              controller.fetchedObjects,
                              mapper)
+    }
+    
+    /// Since controller.fetchObjects reflect the state of the context to
+    /// which the FRC is attached, not the persistent store's, so if we specify
+    /// fetchLimit/fetchOffset, we must refetch objects from the DB to honor
+    /// those limits.
+    ///
+    /// - Parameter controller: A Controller instance.
+    /// - Returns: A Bool value.
+    func shouldRefetchOnChange(_ controller: Controller) -> Bool {
+        let fetchRequest = controller.fetchRequest
+        return fetchRequest.fetchLimit > 0 || fetchRequest.fetchOffset > 0
     }
 }

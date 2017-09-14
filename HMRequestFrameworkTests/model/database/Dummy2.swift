@@ -95,10 +95,6 @@ extension CDDummy2: HMCDUpsertableMasterType {
             super.init(cdo)
         }
     }
-    
-    public func updateKeys() -> [String] {
-        return ["id2", "count"]
-    }
 }
 
 extension CDDummy2.Builder: HMCDObjectBuilderMasterType {

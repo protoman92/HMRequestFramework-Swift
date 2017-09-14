@@ -120,7 +120,7 @@ public final class CoreDataVersionTest: CoreDataRootTest {
             }
         }
 
-        XCTAssertEqual(nextElements.count, dummyCount)
+        XCTAssertEqual(nextElements.count, updateCount)
         XCTAssertEqual(resultOverwriteCount, overwriteCount)
         XCTAssertEqual(otherCount, errorCount + takePreferableCount)
     }
