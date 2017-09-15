@@ -70,7 +70,7 @@ public extension HMNetworkRequestType {
         var request = try baseUrlRequest()
         
         switch method {
-        case .post, .put:
+        case .post, .put, .patch:
             request.httpBody = try JSONSerialization.data(
                 withJSONObject: try self.body(),
                 options: .prettyPrinted)
