@@ -3,7 +3,7 @@
 
 def allPods
     pod 'SwiftUtilities/Main', git: 'https://github.com/protoman92/SwiftUtilities.git'
-    pod 'RxDataSources', '~> 1.0'
+    pod 'RxDataSources'
 end
 
 target 'HMRequestFramework' do

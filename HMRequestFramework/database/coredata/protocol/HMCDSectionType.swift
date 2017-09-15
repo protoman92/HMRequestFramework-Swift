@@ -6,6 +6,8 @@
 //  Copyright © 2017 Holmusk. All rights reserved.
 //
 
+import CoreData
+
 /// Classes that implement this protocol must be able to provide section
 /// information to be populated in a list view.
 public protocol HMCDSectionType {

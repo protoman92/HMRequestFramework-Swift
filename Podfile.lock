@@ -1,11 +1,13 @@
 PODS:
+  - Differentiator (2.0.2)
   - RxBlocking (3.6.1):
     - RxSwift (~> 3.6)
   - RxCocoa (3.6.1):
     - RxSwift (~> 3.6)
-  - RxDataSources (1.0.4):
-    - RxCocoa (~> 3.0)
-    - RxSwift (~> 3.0)
+  - RxDataSources (2.0.2):
+    - Differentiator (~> 2.0)
+    - RxCocoa (>= 3.6.1)
+    - RxSwift (>= 3.6.1)
   - RxSwift (3.6.1)
   - RxTest (3.6.1):
     - RxSwift (~> 3.6)
@@ -22,7 +24,7 @@ PODS:
     - RxTest (~> 3.0)
 
 DEPENDENCIES:
-  - RxDataSources (~> 1.0)
+  - RxDataSources
   - SwiftUIUtilities/Main (from `https://github.com/protoman92/SwiftUIUtilities.git`)
   - SwiftUtilities/Main (from `https://github.com/protoman92/SwiftUtilities.git`)
   - SwiftUtilitiesTests/Main
@@ -42,15 +44,16 @@ CHECKOUT OPTIONS:
     :git: https://github.com/protoman92/SwiftUtilities.git
 
 SPEC CHECKSUMS:
+  Differentiator: caa9b3957981a2ac8e6b2eac8a676af461caa604
   RxBlocking: 4f4bd5732e8b952e54ae8a57739bcfb645de12bc
   RxCocoa: 84a08739ab186248c7f31ce4ee92d6f8a947d690
-  RxDataSources: b3389acc5fe2eefb8fcd81a2b76a876ad08bc82a
+  RxDataSources: 7f190474a93a206c082c2d74c4cc9c8f7bea4feb
   RxSwift: f9de85ea20cd2f7716ee5409fc13523dc638e4e4
   RxTest: 1d00348a7848c91ab5bf5d197d2378aa6b2bb356
   SwiftUIUtilities: f283a6b34a08dcebc9086509bd4c3bb91e022a4b
   SwiftUtilities: 9d0f3fdfa2b9704cb0ce85c45eb19b5a8cb55b02
   SwiftUtilitiesTests: 689e167fae59e8ebda6b7e5121f75e6a0dd16a39
 
-PODFILE CHECKSUM: 7e0967551decb3dd4eb312b7da46fb97b16944ec
+PODFILE CHECKSUM: bc0352050653b67e16409e3218aaa3cb9e5f6c4e
 
 COCOAPODS: 1.3.1
