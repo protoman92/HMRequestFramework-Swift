@@ -433,20 +433,20 @@ public extension CoreDataManagerTest {
         let dummyCount = self.dummyCount!
         let limit = dummyCount / 2
         let pureObjects = (0..<dummyCount).map({_ in Dummy1()})
-        
+
         let fetchRq = try! dummy1FetchRequest().cloneBuilder()
             .with(fetchLimit: limit)
             .build()
             .fetchRequest(Dummy1.self)
-        
+
         // Different contexts.
         let saveContext = manager.disposableObjectContext()
         let fetchContext = manager.disposableObjectContext()
-        
+
         /// When
         manager.rx.savePureObjects(saveContext, pureObjects)
             .flatMap({_ in manager.rx.persistLocally()})
-            
+
             // We expect the number of results returned by this fetch to be
             // limited to the predefined fetchLimit.
             .flatMap({manager.rx.fetch(fetchContext, fetchRq)})
@@ -455,9 +455,9 @@ public extension CoreDataManagerTest {
             .doOnDispose(expect.fulfill)
             .subscribe(observer)
             .disposed(by: disposeBag)
-        
+
         waitForExpectations(timeout: timeout, handler: nil)
-        
+
         /// Then
         let nextElements = observer.nextElements()
         XCTAssertEqual(nextElements.count, limit)

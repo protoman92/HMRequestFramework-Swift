@@ -143,10 +143,10 @@ extension HMCDResultController: NSFetchedResultsControllerDelegate {
     /// an update block for their view. Providing an empty implementation will
     /// enable change tracking if you do not care about the individual callbacks.
     public func controllerDidChangeContent(_ controller: Controller) {
-        // Need to do this if we specify fetchLimit/fetchOffset.
-        if shouldRefetchOnChange(controller) {
-            try? controller.performFetch()
-        }
+//        // Need to do this if we specify fetchLimit/fetchOffset.
+//        if shouldRefetchOnChange(controller) {
+//            try? controller.performFetch()
+//        }
         
         let observer = dbLevelObserver()
         observer.onNext(dbLevel(controller, Event.didLoad))

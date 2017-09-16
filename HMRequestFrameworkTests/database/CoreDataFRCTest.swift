@@ -452,51 +452,51 @@ public extension CoreDataFRCTest {
 }
 
 public extension CoreDataFRCTest {
-    public func test_fetchWithLimit_shouldNotReturnMoreThanLimit(_ limit: Int) {
-        /// Setup
-        let observer = scheduler.createObserver(Try<Void>.self)
-        let streamObserver = scheduler.createObserver([Dummy1].self)
-        let expect = expectation(description: "Should have completed")
-        let disposeBag = self.disposeBag!
-        let dbProcessor = self.dbProcessor!
-        let dummyCount = 10
-        
-        /// When
-        dbProcessor
-            .streamDBEvents(Dummy1.self, {
-                Observable.just($0.cloneBuilder().with(fetchLimit: limit).build())
-            })
-            
-            // Skip the initialize (both willLoad and didLoad) events, since
-            // they will just return an empty Array anyway.
-            .flatMap(HMCDEvents.didLoadObjects)
-            .skip(1)
-            .subscribe(streamObserver)
-            .disposed(by: disposeBag)
-        
-        Observable.range(start: 0, count: dummyCount)
-            .map({_ in Dummy1()})
-            .map(Try.success)
-            .map({$0.map({[$0]})})
-            .flatMap({dbProcessor.saveToMemory($0)})
-            .flatMap({dbProcessor.persistToDB($0)})
-            .doOnDispose(expect.fulfill)
-            .subscribe(observer)
-            .disposed(by: disposeBag)
-        
-        waitForExpectations(timeout: timeout, handler: nil)
-        
-        /// Then
-        let nextElements = streamObserver.nextElements()
-        XCTAssertTrue(nextElements.count > 0)
-        XCTAssertTrue(nextElements.all({$0.count <= limit}))
-    }
-    
-    public func test_fetchWithLimit_shouldNotReturnMoreThanLimit() {
-        for i in 1..<100 {
-            setUp()
-            test_fetchWithLimit_shouldNotReturnMoreThanLimit(i)
-            tearDown()
-        }
-    }
+//    public func test_fetchWithLimit_shouldNotReturnMoreThanLimit(_ limit: Int) {
+//        /// Setup
+//        let observer = scheduler.createObserver(Try<Void>.self)
+//        let streamObserver = scheduler.createObserver([Dummy1].self)
+//        let expect = expectation(description: "Should have completed")
+//        let disposeBag = self.disposeBag!
+//        let dbProcessor = self.dbProcessor!
+//        let dummyCount = 10
+//        
+//        /// When
+//        dbProcessor
+//            .streamDBEvents(Dummy1.self, {
+//                Observable.just($0.cloneBuilder().with(fetchLimit: limit).build())
+//            })
+//            
+//            // Skip the initialize (both willLoad and didLoad) events, since
+//            // they will just return an empty Array anyway.
+//            .flatMap(HMCDEvents.didLoadObjects)
+//            .skip(1)
+//            .subscribe(streamObserver)
+//            .disposed(by: disposeBag)
+//        
+//        Observable.range(start: 0, count: dummyCount)
+//            .map({_ in Dummy1()})
+//            .map(Try.success)
+//            .map({$0.map({[$0]})})
+//            .flatMap({dbProcessor.saveToMemory($0)})
+//            .flatMap({dbProcessor.persistToDB($0)})
+//            .doOnDispose(expect.fulfill)
+//            .subscribe(observer)
+//            .disposed(by: disposeBag)
+//        
+//        waitForExpectations(timeout: timeout, handler: nil)
+//        
+//        /// Then
+//        let nextElements = streamObserver.nextElements()
+//        XCTAssertTrue(nextElements.count > 0)
+//        XCTAssertTrue(nextElements.all({$0.count <= limit}))
+//    }
+//    
+//    public func test_fetchWithLimit_shouldNotReturnMoreThanLimit() {
+//        for i in 1..<100 {
+//            setUp()
+//            test_fetchWithLimit_shouldNotReturnMoreThanLimit(i)
+//            tearDown()
+//        }
+//    }
 }
