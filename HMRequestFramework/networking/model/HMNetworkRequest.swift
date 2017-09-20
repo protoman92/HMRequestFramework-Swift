@@ -186,6 +186,21 @@ extension HMNetworkRequest: HMBuildableType {
             return self
         }
         
+        /// Update request headers.
+        ///
+        /// - Parameters:
+        ///   - header: A String value.
+        ///   - key: A String value.
+        /// - Returns: The current Builder instance.
+        @discardableResult
+        public func add(header: String?, forKey key: String) -> Self {
+            if let header = header {
+                request.httpHeaders.updateValue(header, forKey: key)
+            }
+            
+            return self
+        }
+        
         /// Set the body.
         ///
         /// - Parameter body: Any object.
