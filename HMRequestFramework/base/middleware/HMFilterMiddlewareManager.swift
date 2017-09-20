@@ -379,10 +379,14 @@ extension HMFilterMiddlewareManager.Builder: HMBuilderType {
     /// - Parameter buildable: A Buildable instance.
     /// - Returns: The current Builder instance.
     @discardableResult
-    public func with(buildable: Buildable) -> Self {
-        return self
-            .add(transforms: buildable.tfMiddlewares)
-            .add(sideEffects: buildable.seMiddlewares)
+    public func with(buildable: Buildable?) -> Self {
+        if let buildable = buildable {
+            return self
+                .add(transforms: buildable.tfMiddlewares)
+                .add(sideEffects: buildable.seMiddlewares)
+        } else {
+            return self
+        }
     }
     
     public func build() -> Buildable {

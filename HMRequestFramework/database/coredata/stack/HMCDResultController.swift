@@ -123,8 +123,8 @@ extension HMCDResultController.Builder: HMBuilderType {
     /// - Parameter buildable: A Buildable instance.
     /// - Returns: The current Builder instance.
     @discardableResult
-    public func with(buildable: Buildable) -> Self {
-        return self.with(frc: buildable.frc)
+    public func with(buildable: Buildable?) -> Self {
+        return self.with(frc: buildable?.frc)
     }
     
     public func build() -> Buildable {

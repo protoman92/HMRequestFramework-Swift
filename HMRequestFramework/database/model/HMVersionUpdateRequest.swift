@@ -88,11 +88,15 @@ extension HMVersionUpdateRequest.Builder: HMBuilderType {
     public typealias Buildable = HMVersionUpdateRequest<VC>
     
     @discardableResult
-    public func with(buildable: Buildable) -> Self {
-        return self
-            .with(original: buildable.original)
-            .with(edited: buildable.edited)
-            .with(strategy: buildable.strategy)
+    public func with(buildable: Buildable?) -> Self {
+        if let buildable = buildable {
+            return self
+                .with(original: buildable.original)
+                .with(edited: buildable.edited)
+                .with(strategy: buildable.strategy)
+        } else {
+            return self
+        }
     }
     
     public func build() -> Buildable {

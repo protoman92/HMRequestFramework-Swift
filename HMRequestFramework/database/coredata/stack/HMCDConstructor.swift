@@ -158,10 +158,14 @@ extension HMCDConstructor.Builder: HMBuilderType {
     /// - Parameter buildable: A Buildable instance.
     /// - Returns: The current Builder instance.
     @discardableResult
-    public func with(buildable: Buildable) -> Self {
-        return self
-            .with(objectModel: try? buildable.objectModel())
-            .with(settings: (try? buildable.storeSettings()))
+    public func with(buildable: Buildable?) -> Self {
+        if let buildable = buildable {
+            return self
+                .with(objectModel: try? buildable.objectModel())
+                .with(settings: (try? buildable.storeSettings()))
+        } else {
+            return self
+        }
     }
     
     public func build() -> Buildable {

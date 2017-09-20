@@ -54,9 +54,12 @@ public class Dummy2Builder<D2: Dummy2Type> {
         self.d2 = d2
     }
     
-    public func with(dummy2: Dummy2Type) -> Self {
-        d2.id2 = dummy2.id2
-        d2.count = dummy2.count
+    public func with(dummy2: Dummy2Type?) -> Self {
+        if let dummy2 = dummy2 {
+            d2.id2 = dummy2.id2
+            d2.count = dummy2.count
+        }
+        
         return self
     }
     
@@ -100,11 +103,11 @@ extension CDDummy2: HMCDUpsertableMasterType {
 extension CDDummy2.Builder: HMCDObjectBuilderMasterType {
     public typealias PureObject = Dummy2
     
-    public func with(pureObject: PureObject) -> Self {
+    public func with(pureObject: PureObject?) -> Self {
         return with(dummy2: pureObject)
     }
     
-    public func with(buildable: Buildable) -> Self {
+    public func with(buildable: Buildable?) -> Self {
         return with(dummy2: buildable)
     }
 }
@@ -144,7 +147,11 @@ extension Dummy2.Builder: HMCDPureObjectBuilderMasterType {
         return with(dummy2: cdObject)
     }
     
-    public func with(buildable: Buildable) -> Self {
-        return with(dummy2: buildable)
+    public func with(buildable: Buildable?) -> Self {
+        if let buildable = buildable {
+            return with(dummy2: buildable)
+        } else {
+            return self
+        }
     }
 }

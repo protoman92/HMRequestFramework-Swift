@@ -195,12 +195,16 @@ extension HMCDStoreSettings.Builder: HMBuilderType {
     ///
     /// - Parameter buildable: A Buildable instance.
     /// - Returns: The current Builder instance.
-    public func with(buildable: Buildable) -> Self {
-        return self
-            .with(storeType: buildable.cdStoreType)
-            .with(options: buildable.options() ?? [:])
-            .with(configName: buildable.configurationName())
-            .with(persistentStoreURL: buildable.persistentStoreURL())
+    public func with(buildable: Buildable?) -> Self {
+        if let buildable = buildable {
+            return self
+                .with(storeType: buildable.cdStoreType)
+                .with(options: buildable.options() ?? [:])
+                .with(configName: buildable.configurationName())
+                .with(persistentStoreURL: buildable.persistentStoreURL())
+        } else {
+            return self
+        }
     }
     
     public func build() -> Buildable {

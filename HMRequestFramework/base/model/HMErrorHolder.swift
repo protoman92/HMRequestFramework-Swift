@@ -129,10 +129,14 @@ extension HMErrorHolder.Builder: HMProtocolConvertibleBuilderType {
     /// - Parameter generic: A Buildable.PTCType instance.
     /// - Returns: The current Builder instance.
     @discardableResult
-    public func with(generic: Buildable.PTCType) -> Self {
-        return self
-            .with(error: try? generic.error())
-            .with(requestDescription: generic.requestDescription())
+    public func with(generic: Buildable.PTCType?) -> Self {
+        if let generic = generic {
+            return self
+                .with(error: try? generic.error())
+                .with(requestDescription: generic.requestDescription())
+        } else {
+            return self
+        }
     }
 
     /// Override this method to provide default implementation.
@@ -140,7 +144,7 @@ extension HMErrorHolder.Builder: HMProtocolConvertibleBuilderType {
     /// - Parameter buildable: A Buildable instance.
     /// - Returns: The current Builder instance.
     @discardableResult
-    public func with(buildable: Buildable) -> Self {
+    public func with(buildable: Buildable?) -> Self {
         return with(generic: buildable)
     }
     

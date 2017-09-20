@@ -291,20 +291,24 @@ extension HMNetworkRequest.Builder: HMRequestBuilderType {
     /// - Parameter buildable: A Buildable instance.
     /// - Returns: The current Builder instance.
     @discardableResult
-    public func with(buildable: Buildable) -> Self {
-        return self
-            .with(urlString: try? buildable.urlString())
-            .with(operation: try? buildable.operation())
-            .with(body: try? buildable.body())
-            .with(headers: buildable.headers())
-            .with(params: buildable.params())
-            .with(uploadData: buildable.uploadData())
-            .with(uploadURL: buildable.uploadURL())
-            .with(timeout: buildable.timeout())
-            .with(mwFilters: buildable.middlewareFilters())
-            .with(retries: buildable.retries())
-            .with(applyMiddlewares: buildable.applyMiddlewares())
-            .with(description: buildable.requestDescription())
+    public func with(buildable: Buildable?) -> Self {
+        if let buildable = buildable {
+            return self
+                .with(urlString: try? buildable.urlString())
+                .with(operation: try? buildable.operation())
+                .with(body: try? buildable.body())
+                .with(headers: buildable.headers())
+                .with(params: buildable.params())
+                .with(uploadData: buildable.uploadData())
+                .with(uploadURL: buildable.uploadURL())
+                .with(timeout: buildable.timeout())
+                .with(mwFilters: buildable.middlewareFilters())
+                .with(retries: buildable.retries())
+                .with(applyMiddlewares: buildable.applyMiddlewares())
+                .with(description: buildable.requestDescription())
+        } else {
+            return self
+        }
     }
     
     public func build() -> Buildable {

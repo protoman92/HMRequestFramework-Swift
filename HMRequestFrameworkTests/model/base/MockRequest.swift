@@ -87,12 +87,16 @@ public extension MockRequest {
             return self
         }
         
-        public func with(buildable: Buildable) -> Self {
-            return self
-                .with(mwFilters: buildable.middlewareFilters())
-                .with(applyMiddlewares: buildable.applyMiddlewares())
-                .with(retries: buildable.retries())
-                .with(description: buildable.requestDescription())
+        public func with(buildable: Buildable?) -> Self {
+            if let buildable = buildable {
+                return self
+                    .with(mwFilters: buildable.middlewareFilters())
+                    .with(applyMiddlewares: buildable.applyMiddlewares())
+                    .with(retries: buildable.retries())
+                    .with(description: buildable.requestDescription())
+            } else {
+                return self
+            }
         }
         
         public func build() -> Buildable {

@@ -109,10 +109,14 @@ extension HMResult: HMBuildableType {
 extension HMResult.Builder: HMBuilderType {
     public typealias Buildable = HMResult<Val>
     
-    public func with(buildable: Buildable) -> Self {
-        return self
-            .with(object: buildable.object)
-            .with(error: buildable.error)
+    public func with(buildable: Buildable?) -> Self {
+        if let buildable = buildable {
+            return self
+                .with(object: buildable.object)
+                .with(error: buildable.error)
+        } else {
+            return self
+        }
     }
     
     public func build() -> Buildable {

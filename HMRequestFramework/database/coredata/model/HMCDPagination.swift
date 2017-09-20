@@ -67,16 +67,20 @@ extension HMCDPagination.Builder: HMProtocolConvertibleBuilderType {
     public typealias Buildable = HMCDPagination
     
     @discardableResult
-    public func with(buildable: Buildable) -> Self {
+    public func with(buildable: Buildable?) -> Self {
         return with(generic: buildable)
     }
     
     @discardableResult
-    public func with(generic: Buildable.PTCType) -> Self {
-        return self
-            .with(fetchLimit: generic.fetchLimit())
-            .with(fetchOffset: generic.fetchOffset())
-            .with(paginationMode: generic.paginationMode())
+    public func with(generic: Buildable.PTCType?) -> Self {
+        if let generic = generic {
+            return self
+                .with(fetchLimit: generic.fetchLimit())
+                .with(fetchOffset: generic.fetchOffset())
+                .with(paginationMode: generic.paginationMode())
+        } else {
+            return self
+        }
     }
     
     public func build() -> Buildable {

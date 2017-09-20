@@ -84,10 +84,14 @@ extension VersionConflict.Exception.Builder: HMBuilderType {
     ///
     /// - Parameter buildable: A Buildable instance.
     /// - Returns: The current Builder instance.
-    public func with(buildable: Buildable) -> Self {
-        return self
-            .with(existingVersion: buildable.existingVer)
-            .with(conflictVersion: buildable.conflictVer)
+    public func with(buildable: Buildable?) -> Self {
+        if let buildable = buildable {
+            return self
+                .with(existingVersion: buildable.existingVer)
+                .with(conflictVersion: buildable.conflictVer)
+        } else {
+            return self
+        }
     }
     
     public func build() -> Buildable {

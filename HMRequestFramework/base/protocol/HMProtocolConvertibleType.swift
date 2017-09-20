@@ -25,5 +25,5 @@ public protocol HMProtocolConvertibleType {
 public protocol HMProtocolConvertibleBuilderType: HMBuilderType {
     associatedtype Buildable: HMProtocolConvertibleType
     
-    func with(generic: Buildable.PTCType) -> Self
+    func with(generic: Buildable.PTCType?) -> Self
 }

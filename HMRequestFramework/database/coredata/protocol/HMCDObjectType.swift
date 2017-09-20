@@ -95,13 +95,13 @@ public protocol HMCDObjectBuilderType {
     ///
     /// - Parameter pureObject: A PureObject instance.
     /// - Return: The current Builder instance.
-    func with(pureObject: PureObject) -> Self
+    func with(pureObject: PureObject?) -> Self
     
     /// Copy properties from a Buildable.
     ///
     /// - Parameter buildable: A Buildable instance.
     /// - Return: The current Builder instance.
-    func with(buildable: Buildable) -> Self
+    func with(buildable: Buildable?) -> Self
     
     func build() -> Buildable
 }

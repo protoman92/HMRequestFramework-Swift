@@ -146,13 +146,17 @@ extension HMCDStoreURL.Builder: HMBuilderType {
     ///
     /// - Parameter buildable: A Buildable instance.
     /// - Returns: The current Builder instance.
-    public func with(buildable: Buildable) -> Self {
-        return self
-            .with(fileManager: buildable.fileManager)
-            .with(fileName: buildable.fileName)
-            .with(searchPath: buildable.searchPath)
-            .with(domainMask: buildable.domainMask)
-            .with(fileExtension: buildable.fileExtension)
+    public func with(buildable: Buildable?) -> Self {
+        if let buildable = buildable {
+            return self
+                .with(fileManager: buildable.fileManager)
+                .with(fileName: buildable.fileName)
+                .with(searchPath: buildable.searchPath)
+                .with(domainMask: buildable.domainMask)
+                .with(fileExtension: buildable.fileExtension)
+        } else {
+            return self
+        }
     }
     
     public func build() -> Buildable {

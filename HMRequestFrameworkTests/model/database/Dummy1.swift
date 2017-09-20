@@ -118,13 +118,17 @@ public class Dummy1Builder<D1: Dummy1Type> {
             .with(version: json["version"] as? NSNumber)
     }
     
-    public func with(dummy1: Dummy1Type) -> Self {
-        return self
-            .with(id: dummy1.id)
-            .with(date: dummy1.date)
-            .with(int64: dummy1.int64)
-            .with(float: dummy1.float)
-            .with(version: dummy1.version)
+    public func with(dummy1: Dummy1Type?) -> Self {
+        if let dummy1 = dummy1 {
+            return self
+                .with(id: dummy1.id)
+                .with(date: dummy1.date)
+                .with(int64: dummy1.int64)
+                .with(float: dummy1.float)
+                .with(version: dummy1.version)
+        } else {
+            return self
+        }
     }
     
     public func build() -> D1 {
@@ -215,11 +219,11 @@ extension CDDummy1: HMCDVersionableMasterType {
 extension CDDummy1.Builder: HMCDObjectBuilderMasterType {
     public typealias PureObject = Dummy1
     
-    public func with(pureObject: PureObject) -> Self {
+    public func with(pureObject: PureObject?) -> Self {
         return with(dummy1: pureObject)
     }
     
-    public func with(buildable: Buildable) -> Self {
+    public func with(buildable: Buildable?) -> Self {
         return with(dummy1: buildable)
     }
 }
@@ -276,7 +280,11 @@ extension Dummy1.Builder: HMCDPureObjectBuilderMasterType {
         return with(dummy1: cdObject)
     }
     
-    public func with(buildable: Buildable) -> Self {
-        return with(dummy1: buildable)
+    public func with(buildable: Buildable?) -> Self {
+        if let buildable = buildable {
+            return with(dummy1: buildable)
+        } else {
+            return self
+        }
     }
 }

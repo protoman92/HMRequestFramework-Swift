@@ -168,11 +168,15 @@ extension HMNetworkRequestHandler.Builder: HMBuilderType {
     /// - Parameter buildable: A HMNetworkRequestHandler instance
     /// - Returns: The current Builder instance.
     @discardableResult
-    public func with(buildable: Buildable) -> Self {
-        return self
-            .with(urlSession: buildable.urlSession())
-            .with(rqmManager: buildable.requestMiddlewareManager())
-            .with(emManager: buildable.errorMiddlewareManager())
+    public func with(buildable: Buildable?) -> Self {
+        if let buildable = buildable {
+            return self
+                .with(urlSession: buildable.urlSession())
+                .with(rqmManager: buildable.requestMiddlewareManager())
+                .with(emManager: buildable.errorMiddlewareManager())
+        } else {
+            return self
+        }
     }
     
     public func build() -> Buildable {

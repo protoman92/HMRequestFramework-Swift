@@ -716,11 +716,15 @@ extension HMCDRequestProcessor.Builder: HMBuilderType {
     /// - Parameter buildable: A Buildable instance.
     /// - Returns: The current Builder instance.
     @discardableResult
-    public func with(buildable: Buildable) -> Self {
-        return self
-            .with(manager: buildable.coreDataManager())
-            .with(rqmManager: buildable.requestMiddlewareManager())
-            .with(emManager: buildable.errorMiddlewareManager())
+    public func with(buildable: Buildable?) -> Self {
+        if let buildable = buildable {
+            return self
+                .with(manager: buildable.coreDataManager())
+                .with(rqmManager: buildable.requestMiddlewareManager())
+                .with(emManager: buildable.errorMiddlewareManager())
+        } else {
+            return self
+        }
     }
     
     

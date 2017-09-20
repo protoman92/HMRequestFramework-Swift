@@ -452,28 +452,32 @@ extension HMCDRequest.Builder: HMRequestBuilderType {
     /// - Parameter buildable: A Buildable instance.
     /// - Returns: The current Builder instance.
     @discardableResult
-    public func with(buildable: Buildable) -> Self {
-        return self
-            .with(operation: try? buildable.operation())
-            .with(entityName: try? buildable.entityName())
-            .with(predicate: try? buildable.predicate())
-            .with(sortDescriptors: try? buildable.sortDescriptors())
-            .with(fetchResultType: buildable.fetchResultType())
-            .with(fetchProperties: buildable.fetchProperties())
-            .with(fetchGroupBy: buildable.fetchGroupBy())
-            .with(fetchLimit: buildable.fetchLimit())
-            .with(fetchOffset: buildable.fetchOffset())
-            .with(fetchBatchSize: buildable.fetchBatchSize())
-            .with(insertedData: try? buildable.insertedData())
-            .with(upsertedData: try? buildable.upsertedData())
-            .with(deletedData: try? buildable.deletedData())
-            .with(vcStrategy: try? buildable.versionConflictStrategy())
-            .with(frcSectionName: buildable.frcSectionName())
-            .with(frcCacheName: buildable.frcCacheName())
-            .with(mwFilters: buildable.middlewareFilters())
-            .with(retries: buildable.retries())
-            .with(applyMiddlewares: buildable.applyMiddlewares())
-            .with(description: buildable.requestDescription())
+    public func with(buildable: Buildable?) -> Self {
+        if let buildable = buildable {
+            return self
+                .with(operation: try? buildable.operation())
+                .with(entityName: try? buildable.entityName())
+                .with(predicate: try? buildable.predicate())
+                .with(sortDescriptors: try? buildable.sortDescriptors())
+                .with(fetchResultType: buildable.fetchResultType())
+                .with(fetchProperties: buildable.fetchProperties())
+                .with(fetchGroupBy: buildable.fetchGroupBy())
+                .with(fetchLimit: buildable.fetchLimit())
+                .with(fetchOffset: buildable.fetchOffset())
+                .with(fetchBatchSize: buildable.fetchBatchSize())
+                .with(insertedData: try? buildable.insertedData())
+                .with(upsertedData: try? buildable.upsertedData())
+                .with(deletedData: try? buildable.deletedData())
+                .with(vcStrategy: try? buildable.versionConflictStrategy())
+                .with(frcSectionName: buildable.frcSectionName())
+                .with(frcCacheName: buildable.frcCacheName())
+                .with(mwFilters: buildable.middlewareFilters())
+                .with(retries: buildable.retries())
+                .with(applyMiddlewares: buildable.applyMiddlewares())
+                .with(description: buildable.requestDescription())
+        } else {
+            return self
+        }
     }
 
     public func build() -> Buildable {

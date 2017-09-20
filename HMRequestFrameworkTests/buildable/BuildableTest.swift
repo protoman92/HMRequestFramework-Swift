@@ -90,14 +90,18 @@ extension Model1: HMBuildableType {
 extension Model1.Builder: HMProtocolConvertibleBuilderType {
     public typealias Buildable = Model1
     
-    public func with(generic: Buildable.PTCType) -> Self {
-        return self
-            .with(a1: generic.a1)
-            .with(a2: generic.a2)
-            .with(a3: generic.a3)
+    public func with(generic: Buildable.PTCType?) -> Self {
+        if let generic = generic {
+            return self
+                .with(a1: generic.a1)
+                .with(a2: generic.a2)
+                .with(a3: generic.a3)
+        } else {
+            return self
+        }
     }
     
-    public func with(buildable: Buildable) -> Self {
+    public func with(buildable: Buildable?) -> Self {
         return with(generic: buildable)
     }
     
