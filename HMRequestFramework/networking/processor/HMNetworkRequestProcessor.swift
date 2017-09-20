@@ -63,11 +63,7 @@ extension HMNetworkRequestProcessor: HMNetworkRequestHandlerType {
     ///   - previous: The result of the upstream request.
     ///   - generator: Generator function to create the current request.
     /// - Returns: An Observable instance.
-    public func execute<Prev>(
-        _ previous: Try<Prev>,
-        _ generator: @escaping HMRequestGenerator<Prev,Req>)
-        -> Observable<Try<Data>>
-    {
-        return handler.execute(previous, generator)
+    public func execute(_ request: Req) throws -> Observable<Try<Data>> {
+        return try handler.execute(request)
     }
 }

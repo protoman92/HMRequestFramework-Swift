@@ -55,6 +55,7 @@ public extension HMRequestHandlerType {
         -> Observable<Try<Val>>
     {
         return request(previous, generator)
+            
             /// If we nest the request like this, even if there are multiple
             /// requests generated (each emitting a Try<Req>), the error
             /// catching would still work correctly.

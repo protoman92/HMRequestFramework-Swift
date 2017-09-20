@@ -26,22 +26,6 @@ public struct HMNetworkRequestHandler {
         }
     }
     
-    /// Perform a network request with required dependencies.
-    ///
-    /// - Parameter request: A HMNetworkRequestType instance.
-    /// - Returns: An Observable instance.
-    /// - Throws: Exception if the operation fails.
-    fileprivate func execute(_ request: Req) throws -> Observable<Try<Data>> {
-        let urlSession = self.urlSession()
-        let urlRequest = try request.urlRequest()
-            
-        return urlSession
-            .rx.data(request: urlRequest)
-            .retry(request.retries())
-            .map(Try.success)
-            .catchErrorJustReturn(Try.failure)
-    }
-    
     /// Execute a data request.
     ///
     /// - Parameter request: A Req instance.
@@ -84,16 +68,18 @@ public struct HMNetworkRequestHandler {
     
     /// Perform a network request.
     ///
-    /// - Parameters:
-    ///   - previous: The result of the upstream request.
-    ///   - generator: Generator function to create the current request.
+    /// - Parameters previous: A Req instance.
     /// - Returns: An Observable instance.
-    public func execute<Prev>(
-        _ previous: Try<Prev>,
-        _ generator: @escaping HMRequestGenerator<Prev,HMNetworkRequest>)
-        -> Observable<Try<Data>>
-    {
-        return execute(previous, generator, execute)
+    public func execute(_ request: Req) throws -> Observable<Try<Data>> {
+        let operation  = try request.operation()
+        
+        switch operation {
+        case .upload:
+            return try executeUpload(request)
+            
+        default:
+            return try executeData(request)
+        }
     }
 }
 

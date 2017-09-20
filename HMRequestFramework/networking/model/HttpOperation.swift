@@ -46,7 +46,7 @@ public enum HttpOperation: EnumerableType {
     public func requiresBody() -> Bool {
         switch self {
         case .post, .put, .upload, .patch:
-            return true;
+            return true
             
         default:
             return false
