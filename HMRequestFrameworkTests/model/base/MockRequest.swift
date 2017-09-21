@@ -11,12 +11,14 @@
 public struct MockRequest {
     fileprivate var mFilters: [MiddlewareFilter]
     fileprivate var retryCount: Int
+    fileprivate var retryDelayIntv: TimeInterval
     fileprivate var middlewaresEnabled: Bool
     fileprivate var rqDescription: String?
     
     fileprivate init() {
         mFilters = []
         retryCount = 1
+        retryDelayIntv = 0
         middlewaresEnabled = false
     }
 }
@@ -30,6 +32,10 @@ extension MockRequest: HMRequestType {
     
     public func retries() -> Int {
         return retryCount
+    }
+    
+    public func retryDelay() -> TimeInterval {
+        return retryDelayIntv
     }
     
     public func applyMiddlewares() -> Bool {
@@ -76,6 +82,12 @@ public extension MockRequest {
         }
         
         @discardableResult
+        public func with(retryDelay: TimeInterval) -> Self {
+            request.retryDelayIntv = retryDelay
+            return self
+        }
+        
+        @discardableResult
         public func with(applyMiddlewares: Bool) -> Self {
             request.middlewaresEnabled = applyMiddlewares
             return self
@@ -93,6 +105,7 @@ public extension MockRequest {
                     .with(mwFilters: buildable.middlewareFilters())
                     .with(applyMiddlewares: buildable.applyMiddlewares())
                     .with(retries: buildable.retries())
+                    .with(retryDelay: buildable.retryDelay())
                     .with(description: buildable.requestDescription())
             } else {
                 return self

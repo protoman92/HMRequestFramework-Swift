@@ -60,8 +60,11 @@ public struct HMNetworkRequestHandler {
             throw Exception("No Data available for upload")
         }
         
+        let retries = request.retries()
+        let delay = request.retryDelay()
+        
         return uploadTask
-            .retry(request.retries())
+            .delayRetry(retries: retries, delay: delay)
             .map(Try.success)
             .catchErrorJustReturn(Try.failure)
     }

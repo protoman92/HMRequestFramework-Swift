@@ -15,6 +15,11 @@ public protocol HMRequestType: HMMiddlewareFilterableType {
     /// - Returns: An Int value.
     func retries() -> Int
     
+    /// Specify how long two consecutive retries are from each other.
+    ///
+    /// - Returns: A TimeInterval value.
+    func retryDelay() -> TimeInterval
+    
     /// Indicate whether middlewares should apply to this request. This is
     /// useful for when a request is being performed for a middleware itself.
     /// Without this flag, we could encounter an infinite loop.

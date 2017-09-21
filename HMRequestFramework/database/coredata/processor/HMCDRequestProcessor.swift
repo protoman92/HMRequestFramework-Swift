@@ -129,9 +129,11 @@ public extension HMCDRequestProcessor {
         let manager = coreDataManager()
         let cdRequest = try request.fetchRequest(Val.self)
         let context = manager.disposableObjectContext()
+        let retries = request.retries()
+        let delay = request.retryDelay()
     
         return manager.rx.fetch(context, cdRequest)
-            .retry(request.retries())
+            .delayRetry(retries: retries, delay: delay)
             .map(Try.success)
             .catchErrorJustReturn(Try.failure)
     }
@@ -148,9 +150,11 @@ public extension HMCDRequestProcessor {
         let manager = coreDataManager()
         let insertedData = try request.insertedData()
         let context = manager.disposableObjectContext()
+        let retries = request.retries()
+        let delay = request.retryDelay()
         
         return manager.rx.saveConvertibles(context, insertedData)
-            .retry(request.retries())
+            .delayRetry(retries: retries, delay: delay)
             .map(Try.success)
             .catchErrorJustReturn(Try.failure)
     }
@@ -165,9 +169,11 @@ public extension HMCDRequestProcessor {
     /// - Throws: Exception if the execution fails.
     fileprivate func executePersistToFile(_ request: Req) throws -> Observable<Try<Void>> {
         let manager = coreDataManager()
+        let retries = request.retries()
+        let delay = request.retryDelay()
         
         return manager.rx.persistLocally()
-            .retry(request.retries())
+            .delayRetry(retries: retries, delay: delay)
             .map(Try.success)
             .catchErrorJustReturn(Try.failure)
     }
@@ -182,9 +188,11 @@ public extension HMCDRequestProcessor {
     /// - Throws: Exception if the execution fails.
     fileprivate func executeResetStack(_ request: Req) throws -> Observable<Try<Void>> {
         let manager = coreDataManager()
+        let retries = request.retries()
+        let delay = request.retryDelay()
         
         return manager.rx.resetStack()
-            .retry(request.retries())
+            .delayRetry(retries: retries, delay: delay)
             .map(Try.success)
             .catchErrorJustReturn(Try.failure)
     }
@@ -231,6 +239,8 @@ public extension HMCDRequestProcessor {
     fileprivate func executeDeleteData(_ request: Req) throws -> Observable<Try<Void>> {
         let manager = coreDataManager()
         let entityName = try request.entityName()
+        let retries = request.retries()
+        let delay = request.retryDelay()
         
         // Putting the context outside the create block allows it to be retained
         // strongly, preventing inner managed objects from being ARC off.
@@ -280,7 +290,7 @@ public extension HMCDRequestProcessor {
                 )
             })
             .reduce((), accumulator: {_ in ()})
-            .retry(request.retries())
+            .delayRetry(retries: retries, delay: delay)
             .map(Try.success)
             .catchErrorJustReturn(Try.failure)
     }
@@ -316,10 +326,12 @@ public extension HMCDRequestProcessor {
         let manager = coreDataManager()
         let deleteRequest = try request.untypedFetchRequest()
         let context = manager.disposableObjectContext()
+        let retries = request.retries()
+        let delay = request.retryDelay()
         
         return manager.rx.delete(context, deleteRequest)
             .map(toVoid)
-            .retry(request.retries())
+            .delayRetry(retries: retries, delay: delay)
             .map(Try.success)
             .catchErrorJustReturn(Try.failure)
     }

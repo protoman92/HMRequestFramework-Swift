@@ -32,6 +32,13 @@ public protocol HMRequestBuilderType: HMBuilderType {
     @discardableResult
     func with(retries: Int) -> Self
     
+    /// Set the retry delay.
+    ///
+    /// - Parameter retryDelay: A TimeInterval value.
+    /// - Returns: The current Builder instance.
+    @discardableResult
+    func with(retryDelay: TimeInterval) -> Self
+    
     /// Enable or disable middlewares.
     ///
     /// - Parameter applyMiddlewares: A Bool value.

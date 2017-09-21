@@ -29,6 +29,7 @@ public struct HMCDRequest {
     fileprivate var cdfrcCacheName: String?
     fileprivate var cdmwFilters: [MiddlewareFilter]
     fileprivate var retryCount: Int
+    fileprivate var retryDelayIntv: TimeInterval
     fileprivate var middlewaresEnabled: Bool
     fileprivate var rqDescription: String?
     
@@ -43,6 +44,7 @@ public struct HMCDRequest {
         nsSortDescriptors = []
         cdmwFilters = []
         retryCount = 1
+        retryDelayIntv = 0
         middlewaresEnabled = true
     }
 }
@@ -426,6 +428,16 @@ extension HMCDRequest.Builder: HMRequestBuilderType {
         request.retryCount = retries
         return self
     }
+    
+    /// Override this method to provide default implementation.
+    ///
+    /// - Parameter retries: An Int value.
+    /// - Returns: The current Builder instance.
+    @discardableResult
+    public func with(retryDelay: TimeInterval) -> Self {
+        request.retryDelayIntv = retryDelay
+        return self
+    }
 
     /// Override this method to provide default implementation.
     ///
@@ -473,6 +485,7 @@ extension HMCDRequest.Builder: HMRequestBuilderType {
                 .with(frcCacheName: buildable.frcCacheName())
                 .with(mwFilters: buildable.middlewareFilters())
                 .with(retries: buildable.retries())
+                .with(retryDelay: buildable.retryDelay())
                 .with(applyMiddlewares: buildable.applyMiddlewares())
                 .with(description: buildable.requestDescription())
         } else {
@@ -494,6 +507,10 @@ extension HMCDRequest: HMRequestType {
     
     public func retries() -> Int {
         return Swift.max(retryCount, 1)
+    }
+    
+    public func retryDelay() -> TimeInterval {
+        return retryDelayIntv
     }
     
     public func applyMiddlewares() -> Bool {

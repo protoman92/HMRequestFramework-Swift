@@ -21,11 +21,13 @@ public struct HMNetworkRequest {
     fileprivate var nwmwFilters: [MiddlewareFilter]
     fileprivate var timeoutInterval: TimeInterval
     fileprivate var retryCount: Int
+    fileprivate var retryDelayIntv: TimeInterval
     fileprivate var middlewaresEnabled: Bool
     fileprivate var rqDescription: String?
     
     fileprivate init() {
         retryCount = 1
+        retryDelayIntv = 0
         httpParams = []
         httpHeaders = [:]
         nwmwFilters = []
@@ -268,6 +270,16 @@ extension HMNetworkRequest.Builder: HMRequestBuilderType {
     
     /// Override this method to provide default implementation.
     ///
+    /// - Parameter retries: An Int value.
+    /// - Returns: The current Builder instance.
+    @discardableResult
+    public func with(retryDelay: TimeInterval) -> Self {
+        request.retryDelayIntv = retryDelay
+        return self
+    }
+    
+    /// Override this method to provide default implementation.
+    ///
     /// - Parameter applyMiddlewares: A Bool value.
     /// - Returns: The current Builder instance.
     @discardableResult
@@ -304,6 +316,7 @@ extension HMNetworkRequest.Builder: HMRequestBuilderType {
                 .with(timeout: buildable.timeout())
                 .with(mwFilters: buildable.middlewareFilters())
                 .with(retries: buildable.retries())
+                .with(retryDelay: buildable.retryDelay())
                 .with(applyMiddlewares: buildable.applyMiddlewares())
                 .with(description: buildable.requestDescription())
         } else {
@@ -325,6 +338,10 @@ extension HMNetworkRequest: HMRequestType {
     
     public func retries() -> Int {
         return Swift.max(retryCount, 1)
+    }
+    
+    public func retryDelay() -> TimeInterval {
+        return retryDelayIntv
     }
     
     public func applyMiddlewares() -> Bool {
