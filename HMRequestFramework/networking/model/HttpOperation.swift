@@ -15,14 +15,15 @@ public enum HttpOperation: EnumerableType {
     case head
     case put
     case upload
+    case sse
     
     public static func allValues() -> [HttpOperation] {
-        return [.get, .post, .patch, .head, .put, .upload]
+        return [get, post, patch, head, put, upload, sse]
     }
     
     public func method() -> String {
         switch self {
-        case .get:
+        case .get, .sse:
             return "GET"
             
         case .post, .upload:

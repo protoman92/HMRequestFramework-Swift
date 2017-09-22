@@ -6,6 +6,7 @@
 //  Copyright © 2017 Holmusk. All rights reserved.
 //
 
+import HMEventSourceManager
 import RxCocoa
 import RxSwift
 import SwiftUtilities
@@ -14,6 +15,7 @@ import SwiftUtilities
 public struct HMNetworkRequestHandler {
     fileprivate var nwUrlSession: URLSession?
     fileprivate var rqmManager: HMFilterMiddlewareManager<Req>?
+    fileprivate var sseManager: HMSSEManager?
     fileprivate var emManager: HMGlobalMiddlewareManager<HMErrorHolder>?
     
     fileprivate init() {}
@@ -23,6 +25,14 @@ public struct HMNetworkRequestHandler {
             return urlSession
         } else {
             fatalError("URLSession cannot be nil")
+        }
+    }
+    
+    fileprivate func eventSourceManager() -> HMSSEManager {
+        if let sseManager = self.sseManager {
+            return sseManager
+        } else {
+            fatalError("Event source manager cannot be nil")
         }
     }
     
@@ -102,6 +112,12 @@ extension HMNetworkRequestHandler: HMNetworkRequestHandlerType {
     public func errorMiddlewareManager() -> HMFilterMiddlewareManager<HMErrorHolder>? {
         return emManager
     }
+    
+    public func executeSSE(_ request: Req) throws -> Observable<Try<[HMSSEvent<HMSSEData>]>> {
+        let sseManager = self.eventSourceManager()
+        let sseRequest = request.asSSERequest()
+        return sseManager.rx.openConnection(sseRequest).map(Try.success)
+    }
 }
 
 extension HMNetworkRequestHandler: HMBuildableType {
@@ -146,6 +162,16 @@ extension HMNetworkRequestHandler: HMBuildableType {
             handler.emManager = emManager
             return self
         }
+        
+        /// Set the SSE manager.
+        ///
+        /// - Parameter sseManager: A HMSSEManager instance.
+        /// - Returns: The current Builder instance.
+        @discardableResult
+        public func with(sseManager: HMSSEManager?) -> Self {
+            handler.sseManager = sseManager
+            return self
+        }
     }
 }
 
@@ -163,6 +189,7 @@ extension HMNetworkRequestHandler.Builder: HMBuilderType {
                 .with(urlSession: buildable.urlSession())
                 .with(rqmManager: buildable.requestMiddlewareManager())
                 .with(emManager: buildable.errorMiddlewareManager())
+                .with(sseManager: buildable.eventSourceManager())
         } else {
             return self
         }

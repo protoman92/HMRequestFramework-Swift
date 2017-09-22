@@ -6,6 +6,7 @@
 //  Copyright © 2017 Holmusk. All rights reserved.
 //
 
+import HMEventSourceManager
 import RxSwift
 import SwiftUtilities
 
@@ -65,5 +66,15 @@ extension HMNetworkRequestProcessor: HMNetworkRequestHandlerType {
     /// - Returns: An Observable instance.
     public func execute(_ request: Req) throws -> Observable<Try<Data>> {
         return try handler.execute(request)
+    }
+    
+    /// Override this method to provide default implementation.
+    ///
+    /// - Parameters:
+    ///   - previous: The result of the upstream request.
+    ///   - generator: Generator function to create the current request.
+    /// - Returns: An Observable instance.
+    public func executeSSE(_ request: Req) throws -> Observable<Try<[HMSSEvent<HMSSEData>]>> {
+        return try handler.executeSSE(request)
     }
 }

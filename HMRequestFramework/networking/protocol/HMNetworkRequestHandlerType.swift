@@ -6,6 +6,7 @@
 //  Copyright © 2017 Holmusk. All rights reserved.
 //
 
+import HMEventSourceManager
 import RxSwift
 import SwiftUtilities
 
@@ -15,8 +16,16 @@ public protocol HMNetworkRequestHandlerType: HMRequestHandlerType {
     /// Perform a network request.
     ///
     /// - Parameter request: A Req instance.
-    /// - Returns: An Observable isntance.
+    /// - Returns: An Observable instance.
+    /// - Throws: Exception if the operation fails.
     func execute(_ request: Req) throws -> Observable<Try<Data>>
+    
+    /// Perform a SSE stream request.
+    ///
+    /// - Parameter request: A Req instance.
+    /// - Returns: An Observable instance.
+    /// - Throws: Exception if the operation fails.
+    func executeSSE(_ request: Req) throws -> Observable<Try<[HMSSEvent<HMSSEData>]>>
 }
 
 public extension HMNetworkRequestHandlerType {
@@ -27,11 +36,23 @@ public extension HMNetworkRequestHandlerType {
     ///   - previous: The result of the upstream request.
     ///   - generator: Generator function to create the current request.
     /// - Returns: An Observable instance.
-    public func execute<Prev>(
-        _ previous: Try<Prev>,
-        _ generator: @escaping HMRequestGenerator<Prev,Req>)
+    public func execute<Prev>(_ previous: Try<Prev>,
+                              _ generator: @escaping HMRequestGenerator<Prev,Req>)
         -> Observable<Try<Data>>
     {
         return execute(previous, generator, execute)
+    }
+    
+    /// Perform a SSE stream request.
+    ///
+    /// - Parameters:
+    ///   - previous: The result of the upstream request.
+    ///   - generator: Generator function to create the current request.
+    /// - Returns: An Observable instance.
+    public func executeSSE<Prev>(_ previous: Try<Prev>,
+                                 _ generator: @escaping HMRequestGenerator<Prev,Req>)
+        -> Observable<Try<[HMSSEvent<HMSSEData>]>>
+    {
+        return execute(previous, generator, executeSSE)
     }
 }

@@ -1,5 +1,10 @@
 PODS:
   - Differentiator (2.0.2)
+  - HMEventSourceManager/Main (1.0.0):
+    - ReachabilitySwift
+    - RxReachability
+    - SwiftUtilities/Main
+  - ReachabilitySwift (3)
   - RxBlocking (3.6.1):
     - RxSwift (~> 3.6)
   - RxCocoa (3.6.1):
@@ -8,52 +13,65 @@ PODS:
     - Differentiator (~> 2.0)
     - RxCocoa (>= 3.6.1)
     - RxSwift (>= 3.6.1)
+  - RxReachability (0.1.3):
+    - ReachabilitySwift (~> 3)
+    - RxCocoa (~> 3)
+    - RxSwift (~> 3)
   - RxSwift (3.6.1)
   - RxTest (3.6.1):
     - RxSwift (~> 3.6)
   - SwiftUIUtilities/Main (1.6.0):
     - SwiftUtilities/Main
-  - SwiftUtilities/Main (1.4.4):
+  - SwiftUtilities/Main (1.4.5):
     - RxBlocking (~> 3.0)
     - RxCocoa (~> 3.0)
     - RxSwift (~> 3.0)
-  - SwiftUtilitiesTests/Main (1.4.3):
+  - SwiftUtilitiesTests/Main (1.4.5):
     - RxBlocking (~> 3.0)
     - RxCocoa (~> 3.0)
     - RxSwift (~> 3.0)
     - RxTest (~> 3.0)
 
 DEPENDENCIES:
+  - HMEventSourceManager/Main (from `https://github.com/Holmusk/HMEventSourceManager-iOS.git`)
   - RxDataSources
   - SwiftUIUtilities/Main (from `https://github.com/protoman92/SwiftUIUtilities.git`)
   - SwiftUtilities/Main (from `https://github.com/protoman92/SwiftUtilities.git`)
   - SwiftUtilitiesTests/Main
 
 EXTERNAL SOURCES:
+  HMEventSourceManager:
+    :git: https://github.com/Holmusk/HMEventSourceManager-iOS.git
   SwiftUIUtilities:
     :git: https://github.com/protoman92/SwiftUIUtilities.git
   SwiftUtilities:
     :git: https://github.com/protoman92/SwiftUtilities.git
 
 CHECKOUT OPTIONS:
+  HMEventSourceManager:
+    :commit: 547fd50b6d43ce6b2a16efb38d4479b77974b26d
+    :git: https://github.com/Holmusk/HMEventSourceManager-iOS.git
   SwiftUIUtilities:
     :commit: 6fba9a15c6eb90d4fd48492d1dcecf8894cc6c46
     :git: https://github.com/protoman92/SwiftUIUtilities.git
   SwiftUtilities:
-    :commit: 119890d60598619ee5cf0e5d7996adb0fa1e7579
+    :commit: 75328fa9c2fe506c51f074382ca30b1429a7aaa6
     :git: https://github.com/protoman92/SwiftUtilities.git
 
 SPEC CHECKSUMS:
   Differentiator: caa9b3957981a2ac8e6b2eac8a676af461caa604
+  HMEventSourceManager: e91abf386747445d67419546f0f498001c5b619c
+  ReachabilitySwift: f5b9bb30a0777fac8f09ce8b067e32faeb29bb64
   RxBlocking: 4f4bd5732e8b952e54ae8a57739bcfb645de12bc
   RxCocoa: 84a08739ab186248c7f31ce4ee92d6f8a947d690
   RxDataSources: 7f190474a93a206c082c2d74c4cc9c8f7bea4feb
+  RxReachability: 0e781fc978c3c850dda6cafa2c5956ff806a1fcc
   RxSwift: f9de85ea20cd2f7716ee5409fc13523dc638e4e4
   RxTest: 1d00348a7848c91ab5bf5d197d2378aa6b2bb356
   SwiftUIUtilities: f283a6b34a08dcebc9086509bd4c3bb91e022a4b
-  SwiftUtilities: 9d0f3fdfa2b9704cb0ce85c45eb19b5a8cb55b02
-  SwiftUtilitiesTests: 689e167fae59e8ebda6b7e5121f75e6a0dd16a39
+  SwiftUtilities: ef0087625fe58fb8909af372111e23461d10af55
+  SwiftUtilitiesTests: cc224ef1ef1b455dc89bc43358d999e56ffbec00
 
-PODFILE CHECKSUM: bc0352050653b67e16409e3218aaa3cb9e5f6c4e
+PODFILE CHECKSUM: fd06924f37cc97448f4fbf49db07c6f5b1a58253
 
 COCOAPODS: 1.3.1

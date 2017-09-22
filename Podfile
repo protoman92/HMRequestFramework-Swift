@@ -2,6 +2,7 @@
 # platform :ios, '9.0'
 
 def allPods
+    pod 'HMEventSourceManager/Main', :git => 'https://github.com/Holmusk/HMEventSourceManager-iOS.git'
     pod 'SwiftUtilities/Main', git: 'https://github.com/protoman92/SwiftUtilities.git'
     pod 'RxDataSources'
 end

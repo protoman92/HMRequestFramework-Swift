@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="13178.6" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="oHU-pF-4et">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="13196" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="oHU-pF-4et">
     <device id="retina4_7" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13156.2"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13173"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -44,11 +44,24 @@
                                     <segue destination="WaL-4q-E8F" kind="show" id="fik-gt-wrG"/>
                                 </connections>
                             </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="s9I-C0-Ju3">
+                                <rect key="frame" x="15" y="124" width="345" height="30"/>
+                                <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
+                                <state key="normal" title="Event Source Controller">
+                                    <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <segue destination="Fxt-0D-cmV" kind="show" id="a8x-MC-OCc"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
+                            <constraint firstItem="s9I-C0-Ju3" firstAttribute="leading" secondItem="hkv-Vo-CNd" secondAttribute="leading" id="5EM-SZ-Bqf"/>
                             <constraint firstItem="hkv-Vo-CNd" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" constant="15" id="8ou-r3-WUr"/>
                             <constraint firstItem="hkv-Vo-CNd" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="15" id="YEl-Ow-GuH"/>
+                            <constraint firstItem="s9I-C0-Ju3" firstAttribute="trailing" secondItem="hkv-Vo-CNd" secondAttribute="trailing" id="bVQ-AP-bZy"/>
+                            <constraint firstItem="s9I-C0-Ju3" firstAttribute="top" secondItem="hkv-Vo-CNd" secondAttribute="bottom" constant="15" id="uPd-FQ-hHn"/>
                             <constraint firstAttribute="trailing" secondItem="hkv-Vo-CNd" secondAttribute="trailing" constant="15" id="z43-4X-4Sh"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
@@ -66,6 +79,14 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="gOm-LK-5ju" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="716" y="-137"/>
+        </scene>
+        <!--SSEController-->
+        <scene sceneID="9cq-Ow-z5I">
+            <objects>
+                <viewControllerPlaceholder storyboardName="SSEController" id="Fxt-0D-cmV" sceneMemberID="viewController"/>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="jx3-IZ-jM0" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="753" y="116"/>
         </scene>
     </scenes>
 </document>
