@@ -28,16 +28,14 @@ public final class SSEController: UIViewController {
         let base64String = authData!.base64EncodedString(options: [])
         let authToken = "Basic \(base64String)"
         
-        let request = HMNetworkRequest.builder()
-            .with(operation: .sse)
-            .with(urlString: "sse")
-            .with(retryDelay: 3)
-            .build()
-        
         let sseManager = HMSSEManager.builder()
             .with(userDefaults: UserDefaults.standard)
             .with(networkChecker: Reachability())
             .build()
+        
+        let addBaseURLKey = "ADD-BASE-URL"
+        let addAuthTokenKey = "ADD-AUTH-TOKEN"
+        let logRequestKey = "LOG-REQUEST"
         
         let middlewareManager = HMFilterMiddlewareManager<HMNetworkRequest>
             .builder()
@@ -45,18 +43,29 @@ public final class SSEController: UIViewController {
                 Observable.just($0.cloneBuilder()
                     .with(baseUrl: "http://127.0.0.1:8080")
                     .build())
-            }, forKey: "ADD-BASE-URL")
+            }, forKey: addBaseURLKey)
             .add(transform: {
                 Observable.just($0.cloneBuilder()
                     .add(header: authToken, forKey: "Authorization")
                     .build())
-            }, forKey: "ADD-AUTH-TOKEN")
-            .add(sideEffect: {print($0)}, forKey: "LOG-REQUEST")
+            }, forKey: addAuthTokenKey)
+            .add(sideEffect: {print($0)}, forKey: logRequestKey)
             .build()
         
         let networkHandler = HMNetworkRequestHandler.builder()
             .with(sseManager: sseManager)
             .with(rqmManager: middlewareManager)
+            .build()
+
+        let request = HMNetworkRequest.builder()
+            .with(operation: .sse)
+            .with(urlString: "sse")
+            .with(retryDelay: 3)
+            .add(mwFilter: HMMiddlewareFilters.includingFilters(
+                addAuthTokenKey,
+                addBaseURLKey,
+                logRequestKey
+            ))
             .build()
         
         let previous = Try.success(())
