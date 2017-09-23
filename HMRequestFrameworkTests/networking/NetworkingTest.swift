@@ -71,10 +71,10 @@ public final class NetworkingTest: RootTest {
         
         /// Then
         let elements = observer.nextElements()
+        print(observer.events)
+        print(elements)
         XCTAssertEqual(elements.count, 1)
-        
-        let first = elements.first!
-        XCTAssertTrue(first.isFailure)
+        XCTAssertTrue(elements.first?.isFailure ?? false)
     }
     
     public func test_uploadData_shouldWork() {

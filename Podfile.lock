@@ -55,7 +55,7 @@ CHECKOUT OPTIONS:
     :commit: 6fba9a15c6eb90d4fd48492d1dcecf8894cc6c46
     :git: https://github.com/protoman92/SwiftUIUtilities.git
   SwiftUtilities:
-    :commit: 75328fa9c2fe506c51f074382ca30b1429a7aaa6
+    :commit: 2bc3b377069b643593ddbfc0b6899d7d4a599e1a
     :git: https://github.com/protoman92/SwiftUtilities.git
 
 SPEC CHECKSUMS:

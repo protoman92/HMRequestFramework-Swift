@@ -28,7 +28,7 @@ public struct HMNetworkRequestHandler {
         }
     }
     
-    fileprivate func eventSourceManager() -> HMSSEManager {
+    public func eventSourceManager() -> HMSSEManager {
         if let sseManager = self.sseManager {
             return sseManager
         } else {
@@ -44,10 +44,11 @@ public struct HMNetworkRequestHandler {
     fileprivate func executeData(_ request: Req) throws -> Observable<Try<Data>> {
         let urlSession = self.urlSession()
         let urlRequest = try request.urlRequest()
+        let retries = request.retries()
+        let delay = request.retryDelay()
         
-        return urlSession
-            .rx.data(request: urlRequest)
-            .retry(request.retries())
+        return urlSession.rx.data(request: urlRequest)
+            .delayRetry(retries: retries, delay: delay)
             .map(Try.success)
             .catchErrorJustReturn(Try.failure)
     }
@@ -138,7 +139,7 @@ extension HMNetworkRequestHandler: HMBuildableType {
         /// - Parameter urlSession: A URLSession instance.
         /// - Returns: The current Builder instance.
         @discardableResult
-        public func with(urlSession: URLSession) -> Self {
+        public func with(urlSession: URLSession?) -> Self {
             handler.nwUrlSession = urlSession
             return self
         }
@@ -186,10 +187,10 @@ extension HMNetworkRequestHandler.Builder: HMBuilderType {
     public func with(buildable: Buildable?) -> Self {
         if let buildable = buildable {
             return self
-                .with(urlSession: buildable.urlSession())
-                .with(rqmManager: buildable.requestMiddlewareManager())
-                .with(emManager: buildable.errorMiddlewareManager())
-                .with(sseManager: buildable.eventSourceManager())
+                .with(urlSession: buildable.nwUrlSession)
+                .with(rqmManager: buildable.rqmManager)
+                .with(emManager: buildable.emManager)
+                .with(sseManager: buildable.sseManager)
         } else {
             return self
         }

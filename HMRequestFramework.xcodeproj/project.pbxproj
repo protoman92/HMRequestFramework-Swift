@@ -469,8 +469,8 @@
 		D34767161F5004B2006C8E9E /* protocol */ = {
 			isa = PBXGroup;
 			children = (
-				D3EBB70B1F2BB6C6003CEB5F /* HMNetworkRequestProcessorType.swift */,
 				D37D0B571F25E1BE0032C6AB /* HMNetworkRequestHandlerType.swift */,
+				D3EBB70B1F2BB6C6003CEB5F /* HMNetworkRequestProcessorType.swift */,
 				D37D0B5C1F25E1BE0032C6AB /* HMNetworkRequestType.swift */,
 				D37D0B5D1F25E1BE0032C6AB /* HMNetworkResourceType.swift */,
 				D33BB3231F469A5900025FD1 /* HMURLComponentProviderType.swift */,
