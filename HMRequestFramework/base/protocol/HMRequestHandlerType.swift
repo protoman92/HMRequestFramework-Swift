@@ -59,7 +59,8 @@ public extension HMRequestHandlerType {
             /// If we nest the request like this, even if there are multiple
             /// requests generated (each emitting a Try<Req>), the error
             /// catching would still work correctly.
-            .flatMap({(req: Try<Req>) in req.rx.get()
+            .flatMap({(req: Try<Req>) in Observable.just(req)
+                .map({try $0.getOrThrow()})
                 .flatMap(self.applyRequestMiddlewares)
                 .flatMap(perform)
                 
@@ -94,10 +95,21 @@ public extension HMRequestHandlerType {
         -> Observable<Try<Val>>
     {
         if let manager = errorMiddlewareManager() {
-            let holder = HMErrorHolder.builder()
-                .with(error: error)
-                .with(requestDescription: request.value?.requestDescription())
-                .build()
+            let rqDescription = request.value?.requestDescription()
+            
+            let holder: HMErrorHolder
+            
+            if let prevHolder = error as? HMErrorHolder {
+                holder = HMErrorHolder.builder()
+                    .with(buildable: prevHolder)
+                    .with(requestDescription: rqDescription)
+                    .build()
+            } else {
+                holder = HMErrorHolder.builder()
+                    .with(error: error)
+                    .with(requestDescription: rqDescription)
+                    .build()
+            }
             
             return manager.applyTransformMiddlewares(holder)
                 .doOnNext(manager.applySideEffectMiddlewares)

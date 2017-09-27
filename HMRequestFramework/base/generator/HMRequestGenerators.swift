@@ -19,7 +19,9 @@ public final class HMRequestGenerators {
         _ generator: @escaping (Prev) throws -> Observable<Req>)
         -> HMRequestGenerator<Prev,Req>
     {
-        return {$0.rx.get().flatMap(generator)
+        return {Observable.just($0)
+            .map({try $0.getOrThrow()})
+            .flatMap(generator)
             .map(Try<Req>.success)
             .catchErrorJustReturn(Try<Req>.failure)}
     }

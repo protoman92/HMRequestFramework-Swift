@@ -25,7 +25,8 @@ public final class HMResultProcessors {
         _ processor: @escaping HMResultProcessor<Val,Res>) throws
         -> Observable<Try<Res>>
     {
-        return previous.rx.get()
+        return Observable.just(previous)
+            .map({try $0.getOrThrow()})
             .flatMap(processor)
             .catchErrorJustReturn(Try.failure)
     }
