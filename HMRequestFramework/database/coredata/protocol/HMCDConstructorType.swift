@@ -27,6 +27,11 @@ public protocol HMCDConstructorType {
     /// - Returns: An Array of HMPersistentStoreSettings.
     /// - Throws: Exception if the settings are not available.
     func storeSettings() throws -> [HMCDStoreSettings]
+    
+    /// Get the main context mode to determine the main context to be used.
+    ///
+    /// - Returns: A HMCDMainContextMode instance.
+    func mainContextMode() -> HMCDMainContextMode
 }
 
 public extension HMCDConstructorType {

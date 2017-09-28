@@ -26,6 +26,7 @@ public struct HMCDManager {
     /// This context is a child of the private managed object context.
     private let mainContext: Context
     private let coordinator: NSPersistentStoreCoordinator
+    private let mainContextMode: HMCDMainContextMode
     let settings: [HMCDStoreSettings]
     
     public init(constructor: HMCDConstructorType) throws {
@@ -39,6 +40,7 @@ public struct HMCDManager {
         self.privateContext = privateContext
         self.mainContext = mainContext
         self.settings = settings
+        self.mainContextMode = constructor.mainContextMode()
         
         // Apply store settings and initialize data stores. This method can be
         // called again to refresh/reset all data.
@@ -105,7 +107,10 @@ public struct HMCDManager {
     ///
     /// - Returns: A Context instance.
     public func mainObjectContext() -> Context {
-        return mainContext
+        switch mainContextMode {
+        case .background: return privateContext
+        case .mainThread: return mainContext
+        }
     }
     
     /// Override this method to provide default implementation.

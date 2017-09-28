@@ -13,9 +13,11 @@ import SwiftUtilities
 public struct HMCDConstructor {
     fileprivate var cdObjectModel: NSManagedObjectModel?
     fileprivate var cdStoreSettings: [HMCDStoreSettings]
+    fileprivate var cdMainContextMode: HMCDMainContextMode
     
     fileprivate init() {
         cdStoreSettings = []
+        cdMainContextMode = .mainThread
     }
 }
 
@@ -39,6 +41,13 @@ extension HMCDConstructor: HMCDConstructorType {
     /// - Throws: Exception if the settings are not available.
     public func storeSettings() throws -> [HMCDStoreSettings] {
         return cdStoreSettings
+    }
+    
+    /// Override this method to provide default implementation.
+    ///
+    /// - Returns: A HMCDMainContextMode instance.
+    public func mainContextMode() -> HMCDMainContextMode {
+        return cdMainContextMode
     }
 }
 
@@ -147,6 +156,16 @@ extension HMCDConstructor: HMBuildableType {
             
             return self
         }
+        
+        /// Set the main context mode.
+        ///
+        /// - Parameter mainContextMode: A HMCDMainContextMode instance.
+        /// - Returns: The current Builder instance.
+        @discardableResult
+        public func with(mainContextMode: HMCDMainContextMode) -> Self {
+            constructor.cdMainContextMode = mainContextMode
+            return self
+        }
     }
 }
 
@@ -163,6 +182,7 @@ extension HMCDConstructor.Builder: HMBuilderType {
             return self
                 .with(objectModel: try? buildable.objectModel())
                 .with(settings: (try? buildable.storeSettings()))
+                .with(mainContextMode: buildable.mainContextMode())
         } else {
             return self
         }

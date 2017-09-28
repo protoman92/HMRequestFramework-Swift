@@ -57,10 +57,11 @@ public final class CoreDataManagerTest: CoreDataRootTest {
         // Save the dummies in memory. Their NSManagedObject equivalents will
         // be constructed here.
         manager.rx.savePureObjects(saveContext, dummies)
+            .subscribeOn(qos: .background)
             
             // Perform a fetch to verify that the data have been inserted, but
             // not persisted.
-            .flatMap({manager.rx.fetch(fetchContext1, fetchRq)})
+            .flatMap({manager.rx.fetch(fetchContext1, fetchRq).subscribeOn(qos: .background)})
             .doOnNext({XCTAssertEqual($0.count, dummyCount)})
             .map(toVoid)
             

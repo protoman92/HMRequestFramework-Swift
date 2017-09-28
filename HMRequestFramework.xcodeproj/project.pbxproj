@@ -131,6 +131,7 @@
 		D3FC6E7C1F2F0588007471E2 /* HMIdentifiableType.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3FC6E7B1F2F0588007471E2 /* HMIdentifiableType.swift */; };
 		D3FC6E801F2F0C7F007471E2 /* HMCDIdentifiableType.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3FC6E7F1F2F0C7F007471E2 /* HMCDIdentifiableType.swift */; };
 		D3FDA85B1F501289005E41D4 /* RootTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3FDA85A1F501289005E41D4 /* RootTest.swift */; };
+		D3FEC6801F7D663900DCC41C /* HMCDMainContextMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3FEC67F1F7D663900DCC41C /* HMCDMainContextMode.swift */; };
 		D3FF536C1F29E3A000F78806 /* RequestTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3FF536B1F29E2FE00F78806 /* RequestTest.swift */; };
 		D3FF536D1F29E3A000F78806 /* CoreDataManagerTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3FF53661F29E2FE00F78806 /* CoreDataManagerTest.swift */; };
 		D3FF53701F29E3A000F78806 /* Dummy1.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3FF53631F29E2FE00F78806 /* Dummy1.swift */; };
@@ -298,6 +299,7 @@
 		D3FC6E7B1F2F0588007471E2 /* HMIdentifiableType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMIdentifiableType.swift; sourceTree = "<group>"; };
 		D3FC6E7F1F2F0C7F007471E2 /* HMCDIdentifiableType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMCDIdentifiableType.swift; sourceTree = "<group>"; };
 		D3FDA85A1F501289005E41D4 /* RootTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootTest.swift; sourceTree = "<group>"; };
+		D3FEC67F1F7D663900DCC41C /* HMCDMainContextMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMCDMainContextMode.swift; sourceTree = "<group>"; };
 		D3FF53631F29E2FE00F78806 /* Dummy1.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Dummy1.swift; sourceTree = "<group>"; };
 		D3FF53661F29E2FE00F78806 /* CoreDataManagerTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataManagerTest.swift; sourceTree = "<group>"; };
 		D3FF53691F29E2FE00F78806 /* NetworkingTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkingTest.swift; sourceTree = "<group>"; };
@@ -372,6 +374,8 @@
 			isa = PBXGroup;
 			children = (
 				D333335E1F4F4C45007DE849 /* HMCDEvent.swift */,
+				D39E5EA21F5F02C20056C8A3 /* HMCDEvents.swift */,
+				D3FEC67F1F7D663900DCC41C /* HMCDMainContextMode.swift */,
 				D37D0B701F25E1BE0032C6AB /* HMCDOperation.swift */,
 				D3206FBC1F55CA48006AEDDF /* HMCDPagination.swift */,
 				D3206FBE1F55D596006AEDDF /* HMCDPaginationMode.swift */,
@@ -380,7 +384,6 @@
 				D353BE871F508CC3004AD111 /* HMCDSection.swift */,
 				D325C40F1F510E1200FC802C /* HMCDSectionInfo+DataSource.swift */,
 				D32E78011F59229400A60D50 /* HMCDSections.swift */,
-				D39E5EA21F5F02C20056C8A3 /* HMCDEvents.swift */,
 			);
 			path = model;
 			sourceTree = "<group>";
@@ -1178,6 +1181,7 @@
 				D3922E0A1F26334A004A49B9 /* HMCDStoreURL.swift in Sources */,
 				D3AC071C1F3DAE7C0085D329 /* HMCDManager+Upsert+Rx.swift in Sources */,
 				D37D0BAC1F25E3A00032C6AB /* HMCDRequestType.swift in Sources */,
+				D3FEC6801F7D663900DCC41C /* HMCDMainContextMode.swift in Sources */,
 				D352E2991F3AD7F0001FD55E /* HMCDManager+Delete+Rx.swift in Sources */,
 				D37D0BAF1F25E3A00032C6AB /* HMDatabaseRequestType.swift in Sources */,
 				D37D0BB01F25E3A00032C6AB /* HMNetworkRequestHandler.swift in Sources */,

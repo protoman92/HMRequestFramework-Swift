@@ -9,7 +9,8 @@
 @testable import HMRequestFramework
 
 public final class Singleton {
-    public static func coreDataManager(_ store: HMCDStoreSettings.StoreType) -> HMCDManager {
+    public static func coreDataManager(_ mainContextMode: HMCDMainContextMode,
+                                       _ store: HMCDStoreSettings.StoreType) -> HMCDManager {
         let fileManager = FileManager.default
         
         let url = HMCDStoreURL.builder()
@@ -34,6 +35,7 @@ public final class Singleton {
         let constructor = HMCDConstructor.builder()
             .with(cdTypes: Dummy1.CDClass.self, Dummy2.CDClass.self)
             .with(settings: settings)
+            .with(mainContextMode: mainContextMode)
             .build()
         
         return try! HMCDManager(constructor: constructor)
