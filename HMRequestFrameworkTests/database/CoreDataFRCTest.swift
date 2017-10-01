@@ -44,7 +44,8 @@ public final class CoreDataFRCTest: CoreDataRootTest {
         var insertCount = 0
         
         /// When
-        processor.streamDBEvents(Dummy1.self)
+        processor
+            .streamDBEvents(Dummy1.self)
             .doOnNext({_ in callCount += 1})
             .map({try $0.getOrThrow()})
             .doOnNext({
@@ -280,7 +281,6 @@ public final class CoreDataFRCTest: CoreDataRootTest {
             })
             .cast(to: Any.self)
             .delay(0.5, scheduler: MainScheduler.instance)
-            .subscribeOn(qos: .background)
             .subscribe(streamObserver)
             .disposed(by: disposeBag)
         

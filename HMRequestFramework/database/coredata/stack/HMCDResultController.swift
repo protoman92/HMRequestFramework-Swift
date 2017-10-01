@@ -19,7 +19,14 @@ public final class HMCDResultController: NSObject {
     fileprivate let dbLevelSubject: BehaviorSubject<Event>
     fileprivate let objectLevelSubject: BehaviorSubject<Event>
     fileprivate let sectionLevelSubject: BehaviorSubject<Event>
+    fileprivate let operation: OperationQueue
+    fileprivate var defaultQoS: DispatchQoS.QoSClass?
     var frc: Controller?
+    
+    /// This shall be the common QOS to be used to push events.
+    public var qualityOfService: DispatchQoS.QoSClass {
+        return defaultQoS ?? .userInitiated
+    }
     
     deinit {
         // Make sure references are properly disposed of.
@@ -30,6 +37,9 @@ public final class HMCDResultController: NSObject {
         dbLevelSubject = BehaviorSubject<Event>(value: .dummy)
         objectLevelSubject = BehaviorSubject<Event>(value: .dummy)
         sectionLevelSubject = BehaviorSubject<Event>(value: .dummy)
+        let operation = OperationQueue()
+        operation.underlyingQueue = DispatchQueue.main
+        self.operation = operation
         super.init()
     }
     
@@ -47,11 +57,13 @@ public final class HMCDResultController: NSObject {
     }
     
     func eventObservable() -> Observable<Event> {
+        let qos = qualityOfService
+        
         return Observable
             .merge(
-                dbLevelSubject,
-                objectLevelSubject,
-                sectionLevelSubject
+                dbLevelSubject.observeOn(qos: qos),
+                objectLevelSubject.observeOn(qos: qos),
+                sectionLevelSubject.observeOn(qos: qos)
             )
             .filter({$0.isValidEvent()})
     }
@@ -112,6 +124,16 @@ extension HMCDResultController: HMBuildableType {
             controller.frc = frc
             return self
         }
+        
+        /// Set the QoS to be used to push events.
+        ///
+        /// - Parameter defaultQoS: A QoSClass instance.
+        /// - Returns: The current Builder instance.
+        @discardableResult
+        public func with(defaultQoS: DispatchQoS.QoSClass?) -> Self {
+            controller.defaultQoS = defaultQoS
+            return self
+        }
     }
 }
 
@@ -124,7 +146,13 @@ extension HMCDResultController.Builder: HMBuilderType {
     /// - Returns: The current Builder instance.
     @discardableResult
     public func with(buildable: Buildable?) -> Self {
-        return self.with(frc: buildable?.frc)
+        if let buildable = buildable {
+            return self
+                .with(frc: buildable.frc)
+                .with(defaultQoS: buildable.defaultQoS)
+        } else {
+            return self
+        }
     }
     
     public func build() -> Buildable {
@@ -148,9 +176,13 @@ extension HMCDResultController: NSFetchedResultsControllerDelegate {
 //            try? controller.performFetch()
 //        }
         
-        let observer = dbLevelObserver()
-        observer.onNext(dbLevel(controller, Event.didLoad))
-        observer.onNext(Event.didChange)
+        operation.addOperation({[weak self] in
+            if let `self` = self {
+                let observer = self.dbLevelObserver()
+                observer.onNext(self.dbLevel(controller, Event.didLoad))
+                observer.onNext(Event.didChange)
+            }
+        })
     }
     
     /// Notifies the delegate that section and object changes are about to be
@@ -161,9 +193,13 @@ extension HMCDResultController: NSFetchedResultsControllerDelegate {
     /// Clients may prepare for a batch of updates by using this method to begin
     /// an update block for their view.
     public func controllerWillChangeContent(_ controller: Controller) {
-        let observer = dbLevelObserver()
-        observer.onNext(Event.willLoad)
-        observer.onNext(Event.willChange)
+        operation.addOperation({[weak self] in
+            if let `self` = self {
+                let observer = self.dbLevelObserver()
+                observer.onNext(Event.willLoad)
+                observer.onNext(Event.willChange)
+            }
+        })
     }
     
     /// Asks the delegate to return the corresponding section index entry for a
@@ -211,9 +247,13 @@ extension HMCDResultController: NSFetchedResultsControllerDelegate {
                            at indexPath: IndexPath?,
                            for type: NSFetchedResultsChangeType,
                            newIndexPath: IndexPath?) {
-        let observer = objectLevelObserver()
-        let event = Event.objectLevel(type, anObject, indexPath, newIndexPath)
-        observer.onNext(event)
+        operation.addOperation({[weak self] in
+            if let `self` = self {
+                let observer = self.objectLevelObserver()
+                let event = Event.objectLevel(type, anObject, indexPath, newIndexPath)
+                observer.onNext(event)
+            }
+        })
     }
     
     /// Notifies the delegate of added or removed sections.
@@ -231,9 +271,13 @@ extension HMCDResultController: NSFetchedResultsControllerDelegate {
                            didChange sectionInfo: NSFetchedResultsSectionInfo,
                            atSectionIndex sectionIndex: Int,
                            for type: NSFetchedResultsChangeType) {
-        let observer = sectionLevelObserver()
-        let event = Event.sectionLevel(type, sectionInfo, sectionIndex)
-        observer.onNext(event)
+        operation.addOperation({[weak self] in
+            if let `self` = self {
+                let observer = self.sectionLevelObserver()
+                let event = Event.sectionLevel(type, sectionInfo, sectionIndex)
+                observer.onNext(event)
+            }
+        })
     }
     
     /// Get a DB change Event from the associated result controller.

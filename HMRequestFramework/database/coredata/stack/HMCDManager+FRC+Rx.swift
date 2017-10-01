@@ -44,6 +44,10 @@ public extension HMCDManager {
         -> HMCDResultController
     {
         let frc = try getFRCForRequest(request, HMCDResultController.Result.self)
-        return HMCDResultController.builder().with(frc: frc).build()
+        
+        return HMCDResultController.builder()
+            .with(frc: frc)
+            .with(defaultQoS: request.frcDefautQoS())
+            .build()
     }
 }

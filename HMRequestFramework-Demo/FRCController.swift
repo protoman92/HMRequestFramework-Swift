@@ -71,16 +71,13 @@ public final class FRCController: UIViewController {
         
         /// Scroll view setup
         
-        let pageObs = Observable<HMCursorDirection>
-            .merge(
-                scrollView.rx
-                    .didOverscroll(100, .up, .down)
-                    .debounce(0.6, scheduler: MainScheduler.instance)
-                    .map({$0.rawValue})
-                    .map({HMCursorDirection(from: $0)})
-                    .startWith(.remain)
-            )
-            .observeOn(MainScheduler.instance)
+        let pageObs = Observable<HMCursorDirection>.merge(
+            scrollView.rx.didOverscroll(100, .up, .down)
+                .debounce(0.6, scheduler: MainScheduler.instance)
+                .map({$0.rawValue})
+                .map({HMCursorDirection(from: $0)})
+                .startWith(.remain)
+        )
         
         /// Table View setup.
         
@@ -198,6 +195,8 @@ public final class FRCController: UIViewController {
                 }
             )
             .flatMap(HMCDEvents.didLoadSections)
+            .logCheckMainThread()
+            .observeOnMain()
             .bind(to: data)
             .disposed(by: disposeBag)
     }

@@ -25,8 +25,9 @@ public struct HMCDRequest {
     fileprivate var cdUpsertedData: [HMCDUpsertableType]
     fileprivate var cdDeletedData: [HMCDObjectConvertibleType]
     fileprivate var cdVCStrategy: VersionConflict.Strategy?
-    fileprivate var cdfrcSectionName: String?
-    fileprivate var cdfrcCacheName: String?
+    fileprivate var cdFrcSectionName: String?
+    fileprivate var cdFrcCacheName: String?
+    fileprivate var cdFrcDefaultQoS: DispatchQoS.QoSClass?
     fileprivate var cdmwFilters: [MiddlewareFilter]
     fileprivate var retryCount: Int
     fileprivate var retryDelayIntv: TimeInterval
@@ -380,7 +381,7 @@ extension HMCDRequest: HMBuildableType {
         /// - Returns: The current Builder instance.
         @discardableResult
         public func with(frcSectionName: String?) -> Self {
-            request.cdfrcSectionName = frcSectionName
+            request.cdFrcSectionName = frcSectionName
             return self
         }
         
@@ -390,7 +391,17 @@ extension HMCDRequest: HMBuildableType {
         /// - Returns: The current Builder instance.
         @discardableResult
         public func with(frcCacheName: String?) -> Self {
-            request.cdfrcCacheName = frcCacheName
+            request.cdFrcCacheName = frcCacheName
+            return self
+        }
+        
+        /// Set the FRC default QoS.
+        ///
+        /// - Parameter defaultQoS: A QoSClass instance.
+        /// - Returns: The current Builder instance.
+        @discardableResult
+        public func with(defaultQoS: DispatchQoS.QoSClass?) -> Self {
+            request.cdFrcDefaultQoS = defaultQoS
             return self
         }
     }
@@ -467,27 +478,28 @@ extension HMCDRequest.Builder: HMRequestBuilderType {
     public func with(buildable: Buildable?) -> Self {
         if let buildable = buildable {
             return self
-                .with(operation: try? buildable.operation())
-                .with(entityName: try? buildable.entityName())
-                .with(predicate: try? buildable.predicate())
-                .with(sortDescriptors: try? buildable.sortDescriptors())
-                .with(fetchResultType: buildable.fetchResultType())
-                .with(fetchProperties: buildable.fetchProperties())
-                .with(fetchGroupBy: buildable.fetchGroupBy())
-                .with(fetchLimit: buildable.fetchLimit())
-                .with(fetchOffset: buildable.fetchOffset())
-                .with(fetchBatchSize: buildable.fetchBatchSize())
-                .with(insertedData: try? buildable.insertedData())
-                .with(upsertedData: try? buildable.upsertedData())
-                .with(deletedData: try? buildable.deletedData())
-                .with(vcStrategy: try? buildable.versionConflictStrategy())
-                .with(frcSectionName: buildable.frcSectionName())
-                .with(frcCacheName: buildable.frcCacheName())
-                .with(mwFilters: buildable.middlewareFilters())
-                .with(retries: buildable.retries())
-                .with(retryDelay: buildable.retryDelay())
-                .with(applyMiddlewares: buildable.applyMiddlewares())
-                .with(description: buildable.requestDescription())
+                .with(operation: buildable.cdOperation)
+                .with(entityName: buildable.cdEntityName)
+                .with(predicate: buildable.nsPredicate)
+                .with(sortDescriptors: buildable.nsSortDescriptors)
+                .with(fetchResultType: buildable.cdFetchResultType)
+                .with(fetchProperties: buildable.cdFetchProperties)
+                .with(fetchGroupBy: buildable.cdFetchGroupBy)
+                .with(fetchLimit: buildable.cdFetchLimit)
+                .with(fetchOffset: buildable.cdFetchOffset)
+                .with(fetchBatchSize: buildable.cdFetchBatchSize)
+                .with(insertedData: buildable.cdInsertedData)
+                .with(upsertedData: buildable.cdUpsertedData)
+                .with(deletedData: buildable.cdDeletedData)
+                .with(vcStrategy: buildable.cdVCStrategy)
+                .with(frcSectionName: buildable.cdFrcSectionName)
+                .with(frcCacheName: buildable.cdFrcCacheName)
+                .with(defaultQoS: buildable.cdFrcDefaultQoS)
+                .with(mwFilters: buildable.cdmwFilters)
+                .with(retries: buildable.retryCount)
+                .with(retryDelay: buildable.retryDelayIntv)
+                .with(applyMiddlewares: buildable.middlewaresEnabled)
+                .with(description: buildable.rqDescription)
         } else {
             return self
         }
@@ -578,11 +590,15 @@ extension HMCDRequest: HMCDFetchRequestType {
 
 extension HMCDRequest: HMCDFetchedResultRequestType {
     public func frcCacheName() -> String? {
-        return cdfrcCacheName
+        return cdFrcCacheName
     }
     
     public func frcSectionName() -> String? {
-        return cdfrcSectionName
+        return cdFrcSectionName
+    }
+    
+    public func frcDefautQoS() -> DispatchQoS.QoSClass? {
+        return cdFrcDefaultQoS
     }
 }
 

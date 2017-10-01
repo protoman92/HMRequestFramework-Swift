@@ -15,11 +15,15 @@ extension Reactive where Base: HMCDResultController {
     /// Start events stream and observe the process.
     ///
     /// - Parameter obs: An ObserverType instance.
+    /// - Return: A Disposable instance.
     /// - Throws: Exception if the stream cannot be started.
-    private func startStream<O>(_ obs: O) where O: ObserverType, O.E == Void {
+    private func startStream<O>(_ obs: O) -> Disposable where O: ObserverType, O.E == Void {
         base.deleteCache()
         let controller = base.controller()
         let dbLevelObserver = base.dbLevelObserver()
+        
+        // The db level observer's events are observed on a queue, so both
+        // willLoad and didLoad will be delivered.
         dbLevelObserver.onNext(Base.Event.willLoad)
         
         do {
@@ -30,7 +34,9 @@ extension Reactive where Base: HMCDResultController {
             obs.onError(e)
         }
         
+        
         dbLevelObserver.onNext(base.dbLevel(controller, Base.Event.didLoad))
+        return Disposables.create()
     }
     
     /// Start the stream.
@@ -42,15 +48,12 @@ extension Reactive where Base: HMCDResultController {
         PO.CDClass: HMCDPureObjectConvertibleType,
         PO.CDClass.PureObject == PO
     {
+        let qos = base.qualityOfService
+        
         return Observable<Void>
-            .create({obs in
-                self.startStream(obs)
-                return Disposables.create()
-            })
-            
-            // If we subscribe on a background thread, there might be unexpected
-            // behaviors due to different threading.
-            .subscribeOn(MainScheduler.instance)
+            .create(self.startStream)
+            .subscribeOn(qos: qos)
+            .observeOn(qos: qos)
             .flatMap({self.streamEvents(cls)})
     }
     
@@ -64,7 +67,10 @@ extension Reactive where Base: HMCDResultController {
         PO.CDClass: HMCDPureObjectConvertibleType,
         PO.CDClass.PureObject == PO
     {
+        let qos = base.qualityOfService
+        
         return base.eventObservable()
+            .observeOn(qos: qos)
             
             // All events' objects will be implicitly converted to PO. For e.g.,
             // for a section change event, the underlying HMCDEvent<Any> will
@@ -72,6 +78,5 @@ extension Reactive where Base: HMCDResultController {
             .map({$0.cast(to: PO.CDClass.self)})
             .map({$0.map({$0.asPureObject()})})
             .takeUntil(deallocated)
-            .observeOn(MainScheduler.instance)
     }
 }
