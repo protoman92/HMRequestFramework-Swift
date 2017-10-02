@@ -57,14 +57,14 @@ public final class HMCDResultController: NSObject {
     }
     
     func eventObservable() -> Observable<Event> {
-        let qos = qualityOfService
-        
         return Observable
             .merge(
-                dbLevelSubject.observeOn(qos: qos),
-                objectLevelSubject.observeOn(qos: qos),
-                sectionLevelSubject.observeOn(qos: qos)
+                // startWith takes care of the initialize case.
+                dbLevelSubject.startWith(Event.willLoad),
+                objectLevelSubject.asObservable(),
+                sectionLevelSubject.asObservable()
             )
+            .observeOn(qos: qualityOfService)
             .filter({$0.isValidEvent()})
     }
     

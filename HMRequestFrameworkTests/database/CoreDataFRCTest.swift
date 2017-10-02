@@ -23,7 +23,7 @@ public final class CoreDataFRCTest: CoreDataRootTest {
     override public func setUp() {
         super.setUp()
         iterationCount = 5
-        dummyCount = 1000
+        dummyCount = 100
     }
     
     public func test_streamDBInsertsWithProcessor_shouldWork() {
@@ -202,7 +202,7 @@ public final class CoreDataFRCTest: CoreDataRootTest {
         let streamObserver = scheduler.createObserver(Any.self)
         let expect = expectation(description: "Should have completed")
         let disposeBag = self.disposeBag!
-        let dummyCount = 1000
+        let dummyCount = self.dummyCount!
         let pureObjects = (0..<dummyCount).map({_ in Dummy1()})
         let dbProcessor = self.dbProcessor!
     

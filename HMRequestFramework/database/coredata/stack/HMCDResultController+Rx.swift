@@ -22,10 +22,6 @@ extension Reactive where Base: HMCDResultController {
         let controller = base.controller()
         let dbLevelObserver = base.dbLevelObserver()
         
-        // The db level observer's events are observed on a queue, so both
-        // willLoad and didLoad will be delivered.
-        dbLevelObserver.onNext(Base.Event.willLoad)
-        
         do {
             try controller.performFetch()
             obs.onNext(())
