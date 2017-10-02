@@ -26,7 +26,6 @@ public extension HMCDManager {
     ///
     /// - Throws: Exception if the operation fails.
     func persistChangesUnsafely() throws {
-        Preconditions.checkNotRunningOnMainThread(nil)
         try saveUnsafely(mainObjectContext())
         try saveUnsafely(privateObjectContext())
     }
@@ -63,6 +62,7 @@ public extension HMCDManager {
     ///   - pureObjects: A Sequence of HMCDPureObjectType.
     /// - Throws: Exception if the save fails.
     func saveUnsafely<S>(_ context: Context, _ pureObjects: S) throws where
+        
         // For some reasons, XCode 8 cannot compile if we define a separate
         // generics for S.Iterator.Element. Although this is longer, it works
         // for both XCode 8 and 9.

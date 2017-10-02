@@ -37,7 +37,6 @@ public extension HMCDManager {
         S: Sequence, S.Iterator.Element: HMIdentifiableType
     {
         let identifiables = identifiables.map({$0 as HMIdentifiableType})
-        Preconditions.checkNotRunningOnMainThread(identifiables)
         return predicateForIdentifiableFetch(identifiables)
     }
 }
