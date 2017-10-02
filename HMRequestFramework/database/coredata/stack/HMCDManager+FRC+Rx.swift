@@ -10,44 +10,60 @@ import CoreData
 import RxCocoa
 import RxSwift
 
-public extension HMCDManager {
+extension HMCDManager: HMCDResultControllerType {
+    public typealias DBEvent = HMCDResultControllerType.DBEvent
     
-    /// Get a fetched result controller for a fetch request.
-    ///
-    /// - Parameters:
-    ///   - request: A HMCDFetchedResultRequestType instance.
-    ///   - cls: The Val class type.
-    /// - Returns: A NSFetchedResultsController instance.
-    func getFRCForRequest<Val>(_ request: HMCDFetchedResultRequestType,
-                               _ cls: Val.Type) throws
-        -> NSFetchedResultsController<Val>
+    public func didChangeContent<O>(_ controller: Controller, _ obs: O) where
+        O: ObserverType, O.E == DBEvent
     {
-        let fetchRequest = try request.fetchRequest(cls)
-        let sectionName = request.frcSectionName()
-        let cacheName = request.frcCacheName()
-        
-        // Since all save and fetch requests pass through the main context, we
-        // can set it as the target context for the FRC.
-        return NSFetchedResultsController<Val>(
-            fetchRequest: fetchRequest,
-            managedObjectContext: mainObjectContext(),
-            sectionNameKeyPath: sectionName,
-            cacheName: cacheName
-        )
+        obs.onNext(self.dbLevel(controller, DBEvent.didLoad))
+        obs.onNext(DBEvent.didChange)
     }
     
-    /// Get the FRC wrapper that also implements FRC delegate methods.
-    ///
-    /// - Parameters request: A HMCDFetchedResultRequestType instance.
-    /// - Returns: A HMCDResultController instance.
-    func getFRCWrapperForRequest(_ request: HMCDFetchedResultRequestType) throws
-        -> HMCDResultController
+    public func willChangeContent<O>(_ controller: Controller, _ obs: O) where
+        O: ObserverType, O.E == DBEvent
     {
-        let frc = try getFRCForRequest(request, HMCDResultController.Result.self)
-        
-        return HMCDResultController.builder()
-            .with(frc: frc)
-            .with(defaultQoS: request.frcDefautQoS())
-            .build()
+        obs.onNext(DBEvent.willLoad)
+        obs.onNext(DBEvent.willChange)
+    }
+    
+    public func didChangeObject<O>(_ controller: Controller,
+                                   _ object: Any,
+                                   _ oldIndex: IndexPath?,
+                                   _ changeType: ChangeType,
+                                   _ newIndex: IndexPath?,
+                                   _ obs: O) where
+        O: ObserverType, O.E == DBEvent
+    {
+        obs.onNext(DBEvent.objectLevel(changeType, object, oldIndex, newIndex))
+    }
+    
+    public func didChangeSection<O>(_ controller: Controller,
+                                    _ sectionInfo: SectionInfo,
+                                    _ index: Int,
+                                    _ changeType: ChangeType,
+                                    _ obs: O) where
+        O: ObserverType, O.E == DBEvent
+    {
+        obs.onNext(DBEvent.sectionLevel(changeType, sectionInfo, index))
+    }
+}
+
+public extension Reactive where Base == HMCDManager {
+    
+    /// Start the stream and convert all event data to PO.
+    ///
+    /// - Parameter:
+    ///   - request: A HMCDFetchedResultRequestType instance.
+    ///   - cls: The PO class type.
+    /// - Return: An Observable instance.
+    /// - Throws: Exception if the stream cannot be started.
+    public func startDBStream<PO>(_ request: HMCDFetchedResultRequestType,
+                                  _ cls: PO.Type) -> Observable<HMCDEvent<PO>> where
+        PO: HMCDPureObjectType,
+        PO.CDClass: HMCDPureObjectConvertibleType,
+        PO.CDClass.PureObject == PO
+    {
+        return startDBStream(base.mainObjectContext(), request, cls)
     }
 }

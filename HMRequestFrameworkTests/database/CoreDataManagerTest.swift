@@ -57,11 +57,11 @@ public final class CoreDataManagerTest: CoreDataRootTest {
         // Save the dummies in memory. Their NSManagedObject equivalents will
         // be constructed here.
         manager.rx.savePureObjects(saveContext, dummies)
-            .subscribeOn(qos: .background)
+            .subscribeOnConcurrent(qos: .background)
             
             // Perform a fetch to verify that the data have been inserted, but
             // not persisted.
-            .flatMap({manager.rx.fetch(fetchContext1, fetchRq).subscribeOn(qos: .background)})
+            .flatMap({manager.rx.fetch(fetchContext1, fetchRq).subscribeOnConcurrent(qos: .background)})
             .doOnNext({XCTAssertEqual($0.count, dummyCount)})
             .map(toVoid)
             
@@ -277,7 +277,7 @@ public extension CoreDataManagerTest {
                     })
                     .flatMap({manager.rx.savePureObjects(sc1, $0)})
                     .map(toVoid)
-                    .subscribeOn(qos: .background)
+                    .subscribeOnConcurrent(qos: .background)
             })
             .reduce((), accumulator: {_ in ()})
 
@@ -298,7 +298,7 @@ public extension CoreDataManagerTest {
             .flatMap({manager.rx.persistLocally()})
 
             // Fetch to verify that the data have been deleted.
-            .flatMap({manager.rx.fetch(fetchContext2, request).subscribeOn(qos: .background)})
+            .flatMap({manager.rx.fetch(fetchContext2, request).subscribeOnConcurrent(qos: .background)})
             .map({$0.map({$0.asPureObject()})})
             .flattenSequence()
             .cast(to: Any.self)

@@ -251,7 +251,6 @@ public extension HMCDGeneralRequestProcessorType {
         S.Iterator.Element == HMTransform<HMCDRequest>
     {
         return pageObs.asObservable()
-            .observeOn(qos: .userInitiated)
             .flatMapLatest({page -> Observable<Try<HMCDEvent<PO>>> in
                 let pageTransform: HMTransform<HMCDRequest> = {
                     Observable.just($0.cloneBuilder()

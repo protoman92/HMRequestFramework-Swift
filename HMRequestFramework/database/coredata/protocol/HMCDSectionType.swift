@@ -43,4 +43,19 @@ public extension HMCDSectionType {
                   numberOfObjects: type.numberOfObjects,
                   objects: type.objects)
     }
+    
+    public init<ST>(_ type: ST, _ objectLimit: Int) where ST: HMCDSectionType, ST.V == V {
+        let objects = type.objects
+        let slicedCount = Swift.min(objectLimit, objects.count)
+        let slicedObjects = objects[0..<slicedCount].map({$0})
+        
+        self.init(indexTitle: type.indexTitle,
+                  name: type.name,
+                  numberOfObjects: slicedCount,
+                  objects: slicedObjects)
+    }
+    
+    public func withObjectLimit(_ limit: Int) -> Self {
+        return Self.init(self, limit)
+    }
 }

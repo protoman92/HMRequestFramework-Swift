@@ -9,10 +9,7 @@
 import CoreData
 import SwiftUtilities
 
-public typealias DBLevel<V> = (
-    sections: [HMCDSection<V>],
-    objects: [V]
-)
+public typealias DBLevel<V> = ([HMCDSection<V>])
 
 public typealias ObjectLevel<V> = (
     object: V,
@@ -70,16 +67,20 @@ public enum HMCDEvent<V> {
     /// - Parameters:
     ///   - sections: An Array of NSFetchedResultsSectionInfo.
     ///   - objects: An Array of Any.
+    ///   - fetchLimit: An Int value denoting the maximum number of objects in
+    ///                 a section.
     ///   - m: Mapper function to create the enum instance.
     /// - Returns: A HMCDEvent instance.
     public static func dbLevel(_ sections: [NSFetchedResultsSectionInfo]?,
                                _ objects: [Any]?,
+                               _ fetchLimit: Int,
                                _ m: (DBLevel<Any>) -> HMCDEvent<Any>)
         -> HMCDEvent<Any>
     {
-        let objects = objects ?? []
+        let limit = fetchLimit > 0 ? fetchLimit : Int.max 
         let sections = sections?.map(HMCDSection<Any>.init) ?? []
-        return m(DBLevel(sections: sections, objects: objects))
+        
+        return m(DBLevel(sections.map({$0.withObjectLimit(limit)})))
     }
     
     /// Map an object change type to an instance of this enum.
@@ -252,9 +253,8 @@ public extension HMCDEvent {
     fileprivate func mapDBLevel<V2>(_ f: (V) throws -> V2,
                                     _ m: ((DBLevel<V2>)) -> HMCDEvent<V2>,
                                     _ change: DBLevel<V>) -> HMCDEvent<V2> {
-        let sections = change.sections.map({$0.map(f)})
-        let objects = change.objects.flatMap({try? f($0)})
-        return m(DBLevel(sections: sections, objects: objects))
+        let sections = change.map({$0.map(f)})
+        return m(DBLevel(sections))
     }
     
     /// Map an object event to another object event with a different generics.

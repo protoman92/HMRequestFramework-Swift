@@ -400,8 +400,8 @@ extension HMCDRequest: HMBuildableType {
         /// - Parameter defaultQoS: A QoSClass instance.
         /// - Returns: The current Builder instance.
         @discardableResult
-        public func with(defaultQoS: DispatchQoS.QoSClass?) -> Self {
-            request.cdFrcDefaultQoS = defaultQoS
+        public func with(frcDefaultQoS: DispatchQoS.QoSClass?) -> Self {
+            request.cdFrcDefaultQoS = frcDefaultQoS
             return self
         }
     }
@@ -494,7 +494,7 @@ extension HMCDRequest.Builder: HMRequestBuilderType {
                 .with(vcStrategy: buildable.cdVCStrategy)
                 .with(frcSectionName: buildable.cdFrcSectionName)
                 .with(frcCacheName: buildable.cdFrcCacheName)
-                .with(defaultQoS: buildable.cdFrcDefaultQoS)
+                .with(frcDefaultQoS: buildable.cdFrcDefaultQoS)
                 .with(mwFilters: buildable.cdmwFilters)
                 .with(retries: buildable.retryCount)
                 .with(retryDelay: buildable.retryDelayIntv)

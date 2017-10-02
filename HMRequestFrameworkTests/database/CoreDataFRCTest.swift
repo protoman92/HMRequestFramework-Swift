@@ -31,6 +31,7 @@ public final class CoreDataFRCTest: CoreDataRootTest {
         let observer = scheduler.createObserver(Any.self)
         let frcObserver = scheduler.createObserver(Any.self)
         let expect = expectation(description: "Should have completed")
+        let frcExpect = expectation(description: "Should have completed")
         let processor = self.dbProcessor!
         let iterationCount = self.iterationCount!
         let dummyCount = self.dummyCount!
@@ -42,6 +43,8 @@ public final class CoreDataFRCTest: CoreDataRootTest {
         var willChangeCount = 0
         var didChangeCount = 0
         var insertCount = 0
+        
+        let terminateSjb = PublishSubject<Void>()
         
         /// When
         processor
@@ -58,9 +61,11 @@ public final class CoreDataFRCTest: CoreDataRootTest {
                 default: break
                 }
             })
-            .doOnNext({self.validateDidLoad($0, {allDummies.all($0.contains)})})
-            .doOnNext({self.validateInsert($0)})
+            .doOnNext(self.validateDidLoad)
+            .doOnNext(self.validateInsert)
             .cast(to: Any.self)
+            .takeUntil(terminateSjb)
+            .doOnDispose(frcExpect.fulfill)
             .subscribe(frcObserver)
             .disposed(by: disposeBag)
         
@@ -68,6 +73,11 @@ public final class CoreDataFRCTest: CoreDataRootTest {
             .doOnDispose(expect.fulfill)
             .subscribe(observer)
             .disposed(by: disposeBag)
+        
+        background(.background, closure: {
+            while didChangeCount < iterationCount {}
+            terminateSjb.onNext(())
+        })
         
         waitForExpectations(timeout: timeout, handler: nil)
         
@@ -96,13 +106,13 @@ public final class CoreDataFRCTest: CoreDataRootTest {
         /// Setup
         let observer = scheduler.createObserver(Any.self)
         let expect = expectation(description: "Should have completed")
+        let frcExpect = expectation(description: "Should have completed")
         
         let frcRequest = dummy1FetchRequest()
             .cloneBuilder()
             .with(frcSectionName: "id")
             .build()
         
-        let frc = try! manager.getFRCWrapperForRequest(frcRequest)
         let iterationCount = self.iterationCount!
         let dummyCount = self.dummyCount!
         var originalObjects: [Dummy1] = []
@@ -121,8 +131,10 @@ public final class CoreDataFRCTest: CoreDataRootTest {
         var deleteCount = 0
         var deleteSectionCount = 0
         
+        let terminateSbj = PublishSubject<Void>()
+        
         /// When
-        frc.rx.startStream(Dummy1.self)
+        manager.rx.startDBStream(frcRequest, Dummy1.self)
             .doOnNext({_ in callCount += 1})
             .doOnNext({
                 switch $0 {
@@ -142,29 +154,30 @@ public final class CoreDataFRCTest: CoreDataRootTest {
             .doOnNext({self.validateDidLoad($0)})
             .doOnNext({self.validateInsert($0)})
             .doOnNext(self.validateInsertSection)
-            .doOnNext({self.validateUpdate(
-                $0,
-                {!originalObjects.contains($0)},
-                {obj in originalObjects.contains(where: {$0.id == obj.id})})
-            })
+            .doOnNext(self.validateUpdate)
             .doOnNext(self.validateUpdateSection)
             .doOnNext({self.validateDelete($0)})
             .doOnNext(self.validateDeleteSection)
             .cast(to: Any.self)
+            .takeUntil(terminateSbj)
+            .doOnDispose(frcExpect.fulfill)
             .subscribe(observer)
             .disposed(by: disposeBag)
         
         self.upsertAndDelete({originalObjects.append(contentsOf: $0)},
-                             {_ in},
-                             {})
+                             {_ in}, {})
             .doOnDispose(expect.fulfill)
             .subscribe(observer)
             .disposed(by: disposeBag)
         
+        background(.background, closure: {
+            while didChangeCount < iterationCount + 2 {}
+            terminateSbj.onNext(())
+        })
+        
         waitForExpectations(timeout: timeout, handler: nil)
         
         /// Then
-        let currentObjects = frc.currentObjects(Dummy1.self)
         XCTAssertTrue(callCount > iterationCount)
         
         // Initialize event adds 1 to the count, and so did delete event. That's
@@ -192,8 +205,6 @@ public final class CoreDataFRCTest: CoreDataRootTest {
             + deleteCount
             + deleteSectionCount
         )
-        
-        XCTAssertEqual(currentObjects.count, 0)
     }
     
     public func test_streamDBEventsWithPagination_shouldWork(_ mode: HMCDPaginationMode) {
@@ -244,17 +255,12 @@ public final class CoreDataFRCTest: CoreDataRootTest {
                     .add(ascendingSortWithKey: "id")
                     .build())
             })
-            .map({try $0.getOrThrow()})
-            .flatMap({event -> Observable<DBLevel<Dummy1>> in
-                // There is only one initialize event, because we are not
-                // changing/updating anything in the DB. This event contains
-                // only the original, unchanged objects.
-                switch event {
-                case .didLoad(let change): return .just(change)
-                default: return .empty()
-                }
-            })
-            .map({$0.objects})
+            
+            // There is only one initialize event, because we are not
+            // changing/updating anything in the DB. This event contains
+            // only the original, unchanged objects.
+            .flatMap(HMCDEvents.didLoadSections)
+            .map({$0.flatMap({$0.objects})})
             .ifEmpty(default: [Dummy1]())
             .doOnNext({_ in callCount += 1})
             .doOnNext({_ in print("Current page \(currentPage)")})
@@ -318,27 +324,12 @@ public final class CoreDataFRCTest: CoreDataRootTest {
 }
 
 public extension CoreDataFRCTest {
-    func validateDidLoad(_ event: HMCDEvent<Dummy1>,
-                           _ asserts: (([Dummy1]) -> Bool)...) {
-        if case .didLoad(let change) = event {
-            let sections = change.sections
-            let objects = change.objects
-            XCTAssertTrue(asserts.map({$0(objects)}).all({$0}))
-            
-            if sections.isNotEmpty {
-                let sectionObjects = sections.flatMap({$0.objects})
-                XCTAssertEqual(sectionObjects.count, objects.count)
-                XCTAssertTrue(objects.all(sectionObjects.contains))
-            }
-        }
-    }
+    func validateDidLoad(_ event: HMCDEvent<Dummy1>) {}
     
-    func validateInsert(_ event: HMCDEvent<Dummy1>,
-                        _ asserts: ((Dummy1) -> Bool)...) {
+    func validateInsert(_ event: HMCDEvent<Dummy1>) {
         if case .insert(let change) = event {
             XCTAssertNil(change.oldIndex)
             XCTAssertNotNil(change.newIndex)
-            XCTAssertTrue(asserts.map({$0(change.object)}).all({$0}))
         }
     }
     
@@ -350,12 +341,10 @@ public extension CoreDataFRCTest {
         }
     }
     
-    func validateUpdate(_ event: HMCDEvent<Dummy1>,
-                        _ asserts: ((Dummy1) -> Bool)...) {
+    func validateUpdate(_ event: HMCDEvent<Dummy1>) {
         if case .update(let change) = event {
             XCTAssertNotNil(change.oldIndex)
             XCTAssertNotNil(change.newIndex)
-            XCTAssertTrue(asserts.map({$0(change.object)}).all({$0}))
         }
     }
     
@@ -398,7 +387,7 @@ public extension CoreDataFRCTest {
                     )
                     .reduce((), accumulator: {_ in ()})
                     .doOnNext({onSave(pureObjects)})
-                    .subscribeOn(qos: .background)
+                    .subscribeOnConcurrent(qos: .background)
             })
             .reduce((), accumulator: {_ in ()})
             .cast(to: Any.self)
@@ -440,7 +429,7 @@ public extension CoreDataFRCTest {
                         )
                         .reduce((), accumulator: {_ in ()})
                         .doOnNext({onUpsert(replace)})
-                        .subscribeOn(qos: .background)
+                        .subscribeOnConcurrent(qos: .background)
                 })
                 .reduce((), accumulator: {_ in ()})
             })
@@ -452,51 +441,52 @@ public extension CoreDataFRCTest {
 }
 
 public extension CoreDataFRCTest {
-//    public func test_fetchWithLimit_shouldNotReturnMoreThanLimit(_ limit: Int) {
-//        /// Setup
-//        let observer = scheduler.createObserver(Try<Void>.self)
-//        let streamObserver = scheduler.createObserver([Dummy1].self)
-//        let expect = expectation(description: "Should have completed")
-//        let disposeBag = self.disposeBag!
-//        let dbProcessor = self.dbProcessor!
-//        let dummyCount = 10
-//        
-//        /// When
-//        dbProcessor
-//            .streamDBEvents(Dummy1.self, {
-//                Observable.just($0.cloneBuilder().with(fetchLimit: limit).build())
-//            })
-//            
-//            // Skip the initialize (both willLoad and didLoad) events, since
-//            // they will just return an empty Array anyway.
-//            .flatMap(HMCDEvents.didLoadObjects)
-//            .skip(1)
-//            .subscribe(streamObserver)
-//            .disposed(by: disposeBag)
-//        
-//        Observable.range(start: 0, count: dummyCount)
-//            .map({_ in Dummy1()})
-//            .map(Try.success)
-//            .map({$0.map({[$0]})})
-//            .flatMap({dbProcessor.saveToMemory($0)})
-//            .flatMap({dbProcessor.persistToDB($0)})
-//            .doOnDispose(expect.fulfill)
-//            .subscribe(observer)
-//            .disposed(by: disposeBag)
-//        
-//        waitForExpectations(timeout: timeout, handler: nil)
-//        
-//        /// Then
-//        let nextElements = streamObserver.nextElements()
-//        XCTAssertTrue(nextElements.count > 0)
-//        XCTAssertTrue(nextElements.all({$0.count <= limit}))
-//    }
-//    
-//    public func test_fetchWithLimit_shouldNotReturnMoreThanLimit() {
-//        for i in 1..<100 {
-//            setUp()
-//            test_fetchWithLimit_shouldNotReturnMoreThanLimit(i)
-//            tearDown()
-//        }
-//    }
+    public func test_fetchWithLimit_shouldNotReturnMoreThanLimit(_ limit: Int) {
+        /// Setup
+        let observer = scheduler.createObserver(Try<Void>.self)
+        let streamObserver = scheduler.createObserver([Dummy1].self)
+        let expect = expectation(description: "Should have completed")
+        let disposeBag = self.disposeBag!
+        let dbProcessor = self.dbProcessor!
+        let dummyCount = 10
+        
+        /// When
+        dbProcessor
+            .streamDBEvents(Dummy1.self, {
+                Observable.just($0.cloneBuilder().with(fetchLimit: limit).build())
+            })
+            
+            // Skip the initialize (both willLoad and didLoad) events, since
+            // they will just return an empty Array anyway.
+            .flatMap(HMCDEvents.didLoadSections)
+            .map({$0.flatMap({$0.objects})})
+            .skip(1)
+            .subscribe(streamObserver)
+            .disposed(by: disposeBag)
+        
+        Observable.range(start: 0, count: dummyCount)
+            .map({_ in Dummy1()})
+            .map(Try.success)
+            .map({$0.map({[$0]})})
+            .flatMap({dbProcessor.saveToMemory($0)})
+            .flatMap({dbProcessor.persistToDB($0)})
+            .doOnDispose(expect.fulfill)
+            .subscribe(observer)
+            .disposed(by: disposeBag)
+        
+        waitForExpectations(timeout: timeout, handler: nil)
+        
+        /// Then
+        let nextElements = streamObserver.nextElements()
+        XCTAssertTrue(nextElements.count > 0)
+        XCTAssertTrue(nextElements.all({$0.count <= limit}))
+    }
+    
+    public func test_fetchWithLimit_shouldNotReturnMoreThanLimit() {
+        for i in 1..<100 {
+            setUp()
+            test_fetchWithLimit_shouldNotReturnMoreThanLimit(i)
+            tearDown()
+        }
+    }
 }

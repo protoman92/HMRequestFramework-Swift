@@ -183,18 +183,17 @@ public final class FRCController: UIViewController {
                 HMCDPagination.builder()
                     .with(fetchLimit: 5)
                     .with(fetchOffset: 0)
-                    .with(paginationMode: .fixedPageCount)
+                    .with(paginationMode: .variablePageCount)
                     .build(),
                 {
                     Observable.just($0.cloneBuilder()
                         .with(predicate: NSPredicate(value: true))
                         .add(ascendingSortWithKey: "date")
-                        .with(frcSectionName: "dummyHeader")
+//                        .with(frcSectionName: "dummyHeader")
                         .with(frcCacheName: "FRC_Dummy1")
                         .build())
                 }
             )
-            .logNext()
             .flatMap(HMCDEvents.didLoadSections)
             .logCheckMainThread()
             .observeOnMain()

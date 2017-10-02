@@ -83,7 +83,7 @@ public final class SSEController: UIViewController {
                     textView.text = currentText
                 }
             })
-            .observeOn(MainScheduler.instance)
+            .observeOnMain()
             .subscribe()
             .disposed(by: disposeBag)
     }
