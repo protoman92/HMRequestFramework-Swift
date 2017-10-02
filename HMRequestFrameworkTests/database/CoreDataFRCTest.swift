@@ -26,6 +26,35 @@ public final class CoreDataFRCTest: CoreDataRootTest {
         dummyCount = 100
     }
     
+    public func test_sectionWithObjectLimit_shouldWork() {
+        /// Setup
+        let sectionCount = 1000
+        let times = 1
+        
+        for _ in 0..<times {
+            /// Setup
+            let sections = (0..<sectionCount).map({_ -> HMCDSection<Void> in
+                let objectCount = Int.random(100, 1000)
+                let objects = (0..<objectCount).map({_ in ()})
+                
+                return HMCDSection<Void>(indexTitle: "",
+                                         name: "",
+                                         numberOfObjects: objectCount,
+                                         objects: objects)
+            })
+            
+            let limit = Int.random(100, 1000)
+            
+            /// When
+            let slicedSections = HMCDSections.sectionsWithLimit(sections, limit)
+            
+            /// Then
+            XCTAssertEqual(slicedSections.flatMap({$0.objects}).count, limit)
+        }
+ 
+        /// Then
+    }
+    
     public func test_streamDBInsertsWithProcessor_shouldWork() {
         /// Setup
         let observer = scheduler.createObserver(Any.self)

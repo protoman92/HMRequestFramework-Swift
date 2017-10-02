@@ -26,5 +26,32 @@ public final class HMCDSections {
         return sections.element(at: section)?.objects.element(at: row)
     }
     
+    /// Get sliced sections from a Sequence of sections so that the total number
+    /// of objects do not exceed a limit.
+    ///
+    /// - Parameters:
+    ///   - sections: A Sequence of sections.
+    ///   - limit: An Int value.
+    /// - Returns: An Array of sections.
+    public static func sectionsWithLimit<ST,S>(_ sections: S, _ limit: Int) -> [ST] where
+        ST: HMCDSectionType,
+        S: Sequence,
+        S.Iterator.Element == ST
+    {
+        var slicedSects = [ST]()
+        
+        for section in sections {
+            let sectionLimit = limit - slicedSects.reduce(0, {$0.1.numberOfObjects + $0.0})
+            
+            if sectionLimit > 0 {
+                slicedSects.append(section.withObjectLimit(sectionLimit))
+            } else {
+                break
+            }
+        }
+        
+        return slicedSects
+    }
+    
     private init() {}
 }

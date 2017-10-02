@@ -79,8 +79,8 @@ public enum HMCDEvent<V> {
     {
         let limit = fetchLimit > 0 ? fetchLimit : Int.max 
         let sections = sections?.map(HMCDSection<Any>.init) ?? []
-        
-        return m(DBLevel(sections.map({$0.withObjectLimit(limit)})))
+        let slicedSections = HMCDSections.sectionsWithLimit(sections, limit)
+        return m(DBLevel(slicedSections))
     }
     
     /// Map an object change type to an instance of this enum.
