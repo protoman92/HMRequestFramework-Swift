@@ -32,12 +32,21 @@ public final class HMCDEvents {
     /// - Parameter event: A Try HMCDEvent instance.
     /// - Returns: An Observable instance.
     public static func didLoadSections<PO>(_ event: Try<HMCDEvent<PO>>)
+        -> Observable<[HMCDSection<PO>]>
+    {
+        return didLoad(event).map({$0})
+            .catchErrorJustReturn([HMCDSection<PO>]())
+    }
+    
+    /// Extract didLoad sections.
+    ///
+    /// - Parameter event: A Try HMCDEvent instance.
+    /// - Returns: An Observable instance.
+    public static func didLoadAnimatedSections<PO>(_ event: Try<HMCDEvent<PO>>)
         -> Observable<[HMCDAnimatableSection<PO>]> where
         PO: IdentifiableType & Equatable
     {
-        return didLoad(event).map({$0})
-            .map({$0.map({$0.animated()})})
-            .catchErrorJustReturn([HMCDAnimatableSection<PO>]())
+        return didLoadSections(event).map({$0.map({$0.animated()})})
     }
     
     private init() {}

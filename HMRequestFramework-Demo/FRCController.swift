@@ -194,7 +194,7 @@ public final class FRCController: UIViewController {
                         .build())
                 }
             )
-            .flatMap(HMCDEvents.didLoadSections)
+            .flatMap(HMCDEvents.didLoadAnimatedSections)
             .logCheckMainThread()
             .observeOnMain()
             .bind(to: data)
