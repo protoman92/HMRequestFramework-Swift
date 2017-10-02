@@ -31,11 +31,11 @@ extension NSPersistentStoreCoordinator: HMCDBlockPerformerType {
     }
 }
 
-public enum BlockPerformaStrategy: EnumerableType {
+public enum BlockPerformStrategy: EnumerableType {
     case perform
     case performAndWait
     
-    public static func allValues() -> [BlockPerformaStrategy] {
+    public static func allValues() -> [BlockPerformStrategy] {
         return [.perform, .performAndWait]
     }
 }
@@ -49,7 +49,7 @@ public extension HMCDManager {
     ///   - strategy: A ContextPerformanceStrategy instance.
     ///   - block: A closure block.
     public func performOnQueue(_ performer: HMCDBlockPerformerType,
-                               _ strategy: BlockPerformaStrategy,
+                               _ strategy: BlockPerformStrategy,
                                _ block: @escaping () -> Void) {
         switch strategy {
         case .perform:

@@ -26,6 +26,7 @@ public extension HMCDManager {
     ///
     /// - Throws: Exception if the operation fails.
     func persistChangesUnsafely() throws {
+        Preconditions.checkNotRunningOnMainThread(nil)
         try saveUnsafely(mainObjectContext())
         try saveUnsafely(privateObjectContext())
     }
@@ -36,7 +37,9 @@ public extension HMCDManager {
     /// Persist all changes to DB and observe the process.
     ///
     /// - Parameter obs: An ObserverType instance.
-    func persistChanges<O>(_ obs: O) where O: ObserverType, O.E == Void {
+    func persistChanges<O>(_ obs: O) -> Disposable where O: ObserverType, O.E == Void {
+        Preconditions.checkNotRunningOnMainThread(nil)
+        
         serializeBlock({
             do {
                 try self.persistChangesUnsafely()
@@ -46,6 +49,8 @@ public extension HMCDManager {
                 obs.onError(e)
             }
         })
+        
+        return Disposables.create()
     }
 }
 
@@ -57,8 +62,7 @@ public extension HMCDManager {
     ///   - context: A Context instance.
     ///   - pureObjects: A Sequence of HMCDPureObjectType.
     /// - Throws: Exception if the save fails.
-    func saveUnsafely<S>(_ context: Context,
-                         _ pureObjects: S) throws where
+    func saveUnsafely<S>(_ context: Context, _ pureObjects: S) throws where
         // For some reasons, XCode 8 cannot compile if we define a separate
         // generics for S.Iterator.Element. Although this is longer, it works
         // for both XCode 8 and 9.
@@ -83,9 +87,11 @@ public extension HMCDManager {
     /// - Parameters:
     ///   - context: A Context instance.
     ///   - obs: An ObserverType instance.
-    func save<O>(_ context: Context, _ obs: O)
+    func save<O>(_ context: Context, _ obs: O) -> Disposable
         where O: ObserverType, O.E == Void
     {
+        Preconditions.checkNotRunningOnMainThread(nil)
+        
         serializeBlock({
             do {
                 try self.saveUnsafely(context)
@@ -95,6 +101,8 @@ public extension HMCDManager {
                 obs.onError(e)
             }
         })
+        
+        return Disposables.create()
     }
 }
 
@@ -108,8 +116,7 @@ public extension HMCDManager {
     ///   - convertibles: A Sequence of HMCDConvertibleType.
     /// - Returns: An Array of HMResult.
     /// - Throws: Exception if the operation fails.
-    func convert<S>(_ context: Context,
-                    _ convertibles: S) -> [HMCDResult] where
+    func convert<S>(_ context: Context, _ convertibles: S) -> [HMCDResult] where
         S: Sequence, S.Iterator.Element == HMCDObjectConvertibleType
     {
         var results: [HMCDResult] = []
@@ -158,12 +165,14 @@ public extension HMCDManager {
     ///   - obs: An ObserverType instance.
     func saveConvertibles<S,O>(_ context: Context,
                                _ convertibles: S,
-                               _ obs: O) where
+                               _ obs: O) -> Disposable where
         S: Sequence,
         S.Iterator.Element == HMCDObjectConvertibleType,
         O: ObserverType,
         O.E == [HMCDResult]
     {
+        Preconditions.checkNotRunningOnMainThread(convertibles)
+        
         serializeBlock({
             let convertibles = convertibles.map({$0})
             
@@ -182,6 +191,8 @@ public extension HMCDManager {
                 obs.onCompleted()
             }
         })
+        
+        return Disposables.create()
     }
     
     /// Save a Sequence of convertible objects to memory and observe the process.
@@ -192,7 +203,7 @@ public extension HMCDManager {
     ///   - obs: An ObserverType instance.
     func saveConvertibles<U,S,O>(_ context: Context,
                                  _ convertibles: S,
-                                 _ obs: O) where
+                                 _ obs: O) -> Disposable where
         U: HMCDObjectConvertibleType,
         S: Sequence, S.Iterator.Element == U,
         O: ObserverType, O.E == [HMCDResult]
@@ -214,7 +225,7 @@ public extension HMCDManager {
     /// - Throws: Exception if the save fails.
     func savePureObjects<S,PO,O>(_ context: Context,
                                  _ pureObjects: S,
-                                 _ obs: O) where
+                                 _ obs: O) -> Disposable where
         PO: HMCDPureObjectType,
         PO.CDClass: HMCDObjectBuildableType,
         PO.CDClass.Builder.PureObject == PO,
@@ -223,6 +234,8 @@ public extension HMCDManager {
         O: ObserverType,
         O.E == Void
     {
+        Preconditions.checkNotRunningOnMainThread(pureObjects)
+        
         serializeBlock({
             do {
                 try self.saveUnsafely(context, pureObjects)
@@ -232,6 +245,8 @@ public extension HMCDManager {
                 obs.onError(e)
             }
         })
+        
+        return Disposables.create()
     }
 }
 
@@ -242,10 +257,9 @@ public extension Reactive where Base == HMCDManager {
     /// - Parameter context: A Context instance.
     /// - Returns: An Observable instance.
     public func save(_ context: HMCDManager.Context) -> Observable<Void> {
-        return Observable.create({(obs: AnyObserver<Void>) in
-            self.base.save(context, obs)
-            return Disposables.create()
-        })
+        return Observable<Void>
+            .create({self.base.save(context, $0)})
+            .subscribeOnConcurrent(qos: .background)
     }
     
     /// Construct a Sequence of CoreData from data objects and save it to memory.
@@ -262,10 +276,9 @@ public extension Reactive where Base == HMCDManager {
         S: Sequence,
         S.Iterator.Element == PO
     {
-        return Observable.create(({(obs: AnyObserver<Void>) in
-            self.base.savePureObjects(context, pureObjects, obs)
-            return Disposables.create()
-        }))
+        return Observable<Void>
+            .create({self.base.savePureObjects(context, pureObjects, $0)})
+            .subscribeOnConcurrent(qos: .background)
     }
     
     /// Save a Sequence of convertible objects to memory and observe the process.
@@ -278,10 +291,9 @@ public extension Reactive where Base == HMCDManager {
                              _ convertibles: S) -> Observable<[HMCDResult]> where
         S: Sequence, S.Iterator.Element == HMCDObjectConvertibleType
     {
-        return Observable<[HMCDResult]>.create({
-            self.base.saveConvertibles(context, convertibles, $0)
-            return Disposables.create()
-        })
+        return Observable<[HMCDResult]>
+            .create({self.base.saveConvertibles(context, convertibles, $0)})
+            .subscribeOnConcurrent(qos: .background)
     }
     
     /// Save a Sequence of convertible objects to memory and observe the process.
@@ -308,9 +320,8 @@ public extension Reactive where Base == HMCDManager {
     ///
     /// - Returns: An Observable instance.
     public func persistLocally() -> Observable<Void> {
-        return Observable<Void>.create({
-            self.base.persistChanges($0)
-            return Disposables.create()
-        })
+        return Observable<Void>
+            .create({self.base.persistChanges($0)})
+            .subscribeOnConcurrent(qos: .background)
     }
 }

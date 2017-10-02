@@ -8,6 +8,7 @@
 
 import CoreData
 import RxSwift
+import SwiftUtilities
 
 public extension HMCDManager {
     
@@ -36,20 +37,25 @@ public extension HMCDManager {
     /// - Parameters:
     ///   - context: A Context instance.
     ///   - obs: An ObserverType instance.
-    func resetContext<O>(_ context: Context, _ obs: O) where
+    func resetContext<O>(_ context: Context, _ obs: O) -> Disposable where
         O: ObserverType, O.E == Void
     {
+        Preconditions.checkNotRunningOnMainThread(nil)
+        
         performOnQueue(context) {
             self.resetContextUnsafely(context)
             obs.onNext(())
             obs.onCompleted()
         }
+        
+        return Disposables.create()
     }
     
     /// Reset stores and observer the process.
     ///
     /// - Parameter obs: An ObserverType instance.
-    func resetStores<O>(_ obs: O) where O: ObserverType, O.E == Void {
+    func resetStores<O>(_ obs: O) -> Disposable where O: ObserverType, O.E == Void {
+        Preconditions.checkNotRunningOnMainThread(nil)
         let coordinator = storeCoordinator()
         
         coordinator.perform({
@@ -61,6 +67,8 @@ public extension HMCDManager {
                 obs.onError(e)
             }
         })
+        
+        return Disposables.create()
     }
 }
 
@@ -71,20 +79,18 @@ extension Reactive where Base == HMCDManager {
     /// - Parameter context: A Context instance.
     /// - Returns: An Observable instance.
     func resetContext(_ context: HMCDManager.Context) -> Observable<Void> {
-        return Observable<Void>.create({
-            self.base.resetContext(context, $0)
-            return Disposables.create()
-        })
+        return Observable<Void>
+            .create({self.base.resetContext(context, $0)})
+            .subscribeOnConcurrent(qos: .background)
     }
     
     /// Reset stores reactively.
     ///
     /// - Returns: An Observable instance.
     func resetStores() -> Observable<Void> {
-        return Observable<Void>.create({
-            self.base.resetStores($0)
-            return Disposables.create()
-        })
+        return Observable<Void>
+            .create({self.base.resetStores($0)})
+            .subscribeOnConcurrent(qos: .background)
     }
     
     /// Reset the entire stack by resetting contexts and wipe the DB.

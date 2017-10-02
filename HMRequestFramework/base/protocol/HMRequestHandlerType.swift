@@ -61,6 +61,7 @@ public extension HMRequestHandlerType {
             /// catching would still work correctly.
             .flatMap({(req: Try<Req>) in Observable.just(req)
                 .map({try $0.getOrThrow()})
+                .observeOnConcurrent(qos: .background)
                 .flatMap(self.applyRequestMiddlewares)
                 .flatMap(perform)
                 
@@ -77,6 +78,8 @@ public extension HMRequestHandlerType {
     /// - Parameter request: A HMRequestType instance.
     /// - Returns: An Observable instance.
     func applyRequestMiddlewares(_ request: Req) -> Observable<Req> {
+        Preconditions.checkNotRunningOnMainThread(request)
+        
         if let manager = requestMiddlewareManager(), request.applyMiddlewares() {
             return manager.applyTransformMiddlewares(request)
                 .doOnNext(manager.applySideEffectMiddlewares)
@@ -94,6 +97,8 @@ public extension HMRequestHandlerType {
     func applyErrorMiddlewares<Val>(_ request: Try<Req>, _ error: Error)
         -> Observable<Try<Val>>
     {
+        Preconditions.checkNotRunningOnMainThread(request)
+        
         if let manager = errorMiddlewareManager() {
             let rqDescription = request.value?.requestDescription()
             

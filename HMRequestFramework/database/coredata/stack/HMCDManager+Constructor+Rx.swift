@@ -8,6 +8,7 @@
 
 import CoreData
 import RxSwift
+import SwiftUtilities
 
 extension HMCDManager {
     
@@ -27,9 +28,7 @@ extension HMCDManager {
     ///   - pureObj: A PO instance.
     /// - Returns: A PO.CDClass object.
     /// - Throws: Exception if the construction fails.
-    func constructUnsafely<PO>(_ context: Context,
-                               _ pureObj: PO) throws
-        -> PO.CDClass where
+    func constructUnsafely<PO>(_ context: Context, _ pureObj: PO) throws -> PO.CDClass where
         PO: HMCDPureObjectType,
         PO.CDClass: HMCDObjectBuildableType,
         PO.CDClass.Builder.PureObject == PO
@@ -68,13 +67,15 @@ public extension HMCDManager {
     /// - Throws: Exception if the construction fails.
     func construct<PO,S,O>(_ context: Context,
                            _ pureObjs: S,
-                           _ obs: O) where
+                           _ obs: O) -> Disposable where
         PO: HMCDPureObjectType,
         PO.CDClass: HMCDObjectBuildableType,
         PO.CDClass.Builder.PureObject == PO,
         S: Sequence, S.Iterator.Element == PO,
         O: ObserverType, O.E == [PO.CDClass]
     {
+        Preconditions.checkNotRunningOnMainThread(pureObjs)
+        
         performOnQueue(context) {
             do {
                 let data = try self.constructUnsafely(context, pureObjs)
@@ -84,6 +85,8 @@ public extension HMCDManager {
                 obs.onError(e)
             }
         }
+        
+        return Disposables.create()
     }
 }
 
@@ -103,9 +106,8 @@ public extension Reactive where Base == HMCDManager {
         PO.CDClass.Builder.PureObject == PO,
         S: Sequence, S.Iterator.Element == PO
     {
-        return Observable.create({(obs: AnyObserver<[PO.CDClass]>) in
-            self.base.construct(context, pureObjs, obs)
-            return Disposables.create()
-        })
+        return Observable<[PO.CDClass]>
+            .create({self.base.construct(context, pureObjs, $0)})
+            .subscribeOnConcurrent(qos: .background)
     }
 }

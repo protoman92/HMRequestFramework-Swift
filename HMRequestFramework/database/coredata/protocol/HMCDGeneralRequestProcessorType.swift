@@ -185,7 +185,9 @@ public extension HMCDGeneralRequestProcessorType {
             }
             
             let allTransforms = [propTransform] + transforms
+            
             return fetchAllDataFromDB(Try.success(()), cls, allTransforms)
+                .doOnNext(Preconditions.checkNotRunningOnMainThread)
         } catch let e {
             return Observable.just(Try.failure(e))
         }
@@ -220,7 +222,9 @@ public extension HMCDGeneralRequestProcessorType {
             }
             
             let allTransforms = [propTransform] + transforms
+            
             return deleteAllInMemory(previous, cls, allTransforms)
+                .doOnNext(Preconditions.checkNotRunningOnMainThread)
         } catch let e {
             return Observable.just(Try.failure(e))
         }
@@ -262,6 +266,7 @@ public extension HMCDGeneralRequestProcessorType {
                 let allTransforms = [pageTransform] + transforms
                 return self.streamDBEvents(cls, allTransforms)
             })
+            .doOnNext(Preconditions.checkNotRunningOnMainThread)
     }
     
     /// Stream events paginated by increments. The most likely uses for this

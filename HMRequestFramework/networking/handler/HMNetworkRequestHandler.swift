@@ -42,6 +42,7 @@ public struct HMNetworkRequestHandler {
     /// - Returns: An Observable instance.
     /// - Throws: Exception if the operation fails.
     fileprivate func executeData(_ request: Req) throws -> Observable<Try<Data>> {
+        Preconditions.checkNotRunningOnMainThread(request)
         let urlSession = self.urlSession()
         let urlRequest = try request.urlRequest()
         let retries = request.retries()
@@ -59,6 +60,7 @@ public struct HMNetworkRequestHandler {
     /// - Returns: An Observable instance.
     /// - Throws: Exception if the operation fails.
     fileprivate func executeUpload(_ request: Req) throws -> Observable<Try<Data>> {
+        Preconditions.checkNotRunningOnMainThread(request)
         let urlSession = self.urlSession()
         let urlRequest = try request.urlRequest()
         var uploadTask: Observable<Data>
@@ -85,6 +87,7 @@ public struct HMNetworkRequestHandler {
     /// - Parameters previous: A Req instance.
     /// - Returns: An Observable instance.
     public func execute(_ request: Req) throws -> Observable<Try<Data>> {
+        Preconditions.checkNotRunningOnMainThread(request)
         let operation  = try request.operation()
         
         switch operation {

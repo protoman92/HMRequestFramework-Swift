@@ -44,9 +44,11 @@ public extension HMCDManager {
     ///   - obs: An ObserverType instance.
     func delete<O>(_ context: Context,
                    _ request: NSFetchRequest<NSFetchRequestResult>,
-                   _ obs: O) where
+                   _ obs: O) -> Disposable where
         O: ObserverType, O.E == NSBatchDeleteResult
     {
+        Preconditions.checkNotRunningOnMainThread(request)
+        
         serializeBlock({
             do {
                 let result = try self.deleteUnsafely(context, request)
@@ -56,6 +58,8 @@ public extension HMCDManager {
                 obs.onError(e)
             }
         })
+        
+        return Disposables.create()
     }
 }
 
@@ -118,11 +122,13 @@ public extension HMCDManager {
     /// - Throws: Exception if the delete fails.
     public func delete<NS,S,O>(_ context: Context,
                                _ data: S,
-                               _ obs: O) where
+                               _ obs: O) -> Disposable where
         NS: NSManagedObject,
         S: Sequence, S.Iterator.Element == NS,
         O: ObserverType, O.E == Void
     {
+        Preconditions.checkNotRunningOnMainThread(data)
+        
         serializeBlock({
             do {
                 try self.deleteUnsafely(context, data)
@@ -132,6 +138,8 @@ public extension HMCDManager {
                 obs.onError(e)
             }
         })
+        
+        return Disposables.create()
     }
     
     /// Delete a Sequence of identifiable data from memory by refetching them
@@ -146,12 +154,14 @@ public extension HMCDManager {
     public func deleteIdentifiables<S,O>(_ context: Context,
                                          _ entityName: String,
                                          _ ids: S,
-                                         _ obs: O) where
+                                         _ obs: O) -> Disposable where
         S: Sequence,
         S.Iterator.Element == HMCDIdentifiableType,
         O: ObserverType,
         O.E == Void
     {
+        Preconditions.checkNotRunningOnMainThread(entityName)
+        
         serializeBlock({
             do {
                 try self.deleteIdentifiablesUnsafely(context, entityName, ids)
@@ -161,6 +171,8 @@ public extension HMCDManager {
                 obs.onError(e)
             }
         })
+        
+        return Disposables.create()
     }
 }
 
@@ -177,10 +189,9 @@ public extension Reactive where Base == HMCDManager {
                        _ request: NSFetchRequest<NSFetchRequestResult>)
         -> Observable<NSBatchDeleteResult>
     {
-        return Observable<NSBatchDeleteResult>.create({
-            self.base.delete(context, request, $0)
-            return Disposables.create()
-        })
+        return Observable<NSBatchDeleteResult>
+            .create({self.base.delete(context, request, $0)})
+            .subscribeOnConcurrent(qos: .background)
     }
 }
 
@@ -197,10 +208,9 @@ public extension Reactive where Base == HMCDManager {
         -> Observable<Void> where
         S: Sequence, S.Iterator.Element: NSManagedObject
     {
-        return Observable<Void>.create(({
-            self.base.delete(context, data, $0)
-            return Disposables.create()
-        }))
+        return Observable<Void>
+            .create({self.base.delete(context, data, $0)})
+            .subscribeOnConcurrent(qos: .background)
     }
 }
 
@@ -220,10 +230,9 @@ public extension Reactive where Base == HMCDManager {
         -> Observable<Void> where
         S: Sequence, S.Iterator.Element == HMCDIdentifiableType
     {
-        return Observable<Void>.create(({
-            self.base.deleteIdentifiables(context, entityName, ids, $0)
-            return Disposables.create()
-        }))
+        return Observable<Void>
+            .create({self.base.deleteIdentifiables(context, entityName, ids, $0)})
+            .subscribeOnConcurrent(qos: .background)
     }
     
     /// Delete a Sequence of identifiable data from memory by refetching them

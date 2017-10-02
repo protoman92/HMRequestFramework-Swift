@@ -183,7 +183,7 @@ public final class FRCController: UIViewController {
                 HMCDPagination.builder()
                     .with(fetchLimit: 5)
                     .with(fetchOffset: 0)
-                    .with(paginationMode: .variablePageCount)
+                    .with(paginationMode: .fixedPageCount)
                     .build(),
                 {
                     Observable.just($0.cloneBuilder()

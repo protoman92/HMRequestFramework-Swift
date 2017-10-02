@@ -23,7 +23,7 @@ public final class CoreDataFRCTest: CoreDataRootTest {
     override public func setUp() {
         super.setUp()
         iterationCount = 5
-        dummyCount = 100
+        dummyCount = 1000
     }
     
     public func test_sectionWithObjectLimit_shouldWork() {
@@ -73,7 +73,7 @@ public final class CoreDataFRCTest: CoreDataRootTest {
         var didChangeCount = 0
         var insertCount = 0
         
-        let terminateSjb = PublishSubject<Void>()
+        let terminateSbj = PublishSubject<Void>()
         
         /// When
         processor
@@ -93,7 +93,7 @@ public final class CoreDataFRCTest: CoreDataRootTest {
             .doOnNext(self.validateDidLoad)
             .doOnNext(self.validateInsert)
             .cast(to: Any.self)
-            .takeUntil(terminateSjb)
+            .takeUntil(terminateSbj)
             .doOnDispose(frcExpect.fulfill)
             .subscribe(frcObserver)
             .disposed(by: disposeBag)
@@ -105,7 +105,7 @@ public final class CoreDataFRCTest: CoreDataRootTest {
         
         background(.background, closure: {
             while didChangeCount < iterationCount {}
-            terminateSjb.onNext(())
+            terminateSbj.onNext(())
         })
         
         waitForExpectations(timeout: timeout, handler: nil)
@@ -239,7 +239,7 @@ public final class CoreDataFRCTest: CoreDataRootTest {
     public func test_streamDBEventsWithPagination_shouldWork(_ mode: HMCDPaginationMode) {
         /// Setup
         let observer = scheduler.createObserver(Dummy1.self)
-        let streamObserver = scheduler.createObserver(Any.self)
+        let streamObserver = scheduler.createObserver([Dummy1].self)
         let expect = expectation(description: "Should have completed")
         let disposeBag = self.disposeBag!
         let dummyCount = self.dummyCount!
@@ -263,8 +263,6 @@ public final class CoreDataFRCTest: CoreDataRootTest {
         // Here comes the actual streams.
         let sortedPureObjects = pureObjects.sorted(by: {$0.0.id! < $0.1.id!})
         let pageSubject = BehaviorSubject<HMCursorDirection>(value: .remain)
-        var currentPage: UInt = 0
-        var direction: HMCursorDirection = .forward
         var callCount = 0
         
         let fetchLimit: UInt = 50
@@ -276,6 +274,8 @@ public final class CoreDataFRCTest: CoreDataRootTest {
             .with(fetchOffset: fetchOffset)
             .with(paginationMode: mode)
             .build()
+        
+        let terminateSbj = PublishSubject<Void>()
         
         /// When
         dbProcessor
@@ -292,44 +292,29 @@ public final class CoreDataFRCTest: CoreDataRootTest {
             .map({$0.flatMap({$0.objects})})
             .ifEmpty(default: [Dummy1]())
             .doOnNext({_ in callCount += 1})
-            .doOnNext({_ in print("Current page \(currentPage)")})
             .doOnNext({XCTAssertTrue($0.count > 0)})
-            .doOnNext({
-                let count = UInt($0.count)
-                let start: Int
-                let end: Int
-                
-                switch mode {
-                case .fixedPageCount:
-                    start = Int(fetchOffset + (currentPage - 1) * fetchLimit)
-                    end = start + Int(fetchLimit)
-                    XCTAssertEqual(count, fetchLimit)
-                    
-                case .variablePageCount:
-                    start = 0
-                    end = Int(fetchLimit * currentPage)
-                    XCTAssertEqual(count, fetchLimit * currentPage)
-                }
-                
-                let slice = sortedPureObjects[start..<end].map({$0})
-                XCTAssertEqual($0, slice)
-            })
-            .cast(to: Any.self)
-            .delay(0.5, scheduler: MainScheduler.instance)
+            .takeUntil(terminateSbj)
             .subscribe(streamObserver)
             .disposed(by: disposeBag)
         
+        var currentPages: [UInt] = []
+        
         for _ in (0...pageLoadTimes) {
-            let oldPage = Int(currentPage)
-            direction = HMCursorDirection.randomValue()!
-            currentPage = UInt(dbProcessor.currentPage(oldPage, direction))
+            let direction = HMCursorDirection.randomValue()!
+            let oldPage = currentPages.last
+            let currentPage = UInt(dbProcessor.currentPage(Int(oldPage ?? 1), direction))
+            
+            if currentPage != oldPage {
+                currentPages.append(currentPage)
+            }
+            
             pageSubject.onNext(direction)
             
             // We need to block for some time because the stream uses flatMapLatest.
             // Everytime we push an event with the subject, the old streams are
             // killed and thus we don't see any result. It's important to have
             // some delay between consecutive triggers for DB events to appear.
-            waitOnMainThread(0.8)
+            waitOnMainThread(1)
         }
         
         pageSubject.onCompleted()
@@ -341,6 +326,28 @@ public final class CoreDataFRCTest: CoreDataRootTest {
         // Call count may be different from pageLoadTimes because repeat events
         // are discarded until changed.
         XCTAssertTrue(callCount > 0)
+        
+        for (currentPage, objs) in zip(currentPages, nextStreamElements) {
+            let count = UInt(objs.count)
+            let start: Int
+            let end: Int
+            
+            switch mode {
+            case .fixedPageCount:
+                start = Int(fetchOffset + (currentPage - 1) * fetchLimit)
+                end = start + Int(fetchLimit)
+                XCTAssertEqual(count, fetchLimit)
+                
+            case .variablePageCount:
+                start = 0
+                end = Int(fetchLimit * currentPage)
+                print(currentPage)
+                XCTAssertEqual(count, fetchLimit * currentPage)
+            }
+            
+            let slice = sortedPureObjects[start..<end].map({$0})
+            XCTAssertEqual(objs, slice)
+        }
     }
     
     public func test_streamDBEventsWithFixedPageCount_shouldWork() {
@@ -497,6 +504,7 @@ public extension CoreDataFRCTest {
             .map({_ in Dummy1()})
             .map(Try.success)
             .map({$0.map({[$0]})})
+            .observeOnConcurrent(qos: .background)
             .flatMap({dbProcessor.saveToMemory($0)})
             .flatMap({dbProcessor.persistToDB($0)})
             .doOnDispose(expect.fulfill)

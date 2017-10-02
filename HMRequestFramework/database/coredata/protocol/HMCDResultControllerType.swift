@@ -67,6 +67,8 @@ public extension Reactive where Base: HMCDResultControllerType {
     private func startDBStream<O>(_ frc: Base.Controller, _ obs: O) -> Disposable where
         O: ObserverType, O.E == Base.DBEvent
     {
+        Preconditions.checkNotRunningOnMainThread(frc.fetchRequest)
+        
         let base = self.base
         
         let delegate = Base.Delegate.builder()
@@ -99,9 +101,9 @@ public extension Reactive where Base: HMCDResultControllerType {
     ///   - cls: The PO class type.
     /// - Return: An Observable instance.
     /// - Throws: Exception if the stream cannot be started.
-    public func startDBStream<PO>(_ context: Base.Context,
-                                  _ request: HMCDFetchedResultRequestType,
-                                  _ cls: PO.Type) -> Observable<HMCDEvent<PO>> where
+    func startDBStream<PO>(_ context: Base.Context,
+                           _ request: HMCDFetchedResultRequestType,
+                           _ cls: PO.Type) -> Observable<HMCDEvent<PO>> where
         PO: HMCDPureObjectType,
         PO.CDClass: HMCDPureObjectConvertibleType,
         PO.CDClass.PureObject == PO
@@ -135,6 +137,7 @@ public extension Reactive where Base: HMCDResultControllerType {
                 // be mapped to PO generics.
                 .map({$0.cast(to: PO.CDClass.self)})
                 .map({$0.map({$0.asPureObject()})})
+                .doOnNext(Preconditions.checkNotRunningOnMainThread)
         } catch let e {
             return Observable.error(e)
         }

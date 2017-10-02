@@ -23,7 +23,6 @@ public final class HMCDResultControllerDelegate: NSObject {
     public typealias DidChangeObject = (Controller, Any, IndexPath?, ChangeType, IndexPath?) -> Void
     public typealias DidChangeSection = (Controller, SectionInfo, Int, ChangeType) -> Void
     
-    fileprivate let operation: OperationQueue
     fileprivate var didChangeContent: DidChangeContent?
     fileprivate var willChangeContent: WillChangeContent?
     fileprivate var didChangeObject: DidChangeObject?
@@ -34,11 +33,7 @@ public final class HMCDResultControllerDelegate: NSObject {
         debugPrint("Deinit \(self)")
     }
     
-    fileprivate override init() {
-        let operation = OperationQueue()
-        operation.underlyingQueue = DispatchQueue.main
-        self.operation = operation
-    }
+    fileprivate override init() {}
     
     public func removeCallbacks() {
         didChangeContent = nil
@@ -133,9 +128,8 @@ extension HMCDResultControllerDelegate: NSFetchedResultsControllerDelegate {
     /// an update block for their view. Providing an empty implementation will
     /// enable change tracking if you do not care about the individual callbacks.
     public func controllerDidChangeContent(_ controller: Controller) {
-        operation.addOperation({[weak self] in
-            self?.didChangeContent?(controller)
-        })
+        Preconditions.checkNotRunningOnMainThread(nil)
+        didChangeContent?(controller)
     }
     
     /// Notifies the delegate that section and object changes are about to be
@@ -146,9 +140,8 @@ extension HMCDResultControllerDelegate: NSFetchedResultsControllerDelegate {
     /// Clients may prepare for a batch of updates by using this method to begin
     /// an update block for their view.
     public func controllerWillChangeContent(_ controller: Controller) {
-        operation.addOperation({[weak self] in
-            self?.willChangeContent?(controller)
-        })
+        Preconditions.checkNotRunningOnMainThread(nil)
+        willChangeContent?(controller)
     }
     
     /// Asks the delegate to return the corresponding section index entry for a
@@ -196,9 +189,8 @@ extension HMCDResultControllerDelegate: NSFetchedResultsControllerDelegate {
                            at indexPath: IndexPath?,
                            for type: NSFetchedResultsChangeType,
                            newIndexPath: IndexPath?) {
-        operation.addOperation({[weak self] in
-            self?.didChangeObject?(controller, anObject, indexPath, type, newIndexPath)
-        })
+        Preconditions.checkNotRunningOnMainThread(nil)
+        didChangeObject?(controller, anObject, indexPath, type, newIndexPath)
     }
     
     /// Notifies the delegate of added or removed sections.
@@ -216,8 +208,7 @@ extension HMCDResultControllerDelegate: NSFetchedResultsControllerDelegate {
                            didChange sectionInfo: NSFetchedResultsSectionInfo,
                            atSectionIndex sectionIndex: Int,
                            for type: NSFetchedResultsChangeType) {
-        operation.addOperation({[weak self] in
-            self?.didChangeSection?(controller, sectionInfo, sectionIndex, type)
-        })
+        Preconditions.checkNotRunningOnMainThread(nil)
+        didChangeSection?(controller, sectionInfo, sectionIndex, type)
     }
 }

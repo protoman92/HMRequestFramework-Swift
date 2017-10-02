@@ -37,6 +37,7 @@ public extension HMCDManager {
         S: Sequence, S.Iterator.Element: HMIdentifiableType
     {
         let identifiables = identifiables.map({$0 as HMIdentifiableType})
+        Preconditions.checkNotRunningOnMainThread(identifiables)
         return predicateForIdentifiableFetch(identifiables)
     }
 }
@@ -50,8 +51,8 @@ public extension HMCDManager {
     ///   - request: A NSFetchRequest instance.
     /// - Returns: An Array of NSManagedObject.
     /// - Throws: Exception if the fetch fails.
-    func blockingFetch<Val>(_ context: Context,
-                            _ request: NSFetchRequest<Val>) throws -> [Val] {
+    func blockingFetch<Val>(_ context: Context, _ request: NSFetchRequest<Val>) throws -> [Val] {
+        Preconditions.checkNotRunningOnMainThread(request)
         return try context.fetch(request)
     }
     
@@ -98,6 +99,7 @@ public extension HMCDManager {
         -> [NSManagedObject] where
         S: Sequence, S.Iterator.Element: NSManagedObject
     {
+        Preconditions.checkNotRunningOnMainThread(data)
         return try data.map({$0.objectID}).flatMap(context.existingObject)
     }
 }
@@ -134,6 +136,8 @@ public extension HMCDManager {
         S: Sequence,
         S.Iterator.Element == ID
     {
+        Preconditions.checkNotRunningOnMainThread(entityName)
+        
         let data = ids.map({$0})
         
         if data.isNotEmpty {
@@ -233,8 +237,7 @@ public extension HMCDManager {
     /// - Throws: Exception if the fetch fails.
     func blockingFetchIdentifiables<U,S>(_ context: Context,
                                          _ entityName: String,
-                                         _ ids: S) throws
-        -> [NSManagedObject] where
+                                         _ ids: S) throws -> [NSManagedObject] where
         U: HMCDIdentifiableType,
         S: Sequence,
         S.Iterator.Element == U
@@ -254,8 +257,7 @@ public extension HMCDManager {
     /// - Throws: Exception if the fetch fails.
     func blockingFetchIdentifiables<S>(_ context: Context,
                                        _ entityName: String,
-                                       _ ids: S) throws
-        -> [NSManagedObject] where
+                                       _ ids: S) throws -> [NSManagedObject] where
         S: Sequence, S.Iterator.Element == HMCDIdentifiableType
     {
         let rCls = NSManagedObject.self
@@ -275,17 +277,21 @@ public extension Reactive where Base == HMCDManager {
                            _ request: NSFetchRequest<Val>) -> Observable<[Val]> {
         let base = self.base
         
-        return Observable.create({(obs: AnyObserver<[Val]>) in
-            do {
-                let result = try base.blockingFetch(context, request)
-                obs.onNext(result)
-                obs.onCompleted()
-            } catch let e {
-                obs.onError(e)
-            }
-            
-            return Disposables.create()
-        })
+        return Observable<[Val]>
+            .create({
+                Preconditions.checkNotRunningOnMainThread(request)
+                
+                do {
+                    let result = try base.blockingFetch(context, request)
+                    $0.onNext(result)
+                    $0.onCompleted()
+                } catch let e {
+                    $0.onError(e)
+                }
+                
+                return Disposables.create()
+            })
+            .subscribeOnConcurrent(qos: .background)
     }
     
     /// Get data for a fetch request.
@@ -334,17 +340,21 @@ public extension Reactive where Base == HMCDManager {
     {
         let base = self.base
         
-        return Observable.create({(obs: AnyObserver<[NSManagedObject]>) in
-            do {
-                let result = try base.blockingFetchIdentifiables(context, entityName, ids)
-                obs.onNext(result)
-                obs.onCompleted()
-            } catch let e {
-                obs.onError(e)
-            }
+        return Observable<[NSManagedObject]>
+            .create({
+                Preconditions.checkNotRunningOnMainThread(entityName)
+                
+                do {
+                    let result = try base.blockingFetchIdentifiables(context, entityName, ids)
+                    $0.onNext(result)
+                    $0.onCompleted()
+                } catch let e {
+                    $0.onError(e)
+                }
             
-            return Disposables.create()
-        })
+                return Disposables.create()
+            })
+            .subscribeOnConcurrent(qos: .background)
     }
     
     /// Perform a refetch request for a Sequence of identifiable objects and
@@ -366,16 +376,20 @@ public extension Reactive where Base == HMCDManager {
     {
         let base = self.base
         
-        return Observable.create({(obs: AnyObserver<[U]>) in
-            do {
-                let result = try base.blockingFetchIdentifiables(context, entityName, ids)
-                obs.onNext(result)
-                obs.onCompleted()
-            } catch let e {
-                obs.onError(e)
-            }
+        return Observable<[U]>
+            .create({
+                Preconditions.checkNotRunningOnMainThread(entityName)
+                
+                do {
+                    let result = try base.blockingFetchIdentifiables(context, entityName, ids)
+                    $0.onNext(result)
+                    $0.onCompleted()
+                } catch let e {
+                    $0.onError(e)
+                }
             
-            return Disposables.create()
-        })
+                return Disposables.create()
+            })
+            .subscribeOnConcurrent(qos: .background)
     }
 }

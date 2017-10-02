@@ -9,6 +9,7 @@
 import CoreData
 import RxCocoa
 import RxSwift
+import SwiftUtilities
 
 extension HMCDManager: HMCDResultControllerType {
     public typealias DBEvent = HMCDResultControllerType.DBEvent
@@ -16,6 +17,7 @@ extension HMCDManager: HMCDResultControllerType {
     public func didChangeContent<O>(_ controller: Controller, _ obs: O) where
         O: ObserverType, O.E == DBEvent
     {
+        Preconditions.checkNotRunningOnMainThread(nil)
         obs.onNext(self.dbLevel(controller, DBEvent.didLoad))
         obs.onNext(DBEvent.didChange)
     }
@@ -23,6 +25,7 @@ extension HMCDManager: HMCDResultControllerType {
     public func willChangeContent<O>(_ controller: Controller, _ obs: O) where
         O: ObserverType, O.E == DBEvent
     {
+        Preconditions.checkNotRunningOnMainThread(nil)
         obs.onNext(DBEvent.willLoad)
         obs.onNext(DBEvent.willChange)
     }
@@ -35,6 +38,7 @@ extension HMCDManager: HMCDResultControllerType {
                                    _ obs: O) where
         O: ObserverType, O.E == DBEvent
     {
+        Preconditions.checkNotRunningOnMainThread(object)
         obs.onNext(DBEvent.objectLevel(changeType, object, oldIndex, newIndex))
     }
     
@@ -45,6 +49,7 @@ extension HMCDManager: HMCDResultControllerType {
                                     _ obs: O) where
         O: ObserverType, O.E == DBEvent
     {
+        Preconditions.checkNotRunningOnMainThread(sectionInfo)
         obs.onNext(DBEvent.sectionLevel(changeType, sectionInfo, index))
     }
 }

@@ -8,6 +8,7 @@
 
 import CoreData
 import RxSwift
+import SwiftUtilities
 
 // Private extension utility here.
 fileprivate extension NSManagedObject {
@@ -99,12 +100,14 @@ public extension HMCDManager {
     func upsert<S,O>(_ context: Context,
                      _ entityName: String,
                      _ upsertables: S,
-                     _ obs: O) where
+                     _ obs: O) -> Disposable where
         S: Sequence,
         S.Iterator.Element == HMCDUpsertableType,
         O: ObserverType,
         O.E == [HMCDResult]
     {
+        Preconditions.checkNotRunningOnMainThread(upsertables)
+        
         serializeBlock({
             let upsertables = upsertables.map({$0})
             
@@ -122,6 +125,8 @@ public extension HMCDManager {
                 obs.onCompleted()
             }
         })
+        
+        return Disposables.create()
     }
     
     /// Perform an upsert operation for some upsertable data. For items that
@@ -135,7 +140,7 @@ public extension HMCDManager {
     func upsert<U,S,O>(_ context: Context,
                        _ entityName: String,
                        _ upsertables: S,
-                       _ obs: O) where
+                       _ obs: O) -> Disposable where
         U: HMCDUpsertableType,
         S: Sequence,
         S.Iterator.Element == U,
@@ -162,10 +167,9 @@ extension Reactive where Base == HMCDManager {
         -> Observable<[HMCDResult]> where
         S: Sequence, S.Iterator.Element == HMCDUpsertableType
     {
-        return Observable<[HMCDResult]>.create({
-            self.base.upsert(context, entityName, upsertables, $0)
-            return Disposables.create()
-        })
+        return Observable<[HMCDResult]>
+            .create({self.base.upsert(context, entityName, upsertables, $0)})
+            .subscribeOnConcurrent(qos: .background)
     }
     
     /// Perform an upsert request on a Sequence of upsertable objects.

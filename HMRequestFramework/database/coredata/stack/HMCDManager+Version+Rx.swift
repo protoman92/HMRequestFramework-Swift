@@ -179,12 +179,14 @@ public extension HMCDManager {
     func updateVersion<S,O>(_ context: Context,
                             _ entityName: String,
                             _ requests: S,
-                            _ obs: O) where
+                            _ obs: O) -> Disposable where
         S: Sequence,
         S.Iterator.Element == HMCDVersionUpdateRequest,
         O: ObserverType,
         O.E == [HMCDResult]
     {
+        Preconditions.checkNotRunningOnMainThread(requests)
+        
         serializeBlock({
             let requests = requests.map({$0})
             
@@ -202,6 +204,8 @@ public extension HMCDManager {
                 obs.onCompleted()
             }
         })
+        
+        return Disposables.create()
     }
 }
 
@@ -221,9 +225,8 @@ extension Reactive where Base == HMCDManager {
         -> Observable<[HMCDResult]> where
         S: Sequence, S.Iterator.Element == HMCDVersionUpdateRequest
     {
-        return Observable<[HMCDResult]>.create({
-            self.base.updateVersion(context, entityName, requests, $0)
-            return Disposables.create()
-        })
+        return Observable<[HMCDResult]>
+            .create({self.base.updateVersion(context, entityName, requests, $0)})
+            .subscribeOnConcurrent(qos: .background)
     }
 }
