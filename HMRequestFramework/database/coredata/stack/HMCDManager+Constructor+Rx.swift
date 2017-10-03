@@ -64,7 +64,7 @@ public extension HMCDManager {
     ///   - context: A Context instance.
     ///   - pureObjs: A Sequence of PO.
     ///   - obs: An ObserverType instance.
-    /// - Throws: Exception if the construction fails.
+    /// - Returns: A Disposable instance.
     func construct<PO,S,O>(_ context: Context,
                            _ pureObjs: S,
                            _ obs: O) -> Disposable where

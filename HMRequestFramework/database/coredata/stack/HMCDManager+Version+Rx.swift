@@ -165,6 +165,9 @@ public extension HMCDManager {
         
         return results
     }
+}
+
+public extension HMCDManager {
     
     /// Update a Sequence of versioned objects and save to memory. It is better
     /// not to call this method on too many objects, because context.save()
@@ -175,7 +178,7 @@ public extension HMCDManager {
     ///   - entityName: A String value representing the entity's name.
     ///   - requests: A Sequence of HMVersionUpdateRequest.
     ///   - obs: An ObserverType instance.
-    /// - Throws: Exception if the operation fails.
+    /// - Returns: A Disposable instance.
     func updateVersion<S,O>(_ context: Context,
                             _ entityName: String,
                             _ requests: S,

@@ -51,7 +51,6 @@ public extension HMCDManager {
     /// - Returns: An Array of NSManagedObject.
     /// - Throws: Exception if the fetch fails.
     func blockingFetch<Val>(_ context: Context, _ request: NSFetchRequest<Val>) throws -> [Val] {
-        Preconditions.checkNotRunningOnMainThread(request)
         return try context.fetch(request)
     }
     
@@ -98,7 +97,6 @@ public extension HMCDManager {
         -> [NSManagedObject] where
         S: Sequence, S.Iterator.Element: NSManagedObject
     {
-        Preconditions.checkNotRunningOnMainThread(data)
         return try data.map({$0.objectID}).flatMap(context.existingObject)
     }
 }
@@ -264,6 +262,103 @@ public extension HMCDManager {
     }
 }
 
+public extension HMCDManager {
+    
+    /// Fetch some CoreData objects and observe the process.
+    ///
+    /// - Parameters:
+    ///   - context: A Context instance.
+    ///   - request: A NSFetchRequest instance.
+    ///   - obs: An ObserverType instance.
+    /// - Returns: A Disposable instance.
+    func fetch<Val,O>(_ context: Context,
+                      _ request: NSFetchRequest<Val>,
+                      _ obs: O) -> Disposable where
+        O: ObserverType, O.E == [Val]
+    {
+        Preconditions.checkNotRunningOnMainThread(request)
+        
+        serializeBlock({
+            do {
+                let result = try self.blockingFetch(context, request)
+                obs.onNext(result)
+                obs.onCompleted()
+            } catch let e {
+                obs.onError(e)
+            }
+        })
+        
+        return Disposables.create()
+    }
+    
+    /// Fetch identifiables and observe the process.
+    ///
+    /// - Parameters:
+    ///   - context: A Context instance.
+    ///   - entityName: A String value.
+    ///   - ids: A Sequence of identifiables.
+    ///   - obs: An ObserverType instance.
+    /// - Returns: A Disposable instance.
+    func fetchIdentifiables<U,S,O>(_ context: HMCDManager.Context,
+                                   _ entityName: String,
+                                   _ ids: S,
+                                   _ obs: O) -> Disposable where
+        U: HMCDIdentifiableType,
+        S: Sequence,
+        S.Iterator.Element == U,
+        O: ObserverType,
+        O.E == [NSManagedObject]
+    {
+        Preconditions.checkNotRunningOnMainThread(entityName)
+        
+        serializeBlock({
+            do {
+                let result = try self.blockingFetchIdentifiables(context, entityName, ids)
+                obs.onNext(result)
+                obs.onCompleted()
+            } catch let e {
+                obs.onError(e)
+            }
+        })
+        
+        return Disposables.create()
+    }
+    
+    /// Fetch identifiables and observe the process.
+    ///
+    /// - Parameters:
+    ///   - context: A Context instance.
+    ///   - entityName: A String value.
+    ///   - ids: A Sequence of identifiables.
+    ///   - obs: An ObserverType instance.
+    /// - Returns: A Disposable instance.
+    func fetchIdentifiables<U,S,O>(_ context: HMCDManager.Context,
+                                   _ entityName: String,
+                                   _ ids: S,
+                                   _ obs: O) -> Disposable where
+        U: NSFetchRequestResult,
+        U: HMCDIdentifiableType,
+        S: Sequence,
+        S.Iterator.Element == U,
+        O: ObserverType,
+        O.E == [U]
+    {
+        Preconditions.checkNotRunningOnMainThread(entityName)
+        
+        serializeBlock({
+            do {
+                let result = try self.blockingFetchIdentifiables(context, entityName, ids)
+                obs.onNext(result)
+                obs.onCompleted()
+            } catch let e {
+                obs.onError(e)
+            }
+        })
+                
+        return Disposables.create()
+    }
+}
+
 public extension Reactive where Base == HMCDManager {
     
     /// Get data for a fetch request.
@@ -274,22 +369,8 @@ public extension Reactive where Base == HMCDManager {
     /// - Returns: An Observable instance.
     public func fetch<Val>(_ context: HMCDManager.Context,
                            _ request: NSFetchRequest<Val>) -> Observable<[Val]> {
-        let base = self.base
-        
         return Observable<[Val]>
-            .create({
-                Preconditions.checkNotRunningOnMainThread(request)
-                
-                do {
-                    let result = try base.blockingFetch(context, request)
-                    $0.onNext(result)
-                    $0.onCompleted()
-                } catch let e {
-                    $0.onError(e)
-                }
-                
-                return Disposables.create()
-            })
+            .create({self.base.fetch(context, request, $0)})
             .subscribeOnConcurrent(qos: .background)
     }
     
@@ -337,22 +418,8 @@ public extension Reactive where Base == HMCDManager {
         S: Sequence,
         S.Iterator.Element == U
     {
-        let base = self.base
-        
         return Observable<[NSManagedObject]>
-            .create({
-                Preconditions.checkNotRunningOnMainThread(entityName)
-                
-                do {
-                    let result = try base.blockingFetchIdentifiables(context, entityName, ids)
-                    $0.onNext(result)
-                    $0.onCompleted()
-                } catch let e {
-                    $0.onError(e)
-                }
-            
-                return Disposables.create()
-            })
+            .create({self.base.fetchIdentifiables(context, entityName, ids, $0)})
             .subscribeOnConcurrent(qos: .background)
     }
     
@@ -373,22 +440,8 @@ public extension Reactive where Base == HMCDManager {
         S: Sequence,
         S.Iterator.Element == U
     {
-        let base = self.base
-        
         return Observable<[U]>
-            .create({
-                Preconditions.checkNotRunningOnMainThread(entityName)
-                
-                do {
-                    let result = try base.blockingFetchIdentifiables(context, entityName, ids)
-                    $0.onNext(result)
-                    $0.onCompleted()
-                } catch let e {
-                    $0.onError(e)
-                }
-            
-                return Disposables.create()
-            })
+            .create({self.base.fetchIdentifiables(context, entityName, ids, $0)})
             .subscribeOnConcurrent(qos: .background)
     }
 }

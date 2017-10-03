@@ -34,33 +34,6 @@ public extension HMCDManager {
             throw Exception("Invalid batch delete result")
         }
     }
-    
-    /// Delete items in DB using some fetch request and observe the result.
-    /// Beware that this is only available for SQLite stores.
-    ///
-    /// - Parameters:
-    ///   - context: A Context instance.
-    ///   - request: A NSFetchRequest instance.
-    ///   - obs: An ObserverType instance.
-    func delete<O>(_ context: Context,
-                   _ request: NSFetchRequest<NSFetchRequestResult>,
-                   _ obs: O) -> Disposable where
-        O: ObserverType, O.E == NSBatchDeleteResult
-    {
-        Preconditions.checkNotRunningOnMainThread(request)
-        
-        serializeBlock({
-            do {
-                let result = try self.deleteUnsafely(context, request)
-                obs.onNext(result)
-                obs.onCompleted()
-            } catch let e {
-                obs.onError(e)
-            }
-        })
-        
-        return Disposables.create()
-    }
 }
 
 public extension HMCDManager {
@@ -112,6 +85,34 @@ public extension HMCDManager {
 
 public extension HMCDManager {
     
+    /// Delete items in DB using some fetch request and observe the result.
+    /// Beware that this is only available for SQLite stores.
+    ///
+    /// - Parameters:
+    ///   - context: A Context instance.
+    ///   - request: A NSFetchRequest instance.
+    ///   - obs: An ObserverType instance.
+    /// - Returns: A Disposable instance.
+    func delete<O>(_ context: Context,
+                   _ request: NSFetchRequest<NSFetchRequestResult>,
+                   _ obs: O) -> Disposable where
+        O: ObserverType, O.E == NSBatchDeleteResult
+    {
+        Preconditions.checkNotRunningOnMainThread(request)
+        
+        serializeBlock({
+            do {
+                let result = try self.deleteUnsafely(context, request)
+                obs.onNext(result)
+                obs.onCompleted()
+            } catch let e {
+                obs.onError(e)
+            }
+        })
+        
+        return Disposables.create()
+    }
+    
     /// Delete a Sequence of data from memory by refetching them using some
     /// context and observe the process.
     ///
@@ -119,7 +120,7 @@ public extension HMCDManager {
     ///   - context: A Context instance.
     ///   - data: A Sequence of NSManagedObject.
     ///   - obs: An ObserverType instance.
-    /// - Throws: Exception if the delete fails.
+    /// - Returns: A Disposable instance.
     public func delete<NS,S,O>(_ context: Context,
                                _ data: S,
                                _ obs: O) -> Disposable where
@@ -150,7 +151,7 @@ public extension HMCDManager {
     ///   - entityName: A String value representing the entity's name.
     ///   - ids: A Sequence of HMCDIdentifiableType.
     ///   - obs: An ObserverType instance.
-    /// - Throws: Exception if the delete fails.
+    /// - Returns: A Disposable instance.
     public func deleteIdentifiables<S,O>(_ context: Context,
                                          _ entityName: String,
                                          _ ids: S,

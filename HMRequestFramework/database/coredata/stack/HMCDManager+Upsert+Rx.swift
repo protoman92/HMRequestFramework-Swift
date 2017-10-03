@@ -85,6 +85,9 @@ public extension HMCDManager {
         let upsertables = upsertables.map({$0 as HMCDUpsertableType})
         return try self.convert(context, entityName, upsertables)
     }
+}
+
+public extension HMCDManager {
     
     /// Perform an upsert operation for some upsertable data. For items that
     /// do not exist in the DB yet, we simply insert them.
@@ -97,6 +100,7 @@ public extension HMCDManager {
     ///   - entityName: A String value. representing the entity's name.
     ///   - upsertables: A Sequence of upsertable objects.
     ///   - obs: An ObserverType instance.
+    /// - Returns: A Disposable instance.
     func upsert<S,O>(_ context: Context,
                      _ entityName: String,
                      _ upsertables: S,
@@ -137,6 +141,7 @@ public extension HMCDManager {
     ///   - entityName: A String value. representing the entity's name.
     ///   - upsertables: A Sequence of upsertable objects.
     ///   - obs: An ObserverType instance.
+    /// - Returns: A Disposable instance.
     func upsert<U,S,O>(_ context: Context,
                        _ entityName: String,
                        _ upsertables: S,

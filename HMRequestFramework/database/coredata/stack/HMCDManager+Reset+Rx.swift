@@ -31,12 +31,16 @@ public extension HMCDManager {
     func resetContextUnsafely(_ context: Context) {
         context.reset()
     }
+}
+
+public extension HMCDManager {
     
     /// Reset some context to its initial state and observe the process.
     ///
     /// - Parameters:
     ///   - context: A Context instance.
     ///   - obs: An ObserverType instance.
+    /// - Returns: A Disposable instance.
     func resetContext<O>(_ context: Context, _ obs: O) -> Disposable where
         O: ObserverType, O.E == Void
     {
@@ -54,6 +58,7 @@ public extension HMCDManager {
     /// Reset stores and observer the process.
     ///
     /// - Parameter obs: An ObserverType instance.
+    /// - Returns: A Disposable instance.
     func resetStores<O>(_ obs: O) -> Disposable where O: ObserverType, O.E == Void {
         Preconditions.checkNotRunningOnMainThread(nil)
         let coordinator = storeCoordinator()
