@@ -426,6 +426,7 @@ public extension CoreDataFRCTest {
                     .subscribeOnConcurrent(qos: .background)
             })
             .reduce((), accumulator: {_ in ()})
+            .subscribeOnConcurrent(qos: .background)
             .cast(to: Any.self)
     }
     
@@ -471,6 +472,7 @@ public extension CoreDataFRCTest {
             })
             .flatMap({manager.rx.deleteIdentifiables(deleteContext, entity, original)})
             .flatMap({manager.rx.persistLocally()})
+            .subscribeOnConcurrent(qos: .background)
             .doOnNext(onDelete)
             .cast(to: Any.self)
     }

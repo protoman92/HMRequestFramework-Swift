@@ -172,9 +172,9 @@ extension Reactive where Base == HMCDManager {
         -> Observable<[HMCDResult]> where
         S: Sequence, S.Iterator.Element == HMCDUpsertableType
     {
-        return Observable<[HMCDResult]>
-            .create({self.base.upsert(context, entityName, upsertables, $0)})
-            .subscribeOnConcurrent(qos: .background)
+        return Observable.create({
+            self.base.upsert(context, entityName, upsertables, $0)
+        })
     }
     
     /// Perform an upsert request on a Sequence of upsertable objects.

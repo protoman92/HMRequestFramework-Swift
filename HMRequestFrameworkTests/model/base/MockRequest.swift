@@ -30,6 +30,10 @@ extension MockRequest: HMRequestType {
         return mFilters
     }
     
+    public func defaultQoS() -> DispatchQoS.QoSClass? {
+        return .background
+    }
+    
     public func retries() -> Int {
         return retryCount
     }

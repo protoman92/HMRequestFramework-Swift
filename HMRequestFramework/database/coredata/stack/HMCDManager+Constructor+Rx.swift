@@ -106,8 +106,6 @@ public extension Reactive where Base == HMCDManager {
         PO.CDClass.Builder.PureObject == PO,
         S: Sequence, S.Iterator.Element == PO
     {
-        return Observable<[PO.CDClass]>
-            .create({self.base.construct(context, pureObjs, $0)})
-            .subscribeOnConcurrent(qos: .background)
+        return Observable.create({self.base.construct(context, pureObjs, $0)})
     }
 }

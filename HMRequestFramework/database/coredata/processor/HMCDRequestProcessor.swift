@@ -26,6 +26,10 @@ public struct HMCDRequestProcessor {
             fatalError("CoreData manager cannot be nil")
         }
     }
+    
+    fileprivate func defaultQos(_ request: Req) -> DispatchQoS.QoSClass {
+        return request.defaultQoS() ?? .userInitiated
+    }
 }
 
 extension HMCDRequestProcessor: HMCDRequestProcessorType {
@@ -133,6 +137,7 @@ public extension HMCDRequestProcessor {
         let delay = request.retryDelay()
     
         return manager.rx.fetch(context, cdRequest)
+            .subscribeOnConcurrent(qos: defaultQos(request))
             .delayRetry(retries: retries, delay: delay)
             .map(Try.success)
             .catchErrorJustReturn(Try.failure)
@@ -154,6 +159,7 @@ public extension HMCDRequestProcessor {
         let delay = request.retryDelay()
         
         return manager.rx.saveConvertibles(context, insertedData)
+            .subscribeOnConcurrent(qos: defaultQos(request))
             .delayRetry(retries: retries, delay: delay)
             .map(Try.success)
             .catchErrorJustReturn(Try.failure)
@@ -173,6 +179,7 @@ public extension HMCDRequestProcessor {
         let delay = request.retryDelay()
         
         return manager.rx.persistLocally()
+            .subscribeOnConcurrent(qos: defaultQos(request))
             .delayRetry(retries: retries, delay: delay)
             .map(Try.success)
             .catchErrorJustReturn(Try.failure)
@@ -192,6 +199,7 @@ public extension HMCDRequestProcessor {
         let delay = request.retryDelay()
         
         return manager.rx.resetStack()
+            .subscribeOnConcurrent(qos: defaultQos(request))
             .delayRetry(retries: retries, delay: delay)
             .map(Try.success)
             .catchErrorJustReturn(Try.failure)
@@ -222,6 +230,7 @@ public extension HMCDRequestProcessor {
                 manager.rx.updateVersion(versionContext, entityName, vRequests),
                 manager.rx.upsert(upsertContext, entityName, nonVersionables)
             )
+            .subscribeOnConcurrent(qos: defaultQos(request))
             .reduce([], accumulator: +)
             .map(Try.success)
             .catchErrorJustReturn(Try.failure)
@@ -289,6 +298,7 @@ public extension HMCDRequestProcessor {
                     manager.rx.delete(context2, nonIds)
                 )
             })
+            .subscribeOnConcurrent(qos: defaultQos(request))
             .reduce((), accumulator: {_ in ()})
             .delayRetry(retries: retries, delay: delay)
             .map(Try.success)
@@ -330,6 +340,7 @@ public extension HMCDRequestProcessor {
         let delay = request.retryDelay()
         
         return manager.rx.delete(context, deleteRequest)
+            .subscribeOnConcurrent(qos: defaultQos(request))
             .map(toVoid)
             .delayRetry(retries: retries, delay: delay)
             .map(Try.success)
@@ -355,6 +366,7 @@ public extension HMCDRequestProcessor {
         // the inner managed objects are not ARC off.
         return manager.rx.fetch(context, fetchRequest)
             .flatMap({manager.rx.delete(context, $0)})
+            .subscribeOnConcurrent(qos: defaultQos(request))
             .map(Try.success)
             .catchErrorJustReturn(Try.failure)
     }
@@ -429,6 +441,7 @@ public extension HMCDRequestProcessor {
         
         let generator: HMRequestGenerator<[PO],Req> = HMRequestGenerators.forceGn({
             maanger.rx.construct(context, $0)
+                .subscribeOnConcurrent(qos: .userInitiated)
                 .map(self.saveToMemoryRequest)
                 .flatMap({HMTransforms.applyTransformers($0, transforms)})
         })
@@ -665,6 +678,7 @@ public extension HMCDRequestProcessor {
         return HMTransforms
             .applyTransformers(request, transforms)
             .flatMap({manager.rx.startDBStream($0, cls)
+                .subscribeOnConcurrent(qos: self.defaultQos($0))
                 .map(Try.success)
                 .catchErrorJustReturn(Try.failure)
             })

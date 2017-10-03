@@ -26,6 +26,7 @@ public final class CoreDataManagerTest: CoreDataRootTest {
         
         /// When
         manager.rx.construct(context, dummies)
+            .subscribeOnConcurrent(qos: .background)
             .flattenSequence()
             .map({$0.asPureObject()})
             .doOnDispose(expect.fulfill)
@@ -57,7 +58,6 @@ public final class CoreDataManagerTest: CoreDataRootTest {
         // Save the dummies in memory. Their NSManagedObject equivalents will
         // be constructed here.
         manager.rx.savePureObjects(saveContext, dummies)
-            .subscribeOnConcurrent(qos: .background)
             
             // Perform a fetch to verify that the data have been inserted, but
             // not persisted.
@@ -71,6 +71,7 @@ public final class CoreDataManagerTest: CoreDataRootTest {
             // Fetch the data and verify that they have been persisted.
             .flatMap({manager.rx.fetch(fetchContext2, fetchRq)})
             .map({$0.map({$0.asPureObject()})})
+            .subscribeOnConcurrent(qos: .background)
             .flattenSequence()
             .doOnDispose(expect.fulfill)
             .subscribe(observer)
@@ -112,6 +113,7 @@ public extension CoreDataManagerTest {
             // data to contain the same properties.
             .flatMap({manager.rx.fetchIdentifiables(refetchContext, entityName, cdObjects)})
             .map({$0.map({$0.asPureObject()})})
+            .subscribeOnConcurrent(qos: .background)
             .flattenSequence()
             .doOnDispose(expect.fulfill)
             .subscribe(observer)
@@ -183,6 +185,7 @@ public extension CoreDataManagerTest {
             
             // Fetch to verify that the DB is now empty.
             .flatMap({manager.rx.fetch(fetchContext2, fetchRq)})
+            .subscribeOnConcurrent(qos: .background)
             .flattenSequence()
             .doOnDispose(expect.fulfill)
             .subscribe(observer)
@@ -248,7 +251,7 @@ public extension CoreDataManagerTest {
         let observer = scheduler.createObserver(Any.self)
         let expect = expectation(description: "Should have completed")
         let manager = self.manager!
-        let iterationCount = 100
+        let iterationCount = 10
         let dummyCount = 100
         let request = try! dummy1FetchRequest().fetchRequest(Dummy1.self)
         let entityName = request.entityName!
@@ -300,6 +303,7 @@ public extension CoreDataManagerTest {
             // Fetch to verify that the data have been deleted.
             .flatMap({manager.rx.fetch(fetchContext2, request).subscribeOnConcurrent(qos: .background)})
             .map({$0.map({$0.asPureObject()})})
+            .subscribeOnConcurrent(qos: .background)
             .flattenSequence()
             .cast(to: Any.self)
             .doOnDispose(expect.fulfill)
@@ -362,6 +366,7 @@ public extension CoreDataManagerTest {
             .flatMap({_ in manager.rx.persistLocally()})
             .flatMap({manager.rx.fetch(fetchContext, fetchRq)})
             .map({$0.map({$0.asPureObject()})})
+            .subscribeOnConcurrent(qos: .background)
             .flattenSequence()
             .doOnDispose(expect.fulfill)
             .subscribe(observer)
@@ -411,6 +416,7 @@ public extension CoreDataManagerTest {
             .flatMap({_ in manager.rx.persistLocally()})
             .flatMap({manager.rx.fetch(fetchContext, fetchRq)})
             .map({$0.map({$0.asPureObject()})})
+            .subscribeOnConcurrent(qos: .background)
             .flattenSequence()
             .doOnDispose(expect.fulfill)
             .subscribe(observer)
@@ -452,6 +458,7 @@ public extension CoreDataManagerTest {
             // limited to the predefined fetchLimit.
             .flatMap({manager.rx.fetch(fetchContext, fetchRq)})
             .map({$0.map({$0.asPureObject()})})
+            .subscribeOnConcurrent(qos: .background)
             .flattenSequence()
             .doOnDispose(expect.fulfill)
             .subscribe(observer)
@@ -500,6 +507,7 @@ public extension CoreDataManagerTest {
             .flatMap({manager.rx.persistLocally()})
             .flatMap({manager.rx.fetch(fetchContext3, fetchRq)})
             .map({$0.map({$0.asPureObject()})})
+            .subscribeOnConcurrent(qos: .background)
             .flattenSequence()
             .doOnDispose(expect.fulfill)
             .subscribe(observer)

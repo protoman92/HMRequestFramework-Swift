@@ -27,8 +27,8 @@ public struct HMCDRequest {
     fileprivate var cdVCStrategy: VersionConflict.Strategy?
     fileprivate var cdFrcSectionName: String?
     fileprivate var cdFrcCacheName: String?
-    fileprivate var cdFrcDefaultQoS: DispatchQoS.QoSClass?
-    fileprivate var cdmwFilters: [MiddlewareFilter]
+    fileprivate var cdMWFilters: [MiddlewareFilter]
+    fileprivate var cdDefaultQoS: DispatchQoS.QoSClass?
     fileprivate var retryCount: Int
     fileprivate var retryDelayIntv: TimeInterval
     fileprivate var middlewaresEnabled: Bool
@@ -43,7 +43,7 @@ public struct HMCDRequest {
         cdUpsertedData = []
         cdDeletedData = []
         nsSortDescriptors = []
-        cdmwFilters = []
+        cdMWFilters = []
         retryCount = 1
         retryDelayIntv = 0
         middlewaresEnabled = true
@@ -394,16 +394,6 @@ extension HMCDRequest: HMBuildableType {
             request.cdFrcCacheName = frcCacheName
             return self
         }
-        
-        /// Set the FRC default QoS.
-        ///
-        /// - Parameter defaultQoS: A QoSClass instance.
-        /// - Returns: The current Builder instance.
-        @discardableResult
-        public func with(frcDefaultQoS: DispatchQoS.QoSClass?) -> Self {
-            request.cdFrcDefaultQoS = frcDefaultQoS
-            return self
-        }
     }
 }
 
@@ -417,7 +407,7 @@ extension HMCDRequest.Builder: HMRequestBuilderType {
     public func with<S>(mwFilters: S) -> Self where
         S: Sequence, S.Iterator.Element == HMMiddlewareFilter<Buildable>
     {
-        request.cdmwFilters = mwFilters.map({$0})
+        request.cdMWFilters = mwFilters.map({$0})
         return self
     }
 
@@ -426,10 +416,20 @@ extension HMCDRequest.Builder: HMRequestBuilderType {
     /// - Parameter mwFilter: A filter instance..
     /// - Returns: The current Builder instance.
     public func add(mwFilter: HMMiddlewareFilter<Buildable>) -> Self {
-        request.cdmwFilters.append(mwFilter)
+        request.cdMWFilters.append(mwFilter)
         return self
     }
 
+    /// Set the default QoS.
+    ///
+    /// - Parameter defaultQoS: A QoSClass instance.
+    /// - Returns: The current Builder instance.
+    @discardableResult
+    public func with(defaultQoS: DispatchQoS.QoSClass?) -> Self {
+        request.cdDefaultQoS = defaultQoS
+        return self
+    }
+    
     /// Override this method to provide default implementation.
     ///
     /// - Parameter retries: An Int value.
@@ -494,8 +494,8 @@ extension HMCDRequest.Builder: HMRequestBuilderType {
                 .with(vcStrategy: buildable.cdVCStrategy)
                 .with(frcSectionName: buildable.cdFrcSectionName)
                 .with(frcCacheName: buildable.cdFrcCacheName)
-                .with(frcDefaultQoS: buildable.cdFrcDefaultQoS)
-                .with(mwFilters: buildable.cdmwFilters)
+                .with(mwFilters: buildable.cdMWFilters)
+                .with(defaultQoS: buildable.cdDefaultQoS)
                 .with(retries: buildable.retryCount)
                 .with(retryDelay: buildable.retryDelayIntv)
                 .with(applyMiddlewares: buildable.middlewaresEnabled)
@@ -514,7 +514,11 @@ extension HMCDRequest: HMRequestType {
     public typealias Filterable = String
     
     public func middlewareFilters() -> [MiddlewareFilter] {
-        return cdmwFilters
+        return cdMWFilters
+    }
+    
+    public func defaultQoS() -> DispatchQoS.QoSClass? {
+        return cdDefaultQoS
     }
     
     public func retries() -> Int {
@@ -598,7 +602,7 @@ extension HMCDRequest: HMCDFetchedResultRequestType {
     }
     
     public func frcDefautQoS() -> DispatchQoS.QoSClass? {
-        return cdFrcDefaultQoS
+        return cdDefaultQoS
     }
 }
 

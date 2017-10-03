@@ -31,4 +31,9 @@ public protocol HMRequestType: HMMiddlewareFilterableType {
     ///
     /// - Returns: A String value.
     func requestDescription() -> String?
+    
+    /// Get the default QoS to push events.
+    ///
+    /// - Returns: A QoSClass instance.
+    func defaultQoS() -> DispatchQoS.QoSClass?
 }

@@ -84,18 +84,14 @@ extension Reactive where Base == HMCDManager {
     /// - Parameter context: A Context instance.
     /// - Returns: An Observable instance.
     func resetContext(_ context: HMCDManager.Context) -> Observable<Void> {
-        return Observable<Void>
-            .create({self.base.resetContext(context, $0)})
-            .subscribeOnConcurrent(qos: .background)
+        return Observable.create({self.base.resetContext(context, $0)})
     }
     
     /// Reset stores reactively.
     ///
     /// - Returns: An Observable instance.
     func resetStores() -> Observable<Void> {
-        return Observable<Void>
-            .create({self.base.resetStores($0)})
-            .subscribeOnConcurrent(qos: .background)
+        return Observable.create({self.base.resetStores($0)})
     }
     
     /// Reset the entire stack by resetting contexts and wipe the DB.
@@ -110,7 +106,7 @@ extension Reactive where Base == HMCDManager {
                 resetContext(base.privateObjectContext()),
                 
                 // Store reset must not happen on the main thread.
-                resetStores().subscribeOnConcurrent(qos: .background)
+                resetStores()
             )
             .reduce((), accumulator: {_ in ()})
     }

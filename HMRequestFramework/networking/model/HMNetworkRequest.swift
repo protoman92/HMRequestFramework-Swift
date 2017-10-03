@@ -18,7 +18,8 @@ public struct HMNetworkRequest {
     fileprivate var httpBody: Any?
     fileprivate var httpUploadedData: Data?
     fileprivate var httpUploadURL: URL?
-    fileprivate var nwmwFilters: [MiddlewareFilter]
+    fileprivate var nwMWFilters: [MiddlewareFilter]
+    fileprivate var nwDefaultQoS: DispatchQoS.QoSClass?
     fileprivate var timeoutInterval: TimeInterval
     fileprivate var retryCount: Int
     fileprivate var retryDelayIntv: TimeInterval
@@ -30,7 +31,7 @@ public struct HMNetworkRequest {
         retryDelayIntv = 0
         httpParams = []
         httpHeaders = [:]
-        nwmwFilters = []
+        nwMWFilters = []
         middlewaresEnabled = true
         timeoutInterval = TimeInterval.infinity
     }
@@ -245,7 +246,7 @@ extension HMNetworkRequest.Builder: HMRequestBuilderType {
     public func with<S>(mwFilters: S) -> Self where
         S: Sequence, S.Iterator.Element == HMMiddlewareFilter<Buildable>
     {
-        request.nwmwFilters = mwFilters.map({$0})
+        request.nwMWFilters = mwFilters.map({$0})
         return self
     }
     
@@ -254,7 +255,17 @@ extension HMNetworkRequest.Builder: HMRequestBuilderType {
     /// - Parameter mwFilter: A filter instance.
     /// - Returns: The current Builder instance.
     public func add(mwFilter: HMMiddlewareFilter<Buildable>) -> Self {
-        request.nwmwFilters.append(mwFilter)
+        request.nwMWFilters.append(mwFilter)
+        return self
+    }
+    
+    /// Override this method to provide default implementation.
+    ///
+    /// - Parameter defaultQoS: A QoSClass instance.
+    /// - Returns: The current Builder instance.
+    @discardableResult
+    public func with(defaultQoS: DispatchQoS.QoSClass?) -> Self {
+        request.nwDefaultQoS = defaultQoS
         return self
     }
     
@@ -306,19 +317,20 @@ extension HMNetworkRequest.Builder: HMRequestBuilderType {
     public func with(buildable: Buildable?) -> Self {
         if let buildable = buildable {
             return self
-                .with(urlString: try? buildable.urlString())
-                .with(operation: try? buildable.operation())
-                .with(body: try? buildable.body())
-                .with(headers: buildable.headers())
-                .with(params: buildable.params())
-                .with(uploadData: buildable.uploadData())
-                .with(uploadURL: buildable.uploadURL())
-                .with(timeout: buildable.timeout())
-                .with(mwFilters: buildable.middlewareFilters())
-                .with(retries: buildable.retries())
-                .with(retryDelay: buildable.retryDelay())
-                .with(applyMiddlewares: buildable.applyMiddlewares())
-                .with(description: buildable.requestDescription())
+                .with(urlString: buildable.httpURL)
+                .with(operation: buildable.httpMethod)
+                .with(body: buildable.httpBody)
+                .with(headers: buildable.httpHeaders)
+                .with(params: buildable.httpParams)
+                .with(uploadData: buildable.httpUploadedData)
+                .with(uploadURL: buildable.httpUploadURL)
+                .with(timeout: buildable.timeoutInterval)
+                .with(mwFilters: buildable.nwMWFilters)
+                .with(defaultQoS: buildable.nwDefaultQoS)
+                .with(retries: buildable.retryCount)
+                .with(retryDelay: buildable.retryDelayIntv)
+                .with(applyMiddlewares: buildable.middlewaresEnabled)
+                .with(description: buildable.rqDescription)
         } else {
             return self
         }
@@ -333,7 +345,11 @@ extension HMNetworkRequest: HMRequestType {
     public typealias Filterable = String
     
     public func middlewareFilters() -> [MiddlewareFilter] {
-        return nwmwFilters
+        return nwMWFilters
+    }
+    
+    public func defaultQoS() -> DispatchQoS.QoSClass? {
+        return nwDefaultQoS
     }
     
     public func retries() -> Int {

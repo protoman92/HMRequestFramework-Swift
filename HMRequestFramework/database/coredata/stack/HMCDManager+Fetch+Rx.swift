@@ -369,9 +369,7 @@ public extension Reactive where Base == HMCDManager {
     /// - Returns: An Observable instance.
     public func fetch<Val>(_ context: HMCDManager.Context,
                            _ request: NSFetchRequest<Val>) -> Observable<[Val]> {
-        return Observable<[Val]>
-            .create({self.base.fetch(context, request, $0)})
-            .subscribeOnConcurrent(qos: .background)
+        return Observable.create({self.base.fetch(context, request, $0)})
     }
     
     /// Get data for a fetch request.
@@ -418,9 +416,9 @@ public extension Reactive where Base == HMCDManager {
         S: Sequence,
         S.Iterator.Element == U
     {
-        return Observable<[NSManagedObject]>
-            .create({self.base.fetchIdentifiables(context, entityName, ids, $0)})
-            .subscribeOnConcurrent(qos: .background)
+        return Observable.create({
+            self.base.fetchIdentifiables(context, entityName, ids, $0)
+        })
     }
     
     /// Perform a refetch request for a Sequence of identifiable objects and
@@ -440,8 +438,8 @@ public extension Reactive where Base == HMCDManager {
         S: Sequence,
         S.Iterator.Element == U
     {
-        return Observable<[U]>
-            .create({self.base.fetchIdentifiables(context, entityName, ids, $0)})
-            .subscribeOnConcurrent(qos: .background)
+        return Observable.create({
+            self.base.fetchIdentifiables(context, entityName, ids, $0)
+        })
     }
 }

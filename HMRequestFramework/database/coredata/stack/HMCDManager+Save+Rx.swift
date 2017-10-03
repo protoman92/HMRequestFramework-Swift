@@ -255,9 +255,7 @@ public extension Reactive where Base == HMCDManager {
     /// - Parameter context: A Context instance.
     /// - Returns: An Observable instance.
     public func save(_ context: HMCDManager.Context) -> Observable<Void> {
-        return Observable<Void>
-            .create({self.base.save(context, $0)})
-            .subscribeOnConcurrent(qos: .background)
+        return Observable.create({self.base.save(context, $0)})
     }
     
     /// Construct a Sequence of CoreData from data objects and save it to memory.
@@ -274,9 +272,7 @@ public extension Reactive where Base == HMCDManager {
         S: Sequence,
         S.Iterator.Element == PO
     {
-        return Observable<Void>
-            .create({self.base.savePureObjects(context, pureObjects, $0)})
-            .subscribeOnConcurrent(qos: .background)
+        return Observable.create({self.base.savePureObjects(context, pureObjects, $0)})
     }
     
     /// Save a Sequence of convertible objects to memory and observe the process.
@@ -289,9 +285,7 @@ public extension Reactive where Base == HMCDManager {
                              _ convertibles: S) -> Observable<[HMCDResult]> where
         S: Sequence, S.Iterator.Element == HMCDObjectConvertibleType
     {
-        return Observable<[HMCDResult]>
-            .create({self.base.saveConvertibles(context, convertibles, $0)})
-            .subscribeOnConcurrent(qos: .background)
+        return Observable.create({self.base.saveConvertibles(context, convertibles, $0)})
     }
     
     /// Save a Sequence of convertible objects to memory and observe the process.
@@ -318,8 +312,6 @@ public extension Reactive where Base == HMCDManager {
     ///
     /// - Returns: An Observable instance.
     public func persistLocally() -> Observable<Void> {
-        return Observable<Void>
-            .create({self.base.persistChanges($0)})
-            .subscribeOnConcurrent(qos: .background)
+        return Observable.create({self.base.persistChanges($0)})
     }
 }

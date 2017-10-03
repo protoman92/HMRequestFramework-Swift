@@ -190,9 +190,7 @@ public extension Reactive where Base == HMCDManager {
                        _ request: NSFetchRequest<NSFetchRequestResult>)
         -> Observable<NSBatchDeleteResult>
     {
-        return Observable<NSBatchDeleteResult>
-            .create({self.base.delete(context, request, $0)})
-            .subscribeOnConcurrent(qos: .background)
+        return Observable.create({self.base.delete(context, request, $0)})
     }
 }
 
@@ -209,9 +207,7 @@ public extension Reactive where Base == HMCDManager {
         -> Observable<Void> where
         S: Sequence, S.Iterator.Element: NSManagedObject
     {
-        return Observable<Void>
-            .create({self.base.delete(context, data, $0)})
-            .subscribeOnConcurrent(qos: .background)
+        return Observable.create({self.base.delete(context, data, $0)})
     }
 }
 
@@ -231,9 +227,9 @@ public extension Reactive where Base == HMCDManager {
         -> Observable<Void> where
         S: Sequence, S.Iterator.Element == HMCDIdentifiableType
     {
-        return Observable<Void>
-            .create({self.base.deleteIdentifiables(context, entityName, ids, $0)})
-            .subscribeOnConcurrent(qos: .background)
+        return Observable.create({
+            self.base.deleteIdentifiables(context, entityName, ids, $0)
+        })
     }
     
     /// Delete a Sequence of identifiable data from memory by refetching them
