@@ -606,7 +606,8 @@ public extension HMCDRequestProcessor {
         
         return Observable.just(previous)
             .map({try $0.getOrThrow()})
-            .flatMap({cdManager.rx.construct(context, $0)})
+            .flatMap({cdManager.rx.construct(context, $0)
+                .subscribeOnConcurrent(qos: .userInitiated)})
             .map(Try.success)
             .flatMap({self.upsertInMemory($0, transforms)})
             .catchErrorJustReturn(Try.failure)
