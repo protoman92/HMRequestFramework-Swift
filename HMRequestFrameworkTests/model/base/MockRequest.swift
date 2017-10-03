@@ -80,6 +80,11 @@ public extension MockRequest {
         }
         
         @discardableResult
+        public func with(defaultQoS: DispatchQoS.QoSClass?) -> Self {
+            return self
+        }
+        
+        @discardableResult
         public func with(retries: Int) -> Self {
             request.retryCount = retries
             return self
