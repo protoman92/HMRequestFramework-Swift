@@ -35,9 +35,12 @@ public protocol HMCDGeneralRequestProcessorType {
     ///
     /// - Parameters:
     ///   - previous: The result of the previous operation.
+    ///   - defaultQoS: The QosClass to be used for CD object construction.
     ///   - transforms: A Sequence of Request transformer.
     /// - Returns: An Observable instance.
-    func saveToMemory<PO,S>(_ previous: Try<[PO]>, _ transforms: S)
+    func saveToMemory<PO,S>(_ previous: Try<[PO]>,
+                            _ defaultQoS: DispatchQoS.QoSClass,
+                            _ transforms: S)
         -> Observable<Try<Void>> where
         PO: HMCDPureObjectType,
         PO.CDClass: HMCDObjectConvertibleType,
@@ -104,9 +107,12 @@ public protocol HMCDGeneralRequestProcessorType {
     ///
     /// - Parameters:
     ///   - previous: The result of the previous request.
+    ///   - defaultQoS: The QoSClass to be used for CD object construction.
     ///   - transforms: A Sequence of Request transformers.
     /// - Returns: An Observable instance.
-    func upsertInMemory<PO,S>(_ previous: Try<[PO]>, _ transform: S)
+    func upsertInMemory<PO,S>(_ previous: Try<[PO]>,
+                              _ defaultQoS: DispatchQoS.QoSClass,
+                              _ transform: S)
         -> Observable<Try<[HMCDResult]>> where
         PO: HMCDPureObjectType,
         PO.CDClass: HMCDUpsertableType,
@@ -353,6 +359,7 @@ public extension HMCDGeneralRequestProcessorType {
     }
     
     public func saveToMemory<PO>(_ previous: Try<[PO]>,
+                                 _ defaultQoS: DispatchQoS.QoSClass,
                                  _ transforms: HMTransform<HMCDRequest>...)
         -> Observable<Try<Void>> where
         PO: HMCDPureObjectType,
@@ -360,7 +367,7 @@ public extension HMCDGeneralRequestProcessorType {
         PO.CDClass: HMCDObjectBuildableType,
         PO.CDClass.Builder.PureObject == PO
     {
-        return saveToMemory(previous, transforms)
+        return saveToMemory(previous, defaultQoS, transforms)
     }
     
     public func deleteInMemory<PO>(_ previous: Try<[PO]>,
@@ -410,6 +417,7 @@ public extension HMCDGeneralRequestProcessorType {
     }
     
     public func upsertInMemory<PO>(_ previous: Try<[PO]>,
+                                   _ defaultQoS: DispatchQoS.QoSClass,
                                    _ transforms: HMTransform<HMCDRequest>...)
         -> Observable<Try<[HMCDResult]>> where
         PO: HMCDPureObjectType,
@@ -417,7 +425,7 @@ public extension HMCDGeneralRequestProcessorType {
         PO.CDClass: HMCDObjectBuildableType,
         PO.CDClass.Builder.PureObject == PO
     {
-        return upsertInMemory(previous, transforms)
+        return upsertInMemory(previous, defaultQoS, transforms)
     }
     
     public func persistToDB<Prev>(_ previous: Try<Prev>,

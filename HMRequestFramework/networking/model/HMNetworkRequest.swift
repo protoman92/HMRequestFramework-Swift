@@ -19,7 +19,7 @@ public struct HMNetworkRequest {
     fileprivate var httpUploadedData: Data?
     fileprivate var httpUploadURL: URL?
     fileprivate var nwMWFilters: [MiddlewareFilter]
-    fileprivate var nwDefaultQoS: DispatchQoS.QoSClass?
+    fileprivate var nwDefaultQoS: DispatchQoS.QoSClass
     fileprivate var timeoutInterval: TimeInterval
     fileprivate var retryCount: Int
     fileprivate var retryDelayIntv: TimeInterval
@@ -27,6 +27,7 @@ public struct HMNetworkRequest {
     fileprivate var rqDescription: String?
     
     fileprivate init() {
+        nwDefaultQoS = .background
         retryCount = 1
         retryDelayIntv = 0
         httpParams = []
@@ -264,7 +265,7 @@ extension HMNetworkRequest.Builder: HMRequestBuilderType {
     /// - Parameter defaultQoS: A QoSClass instance.
     /// - Returns: The current Builder instance.
     @discardableResult
-    public func with(defaultQoS: DispatchQoS.QoSClass?) -> Self {
+    public func with(defaultQoS: DispatchQoS.QoSClass) -> Self {
         request.nwDefaultQoS = defaultQoS
         return self
     }
@@ -348,7 +349,7 @@ extension HMNetworkRequest: HMRequestType {
         return nwMWFilters
     }
     
-    public func defaultQoS() -> DispatchQoS.QoSClass? {
+    public func defaultQoS() -> DispatchQoS.QoSClass {
         return nwDefaultQoS
     }
     

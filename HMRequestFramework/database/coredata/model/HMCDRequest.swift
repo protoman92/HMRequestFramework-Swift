@@ -30,7 +30,7 @@ public struct HMCDRequest {
     fileprivate var cdFrcSectionName: String?
     fileprivate var cdFrcCacheName: String?
     fileprivate var cdMWFilters: [MiddlewareFilter]
-    fileprivate var cdDefaultQoS: DispatchQoS.QoSClass?
+    fileprivate var cdDefaultQoS: DispatchQoS.QoSClass
     fileprivate var retryCount: Int
     fileprivate var retryDelayIntv: TimeInterval
     fileprivate var middlewaresEnabled: Bool
@@ -38,6 +38,7 @@ public struct HMCDRequest {
     
     fileprivate init() {
         cdOperationMode = .queued
+        cdDefaultQoS = .background
         cdFetchOffset = 0
         cdFetchBatchSize = 0
         cdFetchProperties = []
@@ -437,7 +438,7 @@ extension HMCDRequest.Builder: HMRequestBuilderType {
     /// - Parameter defaultQoS: A QoSClass instance.
     /// - Returns: The current Builder instance.
     @discardableResult
-    public func with(defaultQoS: DispatchQoS.QoSClass?) -> Self {
+    public func with(defaultQoS: DispatchQoS.QoSClass) -> Self {
         request.cdDefaultQoS = defaultQoS
         return self
     }
@@ -530,7 +531,7 @@ extension HMCDRequest: HMRequestType {
         return cdMWFilters
     }
     
-    public func defaultQoS() -> DispatchQoS.QoSClass? {
+    public func defaultQoS() -> DispatchQoS.QoSClass {
         return cdDefaultQoS
     }
     

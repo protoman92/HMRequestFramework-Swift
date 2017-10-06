@@ -89,14 +89,18 @@ public struct HMNetworkRequestHandler {
     public func execute(_ request: Req) throws -> Observable<Try<Data>> {
         Preconditions.checkNotRunningOnMainThread(request)
         let operation  = try request.operation()
+        let defaultQoS = request.defaultQoS()
+        let execution: Observable<Try<Data>>
         
         switch operation {
         case .upload:
-            return try executeUpload(request)
+            execution = try executeUpload(request)
             
         default:
-            return try executeData(request)
+            execution = try executeData(request)
         }
+        
+        return execution.subscribeOnConcurrent(qos: defaultQoS)
     }
 }
 
@@ -120,7 +124,11 @@ extension HMNetworkRequestHandler: HMNetworkRequestHandlerType {
     public func executeSSE(_ request: Req) throws -> Observable<Try<[HMSSEvent<HMSSEData>]>> {
         let sseManager = self.eventSourceManager()
         let sseRequest = request.asSSERequest()
-        return sseManager.rx.openConnection(sseRequest).map(Try.success)
+        let defaultQoS = request.defaultQoS()
+        
+        return sseManager.rx.openConnection(sseRequest)
+            .map(Try.success)
+            .subscribeOnConcurrent(qos: defaultQoS)
     }
 }
 

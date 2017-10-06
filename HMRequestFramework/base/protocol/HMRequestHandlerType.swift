@@ -60,8 +60,8 @@ public extension HMRequestHandlerType {
             /// requests generated (each emitting a Try<Req>), the error
             /// catching would still work correctly.
             .flatMap({(req: Try<Req>) in Observable.just(req)
+                .observeOnConcurrent(qos: .userInteractive)
                 .map({try $0.getOrThrow()})
-                .observeOnConcurrent(qos: .background)
                 .flatMap(self.applyRequestMiddlewares)
                 .flatMap(perform)
                 

@@ -29,7 +29,7 @@ public protocol HMRequestBuilderType: HMBuilderType {
     ///
     /// - Parameter defaultQoS: A QoSClass instance.
     /// - Returns: The current Builder instance.
-    func with(defaultQoS: DispatchQoS.QoSClass?) -> Self
+    func with(defaultQoS: DispatchQoS.QoSClass) -> Self
     
     /// Set the retry count.
     ///

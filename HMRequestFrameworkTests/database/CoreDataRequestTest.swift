@@ -81,7 +81,7 @@ public class CoreDataRequestTest: CoreDataRootTest {
 
         /// When
         // Save the changes in the disposable context.
-        dbProcessor.saveToMemory(Try.success(pureObjects))
+        dbProcessor.saveToMemory(Try.success(pureObjects), .background)
             .flatMap({dbProcessor.persistToDB($0)})
 
             // Fetch to verify that data have been persisted.
@@ -122,7 +122,7 @@ public class CoreDataRequestTest: CoreDataRootTest {
         
         /// When
         // Save the original objects to DB.
-        dbProcessor.saveToMemory(Try.success(pureObjects))
+        dbProcessor.saveToMemory(Try.success(pureObjects), .background)
             .flatMap({dbProcessor.persistToDB($0)})
             
             // Fetch to verify that data have been persisted.
@@ -167,7 +167,7 @@ public class CoreDataRequestTest: CoreDataRootTest {
         
         /// When
         // Save the pure objects to DB.
-        dbProcessor.saveToMemory(Try.success(pureObjects))
+        dbProcessor.saveToMemory(Try.success(pureObjects), .background)
             .flatMap({dbProcessor.persistToDB($0)})
             
             // Fetch with properties and confirm that they match randomObjects.
@@ -209,7 +209,7 @@ public class CoreDataRequestTest: CoreDataRootTest {
 
         /// When
         // Save the changes in the disposable context.
-        dbProcessor.saveToMemory(Try.success(pureObjects))
+        dbProcessor.saveToMemory(Try.success(pureObjects), .background)
             .flatMap({dbProcessor.persistToDB($0)})
             .flatMap({dbProcessor.fetchAllDataFromDB($0, Dummy1.self)})
             .map({try $0.getOrThrow()})
@@ -264,7 +264,7 @@ public class CoreDataRequestTest: CoreDataRootTest {
 
         /// When
         // Insert the first set of data.
-        dbProcessor.saveToMemory(Try.success(pureObjects1))
+        dbProcessor.saveToMemory(Try.success(pureObjects1), .background)
             .flatMap({dbProcessor.persistToDB($0)})
 
             .flatMap({dbProcessor.fetchAllDataFromDB($0, Dummy1.self)})
@@ -322,7 +322,7 @@ public class CoreDataRequestTest: CoreDataRootTest {
 
         /// When
         // Insert the first set of data.
-        dbProcessor.saveToMemory(Try.success(pureObjects1))
+        dbProcessor.saveToMemory(Try.success(pureObjects1), .background)
             .map({$0.map({$0 as Any})})
 
             // Persist changes to DB.
@@ -372,7 +372,7 @@ public class CoreDataRequestTest: CoreDataRootTest {
         let pureObjects = (0..<dummyCount).map({_ in Dummy1()})
 
         /// When
-        dbProcessor.saveToMemory(Try.success(pureObjects))
+        dbProcessor.saveToMemory(Try.success(pureObjects), .background)
             .map({$0.map({$0 as Any})})
             .flatMap({dbProcessor.persistToDB($0)})
             .map({$0.map({$0 as Any})})
@@ -400,7 +400,7 @@ public class CoreDataRequestTest: CoreDataRootTest {
         let pureObjects = (0..<dummyCount).map({_ in Dummy1()})
         
         /// When
-        dbProcessor.saveToMemory(Try.success(pureObjects))
+        dbProcessor.saveToMemory(Try.success(pureObjects), .background)
             .flatMap({dbProcessor.persistToDB($0)})
             .flatMap({dbProcessor.fetchAllDataFromDB($0, Dummy1.self)})
             .map({try $0.getOrThrow()})

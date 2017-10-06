@@ -61,14 +61,18 @@ public extension HMCDRequestProcessor {
         where Val: NSFetchRequestResult
     {
         let operation = try request.operation()
+        let defaultQoS = request.defaultQoS()
+        let execution: Observable<Try<[Val]>>
         
         switch operation {
         case .fetch:
-            return try executeFetch(request, Val.self)
+            execution = try executeFetch(request, Val.self)
             
         default:
             throw Exception("Please use normal execute for \(operation)")
         }
+        
+        return execution.subscribeOnConcurrent(qos: defaultQoS)
     }
     
     /// Override this method to provide default implementation.
@@ -78,23 +82,27 @@ public extension HMCDRequestProcessor {
     /// - Throws: Exception if the execution fails.
     public func execute(_ request: Req) throws -> Observable<Try<Void>> {
         let operation = try request.operation()
+        let defaultQoS = request.defaultQoS()
+        let execution: Observable<Try<Void>>
         
         switch operation {
         case .deleteData:
-            return try executeDeleteData(request)
+            execution = try executeDeleteData(request)
             
         case .deleteBatch:
-            return try executeDeleteWithRequest(request)
+            execution = try executeDeleteWithRequest(request)
             
         case .persistLocally:
-            return try executePersistToFile(request)
+            execution = try executePersistToFile(request)
             
         case .resetStack:
-            return try executeResetStack(request)
+            execution = try executeResetStack(request)
             
         case .fetch, .saveData, .upsert, .stream:
             throw Exception("Please use typed execute for \(operation)")
         }
+        
+        return execution.subscribeOnConcurrent(qos: defaultQoS)
     }
     
     /// Overwrite this method to provide default implementation.
@@ -104,17 +112,21 @@ public extension HMCDRequestProcessor {
     /// - Throws: Exception if the operation fails.
     public func executeTyped(_ request: Req) throws -> Observable<Try<[HMCDResult]>> {
         let operation = try request.operation()
+        let defaultQoS = request.defaultQoS()
+        let execution: Observable<Try<[HMCDResult]>>
         
         switch operation {
         case .saveData:
-            return try executeSaveData(request)
+            execution = try executeSaveData(request)
             
         case .upsert:
-            return try executeUpsert(request)
+            execution = try executeUpsert(request)
             
         default:
             throw Exception("Please use normal execute for \(operation)")
         }
+        
+        return execution.subscribeOnConcurrent(qos: defaultQoS)
     }
 }
 
@@ -433,9 +445,12 @@ public extension HMCDRequestProcessor {
     ///
     /// - Parameters:
     ///   - previous: The result of the previous operation.
+    ///   - defaultQoS: A QoSClass instance.
     ///   - transforms: A Sequence of Request transformers.
     /// - Returns: An Observable instance.
-    public func saveToMemory<PO,S>(_ previous: Try<[PO]>, _ transforms: S)
+    public func saveToMemory<PO,S>(_ previous: Try<[PO]>,
+                                   _ defaultQoS: DispatchQoS.QoSClass,
+                                   _ transforms: S)
         -> Observable<Try<Void>> where
         PO: HMCDPureObjectType,
         PO.CDClass: HMCDObjectConvertibleType,
@@ -444,12 +459,12 @@ public extension HMCDRequestProcessor {
         S: Sequence,
         S.Iterator.Element == HMTransform<Req>
     {
-        let maanger = coreDataManager()
-        let context = maanger.disposableObjectContext()
+        let manager = coreDataManager()
+        let context = manager.disposableObjectContext()
         
         let generator: HMRequestGenerator<[PO],Req> = HMRequestGenerators.forceGn({
-            maanger.rx.construct(context, $0)
-                .subscribeOnConcurrent(qos: .userInitiated)
+            manager.rx.construct(context, $0)
+                .subscribeOnConcurrent(qos: defaultQoS)
                 .map(self.saveToMemoryRequest)
                 .flatMap({HMTransforms.applyTransformers($0, transforms)})
         })
@@ -598,9 +613,12 @@ public extension HMCDRequestProcessor {
     ///
     /// - Parameters:
     ///   - previous: The result of the previous request.
+    ///   - defaultQoS: A QoSClass instance.
     ///   - transforms: A Sequence of Request transformers.
     /// - Returns: An Observable instance.
-    public func upsertInMemory<PO,S>(_ previous: Try<[PO]>, _ transforms: S)
+    public func upsertInMemory<PO,S>(_ previous: Try<[PO]>,
+                                     _ defaultQoS: DispatchQoS.QoSClass,
+                                     _ transforms: S)
         -> Observable<Try<[HMCDResult]>> where
         PO: HMCDPureObjectType,
         PO.CDClass: HMCDUpsertableType,
@@ -615,7 +633,8 @@ public extension HMCDRequestProcessor {
         return Observable.just(previous)
             .map({try $0.getOrThrow()})
             .flatMap({cdManager.rx.construct(context, $0)
-                .subscribeOnConcurrent(qos: .userInitiated)})
+                .subscribeOnConcurrent(qos: defaultQoS)
+            })
             .map(Try.success)
             .flatMap({self.upsertInMemory($0, transforms)})
             .catchErrorJustReturn(Try.failure)
@@ -713,7 +732,7 @@ extension HMCDRequestProcessor: HMBuildableType {
         /// - Parameter manager: A HMCDManager instance.
         /// - Returns: The current Builder instance.
         @discardableResult
-        public func with(manager: HMCDManager) -> Self {
+        public func with(manager: HMCDManager?) -> Self {
             processor.manager = manager
             return self
         }
@@ -751,9 +770,9 @@ extension HMCDRequestProcessor.Builder: HMBuilderType {
     public func with(buildable: Buildable?) -> Self {
         if let buildable = buildable {
             return self
-                .with(manager: buildable.coreDataManager())
-                .with(rqmManager: buildable.requestMiddlewareManager())
-                .with(emManager: buildable.errorMiddlewareManager())
+                .with(manager: buildable.manager)
+                .with(rqmManager: buildable.rqmManager)
+                .with(emManager: buildable.emManager)
         } else {
             return self
         }

@@ -246,7 +246,7 @@ public final class CoreDataFRCTest: CoreDataRootTest {
         let pureObjects = (0..<dummyCount).map({_ in Dummy1()})
         let dbProcessor = self.dbProcessor!
     
-        dbProcessor.saveToMemory(Try.success(pureObjects))
+        dbProcessor.saveToMemory(Try.success(pureObjects), .background)
             .flatMap({dbProcessor.persistToDB($0)})
             .flatMap({dbProcessor.fetchAllDataFromDB($0, Dummy1.self)})
             .map({try $0.getOrThrow()})
@@ -507,7 +507,7 @@ public extension CoreDataFRCTest {
             .map(Try.success)
             .map({$0.map({[$0]})})
             .observeOnConcurrent(qos: .background)
-            .flatMap({dbProcessor.saveToMemory($0)})
+            .flatMap({dbProcessor.saveToMemory($0, .background)})
             .flatMap({dbProcessor.persistToDB($0)})
             .doOnDispose(expect.fulfill)
             .subscribe(observer)
