@@ -178,7 +178,9 @@ public extension CoreDataManagerTest {
             
             // Delete data2 from memory. data1 and data2 are two different
             // sets of data that only have the same primary key-value.
-            .flatMap({_ in manager.rx.deleteIdentifiables(deleteContext, entityName, cdObjects2)})
+            .flatMap({_ in manager.rx.deleteIdentifiables(deleteContext,
+                                                          entityName,
+                                                          cdObjects2)})
             
             // Persist changes to DB.
             .flatMap({manager.rx.persistLocally()})

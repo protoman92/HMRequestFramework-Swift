@@ -99,11 +99,13 @@ public extension HMCDManager {
     ///   - context: A Context instance.
     ///   - entityName: A String value. representing the entity's name.
     ///   - upsertables: A Sequence of upsertable objects.
+    ///   - opMode: A HMCDOperationMode instance.
     ///   - obs: An ObserverType instance.
     /// - Returns: A Disposable instance.
     func upsert<S,O>(_ context: Context,
                      _ entityName: String,
                      _ upsertables: S,
+                     _ opMode: HMCDOperationMode,
                      _ obs: O) -> Disposable where
         S: Sequence,
         S.Iterator.Element == HMCDUpsertableType,
@@ -112,7 +114,7 @@ public extension HMCDManager {
     {
         Preconditions.checkNotRunningOnMainThread(upsertables)
         
-        serializeBlock({
+        performOperation(opMode, {
             let upsertables = upsertables.map({$0})
             
             if upsertables.isNotEmpty {
@@ -140,11 +142,13 @@ public extension HMCDManager {
     ///   - context: A Context instance.
     ///   - entityName: A String value. representing the entity's name.
     ///   - upsertables: A Sequence of upsertable objects.
+    ///   - opMode: A HMCDOperationMode instance.
     ///   - obs: An ObserverType instance.
     /// - Returns: A Disposable instance.
     func upsert<U,S,O>(_ context: Context,
                        _ entityName: String,
                        _ upsertables: S,
+                       _ opMode: HMCDOperationMode,
                        _ obs: O) -> Disposable where
         U: HMCDUpsertableType,
         S: Sequence,
@@ -153,7 +157,7 @@ public extension HMCDManager {
         O.E == [HMCDResult]
     {
         let upsertables = upsertables.map({$0 as HMCDUpsertableType})
-        return upsert(context, entityName, upsertables, obs)
+        return upsert(context, entityName, upsertables, opMode, obs)
     }
 }
 
@@ -165,15 +169,17 @@ extension Reactive where Base == HMCDManager {
     ///   - context: A Context instance.
     ///   - entityName: A String value. representing the entity's name.
     ///   - upsertables: A Sequence of upsertable objects.
+    ///   - opMode: A HMCDOperationMode instance.
     /// - Returns: An Observable instane.
     func upsert<S>(_ context: HMCDManager.Context,
                    _ entityName: String,
-                   _ upsertables: S)
+                   _ upsertables: S,
+                   _ opMode: HMCDOperationMode = .queued)
         -> Observable<[HMCDResult]> where
         S: Sequence, S.Iterator.Element == HMCDUpsertableType
     {
         return Observable.create({
-            self.base.upsert(context, entityName, upsertables, $0)
+            self.base.upsert(context, entityName, upsertables, opMode, $0)
         })
     }
     
@@ -183,15 +189,20 @@ extension Reactive where Base == HMCDManager {
     ///   - context: A Context instance.
     ///   - entityName: A String value. representing the entity's name.
     ///   - upsertables: A Sequence of upsertable objects.
+    ///   - opMode: A HMCDOperationMode instance.
     /// - Returns: An Observable instane.
     func upsert<U,S>(_ context: HMCDManager.Context,
                      _ entityName: String,
-                     _ upsertables: S)
+                     _ upsertables: S,
+                     _ opMode: HMCDOperationMode = .queued)
         -> Observable<[HMCDResult]> where
         U: HMCDUpsertableType,
         S: Sequence,
         S.Iterator.Element == U
     {
-        return upsert(context, entityName, upsertables.map({$0 as HMCDUpsertableType}))
+        return upsert(context,
+                      entityName,
+                      upsertables.map({$0 as HMCDUpsertableType}),
+                      opMode)
     }
 }

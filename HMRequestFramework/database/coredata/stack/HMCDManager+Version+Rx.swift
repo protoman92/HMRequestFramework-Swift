@@ -177,11 +177,13 @@ public extension HMCDManager {
     ///   - context: A Context instance.
     ///   - entityName: A String value representing the entity's name.
     ///   - requests: A Sequence of HMVersionUpdateRequest.
+    ///   - opMode: A HMCDOperationMode instance.
     ///   - obs: An ObserverType instance.
     /// - Returns: A Disposable instance.
     func updateVersion<S,O>(_ context: Context,
                             _ entityName: String,
                             _ requests: S,
+                            _ opMode: HMCDOperationMode,
                             _ obs: O) -> Disposable where
         S: Sequence,
         S.Iterator.Element == HMCDVersionUpdateRequest,
@@ -190,7 +192,7 @@ public extension HMCDManager {
     {
         Preconditions.checkNotRunningOnMainThread(requests)
         
-        serializeBlock({
+        performOperation(opMode, {
             let requests = requests.map({$0})
             
             if requests.isNotEmpty {
@@ -220,16 +222,18 @@ extension Reactive where Base == HMCDManager {
     ///   - context: A Context instance.
     ///   - entityName: A String value representing the entity's name.
     ///   - requests: A Sequence of HMVersionUpdateRequest.
+    ///   - opMode: A HMCDOperationMode instance.
     /// - Return: An Observable instance.
     /// - Throws: Exception if the operation fails.
     public func updateVersion<S>(_ context: HMCDManager.Context,
                                  _ entityName: String,
-                                 _ requests: S)
+                                 _ requests: S,
+                                 _ opMode: HMCDOperationMode = .queued)
         -> Observable<[HMCDResult]> where
         S: Sequence, S.Iterator.Element == HMCDVersionUpdateRequest
     {
         return Observable.create({
-            self.base.updateVersion(context, entityName, requests, $0)
+            self.base.updateVersion(context, entityName, requests, opMode, $0)
         })
     }
 }

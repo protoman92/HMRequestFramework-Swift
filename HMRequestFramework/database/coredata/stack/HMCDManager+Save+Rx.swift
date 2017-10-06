@@ -100,8 +100,7 @@ public extension HMCDManager {
     ///   - convertibles: A Sequence of HMCDConvertibleType.
     /// - Returns: An Array of HMResult.
     /// - Throws: Exception if the operation fails.
-    func convert<U,S>(_ context: Context,
-                      _ convertibles: S) -> [HMCDResult] where
+    func convert<U,S>(_ context: Context, _ convertibles: S) -> [HMCDResult] where
         U: HMCDObjectConvertibleType, S: Sequence, S.Iterator.Element == U
     {
         return convert(context, convertibles.map({$0 as HMCDObjectConvertibleType}))
@@ -112,12 +111,16 @@ public extension HMCDManager {
     
     /// Persist all changes to DB and observe the process.
     ///
-    /// - Parameter obs: An ObserverType instance.
+    /// - Parameter
+    ///   - opMode: A HMCDOperationMode instance.
+    ///   - obs: An ObserverType instance.
     /// - Returns: A Disposable instance.
-    func persistChanges<O>(_ obs: O) -> Disposable where O: ObserverType, O.E == Void {
+    func persistChanges<O>(_ opMode: HMCDOperationMode, _ obs: O)
+        -> Disposable where O: ObserverType, O.E == Void
+    {
         Preconditions.checkNotRunningOnMainThread(nil)
         
-        serializeBlock({
+        performOperation(opMode, {
             do {
                 try self.persistChangesUnsafely()
                 obs.onNext(())
@@ -134,14 +137,17 @@ public extension HMCDManager {
     ///
     /// - Parameters:
     ///   - context: A Context instance.
+    ///   - opMode: A HMCDOperationMode instance.
     ///   - obs: An ObserverType instance.
     /// - Returns: A Disposable instance.
-    func save<O>(_ context: Context, _ obs: O) -> Disposable
+    func save<O>(_ context: Context,
+                 _ opMode: HMCDOperationMode,
+                 _ obs: O) -> Disposable
         where O: ObserverType, O.E == Void
     {
         Preconditions.checkNotRunningOnMainThread(nil)
         
-        serializeBlock({
+        performOperation(opMode, {
             do {
                 try self.saveUnsafely(context)
                 obs.onNext()
@@ -160,10 +166,12 @@ public extension HMCDManager {
     /// - Parameters:
     ///   - context: A Context instance.
     ///   - pureObjects: A Sequence of HMCDPureObjectType.
+    ///   - opMode: A HMCDOperationMode instance.
     ///   - obs: An ObserverType instance.
     /// - Returns: A Disposable instance.
     func savePureObjects<S,PO,O>(_ context: Context,
                                  _ pureObjects: S,
+                                 _ opMode: HMCDOperationMode,
                                  _ obs: O) -> Disposable where
         PO: HMCDPureObjectType,
         PO.CDClass: HMCDObjectBuildableType,
@@ -175,7 +183,7 @@ public extension HMCDManager {
     {
         Preconditions.checkNotRunningOnMainThread(pureObjects)
         
-        serializeBlock({
+        performOperation(opMode, {
             do {
                 try self.saveUnsafely(context, pureObjects)
                 obs.onNext()
@@ -195,10 +203,12 @@ public extension HMCDManager {
     /// - Parameters:
     ///   - context: A Context instance.
     ///   - convertibles: A Sequence of HMCDConvertibleType.
+    ///   - opMode: A HMCDOperationMode instance.
     ///   - obs: An ObserverType instance.
     /// - Returns: A Disposable instance.
     func saveConvertibles<S,O>(_ context: Context,
                                _ convertibles: S,
+                               _ opMode: HMCDOperationMode,
                                _ obs: O) -> Disposable where
         S: Sequence,
         S.Iterator.Element == HMCDObjectConvertibleType,
@@ -207,7 +217,7 @@ public extension HMCDManager {
     {
         Preconditions.checkNotRunningOnMainThread(convertibles)
         
-        serializeBlock({
+        performOperation(opMode, {
             let convertibles = convertibles.map({$0})
             
             if convertibles.isNotEmpty {
@@ -234,17 +244,19 @@ public extension HMCDManager {
     /// - Parameters:
     ///   - context: A Context instance.
     ///   - convertibles: A Sequence of HMCDConvertibleType.
+    ///   - opMode: A HMCDOperationMode instance.
     ///   - obs: An ObserverType instance.
     /// - Returns: A Disposable instance.
     func saveConvertibles<U,S,O>(_ context: Context,
                                  _ convertibles: S,
+                                 _ opMode: HMCDOperationMode,
                                  _ obs: O) -> Disposable where
         U: HMCDObjectConvertibleType,
         S: Sequence, S.Iterator.Element == U,
         O: ObserverType, O.E == [HMCDResult]
     {
         let convertibles = convertibles.map({$0 as HMCDObjectConvertibleType})
-        return saveConvertibles(context, convertibles, obs)
+        return saveConvertibles(context, convertibles, opMode, obs)
     }
 }
 
@@ -252,10 +264,13 @@ public extension Reactive where Base == HMCDManager {
     
     /// Save changes for a Context.
     ///
-    /// - Parameter context: A Context instance.
+    /// - Parameter
+    ///   - context: A Context instance.
+    ///   - opMode: A HMCDOperationMode instance.
     /// - Returns: An Observable instance.
-    public func save(_ context: HMCDManager.Context) -> Observable<Void> {
-        return Observable.create({self.base.save(context, $0)})
+    public func save(_ context: HMCDManager.Context,
+                     _ opMode: HMCDOperationMode = .queued) -> Observable<Void> {
+        return Observable.create({self.base.save(context, opMode, $0)})
     }
     
     /// Construct a Sequence of CoreData from data objects and save it to memory.
@@ -263,16 +278,21 @@ public extension Reactive where Base == HMCDManager {
     /// - Parameters:
     ///   - context: A Context instance.
     ///   - pureObjects: A Sequence of HMCDPureObjectType.
+    ///   - opMode: A HMCDOperationMode instance.
     /// - Returns: An Observable instance.
     public func savePureObjects<S,PO>(_ context: HMCDManager.Context,
-                                      _ pureObjects: S) -> Observable<Void> where
+                                      _ pureObjects: S,
+                                      _ opMode: HMCDOperationMode = .queued)
+        -> Observable<Void> where
         PO: HMCDPureObjectType,
         PO.CDClass: HMCDObjectBuildableType,
         PO.CDClass.Builder.PureObject == PO,
         S: Sequence,
         S.Iterator.Element == PO
     {
-        return Observable.create({self.base.savePureObjects(context, pureObjects, $0)})
+        return Observable.create({
+            self.base.savePureObjects(context, pureObjects, opMode, $0)
+        })
     }
     
     /// Save a Sequence of convertible objects to memory and observe the process.
@@ -280,12 +300,17 @@ public extension Reactive where Base == HMCDManager {
     /// - Parameters:
     ///   - context: A Context instance.
     ///   - convertibles: A Sequence of HMCDConvertibleType.
+    ///   - opMode: A HMCDOperationMode instance.
     /// - Return: An Observable instance.
     func saveConvertibles<S>(_ context: HMCDManager.Context,
-                             _ convertibles: S) -> Observable<[HMCDResult]> where
+                             _ convertibles: S,
+                             _ opMode: HMCDOperationMode = .queued)
+        -> Observable<[HMCDResult]> where
         S: Sequence, S.Iterator.Element == HMCDObjectConvertibleType
     {
-        return Observable.create({self.base.saveConvertibles(context, convertibles, $0)})
+        return Observable.create({
+            self.base.saveConvertibles(context, convertibles, opMode, $0)
+        })
     }
     
     /// Save a Sequence of convertible objects to memory and observe the process.
@@ -293,25 +318,26 @@ public extension Reactive where Base == HMCDManager {
     /// - Parameters:
     ///   - context: A Context instance.
     ///   - convertibles: A Sequence of HMCDConvertibleType.
+    ///   - opMode: A HMCDOperationMode instance.
     /// - Return: An Observable instance.
     func saveConvertibles<S,OC>(_ context: HMCDManager.Context,
-                                _ convertibles: S) -> Observable<[HMCDResult]> where
+                                _ convertibles: S,
+                                _ opMode: HMCDOperationMode = .queued)
+        -> Observable<[HMCDResult]> where
         OC: HMCDObjectConvertibleType,
         S: Sequence, S.Iterator.Element == OC
     {
         let convertibles = convertibles.map({$0 as HMCDObjectConvertibleType})
-        return saveConvertibles(context, convertibles)
+        return saveConvertibles(context, convertibles, opMode)
     }
-}
-
-public extension Reactive where Base == HMCDManager {
     
     /// Save all changes in the main and private contexts. When the main context
     /// is saved, the changes will be reflected in the private context, so we
     /// need to save the former first.
     ///
+    /// - Parameters opMode: A HMCDOperationMode instance.
     /// - Returns: An Observable instance.
-    public func persistLocally() -> Observable<Void> {
-        return Observable.create({self.base.persistChanges($0)})
+    public func persistLocally(_ opMode: HMCDOperationMode = .queued) -> Observable<Void> {
+        return Observable.create({self.base.persistChanges(opMode, $0)})
     }
 }

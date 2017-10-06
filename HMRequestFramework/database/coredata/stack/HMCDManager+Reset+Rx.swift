@@ -39,31 +39,38 @@ public extension HMCDManager {
     ///
     /// - Parameters:
     ///   - context: A Context instance.
+    ///   - opMode: A HMCDOperationMode instance.
     ///   - obs: An ObserverType instance.
     /// - Returns: A Disposable instance.
-    func resetContext<O>(_ context: Context, _ obs: O) -> Disposable where
+    func resetContext<O>(_ context: Context,
+                         _ opMode: HMCDOperationMode,
+                         _ obs: O) -> Disposable where
         O: ObserverType, O.E == Void
     {
         Preconditions.checkNotRunningOnMainThread(nil)
         
-        performOnQueue(context) {
+        performOperation(context, .perform, opMode, {
             self.resetContextUnsafely(context)
             obs.onNext(())
             obs.onCompleted()
-        }
+        })
         
         return Disposables.create()
     }
     
     /// Reset stores and observer the process.
     ///
-    /// - Parameter obs: An ObserverType instance.
+    /// - Parameter
+    ///   - obs: An ObserverType instance.
+    ///   - opMode: A HMCDOperationMode instance.
     /// - Returns: A Disposable instance.
-    func resetStores<O>(_ obs: O) -> Disposable where O: ObserverType, O.E == Void {
+    func resetStores<O>(_ opMode: HMCDOperationMode, _ obs: O) -> Disposable where
+        O: ObserverType, O.E == Void
+    {
         Preconditions.checkNotRunningOnMainThread(nil)
         let coordinator = storeCoordinator()
         
-        coordinator.perform({
+        performOperation(coordinator, .perform, opMode, {
             do {
                 try self.resetStoresUnsafely()
                 obs.onNext(())
@@ -81,32 +88,37 @@ extension Reactive where Base == HMCDManager {
     
     /// Reset some context reactively.
     ///
-    /// - Parameter context: A Context instance.
+    /// - Parameters:
+    ///   - context: A Context instance.
+    ///   - opMode: A HMCDOperationMode instance.
     /// - Returns: An Observable instance.
-    func resetContext(_ context: HMCDManager.Context) -> Observable<Void> {
-        return Observable.create({self.base.resetContext(context, $0)})
+    func resetContext(_ context: HMCDManager.Context,
+                      _ opMode: HMCDOperationMode = .queued) -> Observable<Void> {
+        return Observable.create({self.base.resetContext(context, opMode, $0)})
     }
     
     /// Reset stores reactively.
     ///
+    /// - Parameters opMode: A HMCDOperationMode instance.
     /// - Returns: An Observable instance.
-    func resetStores() -> Observable<Void> {
-        return Observable.create({self.base.resetStores($0)})
+    func resetStores(_ opMode: HMCDOperationMode = .queued) -> Observable<Void> {
+        return Observable.create({self.base.resetStores(opMode, $0)})
     }
     
     /// Reset the entire stack by resetting contexts and wipe the DB.
     ///
+    /// - Parameters opMode: A HMCDOperationMode instance.
     /// - Returns: An Observable instance.
-    public func resetStack() -> Observable<Void> {
+    public func resetStack(_ opMode: HMCDOperationMode = .queued) -> Observable<Void> {
         let base = self.base
         
         return Observable
             .concat(
-                resetContext(base.mainObjectContext()),
-                resetContext(base.privateObjectContext()),
+                resetContext(base.mainObjectContext(), opMode),
+                resetContext(base.privateObjectContext(), opMode),
                 
                 // Store reset must not happen on the main thread.
-                resetStores()
+                resetStores(opMode)
             )
             .reduce((), accumulator: {_ in ()})
     }

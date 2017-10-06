@@ -10,6 +10,7 @@
 		31BCA874AFE20701A33CCAFC /* Pods_HMRequestFramework.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AD4191EDC58157CBCAE6FEBF /* Pods_HMRequestFramework.framework */; };
 		9D6384E9EBB1234CADF835D4 /* Pods_HMRequestFramework_Demo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 55C23ADC0EEE30FA90C15B88 /* Pods_HMRequestFramework_Demo.framework */; };
 		ABE6A4A654544FD66F9B1369 /* Pods_HMRequestFrameworkTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 259F23974F3AE63652FE6811 /* Pods_HMRequestFrameworkTests.framework */; };
+		D30051CE1F87BCA700936C93 /* HMCDOperationMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = D30051CD1F87BCA700936C93 /* HMCDOperationMode.swift */; };
 		D303E86F1F3AFD1E00123EE7 /* VersionConflict.swift in Sources */ = {isa = PBXBuildFile; fileRef = D303E86E1F3AFD1E00123EE7 /* VersionConflict.swift */; };
 		D303E8711F3B1EE600123EE7 /* CoreDataRequestTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = D303E8701F3B1EE600123EE7 /* CoreDataRequestTest.swift */; };
 		D30B85BE1F4FBCC8008F8CD1 /* HMMiddlewareFilters.swift in Sources */ = {isa = PBXBuildFile; fileRef = D30B85BD1F4FBCC8008F8CD1 /* HMMiddlewareFilters.swift */; };
@@ -178,6 +179,7 @@
 		72ABE922114B7B6E1A33E39E /* Pods-HMRequestFramework-Demo.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-HMRequestFramework-Demo.release.xcconfig"; path = "Pods/Target Support Files/Pods-HMRequestFramework-Demo/Pods-HMRequestFramework-Demo.release.xcconfig"; sourceTree = "<group>"; };
 		AD4191EDC58157CBCAE6FEBF /* Pods_HMRequestFramework.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_HMRequestFramework.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		C4C9084A44030EDC5A620685 /* Pods-HMRequestFrameworkTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-HMRequestFrameworkTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-HMRequestFrameworkTests/Pods-HMRequestFrameworkTests.debug.xcconfig"; sourceTree = "<group>"; };
+		D30051CD1F87BCA700936C93 /* HMCDOperationMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMCDOperationMode.swift; sourceTree = "<group>"; };
 		D303E86E1F3AFD1E00123EE7 /* VersionConflict.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VersionConflict.swift; sourceTree = "<group>"; };
 		D303E8701F3B1EE600123EE7 /* CoreDataRequestTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataRequestTest.swift; sourceTree = "<group>"; };
 		D30B85BD1F4FBCC8008F8CD1 /* HMMiddlewareFilters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMMiddlewareFilters.swift; sourceTree = "<group>"; };
@@ -384,6 +386,7 @@
 				D353BE871F508CC3004AD111 /* HMCDSection.swift */,
 				D325C40F1F510E1200FC802C /* HMCDSectionInfo+DataSource.swift */,
 				D32E78011F59229400A60D50 /* HMCDSections.swift */,
+				D30051CD1F87BCA700936C93 /* HMCDOperationMode.swift */,
 			);
 			path = model;
 			sourceTree = "<group>";
@@ -1164,6 +1167,7 @@
 				D31C58761F278A8A00C8D8CC /* HMProtocolConvertibleType.swift in Sources */,
 				D3FC6E7C1F2F0588007471E2 /* HMIdentifiableType.swift in Sources */,
 				D3B386671F4FDF7900A641F8 /* HMCDKeyValueRepresentableType.swift in Sources */,
+				D30051CE1F87BCA700936C93 /* HMCDOperationMode.swift in Sources */,
 				D33BB3271F46A3BF00025FD1 /* HMURLSessions.swift in Sources */,
 				D375B1721F4DD2ED007A3B01 /* HMCDFetchRequestType.swift in Sources */,
 				D352E2971F3AD7C3001FD55E /* HMCDManager+Save+Rx.swift in Sources */,

@@ -269,16 +269,18 @@ public extension HMCDManager {
     /// - Parameters:
     ///   - context: A Context instance.
     ///   - request: A NSFetchRequest instance.
+    ///   - opMode: A HMCDOperationMode instance.
     ///   - obs: An ObserverType instance.
     /// - Returns: A Disposable instance.
     func fetch<Val,O>(_ context: Context,
                       _ request: NSFetchRequest<Val>,
+                      _ opMode: HMCDOperationMode,
                       _ obs: O) -> Disposable where
         O: ObserverType, O.E == [Val]
     {
         Preconditions.checkNotRunningOnMainThread(request)
         
-        serializeBlock({
+        performOperation(opMode, {
             do {
                 let result = try self.blockingFetch(context, request)
                 obs.onNext(result)
@@ -297,11 +299,13 @@ public extension HMCDManager {
     ///   - context: A Context instance.
     ///   - entityName: A String value.
     ///   - ids: A Sequence of identifiables.
+    ///   - opMode: A HMCDOperationMode instance.
     ///   - obs: An ObserverType instance.
     /// - Returns: A Disposable instance.
     func fetchIdentifiables<U,S,O>(_ context: HMCDManager.Context,
                                    _ entityName: String,
                                    _ ids: S,
+                                   _ opMode: HMCDOperationMode,
                                    _ obs: O) -> Disposable where
         U: HMCDIdentifiableType,
         S: Sequence,
@@ -311,7 +315,7 @@ public extension HMCDManager {
     {
         Preconditions.checkNotRunningOnMainThread(entityName)
         
-        serializeBlock({
+        performOperation(opMode, {
             do {
                 let result = try self.blockingFetchIdentifiables(context, entityName, ids)
                 obs.onNext(result)
@@ -330,11 +334,13 @@ public extension HMCDManager {
     ///   - context: A Context instance.
     ///   - entityName: A String value.
     ///   - ids: A Sequence of identifiables.
+    ///   - opMode: A HMCDOperationMode instance.
     ///   - obs: An ObserverType instance.
     /// - Returns: A Disposable instance.
     func fetchIdentifiables<U,S,O>(_ context: HMCDManager.Context,
                                    _ entityName: String,
                                    _ ids: S,
+                                   _ opMode: HMCDOperationMode,
                                    _ obs: O) -> Disposable where
         U: NSFetchRequestResult,
         U: HMCDIdentifiableType,
@@ -345,7 +351,7 @@ public extension HMCDManager {
     {
         Preconditions.checkNotRunningOnMainThread(entityName)
         
-        serializeBlock({
+        performOperation(opMode, {
             do {
                 let result = try self.blockingFetchIdentifiables(context, entityName, ids)
                 obs.onNext(result)
@@ -366,10 +372,14 @@ public extension Reactive where Base == HMCDManager {
     /// - Parameters:
     ///   - context: A Context instance.
     ///   - request: A NSFetchRequest instance.
+    ///   - opMode: A HMCDOperationMode instance.
     /// - Returns: An Observable instance.
     public func fetch<Val>(_ context: HMCDManager.Context,
-                           _ request: NSFetchRequest<Val>) -> Observable<[Val]> {
-        return Observable.create({self.base.fetch(context, request, $0)})
+                           _ request: NSFetchRequest<Val>,
+                           _ opMode: HMCDOperationMode = .queued)
+        -> Observable<[Val]>
+    {
+        return Observable.create({self.base.fetch(context, request, opMode, $0)})
     }
     
     /// Get data for a fetch request.
@@ -378,11 +388,15 @@ public extension Reactive where Base == HMCDManager {
     ///   - context: A Context instance.
     ///   - request: A NSFetchRequest instance.
     ///   - cls: A Val class type.
+    ///   - opMode: A HMCDOperationMode instance.
     /// - Returns: An Observable instance.
     public func fetch<Val>(_ context: HMCDManager.Context,
                            _ request: NSFetchRequest<Val>,
-                           _ cls: Val.Type) -> Observable<[Val]> {
-        return fetch(context, request)
+                           _ cls: Val.Type,
+                           _ opMode: HMCDOperationMode = .queued)
+        -> Observable<[Val]>
+    {
+        return fetch(context, request, opMode)
     }
     
     /// Get data for a fetch request.
@@ -391,13 +405,15 @@ public extension Reactive where Base == HMCDManager {
     ///   - context: A Context instance.
     ///   - request: A NSFetchRequest instance.
     ///   - cls: A PO class type.
+    ///   - opMode: A HMCDOperationMode instance.
     /// - Returns: An Observable instance.
     public func fetch<PO>(_ context: HMCDManager.Context,
                           _ request: NSFetchRequest<PO.CDClass>,
-                          _ cls: PO.Type) -> Observable<[PO.CDClass]>
-        where PO: HMCDPureObjectType
+                          _ cls: PO.Type,
+                          _ opMode: HMCDOperationMode = .queued)
+        -> Observable<[PO.CDClass]> where PO: HMCDPureObjectType
     {
-        return fetch(context, request, cls.CDClass.self)
+        return fetch(context, request, cls.CDClass.self, opMode)
     }
     
     /// Perform a refetch request for a Sequence of identifiable objects without
@@ -407,17 +423,19 @@ public extension Reactive where Base == HMCDManager {
     ///   - context: A Context instance.
     ///   - entityName: A String value representing the entity's name.
     ///   - ids: A Sequence of HMCDIdentifiableType.
+    ///   - opMode: A HMCDOperationMode instance.
     /// - Returns: An Observable instance.
     public func fetchIdentifiables<U,S>(_ context: HMCDManager.Context,
                                         _ entityName: String,
-                                        _ ids: S)
+                                        _ ids: S,
+                                        _ opMode: HMCDOperationMode = .queued)
         -> Observable<[NSManagedObject]> where
         U: HMCDIdentifiableType,
         S: Sequence,
         S.Iterator.Element == U
     {
         return Observable.create({
-            self.base.fetchIdentifiables(context, entityName, ids, $0)
+            self.base.fetchIdentifiables(context, entityName, ids, opMode, $0)
         })
     }
     
@@ -428,10 +446,12 @@ public extension Reactive where Base == HMCDManager {
     ///   - context: A Context instance.
     ///   - entityName: A String value representing the entity's name.
     ///   - ids: A Sequence of HMCDIdentifiableType.
+    ///   - opMode: A HMCDOperationMode instance.
     /// - Returns: An Observable instance.
     public func fetchIdentifiables<U,S>(_ context: HMCDManager.Context,
                                         _ entityName: String,
-                                        _ ids: S)
+                                        _ ids: S,
+                                        _ opMode: HMCDOperationMode = .queued)
         -> Observable<[U]> where
         U: NSFetchRequestResult,
         U: HMCDIdentifiableType,
@@ -439,7 +459,7 @@ public extension Reactive where Base == HMCDManager {
         S.Iterator.Element == U
     {
         return Observable.create({
-            self.base.fetchIdentifiables(context, entityName, ids, $0)
+            self.base.fetchIdentifiables(context, entityName, ids, opMode, $0)
         })
     }
 }

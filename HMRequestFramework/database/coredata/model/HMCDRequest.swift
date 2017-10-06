@@ -11,10 +11,12 @@ import SwiftUtilities
 
 /// Use this struct whenever concrete HMCDRequestType objects are required.
 public struct HMCDRequest {
+    fileprivate var cdOperation: HMCDOperation?
+    fileprivate var cdOperationMode: HMCDOperationMode
+    
     fileprivate var cdEntityName: String?
     fileprivate var nsPredicate: NSPredicate?
     fileprivate var nsSortDescriptors: [NSSortDescriptor]
-    fileprivate var cdOperation: HMCDOperation?
     fileprivate var cdFetchResultType: NSFetchRequestResultType?
     fileprivate var cdFetchProperties: [Any]
     fileprivate var cdFetchGroupBy: [Any]
@@ -35,6 +37,7 @@ public struct HMCDRequest {
     fileprivate var rqDescription: String?
     
     fileprivate init() {
+        cdOperationMode = .queued
         cdFetchOffset = 0
         cdFetchBatchSize = 0
         cdFetchProperties = []
@@ -179,6 +182,15 @@ extension HMCDRequest: HMBuildableType {
         @discardableResult
         public func with(operation: HMCDOperation?) -> Self {
             request.cdOperation = operation
+            return self
+        }
+        
+        /// Set the operation mode.
+        ///
+        /// - Parameter operationMode: A HMCDOperationMode instance.
+        /// - Returns: The current Builder instance.
+        public func with(operationMode: HMCDOperationMode) -> Self {
+            request.cdOperationMode = operationMode
             return self
         }
         
@@ -479,6 +491,7 @@ extension HMCDRequest.Builder: HMRequestBuilderType {
         if let buildable = buildable {
             return self
                 .with(operation: buildable.cdOperation)
+                .with(operationMode: buildable.cdOperationMode)
                 .with(entityName: buildable.cdEntityName)
                 .with(predicate: buildable.nsPredicate)
                 .with(sortDescriptors: buildable.nsSortDescriptors)
@@ -553,6 +566,10 @@ extension HMCDRequest: HMCDFetchRequestType {
         } else {
             throw Exception("Operation cannot be nil")
         }
+    }
+    
+    public func operationMode() -> HMCDOperationMode {
+        return cdOperationMode
     }
     
     public func predicate() throws -> NSPredicate {

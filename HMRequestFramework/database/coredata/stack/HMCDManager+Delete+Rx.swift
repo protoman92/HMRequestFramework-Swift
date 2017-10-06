@@ -91,16 +91,18 @@ public extension HMCDManager {
     /// - Parameters:
     ///   - context: A Context instance.
     ///   - request: A NSFetchRequest instance.
+    ///   - opMode: A HMCDOperationMode instance.
     ///   - obs: An ObserverType instance.
     /// - Returns: A Disposable instance.
     func delete<O>(_ context: Context,
                    _ request: NSFetchRequest<NSFetchRequestResult>,
+                   _ opMode: HMCDOperationMode,
                    _ obs: O) -> Disposable where
         O: ObserverType, O.E == NSBatchDeleteResult
     {
         Preconditions.checkNotRunningOnMainThread(request)
         
-        serializeBlock({
+        performOperation(opMode, {
             do {
                 let result = try self.deleteUnsafely(context, request)
                 obs.onNext(result)
@@ -119,10 +121,12 @@ public extension HMCDManager {
     /// - Parameters:
     ///   - context: A Context instance.
     ///   - data: A Sequence of NSManagedObject.
+    ///   - opMode: A HMCDOperationMode instance.
     ///   - obs: An ObserverType instance.
     /// - Returns: A Disposable instance.
     public func delete<NS,S,O>(_ context: Context,
                                _ data: S,
+                               _ opMode: HMCDOperationMode,
                                _ obs: O) -> Disposable where
         NS: NSManagedObject,
         S: Sequence, S.Iterator.Element == NS,
@@ -130,7 +134,7 @@ public extension HMCDManager {
     {
         Preconditions.checkNotRunningOnMainThread(data)
         
-        serializeBlock({
+        performOperation(opMode, {
             do {
                 try self.deleteUnsafely(context, data)
                 obs.onNext()
@@ -150,11 +154,13 @@ public extension HMCDManager {
     ///   - context: A Context instance.
     ///   - entityName: A String value representing the entity's name.
     ///   - ids: A Sequence of HMCDIdentifiableType.
+    ///   - opMode: A HMCDOperationMode instance.
     ///   - obs: An ObserverType instance.
     /// - Returns: A Disposable instance.
     public func deleteIdentifiables<S,O>(_ context: Context,
                                          _ entityName: String,
                                          _ ids: S,
+                                         _ opMode: HMCDOperationMode,
                                          _ obs: O) -> Disposable where
         S: Sequence,
         S.Iterator.Element == HMCDIdentifiableType,
@@ -163,7 +169,7 @@ public extension HMCDManager {
     {
         Preconditions.checkNotRunningOnMainThread(entityName)
         
-        serializeBlock({
+        performOperation(opMode, {
             do {
                 try self.deleteIdentifiablesUnsafely(context, entityName, ids)
                 obs.onNext()
@@ -185,16 +191,15 @@ public extension Reactive where Base == HMCDManager {
     /// - Parameters:
     ///   - context: A Context instance.
     ///   - request: A NSFetchRequest instance.
+    ///   - opMode: A HMCDOperationMode instance.
     /// - Return: An Observable instance.
     public func delete(_ context: HMCDManager.Context,
-                       _ request: NSFetchRequest<NSFetchRequestResult>)
+                       _ request: NSFetchRequest<NSFetchRequestResult>,
+                       _ opMode: HMCDOperationMode = .queued)
         -> Observable<NSBatchDeleteResult>
     {
-        return Observable.create({self.base.delete(context, request, $0)})
+        return Observable.create({self.base.delete(context, request, opMode, $0)})
     }
-}
-
-public extension Reactive where Base == HMCDManager {
     
     /// Delete a Sequence of data from memory by refetching them using some
     /// context.
@@ -202,12 +207,15 @@ public extension Reactive where Base == HMCDManager {
     /// - Parameters:
     ///   - context: A Context instance.
     ///   - data: A Sequence of NSManagedObject.
+    ///   - opMode: A HMCDOperationMode instance.
     /// - Throws: Exception if the delete fails.
-    public func delete<S>(_ context: HMCDManager.Context, _ data: S)
+    public func delete<S>(_ context: HMCDManager.Context,
+                          _ data: S,
+                          _ opMode: HMCDOperationMode = .queued)
         -> Observable<Void> where
         S: Sequence, S.Iterator.Element: NSManagedObject
     {
-        return Observable.create({self.base.delete(context, data, $0)})
+        return Observable.create({self.base.delete(context, data, opMode, $0)})
     }
 }
 
@@ -220,15 +228,17 @@ public extension Reactive where Base == HMCDManager {
     ///   - context: A Context instance.
     ///   - entityName: A String value representing the entity's name.
     ///   - ids: A Sequence of HMCDIdentifiableType.
+    ///   - opMode: A HMCDOperationMode instance.
     /// - Throws: Exception if the delete fails.
     public func deleteIdentifiables<S>(_ context: HMCDManager.Context,
                                        _ entityName: String,
-                                       _ ids: S)
+                                       _ ids: S,
+                                       _ opMode: HMCDOperationMode = .queued)
         -> Observable<Void> where
         S: Sequence, S.Iterator.Element == HMCDIdentifiableType
     {
         return Observable.create({
-            self.base.deleteIdentifiables(context, entityName, ids, $0)
+            self.base.deleteIdentifiables(context, entityName, ids, opMode, $0)
         })
     }
     
@@ -239,16 +249,18 @@ public extension Reactive where Base == HMCDManager {
     ///   - context: A Context instance.
     ///   - entityName: A String value representing the entity's name.
     ///   - ids: A Sequence of HMCDIdentifiableType.
+    ///   - opMode: A HMCDOperationMode instance.
     /// - Throws: Exception if the delete fails.
     public func deleteIdentifiables<U,S>(_ context: HMCDManager.Context,
                                          _ entityName: String,
-                                         _ ids: S)
+                                         _ ids: S,
+                                         _ opMode: HMCDOperationMode = .queued)
         -> Observable<Void> where
         U: HMCDIdentifiableType,
         S: Sequence,
         S.Iterator.Element == U
     {
         let ids = ids.map({$0 as HMCDIdentifiableType})
-        return deleteIdentifiables(context, entityName, ids)
+        return deleteIdentifiables(context, entityName, ids, opMode)
     }
 }

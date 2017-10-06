@@ -76,14 +76,12 @@ public extension HMCDManager {
     {
         Preconditions.checkNotRunningOnMainThread(pureObjs)
         
-        performOnQueue(context) {
-            do {
-                let data = try self.constructUnsafely(context, pureObjs)
-                obs.onNext(data)
-                obs.onCompleted()
-            } catch let e {
-                obs.onError(e)
-            }
+        do {
+            let data = try self.constructUnsafely(context, pureObjs)
+            obs.onNext(data)
+            obs.onCompleted()
+        } catch let e {
+            obs.onError(e)
         }
         
         return Disposables.create()

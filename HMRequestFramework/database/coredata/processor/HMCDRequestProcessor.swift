@@ -133,10 +133,11 @@ public extension HMCDRequestProcessor {
         let manager = coreDataManager()
         let cdRequest = try request.fetchRequest(Val.self)
         let context = manager.disposableObjectContext()
+        let opMode = request.operationMode()
         let retries = request.retries()
         let delay = request.retryDelay()
     
-        return manager.rx.fetch(context, cdRequest)
+        return manager.rx.fetch(context, cdRequest, opMode)
             .subscribeOnConcurrent(qos: defaultQos(request))
             .delayRetry(retries: retries, delay: delay)
             .map(Try.success)
@@ -155,10 +156,11 @@ public extension HMCDRequestProcessor {
         let manager = coreDataManager()
         let insertedData = try request.insertedData()
         let context = manager.disposableObjectContext()
+        let opMode = request.operationMode()
         let retries = request.retries()
         let delay = request.retryDelay()
         
-        return manager.rx.saveConvertibles(context, insertedData)
+        return manager.rx.saveConvertibles(context, insertedData, opMode)
             .subscribeOnConcurrent(qos: defaultQos(request))
             .delayRetry(retries: retries, delay: delay)
             .map(Try.success)
@@ -175,10 +177,11 @@ public extension HMCDRequestProcessor {
     /// - Throws: Exception if the execution fails.
     fileprivate func executePersistToFile(_ request: Req) throws -> Observable<Try<Void>> {
         let manager = coreDataManager()
+        let opMode = request.operationMode()
         let retries = request.retries()
         let delay = request.retryDelay()
         
-        return manager.rx.persistLocally()
+        return manager.rx.persistLocally(opMode)
             .subscribeOnConcurrent(qos: defaultQos(request))
             .delayRetry(retries: retries, delay: delay)
             .map(Try.success)
@@ -195,10 +198,11 @@ public extension HMCDRequestProcessor {
     /// - Throws: Exception if the execution fails.
     fileprivate func executeResetStack(_ request: Req) throws -> Observable<Try<Void>> {
         let manager = coreDataManager()
+        let opMode = request.operationMode()
         let retries = request.retries()
         let delay = request.retryDelay()
         
-        return manager.rx.resetStack()
+        return manager.rx.resetStack(opMode)
             .subscribeOnConcurrent(qos: defaultQos(request))
             .delayRetry(retries: retries, delay: delay)
             .map(Try.success)
@@ -217,6 +221,7 @@ public extension HMCDRequestProcessor {
         let manager = coreDataManager()
         let data = try request.upsertedData()
         let entityName = try request.entityName()
+        let opMode = request.operationMode()
         
         // If the data requires versioning, we call updateVersionn.
         let versionables = data.flatMap({$0 as? HMCDVersionableType})
@@ -227,8 +232,8 @@ public extension HMCDRequestProcessor {
         
         return Observable
             .concat(
-                manager.rx.updateVersion(versionContext, entityName, vRequests),
-                manager.rx.upsert(upsertContext, entityName, nonVersionables)
+                manager.rx.updateVersion(versionContext, entityName, vRequests, opMode),
+                manager.rx.upsert(upsertContext, entityName, nonVersionables, opMode)
             )
             .subscribeOnConcurrent(qos: defaultQos(request))
             .reduce([], accumulator: +)
@@ -250,6 +255,7 @@ public extension HMCDRequestProcessor {
         let entityName = try request.entityName()
         let retries = request.retries()
         let delay = request.retryDelay()
+        let opMode = request.operationMode()
         
         // Putting the context outside the create block allows it to be retained
         // strongly, preventing inner managed objects from being ARC off.
@@ -294,8 +300,8 @@ public extension HMCDRequestProcessor {
                 let context2 = manager.disposableObjectContext()
                 
                 return Observable.concat(
-                    manager.rx.deleteIdentifiables(context1, entityName, ids),
-                    manager.rx.delete(context2, nonIds)
+                    manager.rx.deleteIdentifiables(context1, entityName, ids, opMode),
+                    manager.rx.delete(context2, nonIds, opMode)
                 )
             })
             .subscribeOnConcurrent(qos: defaultQos(request))
@@ -336,10 +342,11 @@ public extension HMCDRequestProcessor {
         let manager = coreDataManager()
         let deleteRequest = try request.untypedFetchRequest()
         let context = manager.disposableObjectContext()
+        let opMode = request.operationMode()
         let retries = request.retries()
         let delay = request.retryDelay()
         
-        return manager.rx.delete(context, deleteRequest)
+        return manager.rx.delete(context, deleteRequest, opMode)
             .subscribeOnConcurrent(qos: defaultQos(request))
             .map(toVoid)
             .delayRetry(retries: retries, delay: delay)
@@ -358,14 +365,15 @@ public extension HMCDRequestProcessor {
     {
         let manager = coreDataManager()
         let context = manager.disposableObjectContext()
+        let opMode = request.operationMode()
         let fetchRequest = try request.fetchRequest(NSManagedObject.self)
         
         // We can reuse the context with which we performed the fetch for the
         // delete as well - this way, the NSManagedObject refetch will be very
         // fast. At the same time, this helps keep this context around so that
         // the inner managed objects are not ARC off.
-        return manager.rx.fetch(context, fetchRequest)
-            .flatMap({manager.rx.delete(context, $0)})
+        return manager.rx.fetch(context, fetchRequest, opMode)
+            .flatMap({manager.rx.delete(context, $0, opMode)})
             .subscribeOnConcurrent(qos: defaultQos(request))
             .map(Try.success)
             .catchErrorJustReturn(Try.failure)

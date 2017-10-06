@@ -70,10 +70,30 @@ public extension HMCDManager {
         performOnQueue(performer, .perform, block)
     }
     
-    /// Serialize some operations.
+    /// Perform an operation based on a perform strategy and operation mode.
     ///
-    /// - Parameter block: A closure block.
-    public func serializeBlock(_ block: @escaping () -> Void) {
-        performOnQueue(mainObjectContext(), block)
+    /// - Parameters:
+    ///   - performer: A HMCDBlockPerformerType instance.
+    ///   - strategy: A ContextPerformanceStrategy instance.
+    ///   - operationMode: A HMCDOperationMode instance.
+    ///   - block: A closure block.
+    public func performOperation(_ performer: HMCDBlockPerformerType,
+                                 _ performStrategy: BlockPerformStrategy,
+                                 _ operationMode: HMCDOperationMode,
+                                 _ block: @escaping () -> Void) {
+        switch operationMode {
+        case .queued: performOnQueue(performer, performStrategy, block)
+        case .unqueued: block()
+        }
+    }
+    
+    /// Perform an operation with a default performer and strategy.
+    ///
+    /// - Parameters:
+    ///   - operationMode: A HMCDOperationMode instance.
+    ///   - block: A closure block.
+    public func performOperation(_ operationMode: HMCDOperationMode,
+                                 _ block: @escaping () -> Void) {
+        performOperation(mainObjectContext(), .perform, operationMode, block)
     }
 }
