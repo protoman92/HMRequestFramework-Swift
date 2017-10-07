@@ -114,6 +114,8 @@ public extension HMCDManager {
                     _ requests: S) throws -> [HMCDResult] where
         S: Sequence, S.Iterator.Element == HMCDVersionUpdateRequest
     {
+        let requests = requests.sorted(by: {$0.0.compare(against: $0.1)})
+        
         // It's ok for these requests not to have the original object. We will
         // get them right below.
         let ids: [HMCDIdentifiableType] = requests.flatMap({try? $0.editedVC()})

@@ -41,8 +41,9 @@ public extension HMCDManager {
                     _ upsertables: S) throws -> [HMCDResult] where
         S: Sequence, S.Iterator.Element == HMCDUpsertableType
     {
-        let ids = upsertables.map({$0 as HMCDIdentifiableType})
-        let existing = try blockingFetchIdentifiables(context, entityName, ids)
+        let upsertables = upsertables.sorted(by: {$0.0.compare(against: $0.1)})
+        let ids: [HMCDIdentifiableType] = upsertables
+        var objects = try blockingFetchIdentifiables(context, entityName, ids)
         var results: [HMCDResult] = []
         
         // We need an Array here to keep track of the objects that do not exist
@@ -50,9 +51,13 @@ public extension HMCDManager {
         var nonExisting: [HMCDObjectConvertibleType] = []
         
         for upsertable in upsertables {
-            if let item = existing.first(where: upsertable.identifiable) {
+            if
+                let index = objects.index(where: upsertable.identifiable),
+                let item = objects.element(at: index)
+            {
                 item.update(from: upsertable)
                 results.append(HMCDResult.just(upsertable))
+                objects.remove(at: index)
             } else {
                 nonExisting.append(upsertable)
             }
@@ -206,3 +211,4 @@ extension Reactive where Base == HMCDManager {
                       opMode)
     }
 }
+

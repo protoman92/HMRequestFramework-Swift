@@ -50,7 +50,8 @@ public extension HMCDManager {
     ///   - request: A NSFetchRequest instance.
     /// - Returns: An Array of NSManagedObject.
     /// - Throws: Exception if the fetch fails.
-    func blockingFetch<Val>(_ context: Context, _ request: NSFetchRequest<Val>) throws -> [Val] {
+    func blockingFetch<Val>(_ context: Context,
+                            _ request: NSFetchRequest<Val>) throws -> [Val] {
         return try context.fetch(request)
     }
     
@@ -221,6 +222,7 @@ public extension HMCDManager {
         S.Iterator.Element == U
     {
         return try blockingFetchIdentifiables(context, entityName, ids, U.self)
+            .sorted(by: {$0.0.compare(against: $0.1)})
     }
     
     /// Fetch objects from DB based on the specified identifiables objects. The
@@ -240,7 +242,8 @@ public extension HMCDManager {
         S.Iterator.Element == U
     {
         let rCls = NSManagedObject.self
-        return try blockingFetchIdentifiables(context, entityName, ids, rCls)
+        let refetched = try blockingFetchIdentifiables(context, entityName, ids, rCls)
+        return sortRefetchedIdentifiables(refetched)
     }
     
     /// Fetch objects from DB based on the specified identifiables objects. The
@@ -258,7 +261,25 @@ public extension HMCDManager {
         S: Sequence, S.Iterator.Element == HMCDIdentifiableType
     {
         let rCls = NSManagedObject.self
-        return try blockingFetchIdentifiables(context, entityName, ids, rCls)
+        let refetched = try blockingFetchIdentifiables(context, entityName, ids, rCls)
+        return sortRefetchedIdentifiables(refetched)
+    }
+    
+    /// Sort refetched managed objects so that the kv update process takes less
+    /// time.
+    ///
+    /// - Parameter existing: A Sequence of NSManagedObject.
+    /// - Returns: An Array of NSManagedObject.
+    func sortRefetchedIdentifiables<NS>(_ existing: NS) -> [NSManagedObject] where
+        NS: Sequence, NS.Iterator.Element == NSManagedObject
+    {
+        return existing.sorted(by: {
+            if let id1 = $0 as? HMCDIdentifiableType, let id2 = $1 as? HMCDIdentifiableType {
+                return id1.compare(against: id2)
+            } else {
+                return false
+            }
+        })
     }
 }
 

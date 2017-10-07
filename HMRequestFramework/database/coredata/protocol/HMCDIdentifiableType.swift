@@ -40,5 +40,17 @@ public extension HMCDIdentifiableType {
     public func identifiable(as object: HMCDObjectAliasType) -> Bool {
         return identifiable(as: object.asManagedObject())
     }
+    
+    /// Compare the current item with another identifiable object.
+    ///
+    /// - Parameter item: A HMCDIdentifiableType instance.
+    /// - Returns: A Bool value.
+    func compare(against item: HMCDIdentifiableType) -> Bool {
+        if let pv1 = self.primaryValue(), let pv2 = item.primaryValue() {
+            return pv1 < pv2
+        } else {
+            return false
+        }
+    }
 }
 
