@@ -114,12 +114,12 @@ public extension HMCDManager {
                     _ requests: S) throws -> [HMCDResult] where
         S: Sequence, S.Iterator.Element == HMCDVersionUpdateRequest
     {
-        let requests = requests.sorted(by: {$0.0.compare(against: $0.1)})
+        var requests = requests.sorted(by: {$0.0.compare(against: $0.1)})
         
         // It's ok for these requests not to have the original object. We will
         // get them right below.
         let ids: [HMCDIdentifiableType] = requests.flatMap({try? $0.editedVC()})
-        let originals = try self.blockingFetchIdentifiables(context, entityName, ids)
+        var originals = try self.blockingFetchIdentifiables(context, entityName, ids)
         var results: [HMCDResult] = []
         
         // We also need an Array of VC to store items that cannot be found in
@@ -128,8 +128,10 @@ public extension HMCDManager {
         
         for item in ids {
             if
-                let original = originals.first(where: item.identifiable),
-                let request = requests.first(where: {($0.ownsEditedVC(item))})?
+                let oIndex = originals.index(where: item.identifiable),
+                let rIndex = requests.index(where: {($0.ownsEditedVC(item))}),
+                let original = originals.element(at: oIndex),
+                let request = requests.element(at: rIndex)?
                     .cloneBuilder()
                     
                     // The cast here is unfortunate, but we have to do it to
@@ -155,6 +157,8 @@ public extension HMCDManager {
                 }
                 
                 results.append(result)
+                originals.remove(at: oIndex)
+                requests.remove(at: rIndex)
             } else {
                 nonExisting.append(item)
             }

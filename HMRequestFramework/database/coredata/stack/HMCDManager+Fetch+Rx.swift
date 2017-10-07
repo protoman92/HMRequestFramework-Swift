@@ -39,6 +39,28 @@ public extension HMCDManager {
         let identifiables = identifiables.map({$0 as HMIdentifiableType})
         return predicateForIdentifiableFetch(identifiables)
     }
+    
+    /// Get the sort descriptions to sort an identifiable fetch.
+    ///
+    /// - Parameter identifiables: A Sequence of HMCDIdentifiableType.
+    /// - Returns: An Array of NSSortDescriptor.
+    func sortForIdentifiableFetch<S>(_ identifiables: S) -> [NSSortDescriptor] where
+        S: Sequence, S.Iterator.Element == HMIdentifiableType
+    {
+        let pk = identifiables.first(where: {$0.primaryValue() != nil})?.primaryKey()
+        return [NSSortDescriptor(key: pk, ascending: true)]
+    }
+    
+    /// Get the sort descriptions to sort an identifiable fetch.
+    ///
+    /// - Parameter identifiables: A Sequence of HMCDIdentifiableType.
+    /// - Returns: An Array of NSSortDescriptor.
+    func sortForIdentifiableFetch<S>(_ identifiables: S) -> [NSSortDescriptor] where
+        S: Sequence, S.Iterator.Element: HMIdentifiableType
+    {
+        let identifiables = identifiables.map({$0 as HMIdentifiableType})
+        return sortForIdentifiableFetch(identifiables)
+    }
 }
 
 public extension HMCDManager {
@@ -123,24 +145,24 @@ public extension HMCDManager {
     ///   - rCls: The type to cast the results to.
     /// - Returns: An Array of NSManagedObject.
     /// - Throws: Exception if the fetch fails.
-    private func blockingFetchIdentifiables<S,ID,FR>(
+    private func blockingFetchIdentifiables<S,SS,ID,FR>(
         _ context: Context,
         _ entityName: String,
         _ ids: S,
         _ predicate: NSPredicate,
+        _ sortDescriptors: SS,
         _ iCls: ID.Type,
         _ rCls: FR.Type) throws -> [FR] where
         FR: NSFetchRequestResult,
-        S: Sequence,
-        S.Iterator.Element == ID
+        S: Sequence, S.Iterator.Element == ID,
+        SS: Sequence, SS.Iterator.Element == NSSortDescriptor
     {
         Preconditions.checkNotRunningOnMainThread(entityName)
         
-        let data = ids.map({$0})
-        
-        if data.isNotEmpty {
+        if ids.underestimatedCount > 0 {
             let request: NSFetchRequest<FR> = NSFetchRequest(entityName: entityName)
             request.predicate = predicate
+            request.sortDescriptors = sortDescriptors.map({$0})
             return try blockingFetch(context, request)
         } else {
             return []
@@ -169,12 +191,14 @@ public extension HMCDManager {
     {
         let identifiables = ids.map({$0 as HMIdentifiableType})
         let predicate = predicateForIdentifiableFetch(identifiables)
+        let sorts = sortForIdentifiableFetch(identifiables)
         
         return try blockingFetchIdentifiables(
             context,
             entityName,
             ids,
             predicate,
+            sorts,
             HMCDIdentifiableType.self,
             rCls
         )
@@ -222,7 +246,6 @@ public extension HMCDManager {
         S.Iterator.Element == U
     {
         return try blockingFetchIdentifiables(context, entityName, ids, U.self)
-            .sorted(by: {$0.0.compare(against: $0.1)})
     }
     
     /// Fetch objects from DB based on the specified identifiables objects. The
@@ -242,8 +265,7 @@ public extension HMCDManager {
         S.Iterator.Element == U
     {
         let rCls = NSManagedObject.self
-        let refetched = try blockingFetchIdentifiables(context, entityName, ids, rCls)
-        return sortRefetchedIdentifiables(refetched)
+        return try blockingFetchIdentifiables(context, entityName, ids, rCls)
     }
     
     /// Fetch objects from DB based on the specified identifiables objects. The
@@ -261,25 +283,7 @@ public extension HMCDManager {
         S: Sequence, S.Iterator.Element == HMCDIdentifiableType
     {
         let rCls = NSManagedObject.self
-        let refetched = try blockingFetchIdentifiables(context, entityName, ids, rCls)
-        return sortRefetchedIdentifiables(refetched)
-    }
-    
-    /// Sort refetched managed objects so that the kv update process takes less
-    /// time.
-    ///
-    /// - Parameter existing: A Sequence of NSManagedObject.
-    /// - Returns: An Array of NSManagedObject.
-    func sortRefetchedIdentifiables<NS>(_ existing: NS) -> [NSManagedObject] where
-        NS: Sequence, NS.Iterator.Element == NSManagedObject
-    {
-        return existing.sorted(by: {
-            if let id1 = $0 as? HMCDIdentifiableType, let id2 = $1 as? HMCDIdentifiableType {
-                return id1.compare(against: id2)
-            } else {
-                return false
-            }
-        })
+        return try blockingFetchIdentifiables(context, entityName, ids, rCls)
     }
 }
 
