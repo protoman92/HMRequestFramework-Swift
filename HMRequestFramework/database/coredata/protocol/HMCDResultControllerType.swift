@@ -99,11 +99,14 @@ public extension Reactive where Base: HMCDResultControllerType {
     ///   - context: A Context instance.
     ///   - request: A HMCDFetchedResultRequestType instance.
     ///   - cls: The PO class type.
+    ///   - defaultQoS: The QoSClass instance to perform work on.
     /// - Return: An Observable instance.
     /// - Throws: Exception if the stream cannot be started.
     func startDBStream<PO>(_ context: Base.Context,
                            _ request: HMCDFetchedResultRequestType,
-                           _ cls: PO.Type) -> Observable<HMCDEvent<PO>> where
+                           _ cls: PO.Type,
+                           _ defaultQoS: DispatchQoS.QoSClass)
+        -> Observable<HMCDEvent<PO>> where
         PO: HMCDPureObjectType,
         PO.CDClass: HMCDPureObjectConvertibleType,
         PO.CDClass.PureObject == PO
@@ -112,7 +115,6 @@ public extension Reactive where Base: HMCDResultControllerType {
             let fetchRequest = try request.untypedFetchRequest()
             let sectionName = request.frcSectionName()
             let cacheName = request.frcCacheName()
-            let qos = request.frcDefautQoS() ?? .userInitiated
             
             let frc = Base.Controller(
                 fetchRequest: fetchRequest,
@@ -129,8 +131,7 @@ public extension Reactive where Base: HMCDResultControllerType {
                 
                     return self.startDBStream(frc, obs)
                 })
-                .subscribeOnConcurrent(qos: qos)
-                .observeOnConcurrent(qos: qos)
+                .subscribeOnConcurrent(qos: defaultQoS)
                 
                 // All events' objects will be implicitly converted to PO. For e.g.,
                 // for a section change event, the underlying HMCDEvent<Any> will

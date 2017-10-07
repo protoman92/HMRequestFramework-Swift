@@ -77,7 +77,7 @@ public final class CoreDataFRCTest: CoreDataRootTest {
         
         /// When
         processor
-            .streamDBEvents(Dummy1.self)
+            .streamDBEvents(Dummy1.self, .background)
             .doOnNext({_ in callCount += 1})
             .map({try $0.getOrThrow()})
             .doOnNext({
@@ -163,7 +163,7 @@ public final class CoreDataFRCTest: CoreDataRootTest {
         let terminateSbj = PublishSubject<Void>()
         
         /// When
-        manager.rx.startDBStream(frcRequest, Dummy1.self)
+        manager.rx.startDBStream(frcRequest, Dummy1.self, .background)
             .doOnNext({_ in callCount += 1})
             .doOnNext({
                 switch $0 {
@@ -245,10 +245,11 @@ public final class CoreDataFRCTest: CoreDataRootTest {
         let dummyCount = self.dummyCount!
         let pureObjects = (0..<dummyCount).map({_ in Dummy1()})
         let dbProcessor = self.dbProcessor!
+        let qos: DispatchQoS.QoSClass = .background
     
-        dbProcessor.saveToMemory(Try.success(pureObjects), .background)
-            .flatMap({dbProcessor.persistToDB($0)})
-            .flatMap({dbProcessor.fetchAllDataFromDB($0, Dummy1.self)})
+        dbProcessor.saveToMemory(Try.success(pureObjects), qos)
+            .flatMap({dbProcessor.persistToDB($0, qos)})
+            .flatMap({dbProcessor.fetchAllDataFromDB($0, Dummy1.self, qos)})
             .map({try $0.getOrThrow()})
             .flattenSequence()
             .doOnDispose(expect.fulfill)
@@ -279,7 +280,7 @@ public final class CoreDataFRCTest: CoreDataRootTest {
         
         /// When
         dbProcessor
-            .streamPaginatedDBEvents(Dummy1.self, pageSubject, original, {
+            .streamPaginatedDBEvents(Dummy1.self, pageSubject, original, qos, {
                 Observable.just($0.cloneBuilder()
                     .add(ascendingSortWithKey: "id")
                     .build())
@@ -487,10 +488,11 @@ public extension CoreDataFRCTest {
         let disposeBag = self.disposeBag!
         let dbProcessor = self.dbProcessor!
         let dummyCount = 10
+        let qos: DispatchQoS.QoSClass = .background
         
         /// When
         dbProcessor
-            .streamDBEvents(Dummy1.self, {
+            .streamDBEvents(Dummy1.self, qos, {
                 Observable.just($0.cloneBuilder().with(fetchLimit: limit).build())
             })
             
@@ -507,8 +509,8 @@ public extension CoreDataFRCTest {
             .map(Try.success)
             .map({$0.map({[$0]})})
             .observeOnConcurrent(qos: .background)
-            .flatMap({dbProcessor.saveToMemory($0, .background)})
-            .flatMap({dbProcessor.persistToDB($0)})
+            .flatMap({dbProcessor.saveToMemory($0, qos)})
+            .flatMap({dbProcessor.persistToDB($0, qos)})
             .doOnDispose(expect.fulfill)
             .subscribe(observer)
             .disposed(by: disposeBag)

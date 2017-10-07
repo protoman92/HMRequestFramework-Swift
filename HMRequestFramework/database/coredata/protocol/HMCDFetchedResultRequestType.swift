@@ -20,9 +20,4 @@ public protocol HMCDFetchedResultRequestType: HMCDFetchRequestType {
     ///
     /// - Returns: A String value.
     func frcCacheName() -> String?
-    
-    /// QoSClass to use for pushing DB events.
-    ///
-    /// - Returns: A QoSClass instance.
-    func frcDefautQoS() -> DispatchQoS.QoSClass?
 }

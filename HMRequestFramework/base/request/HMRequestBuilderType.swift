@@ -25,12 +25,6 @@ public protocol HMRequestBuilderType: HMBuilderType {
     @discardableResult
     func add(mwFilter: HMMiddlewareFilter<Buildable>) -> Self
     
-    /// Set the defaultQoS instance.
-    ///
-    /// - Parameter defaultQoS: A QoSClass instance.
-    /// - Returns: The current Builder instance.
-    func with(defaultQoS: DispatchQoS.QoSClass) -> Self
-    
     /// Set the retry count.
     ///
     /// - Parameter retries: An Int value.

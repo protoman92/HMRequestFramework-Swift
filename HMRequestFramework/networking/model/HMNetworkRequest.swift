@@ -19,7 +19,6 @@ public struct HMNetworkRequest {
     fileprivate var httpUploadedData: Data?
     fileprivate var httpUploadURL: URL?
     fileprivate var nwMWFilters: [MiddlewareFilter]
-    fileprivate var nwDefaultQoS: DispatchQoS.QoSClass
     fileprivate var timeoutInterval: TimeInterval
     fileprivate var retryCount: Int
     fileprivate var retryDelayIntv: TimeInterval
@@ -27,7 +26,6 @@ public struct HMNetworkRequest {
     fileprivate var rqDescription: String?
     
     fileprivate init() {
-        nwDefaultQoS = .background
         retryCount = 1
         retryDelayIntv = 0
         httpParams = []
@@ -262,16 +260,6 @@ extension HMNetworkRequest.Builder: HMRequestBuilderType {
     
     /// Override this method to provide default implementation.
     ///
-    /// - Parameter defaultQoS: A QoSClass instance.
-    /// - Returns: The current Builder instance.
-    @discardableResult
-    public func with(defaultQoS: DispatchQoS.QoSClass) -> Self {
-        request.nwDefaultQoS = defaultQoS
-        return self
-    }
-    
-    /// Override this method to provide default implementation.
-    ///
     /// - Parameter retries: An Int value.
     /// - Returns: The current Builder instance.
     @discardableResult
@@ -327,7 +315,6 @@ extension HMNetworkRequest.Builder: HMRequestBuilderType {
                 .with(uploadURL: buildable.httpUploadURL)
                 .with(timeout: buildable.timeoutInterval)
                 .with(mwFilters: buildable.nwMWFilters)
-                .with(defaultQoS: buildable.nwDefaultQoS)
                 .with(retries: buildable.retryCount)
                 .with(retryDelay: buildable.retryDelayIntv)
                 .with(applyMiddlewares: buildable.middlewaresEnabled)
@@ -347,10 +334,6 @@ extension HMNetworkRequest: HMRequestType {
     
     public func middlewareFilters() -> [MiddlewareFilter] {
         return nwMWFilters
-    }
-    
-    public func defaultQoS() -> DispatchQoS.QoSClass {
-        return nwDefaultQoS
     }
     
     public func retries() -> Int {

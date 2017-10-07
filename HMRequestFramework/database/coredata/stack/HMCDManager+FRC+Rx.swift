@@ -61,14 +61,17 @@ public extension Reactive where Base == HMCDManager {
     /// - Parameter:
     ///   - request: A HMCDFetchedResultRequestType instance.
     ///   - cls: The PO class type.
+    ///   - defaultQoS: The QoSClass instance to perform work on.
     /// - Return: An Observable instance.
     /// - Throws: Exception if the stream cannot be started.
     public func startDBStream<PO>(_ request: HMCDFetchedResultRequestType,
-                                  _ cls: PO.Type) -> Observable<HMCDEvent<PO>> where
+                                  _ cls: PO.Type,
+                                  _ defaultQoS: DispatchQoS.QoSClass)
+        -> Observable<HMCDEvent<PO>> where
         PO: HMCDPureObjectType,
         PO.CDClass: HMCDPureObjectConvertibleType,
         PO.CDClass.PureObject == PO
     {
-        return startDBStream(base.mainObjectContext(), request, cls)
+        return startDBStream(base.mainObjectContext(), request, cls, defaultQoS)
     }
 }

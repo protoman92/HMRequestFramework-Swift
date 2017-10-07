@@ -53,15 +53,17 @@ public extension HMCDRequestProcessorType {
     ///   - generator: A HMRequestGenerator instance.
     ///   - perform: A HMRequestPerformer instance.
     ///   - processor: A HMResultProcessor instance.
+    ///   - defaultQoS: A QoSClass instance to perform work on.
     /// - Returns: An Observable instance.
     private func process<Prev,Val,Res>(
         _ previous: Try<Prev>,
         _ generator: @escaping HMRequestGenerator<Prev,Req>,
         _ perform: @escaping HMRequestPerformer<Req,[Val]>,
-        _ processor: @escaping HMResultProcessor<Val,Res>)
+        _ processor: @escaping HMResultProcessor<Val,Res>,
+        _ defaultQoS: DispatchQoS.QoSClass)
         -> Observable<Try<[Try<Res>]>>
     {
-        return execute(previous, generator, perform)
+        return execute(previous, generator, perform, defaultQoS)
             .map({try $0.getOrThrow()})
             
             // We need to process the CoreData objects right within the
@@ -72,7 +74,7 @@ public extension HMCDRequestProcessorType {
                 return Observable.just(vals)
                     .flatMapSequence({$0.map({(val) -> Observable<Try<Res>> in
                         do {
-                            return try processor(val)
+                            return try processor(val).subscribeOnConcurrent(qos: defaultQoS)
                         } catch let e {
                             return Observable.just(Try.failure(e))
                         }
@@ -92,15 +94,17 @@ public extension HMCDRequestProcessorType {
     ///   - previous: The result of the upstream request.
     ///   - generator: Generator function to create the current request.
     ///   - processor: Processor function to process the request result.
+    ///   - defaultQoS: A QoSClass instance to perform work on.
     /// - Returns: An Observable instance.
     public func process<Prev,Val,Res>(
         _ previous: Try<Prev>,
         _ generator: @escaping HMRequestGenerator<Prev,Req>,
-        _ processor: @escaping HMResultProcessor<Val,Res>)
+        _ processor: @escaping HMResultProcessor<Val,Res>,
+        _ defaultQoS: DispatchQoS.QoSClass)
         -> Observable<Try<[Try<Res>]>> where
         Val: NSFetchRequestResult
     {
-        return process(previous, generator, executeTyped, processor)
+        return process(previous, generator, executeTyped, processor, defaultQoS)
     }
     
     /// Perform a CoreData result-based request and process the result. Each
@@ -115,10 +119,11 @@ public extension HMCDRequestProcessorType {
     public func process<Prev,Res>(
         _ previous: Try<Prev>,
         _ generator: @escaping HMRequestGenerator<Prev,Req>,
-        _ processor: @escaping HMResultProcessor<HMCDResult,Res>)
+        _ processor: @escaping HMResultProcessor<HMCDResult,Res>,
+        _ defaultQoS: DispatchQoS.QoSClass)
         -> Observable<Try<[Try<Res>]>>
     {
-        return process(previous, generator, executeTyped, processor)
+        return process(previous, generator, executeTyped, processor, defaultQoS)
     }
     
     /// Perform a CoreData result-based request and process the result using
@@ -128,15 +133,17 @@ public extension HMCDRequestProcessorType {
     /// - Parameters:
     ///   - previous: The result of the upstream request.
     ///   - generator: Generator function to create the current request.
+    ///   - defaultQoS: A QoSClass instance to perform work on.
     /// - Returns: An Observable instance.
     public func processResult<Prev>(
         _ previous: Try<Prev>,
-        _ generator: @escaping HMRequestGenerator<Prev,Req>)
+        _ generator: @escaping HMRequestGenerator<Prev,Req>,
+        _ defaultQoS: DispatchQoS.QoSClass)
         -> Observable<Try<[HMCDResult]>>
     {
         let processor = HMResultProcessors.eqProcessor(HMCDResult.self)
         
-        return process(previous, generator, processor)
+        return process(previous, generator, processor, defaultQoS)
             .map({$0.map({$0.map(HMCDResult.unwrap)})})
     }
     
@@ -146,18 +153,21 @@ public extension HMCDRequestProcessorType {
     ///   - previous: The result of the upstream request.
     ///   - generator: Generator function to create the current request.
     ///   - poCls: The PureObject class type.
+    ///   - defaultQoS: A QoSClass instance to perform work on.
     /// - Returns: An Observable instance.
     public func process<Prev,PO>(
         _ previous: Try<Prev>,
         _ generator: @escaping HMRequestGenerator<Prev,Req>,
-        _ poCls: PO.Type)
+        _ poCls: PO.Type,
+        _ defaultQoS: DispatchQoS.QoSClass)
         -> Observable<Try<[PO]>> where
         PO: HMCDPureObjectType,
         PO.CDClass: HMCDPureObjectConvertibleType,
         PO.CDClass.PureObject == PO
     {
         let processor = HMCDResultProcessors.pureObjectPs(poCls)
-        return process(previous, generator, processor)
+        
+        return process(previous, generator, processor, defaultQoS)
             
             // Since asPureObject() does not throw an error, we can safely
             // assume the processing succeeds for all items.
@@ -171,14 +181,16 @@ public extension HMCDRequestProcessorType {
     ///   - previous: The result of the upstream request.
     ///   - generator: Generator function to create the current request.
     ///   - processor: Processor function to process the request result.
+    ///   - defaultQoS: A QoSClass instance to perform work on.
     /// - Returns: An Observable instance.
     public func process<Prev,Res>(
         _ previous: Try<Prev>,
         _ generator: @escaping HMRequestGenerator<Prev,Req>,
-        _ processor: @escaping HMResultProcessor<Void,Res>)
+        _ processor: @escaping HMResultProcessor<Void,Res>,
+        _ defaultQoS: DispatchQoS.QoSClass)
         -> Observable<Try<Res>>
     {
-        return execute(previous, generator, execute)
+        return execute(previous, generator, execute, defaultQoS)
             .flatMap({try HMResultProcessors.processResultFn($0, processor)})
     }
     
@@ -189,13 +201,15 @@ public extension HMCDRequestProcessorType {
     /// - Parameters:
     ///   - previous: The result of the upstream request.
     ///   - generator: Generator function to create the current request.
+    ///   - defaultQoS: A QoSClass instance to perform work on.
     /// - Returns: An Observable instance.
     public func processVoid<Prev>(
         _ previous: Try<Prev>,
-        _ generator: @escaping HMRequestGenerator<Prev,Req>)
+        _ generator: @escaping HMRequestGenerator<Prev,Req>,
+        _ defaultQoS: DispatchQoS.QoSClass)
         -> Observable<Try<Void>>
     {
         let processor = HMResultProcessors.eqProcessor(Void.self)
-        return process(previous, generator, processor)
+        return process(previous, generator, processor, defaultQoS)
     }
 }

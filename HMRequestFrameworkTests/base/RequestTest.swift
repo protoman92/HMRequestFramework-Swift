@@ -41,7 +41,7 @@ public final class RequestTest: RootTest {
         let perform = HMRequestPerformers.eqPerformer(Any.self)
         
         /// When
-        handler.execute(dummy, generator, perform)
+        handler.execute(dummy, generator, perform, .background)
             .doOnDispose(expect.fulfill)
             .subscribe(observer)
             .disposed(by: disposeBag)
@@ -75,13 +75,14 @@ public final class RequestTest: RootTest {
         }
         
         let perform = HMRequestPerformers.eqPerformer(Any.self)
+        let qos: DispatchQoS.QoSClass = .background
         
         /// When
-        handler.execute(previous, generator1, perform)
+        handler.execute(previous, generator1, perform, qos)
             .flatMap({Observable.merge([
-                self.handler.execute($0, generator2, perform),
-                self.handler.execute($0, generator2, perform),
-                self.handler.execute($0, generator2, perform)
+                self.handler.execute($0, generator2, perform, qos),
+                self.handler.execute($0, generator2, perform, qos),
+                self.handler.execute($0, generator2, perform, qos)
             ])})
             .doOnDispose(expect.fulfill)
             .subscribe(observer)
@@ -137,7 +138,7 @@ public final class RequestTest: RootTest {
         }
         
         /// When
-        handler.execute(dummy, generator, perform)
+        handler.execute(dummy, generator, perform, .background)
             .doOnDispose(expect.fulfill)
             .subscribe(observer)
             .disposed(by: disposeBag)

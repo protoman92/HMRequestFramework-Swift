@@ -92,7 +92,7 @@ public final class MiddlewareTest: RootTest {
                                      errMiddlewareManager: errManager)
         
         /// When
-        handler.execute(Try.success(()), generator, perform)
+        handler.execute(Try.success(()), generator, perform, .background)
             .map({$0.map({$0 as Any})})
             .doOnDispose(expect.fulfill)
             .subscribe(observer)
@@ -187,7 +187,7 @@ public final class MiddlewareTest: RootTest {
                                      errMiddlewareManager: errManager)
         
         /// When
-        handler.execute(dummy, generator, perform)
+        handler.execute(dummy, generator, perform, .background)
             .doOnDispose(expect.fulfill)
             .subscribe(observer)
             .disposed(by: disposeBag)
@@ -244,7 +244,7 @@ public final class MiddlewareTest: RootTest {
         let nwProcessor = HMNetworkRequestProcessor(handler: handler)
         
         /// When
-        nwProcessor.process(dummy, generator, processor)
+        nwProcessor.process(dummy, generator, processor, .background)
             .doOnDispose(expect.fulfill)
             .subscribe(observer)
             .disposed(by: disposeBag)
@@ -286,7 +286,7 @@ public final class MiddlewareTest: RootTest {
                                      errMiddlewareManager: errManager)
         
         /// When
-        handler.execute(dummy, generator, perform)
+        handler.execute(dummy, generator, perform, .background)
             .map({$0.map({$0 as Any})})
             .doOnDispose(expect.fulfill)
             .subscribe(observer)
@@ -334,7 +334,7 @@ public final class MiddlewareTest: RootTest {
                                      errMiddlewareManager: errManager)
         
         /// When
-        handler.execute(dummy, generator, perform)
+        handler.execute(dummy, generator, perform, .background)
             .map({$0.map({$0 as Any})})
             .doOnDispose(expect.fulfill)
             .subscribe(observer)

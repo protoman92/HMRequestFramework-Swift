@@ -18,10 +18,12 @@ public protocol HMCDGeneralRequestProcessorType {
     /// - Parameters:
     ///   - previous: The result of the previous request.
     ///   - cls: The PureObject class type.
+    ///   - defaultQoS: A QoSClass instance to perform work on.
     ///   - transforms: A Sequence of Request transformer.
     /// - Returns: An Observable instance.
     func fetchAllDataFromDB<Prev,PO,S>(_ previous: Try<Prev>,
                                        _ cls: PO.Type,
+                                       _ defaultQoS: DispatchQoS.QoSClass,
                                        _ transforms: S)
         -> Observable<Try<[PO]>> where
         PO: HMCDPureObjectType,
@@ -53,9 +55,12 @@ public protocol HMCDGeneralRequestProcessorType {
     ///
     /// - Parameters:
     ///   - previous: The result of the previous operation.
+    ///   - defaultQoS: A QoSClass instance to perform work on.
     ///   - transforms: A Sequence of Request transformers.
     /// - Returns: An Observable instance.
-    func deleteInMemory<PO,S>(_ previous: Try<[PO]>, _ transforms: S)
+    func deleteInMemory<PO,S>(_ previous: Try<[PO]>,
+                              _ defaultQoS: DispatchQoS.QoSClass,
+                              _ transforms: S)
         -> Observable<Try<Void>> where
         PO: HMCDPureObjectType,
         PO: HMCDObjectConvertibleType,
@@ -67,10 +72,12 @@ public protocol HMCDGeneralRequestProcessorType {
     /// - Parameters:
     ///   - previous: The result of the previous operation.
     ///   - cls: A PO class type.
+    ///   - defaultQoS: A QoSClass instance to perform work on.
     ///   - transforms: A Sequence of Request transformers.
     /// - Returns: An Observable instance.
     func deleteAllInMemory<Prev,PO,S>(_ previous: Try<Prev>,
                                       _ cls: PO.Type,
+                                      _ defaultQoS: DispatchQoS.QoSClass,
                                       _ transforms: S)
         -> Observable<Try<Void>> where
         PO: HMCDPureObjectType,
@@ -85,7 +92,9 @@ public protocol HMCDGeneralRequestProcessorType {
     ///   - previous: The result of the previous operation.
     ///   - transforms: A Sequence of Request transformers.
     /// - Returns: An Observable instance.
-    func resetStack<Prev,S>(_ previous: Try<Prev>, _ transforms: S)
+    func resetStack<Prev,S>(_ previous: Try<Prev>,
+                            _ defaultQoS: DispatchQoS.QoSClass,
+                            _ transforms: S)
         -> Observable<Try<Void>> where
         S: Sequence, S.Iterator.Element == HMTransform<HMCDRequest>
     
@@ -93,9 +102,12 @@ public protocol HMCDGeneralRequestProcessorType {
     ///
     /// - Parameters:
     ///   - previous: The result of the previous request.
+    ///   - defaultQoS: A QoSClass instance to perform work on.
     ///   - transforms: A Sequence of Request transformers.
     /// - Returns: An Observable instance.
-    func upsertInMemory<U,S>(_ previous: Try<[U]>, _ transforms: S)
+    func upsertInMemory<U,S>(_ previous: Try<[U]>,
+                             _ defaultQoS: DispatchQoS.QoSClass,
+                             _ transforms: S)
         -> Observable<Try<[HMCDResult]>> where
         U: HMCDObjectType,
         U: HMCDUpsertableType,
@@ -125,9 +137,12 @@ public protocol HMCDGeneralRequestProcessorType {
     ///
     /// - Parameters:
     ///   - previous: The result of the previous request.
+    ///   - defaultQoS: A QoSClass instance to perform work on.
     ///   - transform: A Sequence of Request transformers.
     /// - Returns: An Observable instance.
-    func persistToDB<Prev,S>(_ previous: Try<Prev>, _ transform: S)
+    func persistToDB<Prev,S>(_ previous: Try<Prev>,
+                             _ defaultQoS: DispatchQoS.QoSClass,
+                             _ transform: S)
         -> Observable<Try<Void>> where
         S: Sequence, S.Iterator.Element == HMTransform<HMCDRequest>
     
@@ -135,9 +150,12 @@ public protocol HMCDGeneralRequestProcessorType {
     ///
     /// - Parameters:
     ///   - cls: The PO class type.
+    ///   - defaultQoS: A QoSClass instance to perform work on.
     ///   - transforms: A Sequence of Request transformers.
     /// - Returns: An Observable instance.
-    func streamDBEvents<S,PO>(_ cls: PO.Type, _ transforms: S)
+    func streamDBEvents<S,PO>(_ cls: PO.Type,
+                              _ defaultQoS: DispatchQoS.QoSClass,
+                              _ transforms: S)
         -> Observable<Try<HMCDEvent<PO>>> where
         PO: HMCDPureObjectType,
         PO.CDClass: HMCDPureObjectConvertibleType,
@@ -167,10 +185,12 @@ public extension HMCDGeneralRequestProcessorType {
     /// - Parameters:
     ///   - previous: The result of the previous request.
     ///   - cls: The PO class type.
+    ///   - defaultQoS: A QoSClass instance to perform work on.
     ///   - transforms: A Sequence of Request transformers.
     /// - Returns: An Observable instance.
     public func fetchWithProperties<PO,S>(_ previous: Try<[String : [CVarArg]]>,
                                           _ cls: PO.Type,
+                                          _ defaultQoS: DispatchQoS.QoSClass,
                                           _ transforms: S)
         -> Observable<Try<[PO]>> where
         PO: HMCDPureObjectType,
@@ -192,7 +212,7 @@ public extension HMCDGeneralRequestProcessorType {
             
             let allTransforms = [propTransform] + transforms
             
-            return fetchAllDataFromDB(Try.success(()), cls, allTransforms)
+            return fetchAllDataFromDB(Try.success(()), cls, defaultQoS, allTransforms)
                 .doOnNext(Preconditions.checkNotRunningOnMainThread)
         } catch let e {
             return Observable.just(Try.failure(e))
@@ -204,10 +224,12 @@ public extension HMCDGeneralRequestProcessorType {
     /// - Parameters:
     ///   - previous: The result of the previous request.
     ///   - cls: The PO class type.
+    ///   - defaultQoS: A QoSClass instance to perform work on.
     ///   - transforms: A Sequence of Request transformers.
     /// - Returns: An Observable instance.
     public func deleteWithProperties<PO,S>(_ previous: Try<[String : [CVarArg]]>,
                                            _ cls: PO.Type,
+                                           _ defaultQoS: DispatchQoS.QoSClass,
                                            _ transforms: S)
         -> Observable<Try<Void>> where
         PO: HMCDPureObjectType,
@@ -229,7 +251,7 @@ public extension HMCDGeneralRequestProcessorType {
             
             let allTransforms = [propTransform] + transforms
             
-            return deleteAllInMemory(previous, cls, allTransforms)
+            return deleteAllInMemory(previous, cls, defaultQoS, allTransforms)
                 .doOnNext(Preconditions.checkNotRunningOnMainThread)
         } catch let e {
             return Observable.just(Try.failure(e))
@@ -246,10 +268,12 @@ public extension HMCDGeneralRequestProcessorType {
     /// - Parameters:
     ///   - cls: The PO class type.
     ///   - pageObs: An ObservableConvertibleType instance that emits paginations.
+    ///   - defaultQoS: A QoSClass instance to perform work on.
     ///   - transforms: A Sequence of Request transformers.
     /// - Returns: An Observable instance.
     public func streamPaginatedDBEvents<PO,O,S>(_ cls: PO.Type,
                                                 _ pageObs: O,
+                                                _ defaultQoS: DispatchQoS.QoSClass,
                                                 _ transforms: S)
         -> Observable<Try<HMCDEvent<PO>>> where
         PO: HMCDPureObjectType,
@@ -270,7 +294,7 @@ public extension HMCDGeneralRequestProcessorType {
                 }
                 
                 let allTransforms = [pageTransform] + transforms
-                return self.streamDBEvents(cls, allTransforms)
+                return self.streamDBEvents(cls, defaultQoS, allTransforms)
             })
             .doOnNext(Preconditions.checkNotRunningOnMainThread)
     }
@@ -288,11 +312,13 @@ public extension HMCDGeneralRequestProcessorType {
     ///   - cls: The PO class type.
     ///   - pageObs: An ObservableConvertibleType instance that emits anything.
     ///   - pagination: The original HMCDPagination instance.
+    ///   - defaultQoS: A QoSClass instance to perform work on.
     ///   - transforms: A Sequence of Request transformers.
     /// - Returns: An Observable instance.
     public func streamPaginatedDBEvents<PO,O,S>(_ cls: PO.Type,
                                                 _ pageObs: O,
                                                 _ pagination: HMCDPagination,
+                                                _ defaultQoS: DispatchQoS.QoSClass,
                                                 _ transforms: S)
         -> Observable<Try<HMCDEvent<PO>>> where
         PO: HMCDPureObjectType,
@@ -320,7 +346,7 @@ public extension HMCDGeneralRequestProcessorType {
             })
             .map({$0.asProtocol()})
         
-        return streamPaginatedDBEvents(cls, paginationObs, transforms)
+        return streamPaginatedDBEvents(cls, paginationObs, defaultQoS, transforms)
     }
     
     /// Get the current page based on the cursor direction.
@@ -338,24 +364,26 @@ public extension HMCDGeneralRequestProcessorType {
 public extension HMCDGeneralRequestProcessorType {
     public func fetchAllDataFromDB<Prev,PO>(_ previous: Try<Prev>,
                                             _ cls: PO.Type,
+                                            _ defaultQoS: DispatchQoS.QoSClass,
                                             _ transforms: HMTransform<HMCDRequest>...)
         -> Observable<Try<[PO]>> where
         PO: HMCDPureObjectType,
         PO.CDClass: HMCDPureObjectConvertibleType,
         PO.CDClass.PureObject == PO
     {
-        return fetchAllDataFromDB(previous, cls, transforms)
+        return fetchAllDataFromDB(previous, cls, defaultQoS, transforms)
     }
     
     public func fetchWithProperties<PO>(_ previous: Try<[String : [CVarArg]]>,
                                         _ cls: PO.Type,
+                                        _ defaultQoS: DispatchQoS.QoSClass,
                                         _ transforms: HMTransform<HMCDRequest>...)
         -> Observable<Try<[PO]>> where
         PO: HMCDPureObjectType,
         PO.CDClass: HMCDPureObjectConvertibleType,
         PO.CDClass.PureObject == PO
     {
-        return fetchWithProperties(previous, cls, transforms)
+        return fetchWithProperties(previous, cls, defaultQoS, transforms)
     }
     
     public func saveToMemory<PO>(_ previous: Try<[PO]>,
@@ -371,49 +399,54 @@ public extension HMCDGeneralRequestProcessorType {
     }
     
     public func deleteInMemory<PO>(_ previous: Try<[PO]>,
+                                   _ defaultQoS: DispatchQoS.QoSClass,
                                    _ transforms: HMTransform<HMCDRequest>...)
         -> Observable<Try<Void>> where
         PO: HMCDPureObjectType,
         PO: HMCDObjectConvertibleType
     {
-        return deleteInMemory(previous, transforms)
+        return deleteInMemory(previous, defaultQoS, transforms)
     }
     
     public func deleteAllInMemory<Prev,PO>(_ previous: Try<Prev>,
                                            _ cls: PO.Type,
+                                           _ defaultQoS: DispatchQoS.QoSClass,
                                            _ transforms: HMTransform<HMCDRequest>...)
         -> Observable<Try<Void>> where
         PO: HMCDPureObjectType,
         PO.CDClass: HMCDPureObjectConvertibleType,
         PO.CDClass.PureObject == PO
     {
-        return deleteAllInMemory(previous, cls, transforms)
+        return deleteAllInMemory(previous, cls, defaultQoS, transforms)
     }
     
     public func deleteWithProperties<PO>(_ previous: Try<[String : [CVarArg]]>,
                                          _ cls: PO.Type,
+                                         _ defaultQoS: DispatchQoS.QoSClass,
                                          _ transforms: HMTransform<HMCDRequest>...)
         -> Observable<Try<Void>> where
         PO: HMCDPureObjectType,
         PO.CDClass: HMCDPureObjectConvertibleType,
         PO.CDClass.PureObject == PO
     {
-        return deleteWithProperties(previous, cls, transforms)
+        return deleteWithProperties(previous, cls, defaultQoS, transforms)
     }
     
     public func resetStack<Prev>(_ previous: Try<Prev>,
+                                 _ defaultQoS: DispatchQoS.QoSClass,
                                  _ transforms: HMTransform<HMCDRequest>...)
         -> Observable<Try<Void>>
     {
-        return resetStack(previous, transforms)
+        return resetStack(previous, defaultQoS, transforms)
     }
     
     public func upsertInMemory<U>(_ previous: Try<[U]>,
+                                  _ defaultQoS: DispatchQoS.QoSClass,
                                   _ transforms: HMTransform<HMCDRequest>...)
         -> Observable<Try<[HMCDResult]>> where
         U: HMCDObjectType, U: HMCDUpsertableType
     {
-        return upsertInMemory(previous, transforms)
+        return upsertInMemory(previous, defaultQoS, transforms)
     }
     
     public func upsertInMemory<PO>(_ previous: Try<[PO]>,
@@ -429,25 +462,28 @@ public extension HMCDGeneralRequestProcessorType {
     }
     
     public func persistToDB<Prev>(_ previous: Try<Prev>,
+                                  _ defaultQoS: DispatchQoS.QoSClass,
                                   _ transforms: HMTransform<HMCDRequest>...)
         -> Observable<Try<Void>>
     {
-        return persistToDB(previous, transforms)
+        return persistToDB(previous, defaultQoS, transforms)
     }
     
     public func streamDBEvents<PO>(_ cls: PO.Type,
+                                   _ defaultQoS: DispatchQoS.QoSClass,
                                    _ transforms: HMTransform<HMCDRequest>...)
         -> Observable<Try<HMCDEvent<PO>>> where
         PO: HMCDPureObjectType,
         PO.CDClass: HMCDPureObjectConvertibleType,
         PO.CDClass.PureObject == PO
     {
-        return streamDBEvents(cls, transforms)
+        return streamDBEvents(cls, defaultQoS, transforms)
     }
     
     public func streamPaginatedDBEvents<PO,O>(_ cls: PO.Type,
                                               _ pageObs: O,
                                               _ pagination: HMCDPagination,
+                                              _ defaultQoS: DispatchQoS.QoSClass,
                                               _ transforms: HMTransform<HMCDRequest>...)
         -> Observable<Try<HMCDEvent<PO>>> where
         PO: HMCDPureObjectType,
@@ -456,6 +492,6 @@ public extension HMCDGeneralRequestProcessorType {
         O: ObservableConvertibleType,
         O.E == HMCursorDirection
     {
-        return streamPaginatedDBEvents(cls, pageObs, pagination, transforms)
+        return streamPaginatedDBEvents(cls, pageObs, pagination, defaultQoS, transforms)
     }
 }

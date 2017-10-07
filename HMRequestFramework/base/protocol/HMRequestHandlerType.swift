@@ -48,10 +48,12 @@ public extension HMRequestHandlerType {
     ///   - previous: The result of the upstream request.
     ///   - generator: A HMRequestGenerator instance.
     ///   - perform: A HMRequestPerformer instance.
+    ///   - defaultQoS: A QoSClass instance to perform work with.
     /// - Returns: An Observable instance.
     public func execute<Prev,Val>(_ previous: Try<Prev>,
                                   _ generator: @escaping HMRequestGenerator<Prev,Req>,
-                                  _ perform: @escaping HMRequestPerformer<Req,Val>)
+                                  _ perform: @escaping HMRequestPerformer<Req,Val>,
+                                  _ defaultQoS: DispatchQoS.QoSClass)
         -> Observable<Try<Val>>
     {
         return request(previous, generator)
@@ -60,7 +62,6 @@ public extension HMRequestHandlerType {
             /// requests generated (each emitting a Try<Req>), the error
             /// catching would still work correctly.
             .flatMap({(req: Try<Req>) in Observable.just(req)
-                .observeOnConcurrent(qos: .userInteractive)
                 .map({try $0.getOrThrow()})
                 .flatMap(self.applyRequestMiddlewares)
                 .flatMap(perform)
@@ -71,6 +72,7 @@ public extension HMRequestHandlerType {
                 .catchError({self.applyErrorMiddlewares(req, $0)})
                 .catchErrorJustReturn(Try.failure)
             })
+            .subscribeOnConcurrent(qos: defaultQoS)
     }
     
     /// Apply request middlewares if necessary.

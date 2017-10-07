@@ -32,15 +32,16 @@ public class CoreDataRequestTest: CoreDataRootTest {
         let dbProcessor = self.dbProcessor!
         let generator = errorDBRgn()
         let processor = errorDBRps()
+        let qos: DispatchQoS.QoSClass = .background
 
         /// When
-        dbProcessor.process(dummy, generator, processor)
+        dbProcessor.process(dummy, generator, processor, qos)
             .map({$0.map({$0 as Any})})
-            .flatMap({dbProcessor.process($0, generator, processor)})
+            .flatMap({dbProcessor.process($0, generator, processor, qos)})
             .map({$0.map({$0 as Any})})
-            .flatMap({dbProcessor.process($0, generator, processor)})
+            .flatMap({dbProcessor.process($0, generator, processor, qos)})
             .map({$0.map({$0 as Any})})
-            .flatMap({dbProcessor.process($0, generator, processor)})
+            .flatMap({dbProcessor.process($0, generator, processor, qos)})
             .map({$0.map({$0 as Any})})
             .doOnDispose(expect.fulfill)
             .subscribe(observer)
@@ -78,27 +79,28 @@ public class CoreDataRequestTest: CoreDataRootTest {
         ].flatMap({$0})
         
         let deleteGn = dummyMemoryDeleteRgn(deletedObjects)
+        let qos: DispatchQoS.QoSClass = .background
 
         /// When
         // Save the changes in the disposable context.
-        dbProcessor.saveToMemory(Try.success(pureObjects), .background)
-            .flatMap({dbProcessor.persistToDB($0)})
+        dbProcessor.saveToMemory(Try.success(pureObjects), qos)
+            .flatMap({dbProcessor.persistToDB($0, qos)})
 
             // Fetch to verify that data have been persisted.
-            .flatMap({dbProcessor.fetchAllDataFromDB($0, Dummy1.self)})
+            .flatMap({dbProcessor.fetchAllDataFromDB($0, Dummy1.self, qos)})
             .map({try $0.getOrThrow()})
             .doOnNext({XCTAssertEqual($0.count, dummyCount)})
             .doOnNext({XCTAssertTrue(pureObjects.all($0.contains))})
             .map(Try.success)
 
             // Delete data from memory, but do not persist to DB yet.
-            .flatMap({dbProcessor.processVoid($0, deleteGn)})
+            .flatMap({dbProcessor.processVoid($0, deleteGn, qos)})
 
             // Persist changes to DB.
-            .flatMap({dbProcessor.persistToDB($0)})
+            .flatMap({dbProcessor.persistToDB($0, qos)})
 
             // Fetch to verify that the data have been deleted.
-            .flatMap({dbProcessor.fetchAllDataFromDB($0, Dummy1.self)})
+            .flatMap({dbProcessor.fetchAllDataFromDB($0, Dummy1.self, qos)})
             .map({try $0.getOrThrow()})
             .flattenSequence()
             .doOnDispose(expect.fulfill)
@@ -119,25 +121,26 @@ public class CoreDataRequestTest: CoreDataRootTest {
         let dbProcessor = self.dbProcessor!
         let dummyCount = self.dummyCount!
         let pureObjects = (0..<dummyCount).map({_ in Dummy1()})
+        let qos: DispatchQoS.QoSClass = .background
         
         /// When
         // Save the original objects to DB.
-        dbProcessor.saveToMemory(Try.success(pureObjects), .background)
-            .flatMap({dbProcessor.persistToDB($0)})
+        dbProcessor.saveToMemory(Try.success(pureObjects), qos)
+            .flatMap({dbProcessor.persistToDB($0, qos)})
             
             // Fetch to verify that data have been persisted.
-            .flatMap({dbProcessor.fetchAllDataFromDB($0, Dummy1.self)})
+            .flatMap({dbProcessor.fetchAllDataFromDB($0, Dummy1.self, qos)})
             .map({try $0.getOrThrow()})
             .doOnNext({XCTAssertEqual($0.count, dummyCount)})
             .doOnNext({XCTAssertTrue(pureObjects.all($0.contains))})
             .map(Try.success)
             
             // Delete pure objects from DB and persist changes.
-            .flatMap({_ in dbProcessor.deleteInMemory(Try.success(pureObjects))})
-            .flatMap({dbProcessor.persistToDB($0)})
+            .flatMap({_ in dbProcessor.deleteInMemory(Try.success(pureObjects), qos)})
+            .flatMap({dbProcessor.persistToDB($0, qos)})
             
             // Fetch to verify that the data have been deleted.
-            .flatMap({dbProcessor.fetchAllDataFromDB($0, Dummy1.self)})
+            .flatMap({dbProcessor.fetchAllDataFromDB($0, Dummy1.self, qos)})
             .map({try $0.getOrThrow()})
             .flattenSequence()
             .doOnDispose(expect.fulfill)
@@ -165,14 +168,16 @@ public class CoreDataRequestTest: CoreDataRootTest {
         fetchedProperties["float"] = pureObjects.flatMap({$0.float})
         fetchedProperties["int64"] = pureObjects.flatMap({$0.int64})
         
+        let qos: DispatchQoS.QoSClass = .background
+        
         /// When
         // Save the pure objects to DB.
-        dbProcessor.saveToMemory(Try.success(pureObjects), .background)
-            .flatMap({dbProcessor.persistToDB($0)})
+        dbProcessor.saveToMemory(Try.success(pureObjects), qos)
+            .flatMap({dbProcessor.persistToDB($0, qos)})
             
             // Fetch with properties and confirm that they match randomObjects.
             .map({$0.map({_ in fetchedProperties})})
-            .flatMap({dbProcessor.fetchWithProperties($0, Dummy1.self)})
+            .flatMap({dbProcessor.fetchWithProperties($0, Dummy1.self, qos)})
             .map({try $0.getOrThrow()})
             .doOnNext({XCTAssertEqual($0.count, pureObjects.count)})
             .doOnNext({XCTAssertTrue(pureObjects.all($0.contains))})
@@ -180,12 +185,12 @@ public class CoreDataRequestTest: CoreDataRootTest {
             // Delete with properties and confirm that the DB is empty.
             .map(Try.success)
             .map({$0.map({_ in fetchedProperties})})
-            .flatMap({dbProcessor.deleteWithProperties($0, Dummy1.self)})
-            .flatMap({dbProcessor.persistToDB($0)})
+            .flatMap({dbProcessor.deleteWithProperties($0, Dummy1.self, qos)})
+            .flatMap({dbProcessor.persistToDB($0, qos)})
             
             // Fetch with properties again to check that all objects are gone.
             .map({$0.map({_ in fetchedProperties})})
-            .flatMap({dbProcessor.fetchWithProperties($0, Dummy1.self)})
+            .flatMap({dbProcessor.fetchWithProperties($0, Dummy1.self, qos)})
             .map({try $0.getOrThrow()})
             .flattenSequence()
             .doOnDispose(expect.fulfill)
@@ -206,23 +211,25 @@ public class CoreDataRequestTest: CoreDataRootTest {
         let dbProcessor = self.dbProcessor!
         let dummyCount = self.dummyCount!
         let pureObjects = (0..<dummyCount).map({_ in Dummy1()})
+        
+        let qos: DispatchQoS.QoSClass = .background
 
         /// When
         // Save the changes in the disposable context.
-        dbProcessor.saveToMemory(Try.success(pureObjects), .background)
-            .flatMap({dbProcessor.persistToDB($0)})
-            .flatMap({dbProcessor.fetchAllDataFromDB($0, Dummy1.self)})
+        dbProcessor.saveToMemory(Try.success(pureObjects), qos)
+            .flatMap({dbProcessor.persistToDB($0, qos)})
+            .flatMap({dbProcessor.fetchAllDataFromDB($0, Dummy1.self, qos)})
             .map({try $0.getOrThrow()})
             .doOnNext({XCTAssertEqual($0.count, dummyCount)})
             .doOnNext({XCTAssertTrue(pureObjects.all($0.contains))})
             .map(Try.success)
 
             // Delete data from DB. Make sure this is a SQLite store though.
-            .flatMap({dbProcessor.deleteAllInMemory($0, Dummy1.self)})
-            .flatMap({dbProcessor.persistToDB($0)})
+            .flatMap({dbProcessor.deleteAllInMemory($0, Dummy1.self, qos)})
+            .flatMap({dbProcessor.persistToDB($0, qos)})
 
             // Fetch to verify that the data have been deleted.
-            .flatMap({dbProcessor.fetchAllDataFromDB($0, Dummy1.self)})
+            .flatMap({dbProcessor.fetchAllDataFromDB($0, Dummy1.self, qos)})
             .map({try $0.getOrThrow()})
             .flattenSequence()
             .doOnDispose(expect.fulfill)
@@ -261,13 +268,15 @@ public class CoreDataRequestTest: CoreDataRootTest {
         let cdObjects23 = try! manager.constructUnsafely(context, pureObjects23)
         let upsertGn = dummy1UpsertRgn(cdObjects23, .overwrite)
         let upsertPs = dummy1UpsertRps()
+        
+        let qos: DispatchQoS.QoSClass = .background
 
         /// When
         // Insert the first set of data.
-        dbProcessor.saveToMemory(Try.success(pureObjects1), .background)
-            .flatMap({dbProcessor.persistToDB($0)})
+        dbProcessor.saveToMemory(Try.success(pureObjects1), qos)
+            .flatMap({dbProcessor.persistToDB($0, qos)})
 
-            .flatMap({dbProcessor.fetchAllDataFromDB($0, Dummy1.self)})
+            .flatMap({dbProcessor.fetchAllDataFromDB($0, Dummy1.self, qos)})
             .map({try $0.getOrThrow()})
             .doOnNext({XCTAssertTrue(pureObjects1.all($0.contains))})
             .doOnNext({XCTAssertEqual($0.count, times1)})
@@ -275,13 +284,13 @@ public class CoreDataRequestTest: CoreDataRootTest {
 
             // Upsert the second set of data. This set of data contains some
             // data with the same ids as the first set of data.
-            .flatMap({dbProcessor.process($0, upsertGn, upsertPs)})
+            .flatMap({dbProcessor.process($0, upsertGn, upsertPs, qos)})
 
             // Persist changes to DB.
-            .flatMap({dbProcessor.persistToDB($0)})
+            .flatMap({dbProcessor.persistToDB($0, qos)})
 
             // Fetch all data to check that the upsert was successful.
-            .flatMap({dbProcessor.fetchAllDataFromDB($0, Dummy1.self)})
+            .flatMap({dbProcessor.fetchAllDataFromDB($0, Dummy1.self, qos)})
             .map({try $0.getOrThrow()})
             .flattenSequence()
             .doOnDispose(expect.fulfill)
@@ -320,31 +329,33 @@ public class CoreDataRequestTest: CoreDataRootTest {
         let upsertGn = dummy1UpsertRgn(cdObjects2, .error)
         let upsertPs = dummy1UpsertRps()
 
+        let qos: DispatchQoS.QoSClass = .background
+        
         /// When
         // Insert the first set of data.
-        dbProcessor.saveToMemory(Try.success(pureObjects1), .background)
+        dbProcessor.saveToMemory(Try.success(pureObjects1), qos)
             .map({$0.map({$0 as Any})})
 
             // Persist changes to DB.
-            .flatMap({dbProcessor.persistToDB($0)})
+            .flatMap({dbProcessor.persistToDB($0, qos)})
             .map({$0.map({$0 as Any})})
 
-            .flatMap({dbProcessor.fetchAllDataFromDB($0, Dummy1.self)})
+            .flatMap({dbProcessor.fetchAllDataFromDB($0, Dummy1.self, qos)})
             .map({try $0.getOrThrow()})
             .doOnNext({XCTAssertTrue(pureObjects1.all($0.contains))})
             .doOnNext({XCTAssertEqual($0.count, times)})
             .cast(to: Any.self).map(Try.success)
 
             // Upsert the second set of data.
-            .flatMap({dbProcessor.process($0, upsertGn, upsertPs)})
+            .flatMap({dbProcessor.process($0, upsertGn, upsertPs, qos)})
             .map({$0.map({$0 as Any})})
 
             // Persist changes to DB.
-            .flatMap({dbProcessor.persistToDB($0)})
+            .flatMap({dbProcessor.persistToDB($0, qos)})
             .map({$0.map({$0 as Any})})
 
             // Fetch all data to check that the upsert failed.
-            .flatMap({dbProcessor.fetchAllDataFromDB($0, Dummy1.self)})
+            .flatMap({dbProcessor.fetchAllDataFromDB($0, Dummy1.self, qos)})
             .map({try $0.getOrThrow()})
             .flattenSequence()
             .doOnDispose(expect.fulfill)
@@ -370,13 +381,14 @@ public class CoreDataRequestTest: CoreDataRootTest {
         let dbProcessor = self.dbProcessor!
         let dummyCount = self.dummyCount!
         let pureObjects = (0..<dummyCount).map({_ in Dummy1()})
+        let qos: DispatchQoS.QoSClass = .background
 
         /// When
-        dbProcessor.saveToMemory(Try.success(pureObjects), .background)
+        dbProcessor.saveToMemory(Try.success(pureObjects), qos)
             .map({$0.map({$0 as Any})})
-            .flatMap({dbProcessor.persistToDB($0)})
+            .flatMap({dbProcessor.persistToDB($0, qos)})
             .map({$0.map({$0 as Any})})
-            .flatMap({dbProcessor.fetchAllDataFromDB($0, Dummy1.self)})
+            .flatMap({dbProcessor.fetchAllDataFromDB($0, Dummy1.self, qos)})
             .map({try $0.getOrThrow()})
             .flattenSequence()
             .doOnDispose(expect.fulfill)
@@ -398,16 +410,17 @@ public class CoreDataRequestTest: CoreDataRootTest {
         let dbProcessor = self.dbProcessor!
         let dummyCount = self.dummyCount!
         let pureObjects = (0..<dummyCount).map({_ in Dummy1()})
+        let qos: DispatchQoS.QoSClass = .background
         
         /// When
-        dbProcessor.saveToMemory(Try.success(pureObjects), .background)
-            .flatMap({dbProcessor.persistToDB($0)})
-            .flatMap({dbProcessor.fetchAllDataFromDB($0, Dummy1.self)})
+        dbProcessor.saveToMemory(Try.success(pureObjects), qos)
+            .flatMap({dbProcessor.persistToDB($0, qos)})
+            .flatMap({dbProcessor.fetchAllDataFromDB($0, Dummy1.self, qos)})
             .map({try $0.getOrThrow()})
             .doOnNext({XCTAssertEqual($0.count, dummyCount)})
             .map(Try.success)
-            .flatMap({dbProcessor.resetStack($0)})
-            .flatMap({dbProcessor.fetchAllDataFromDB($0, Dummy1.self)})
+            .flatMap({dbProcessor.resetStack($0, qos)})
+            .flatMap({dbProcessor.fetchAllDataFromDB($0, Dummy1.self, qos)})
             .map({try $0.getOrThrow()})
             .flattenSequence()
             .doOnDispose(expect.fulfill)
@@ -432,7 +445,10 @@ public class CoreDataRequestTest: CoreDataRootTest {
             let request = $0.0
             
             do {
-                _ = try processor.execute(request).toBlocking().first()
+                _ = try processor.execute(request)
+                    .subscribeOnConcurrent(qos: .background)
+                    .toBlocking()
+                    .first()
             } catch let e {
                 print(e)
                 XCTAssertTrue($0.1)

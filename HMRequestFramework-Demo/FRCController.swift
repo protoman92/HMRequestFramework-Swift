@@ -32,7 +32,7 @@ public final class FRCController: UIViewController {
     @IBOutlet private weak var frcTableView: UITableView!
     @IBOutlet private weak var scrollView: UIScrollView!
     
-    private let dummyCount = 100
+    private let dummyCount = 10000
     private let dateMilestone = Date.random() ?? Date()
     
     private var contentHeight: NSLayoutConstraint? {
@@ -66,6 +66,7 @@ public final class FRCController: UIViewController {
         let disposeBag = self.disposeBag
         let dummyCount = self.dummyCount
         let dbProcessor = DemoSingleton.dbProcessor
+        let qos: DispatchQoS.QoSClass = .userInteractive
         self.dbProcessor = dbProcessor
         dateFormatter.dateFormat = "dd/MMM/yyyy hh:mm:ss a"
         
@@ -102,10 +103,10 @@ public final class FRCController: UIViewController {
             .map({$0.asTry()})
             .map({$0.map({[$0]})})
             .flatMapNonNilOrEmpty({[weak self] in
-                self?.dbProcessor?.deleteInMemory($0)
+                self?.dbProcessor?.deleteInMemory($0, qos)
             })
             .flatMapNonNilOrEmpty({[weak self] in
-                self?.dbProcessor?.persistToDB($0)
+                self?.dbProcessor?.persistToDB($0, qos)
             })
             .map(toVoid)
             .catchErrorJustReturn(())
@@ -124,10 +125,10 @@ public final class FRCController: UIViewController {
             .map({_ in (0..<dummyCount).map({_ in Dummy1()})})
             .map(Try.success)
             .flatMapNonNilOrEmpty({[weak self] in
-                self?.dbProcessor?.saveToMemory($0)
+                self?.dbProcessor?.saveToMemory($0, qos)
             })
             .flatMapNonNilOrEmpty({[weak self] in
-                self?.dbProcessor?.persistToDB($0)
+                self?.dbProcessor?.persistToDB($0, qos)
             })
             .subscribe()
             .disposed(by: disposeBag)
@@ -140,10 +141,10 @@ public final class FRCController: UIViewController {
             .map({$0.map({Dummy1().cloneBuilder().with(id: $0.id).build()})})
             .map({$0.map({[$0]})})
             .flatMapNonNilOrEmpty({[weak self] in
-                self?.dbProcessor?.upsertInMemory($0)
+                self?.dbProcessor?.upsertInMemory($0, qos)
             })
             .flatMapNonNilOrEmpty({[weak self] in
-                self?.dbProcessor?.persistToDB($0)
+                self?.dbProcessor?.persistToDB($0, qos)
             })
             .map(toVoid)
             .subscribe()
@@ -156,10 +157,10 @@ public final class FRCController: UIViewController {
             .map({$0.asTry()})
             .map({$0.map({[$0]})})
             .flatMapNonNilOrEmpty({[weak self] in
-                self?.dbProcessor?.deleteInMemory($0)
+                self?.dbProcessor?.deleteInMemory($0, qos)
             })
             .flatMapNonNilOrEmpty({[weak self] in
-                self?.dbProcessor?.persistToDB($0)
+                self?.dbProcessor?.persistToDB($0, qos)
             })
             .subscribe()
             .disposed(by: disposeBag)
@@ -167,10 +168,10 @@ public final class FRCController: UIViewController {
         deleteAllBtn.rx.tap
             .map(Try.success)
             .flatMapNonNilOrEmpty({[weak self] in
-                self?.dbProcessor?.deleteAllInMemory($0, Dummy1.self)
+                self?.dbProcessor?.deleteAllInMemory($0, Dummy1.self, qos)
             })
             .flatMapNonNilOrEmpty({[weak self] in
-                self?.dbProcessor?.persistToDB($0)
+                self?.dbProcessor?.persistToDB($0, qos)
             })
             .subscribe()
             .disposed(by: disposeBag)
@@ -181,10 +182,10 @@ public final class FRCController: UIViewController {
             .streamPaginatedDBEvents(
                 Dummy1.self, pageObs,
                 HMCDPagination.builder()
-                    .with(fetchLimit: 5)
+                    .with(fetchLimit: 1000)
                     .with(fetchOffset: 0)
                     .with(paginationMode: .fixedPageCount)
-                    .build(),
+                    .build(), qos,
                 {
                     Observable.just($0.cloneBuilder()
                         .with(predicate: NSPredicate(value: true))
@@ -200,6 +201,11 @@ public final class FRCController: UIViewController {
             .observeOnMain()
             .bind(to: data)
             .disposed(by: disposeBag)
+        
+        DispatchQueue.global(qos: .userInteractive).async {
+            var count: Double = 0 
+            while true { count += 1 }
+        }
     }
     
     func contentSizeChanged(_ ctSize: CGSize, _ vc: FRCController) {

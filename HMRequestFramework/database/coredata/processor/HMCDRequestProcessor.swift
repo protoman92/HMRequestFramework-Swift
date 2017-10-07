@@ -26,10 +26,6 @@ public struct HMCDRequestProcessor {
             fatalError("CoreData manager cannot be nil")
         }
     }
-    
-    fileprivate func defaultQos(_ request: Req) -> DispatchQoS.QoSClass {
-        return request.defaultQoS() ?? .userInitiated
-    }
 }
 
 extension HMCDRequestProcessor: HMCDRequestProcessorType {
@@ -61,18 +57,14 @@ public extension HMCDRequestProcessor {
         where Val: NSFetchRequestResult
     {
         let operation = try request.operation()
-        let defaultQoS = request.defaultQoS()
-        let execution: Observable<Try<[Val]>>
         
         switch operation {
         case .fetch:
-            execution = try executeFetch(request, Val.self)
+            return try executeFetch(request, Val.self)
             
         default:
             throw Exception("Please use normal execute for \(operation)")
         }
-        
-        return execution.subscribeOnConcurrent(qos: defaultQoS)
     }
     
     /// Override this method to provide default implementation.
@@ -82,27 +74,23 @@ public extension HMCDRequestProcessor {
     /// - Throws: Exception if the execution fails.
     public func execute(_ request: Req) throws -> Observable<Try<Void>> {
         let operation = try request.operation()
-        let defaultQoS = request.defaultQoS()
-        let execution: Observable<Try<Void>>
         
         switch operation {
         case .deleteData:
-            execution = try executeDeleteData(request)
+            return try executeDeleteData(request)
             
         case .deleteBatch:
-            execution = try executeDeleteWithRequest(request)
+            return try executeDeleteWithRequest(request)
             
         case .persistLocally:
-            execution = try executePersistToFile(request)
+            return try executePersistToFile(request)
             
         case .resetStack:
-            execution = try executeResetStack(request)
+            return try executeResetStack(request)
             
         case .fetch, .saveData, .upsert, .stream:
             throw Exception("Please use typed execute for \(operation)")
         }
-        
-        return execution.subscribeOnConcurrent(qos: defaultQoS)
     }
     
     /// Overwrite this method to provide default implementation.
@@ -112,21 +100,17 @@ public extension HMCDRequestProcessor {
     /// - Throws: Exception if the operation fails.
     public func executeTyped(_ request: Req) throws -> Observable<Try<[HMCDResult]>> {
         let operation = try request.operation()
-        let defaultQoS = request.defaultQoS()
-        let execution: Observable<Try<[HMCDResult]>>
         
         switch operation {
         case .saveData:
-            execution = try executeSaveData(request)
+            return try executeSaveData(request)
             
         case .upsert:
-            execution = try executeUpsert(request)
+            return try executeUpsert(request)
             
         default:
             throw Exception("Please use normal execute for \(operation)")
         }
-        
-        return execution.subscribeOnConcurrent(qos: defaultQoS)
     }
 }
 
@@ -150,7 +134,6 @@ public extension HMCDRequestProcessor {
         let delay = request.retryDelay()
     
         return manager.rx.fetch(context, cdRequest, opMode)
-            .subscribeOnConcurrent(qos: defaultQos(request))
             .delayRetry(retries: retries, delay: delay)
             .map(Try.success)
             .catchErrorJustReturn(Try.failure)
@@ -173,7 +156,6 @@ public extension HMCDRequestProcessor {
         let delay = request.retryDelay()
         
         return manager.rx.saveConvertibles(context, insertedData, opMode)
-            .subscribeOnConcurrent(qos: defaultQos(request))
             .delayRetry(retries: retries, delay: delay)
             .map(Try.success)
             .catchErrorJustReturn(Try.failure)
@@ -194,7 +176,6 @@ public extension HMCDRequestProcessor {
         let delay = request.retryDelay()
         
         return manager.rx.persistLocally(opMode)
-            .subscribeOnConcurrent(qos: defaultQos(request))
             .delayRetry(retries: retries, delay: delay)
             .map(Try.success)
             .catchErrorJustReturn(Try.failure)
@@ -215,7 +196,6 @@ public extension HMCDRequestProcessor {
         let delay = request.retryDelay()
         
         return manager.rx.resetStack(opMode)
-            .subscribeOnConcurrent(qos: defaultQos(request))
             .delayRetry(retries: retries, delay: delay)
             .map(Try.success)
             .catchErrorJustReturn(Try.failure)
@@ -247,7 +227,6 @@ public extension HMCDRequestProcessor {
                 manager.rx.updateVersion(versionContext, entityName, vRequests, opMode),
                 manager.rx.upsert(upsertContext, entityName, nonVersionables, opMode)
             )
-            .subscribeOnConcurrent(qos: defaultQos(request))
             .reduce([], accumulator: +)
             .map(Try.success)
             .catchErrorJustReturn(Try.failure)
@@ -316,7 +295,6 @@ public extension HMCDRequestProcessor {
                     manager.rx.delete(context2, nonIds, opMode)
                 )
             })
-            .subscribeOnConcurrent(qos: defaultQos(request))
             .reduce((), accumulator: {_ in ()})
             .delayRetry(retries: retries, delay: delay)
             .map(Try.success)
@@ -359,7 +337,6 @@ public extension HMCDRequestProcessor {
         let delay = request.retryDelay()
         
         return manager.rx.delete(context, deleteRequest, opMode)
-            .subscribeOnConcurrent(qos: defaultQos(request))
             .map(toVoid)
             .delayRetry(retries: retries, delay: delay)
             .map(Try.success)
@@ -386,7 +363,6 @@ public extension HMCDRequestProcessor {
         // the inner managed objects are not ARC off.
         return manager.rx.fetch(context, fetchRequest, opMode)
             .flatMap({manager.rx.delete(context, $0, opMode)})
-            .subscribeOnConcurrent(qos: defaultQos(request))
             .map(Try.success)
             .catchErrorJustReturn(Try.failure)
     }
@@ -407,10 +383,12 @@ public extension HMCDRequestProcessor {
     /// - Parameters:
     ///   - previous: The result of the previous request.
     ///   - cls: The PureObject class type.
+    ///   - defaultQoS: The QoSClass instance to perform work on.
     ///   - transforms: A Sequence of Request transformers.
     /// - Returns: An Observable instance.
     public func fetchAllDataFromDB<Prev,PO,S>(_ previous: Try<Prev>,
                                               _ cls: PO.Type,
+                                              _ defaultQoS: DispatchQoS.QoSClass,
                                               _ transforms: S)
         -> Observable<Try<[PO]>> where
         PO: HMCDPureObjectType,
@@ -421,7 +399,7 @@ public extension HMCDRequestProcessor {
     {
         let request = fetchAllRequest(cls)
         let generator = HMRequestGenerators.forceGn(request, Prev.self, transforms)
-        return process(previous, generator, cls)
+        return process(previous, generator, cls, defaultQoS)
     }
 }
 
@@ -446,6 +424,7 @@ public extension HMCDRequestProcessor {
     /// - Parameters:
     ///   - previous: The result of the previous operation.
     ///   - defaultQoS: A QoSClass instance.
+    ///   - defaultQoS: The QoSClass instance to perform work on.
     ///   - transforms: A Sequence of Request transformers.
     /// - Returns: An Observable instance.
     public func saveToMemory<PO,S>(_ previous: Try<[PO]>,
@@ -469,7 +448,7 @@ public extension HMCDRequestProcessor {
                 .flatMap({HMTransforms.applyTransformers($0, transforms)})
         })
         
-        return processResult(previous, generator).map({$0.map(toVoid)})
+        return processResult(previous, generator, defaultQoS).map({$0.map(toVoid)})
     }
 }
 
@@ -493,8 +472,11 @@ public extension HMCDRequestProcessor {
     /// - Parameters:
     ///   - previous: The result of the previous operation.
     ///   - transforms: A Sequence of Request transformers.
+    ///   - defaultQoS: The QoSClass instance to perform work on.
     /// - Returns: An Observable instance.
-    public func deleteInMemory<PO,S>(_ previous: Try<[PO]>, _ transforms: S)
+    public func deleteInMemory<PO,S>(_ previous: Try<[PO]>,
+                                     _ defaultQoS: DispatchQoS.QoSClass,
+                                     _ transforms: S)
         -> Observable<Try<Void>> where
         PO: HMCDPureObjectType,
         PO: HMCDObjectConvertibleType,
@@ -506,7 +488,7 @@ public extension HMCDRequestProcessor {
             return HMTransforms.applyTransformers(request, transforms)
         })
         
-        return processVoid(previous, generator)
+        return processVoid(previous, generator, defaultQoS)
     }
 }
 
@@ -528,10 +510,12 @@ public extension HMCDRequestProcessor {
     /// - Parameters:
     ///   - previous: The result of the previous request.
     ///   - cls: The PureObject class type.
+    ///   - defaultQoS: The QoSClass instance to perform work on.
     ///   - transforms: A Sequence of Request transformers.
     /// - Returns: An Observable instance.
     public func deleteAllInMemory<Prev,PO,S>(_ previous: Try<Prev>,
                                              _ cls: PO.Type,
+                                             _ defaultQoS: DispatchQoS.QoSClass,
                                              _ transforms: S)
         -> Observable<Try<Void>> where
         PO: HMCDPureObjectType,
@@ -542,7 +526,7 @@ public extension HMCDRequestProcessor {
     {
         let request = deleteAllRequest(cls)
         let generator = HMRequestGenerators.forceGn(request, Prev.self, transforms)
-        return processVoid(previous, generator)
+        return processVoid(previous, generator, defaultQoS)
     }
 }
 
@@ -560,14 +544,17 @@ public extension HMCDRequestProcessor {
     /// - Parameters:
     ///   - previous: The result of the previous operation.
     ///   - transforms: A Sequence of Request transformers.
+    ///   - defaultQoS: The QoSClass instance to perform work on.
     /// - Returns: An Observable instance.
-    public func resetStack<Prev,S>(_ previous: Try<Prev>, _ transforms: S)
+    public func resetStack<Prev,S>(_ previous: Try<Prev>,
+                                   _ defaultQoS: DispatchQoS.QoSClass,
+                                   _ transforms: S)
         -> Observable<Try<Void>> where
         S: Sequence, S.Iterator.Element == HMTransform<Req>
     {
         let request = resetStackRequest()
         let generator = HMRequestGenerators.forceGn(request, Prev.self, transforms)
-        return processVoid(previous, generator)
+        return processVoid(previous, generator, defaultQoS)
     }
 }
 
@@ -593,8 +580,11 @@ public extension HMCDRequestProcessor {
     /// - Parameters:
     ///   - previous: The result of the previous request.
     ///   - transforms: A Sequence of Request transformers.
+    ///   - defaultQoS: The QoSClass instance to perform work on.
     /// - Returns: An Observable instance.
-    public func upsertInMemory<U,S>(_ previous: Try<[U]>, _ transforms: S)
+    public func upsertInMemory<U,S>(_ previous: Try<[U]>,
+                                    _ defaultQoS: DispatchQoS.QoSClass,
+                                    _ transforms: S)
         -> Observable<Try<[HMCDResult]>> where
         U: HMCDObjectType,
         U: HMCDUpsertableType,
@@ -606,7 +596,7 @@ public extension HMCDRequestProcessor {
             return HMTransforms.applyTransformers(request, transforms)
         })
         
-        return processResult(previous, generator)
+        return processResult(previous, generator, defaultQoS)
     }
     
     /// Override this method to provide default implementation.
@@ -636,7 +626,7 @@ public extension HMCDRequestProcessor {
                 .subscribeOnConcurrent(qos: defaultQoS)
             })
             .map(Try.success)
-            .flatMap({self.upsertInMemory($0, transforms)})
+            .flatMap({self.upsertInMemory($0, defaultQoS, transforms)})
             .catchErrorJustReturn(Try.failure)
     }
 }
@@ -654,15 +644,18 @@ public extension HMCDRequestProcessor {
     ///
     /// - Parameters:
     ///   - previous: The result of the previous request.
+    ///   - defaultQoS: The QoSClass instance to perform work on.
     ///   - transforms: A Sequence of Request transformers.
     /// - Returns: An Observable instance.
-    public func persistToDB<Prev,S>(_ previous: Try<Prev>, _ transforms: S)
+    public func persistToDB<Prev,S>(_ previous: Try<Prev>,
+                                    _ defaultQoS: DispatchQoS.QoSClass,
+                                    _ transforms: S)
         -> Observable<Try<Void>> where
         S: Sequence, S.Iterator.Element == HMTransform<Req>
     {
         let request = persistToDBRequest()
         let generator = HMRequestGenerators.forceGn(request, Prev.self, transforms)
-        return processVoid(previous, generator)
+        return processVoid(previous, generator, defaultQoS)
     }
 }
 
@@ -690,9 +683,12 @@ public extension HMCDRequestProcessor {
     ///
     /// - Parameters:
     ///   - cls: The PO class type.
+    ///   - defaultQoS: The QoSClass instance to perform work on.
     ///   - transforms: A Sequence of Request transformers.
     /// - Returns: An Observable instance.
-    public func streamDBEvents<S,PO>(_ cls: PO.Type, _ transforms: S)
+    public func streamDBEvents<S,PO>(_ cls: PO.Type,
+                                     _ defaultQoS: DispatchQoS.QoSClass,
+                                     _ transforms: S)
         -> Observable<Try<HMCDEvent<PO>>> where
         PO: HMCDPureObjectType,
         PO.CDClass: HMCDPureObjectConvertibleType,
@@ -705,8 +701,8 @@ public extension HMCDRequestProcessor {
 
         return HMTransforms
             .applyTransformers(request, transforms)
-            .flatMap({manager.rx.startDBStream($0, cls)
-                .subscribeOnConcurrent(qos: self.defaultQos($0))
+            .subscribeOnConcurrent(qos: defaultQoS)
+            .flatMap({manager.rx.startDBStream($0, cls, defaultQoS)
                 .map(Try.success)
                 .catchErrorJustReturn(Try.failure)
             })

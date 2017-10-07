@@ -18,10 +18,12 @@ public protocol HMNetworkRequestProcessorType {
     ///   - previous: The result of the upstream request.
     ///   - generator: Generator function to create the current request.
     ///   - processor: Processor function to process the result.
+    ///   - defaultQoS: The QoSClass instance to perform work on.
     /// - Returns: An Observable instance.
     func process<Prev,Res>(
         _ previous: Try<Prev>,
         _ generator: @escaping HMRequestGenerator<Prev,HMNetworkRequest>,
-        _ processor: @escaping HMResultProcessor<Data,Res>)
+        _ processor: @escaping HMResultProcessor<Data,Res>,
+        _ defaultQoS: DispatchQoS.QoSClass)
         -> Observable<Try<Res>>
 }

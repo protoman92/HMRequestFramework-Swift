@@ -62,7 +62,7 @@ public final class NetworkingTest: RootTest {
         }
         
         /// When
-        self.processor.process(dummy, generator, processor)
+        self.processor.process(dummy, generator, processor, .background)
             .doOnDispose(expect.fulfill)
             .subscribe(observer)
             .disposed(by: disposeBag)
@@ -92,7 +92,7 @@ public final class NetworkingTest: RootTest {
         let generator = HMRequestGenerators.forceGn(request, Any.self)
 
         /// When
-        handler.execute(dummy, generator)
+        handler.execute(dummy, generator, .background)
             .doOnDispose(expect.fulfill)
             .subscribe(observer)
             .disposed(by: disposeBag)
