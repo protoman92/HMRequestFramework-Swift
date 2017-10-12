@@ -123,3 +123,15 @@ extension HMResult.Builder: HMBuilderType {
         return result
     }
 }
+
+extension HMResult: TryConvertibleType {
+    public func asTry() -> Try<Val> {
+        if let error = self.operationError() {
+            return Try.failure(error)
+        } else if let object = self.appliedObject() {
+            return Try.success(object)
+        } else {
+            return Try.failure(Exception("Invalid result"))
+        }
+    }
+}
