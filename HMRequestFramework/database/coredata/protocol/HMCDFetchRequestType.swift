@@ -12,6 +12,11 @@ import CoreData
 /// parameters for a CoreData fetch request.
 public protocol HMCDFetchRequestType {
     
+    /// Get the associated operation mode.
+    ///
+    /// - Returns: A HMCDOperationMode instance.
+    func operationMode() -> HMCDOperationMode
+    
     /// Get the NSManagedObject entity description.
     ///
     /// - Returns: A String value.

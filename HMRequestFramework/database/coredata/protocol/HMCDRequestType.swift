@@ -17,11 +17,6 @@ public protocol HMCDRequestType: HMDatabaseRequestType, HMCDFetchRequestType {
     /// - Returns: A HMCDOperation instance.
     func operation() throws -> HMCDOperation
     
-    /// Get the associated operation mode.
-    ///
-    /// - Returns: A HMCDOperationMode instance.
-    func operationMode() -> HMCDOperationMode
-    
     /// Get the data to be inserted. Only used for save operations
     ///
     /// NSManagedObject will first be reconstructed using a disposable context,

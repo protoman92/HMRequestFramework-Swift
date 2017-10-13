@@ -134,7 +134,7 @@ public extension HMCDObjectBuildableType where Builder.Buildable == Self {
 public protocol HMCDPureObjectConvertibleType {
     associatedtype PureObject: HMCDPureObjectType
     
-    func asPureObject() -> PureObject
+    func asPureObject() throws -> PureObject
 }
 
 public extension HMCDPureObjectConvertibleType where
@@ -144,7 +144,13 @@ public extension HMCDPureObjectConvertibleType where
 {
     /// With the right protocol constraints, we can directly implement this
     /// method by default.
-    public func asPureObject() -> PureObject {
-        return PureObject.builder().with(cdObject: self).build()
+    public func asPureObject() throws -> PureObject {
+        willAccessValue(forKey: nil)
+        
+        if isFault {
+            throw Exception("Object \(self) is faulted")
+        } else {
+            return PureObject.builder().with(cdObject: self).build()
+        }
     }
 }

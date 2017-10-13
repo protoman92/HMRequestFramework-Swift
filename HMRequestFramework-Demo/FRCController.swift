@@ -32,7 +32,7 @@ public final class FRCController: UIViewController {
     @IBOutlet private weak var frcTableView: UITableView!
     @IBOutlet private weak var scrollView: UIScrollView!
     
-    private let dummyCount = 10000
+    private let dummyCount = 100
     private let dateMilestone = Date.random() ?? Date()
     
     private var contentHeight: NSLayoutConstraint? {
@@ -190,8 +190,8 @@ public final class FRCController: UIViewController {
                     Observable.just($0.cloneBuilder()
                         .with(predicate: NSPredicate(value: true))
                         .add(ascendingSortWithKey: "date")
-                        .with(frcSectionName: "id")
-//                        .with(frcSectionName: "dummyHeader")
+//                        .with(frcSectionName: "id")
+                        .with(frcSectionName: "sectionName")
                         .with(frcCacheName: "FRC_Dummy1")
                         .build())
                 }

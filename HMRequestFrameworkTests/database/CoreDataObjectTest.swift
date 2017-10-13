@@ -45,7 +45,7 @@ public final class CoreDataObjectTest: CoreDataRootTest {
         })
         
         /// Then
-        let reconverted2 = cdObjects2.map({$0.asPureObject()})
+        let reconverted2 = cdObjects2.map({try! $0.asPureObject()})
         XCTAssertTrue(pureObjects1.all(reconverted2.contains))
         XCTAssertFalse(pureObjects2.any(reconverted2.contains))
     }
@@ -59,7 +59,7 @@ public final class CoreDataObjectTest: CoreDataRootTest {
         
         /// When
         let cdObjects = dummies.flatMap({try? $0.asManagedObject(context)})
-        let newDummies = cdObjects.flatMap({$0 as? Dummy1.CDClass}).map({$0.asPureObject()})
+        let newDummies = cdObjects.flatMap({$0 as? Dummy1.CDClass}).map({try! $0.asPureObject()})
         
         /// Then
         XCTAssertEqual(newDummies.count, dummies.count)

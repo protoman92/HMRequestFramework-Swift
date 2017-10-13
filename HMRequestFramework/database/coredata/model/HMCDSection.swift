@@ -77,7 +77,7 @@ public extension HMCDSection where
             numberOfObjects: sectionInfo.numberOfObjects,
             objects: sectionInfo.objects?
                 .flatMap({$0 as? V.CDClass})
-                .map({$0.asPureObject()}) ?? [V]()
+                .flatMap({try? $0.asPureObject()}) ?? [V]()
         )
     }
 }

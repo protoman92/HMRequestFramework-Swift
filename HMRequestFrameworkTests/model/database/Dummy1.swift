@@ -40,6 +40,15 @@ public final class CDDummy1: NSManagedObject {
         let entity = try CDDummy1.entityDescription(in: context)
         self.init(entity: entity, insertInto: context)
     }
+    
+    public var sectionName: String? {
+        if let id = self.id {
+            let section = String(describing: id)
+            return section.count == 1 ? section : section.dropLast().description
+        } else {
+            return nil
+        }
+    }
 }
 
 public final class Dummy1 {
@@ -54,7 +63,7 @@ public final class Dummy1 {
     public init() {
         Dummy1.counter += 1
         let counter = Dummy1.counter
-        id = "id-\(counter)"
+        id = "\(counter)"
         date = Date.random()
         int64 = Int64(Int.randomBetween(0, 10000)) as NSNumber
         float = Float(Int.randomBetween(0, 10000)) as NSNumber

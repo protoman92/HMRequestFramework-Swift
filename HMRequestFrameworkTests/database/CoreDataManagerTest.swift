@@ -28,7 +28,7 @@ public final class CoreDataManagerTest: CoreDataRootTest {
         manager.rx.construct(context, dummies)
             .subscribeOnConcurrent(qos: .background)
             .flattenSequence()
-            .map({$0.asPureObject()})
+            .map({try! $0.asPureObject()})
             .doOnDispose(expect.fulfill)
             .subscribe(observer)
             .disposed(by: disposeBag)
@@ -70,7 +70,7 @@ public final class CoreDataManagerTest: CoreDataRootTest {
             
             // Fetch the data and verify that they have been persisted.
             .flatMap({manager.rx.fetch(fetchContext2, fetchRq)})
-            .map({$0.map({$0.asPureObject()})})
+            .map({$0.map({try! $0.asPureObject()})})
             .subscribeOnConcurrent(qos: .background)
             .flattenSequence()
             .doOnDispose(expect.fulfill)
@@ -112,7 +112,7 @@ public extension CoreDataManagerTest {
             // Refetch based on identifiable objects. We expect the returned
             // data to contain the same properties.
             .flatMap({manager.rx.fetchIdentifiables(refetchContext, entityName, cdObjects)})
-            .map({$0.map({$0.asPureObject()})})
+            .map({$0.map({try! $0.asPureObject()})})
             .subscribeOnConcurrent(qos: .background)
             .flattenSequence()
             .doOnDispose(expect.fulfill)
@@ -172,7 +172,7 @@ public extension CoreDataManagerTest {
             
             // Fetch to verify that the DB only contains data1.
             .flatMap({manager.rx.fetch(fetchContext1, fetchRq)})
-            .map({$0.map({$0.asPureObject()})})
+            .map({$0.map({try! $0.asPureObject()})})
             .doOnNext({XCTAssertTrue($0.all(pureObjects1.contains))})
             .doOnNext({XCTAssertEqual($0.count, dummyCount)})
             
@@ -228,13 +228,13 @@ public extension CoreDataManagerTest {
         manager.rx.savePureObjects(saveContext, pureObjects)
             .flatMap({_ in manager.rx.persistLocally()})
             .flatMap({manager.rx.fetch(fetchContext1, fetchRequest)})
-            .map({$0.map({$0.asPureObject()})})
+            .map({$0.map({try! $0.asPureObject()})})
             .doOnNext({XCTAssertEqual($0.count, dummyCount)})
             .doOnNext({XCTAssertTrue(pureObjects.all($0.contains))})
             .flatMap({_ in manager.rx.delete(deleteContext, deleteRequest)})
             .flatMap({_ in manager.rx.persistLocally()})
             .flatMap({_ in manager.rx.fetch(fetchContext2, fetchRequest)})
-            .map({$0.map({$0.asPureObject()})})
+            .map({$0.map({try! $0.asPureObject()})})
             .flattenSequence()
             .cast(to: Any.self)
             .doOnDispose(expect.fulfill)
@@ -293,7 +293,7 @@ public extension CoreDataManagerTest {
             .flatMap({manager.rx.fetch(fetchContext1, request)})
             .doOnNext({XCTAssertEqual($0.count, iterationCount * dummyCount)})
             .doOnNext({XCTAssertTrue($0.flatMap({$0.id}).count > 0)})
-            .map({$0.map({$0.asPureObject()})})
+            .map({$0.map({try! $0.asPureObject()})})
             .flatMap({(objects) -> Observable<Void> in
                 let sc = manager.disposableObjectContext()
                 return manager.rx.deleteIdentifiables(sc, entityName, objects)
@@ -304,7 +304,7 @@ public extension CoreDataManagerTest {
 
             // Fetch to verify that the data have been deleted.
             .flatMap({manager.rx.fetch(fetchContext2, request).subscribeOnConcurrent(qos: .background)})
-            .map({$0.map({$0.asPureObject()})})
+            .map({$0.map({try! $0.asPureObject()})})
             .subscribeOnConcurrent(qos: .background)
             .flattenSequence()
             .cast(to: Any.self)
@@ -367,7 +367,7 @@ public extension CoreDataManagerTest {
             .doOnNext({XCTAssertTrue($0.all({$0.isSuccess()}))})
             .flatMap({_ in manager.rx.persistLocally()})
             .flatMap({manager.rx.fetch(fetchContext, fetchRq)})
-            .map({$0.map({$0.asPureObject()})})
+            .map({$0.map({try! $0.asPureObject()})})
             .subscribeOnConcurrent(qos: .background)
             .flattenSequence()
             .doOnDispose(expect.fulfill)
@@ -417,7 +417,7 @@ public extension CoreDataManagerTest {
             .flatMap({_ in manager.rx.upsert(upsertContext, entityName, upsertedCDObjects)})
             .flatMap({_ in manager.rx.persistLocally()})
             .flatMap({manager.rx.fetch(fetchContext, fetchRq)})
-            .map({$0.map({$0.asPureObject()})})
+            .map({$0.map({try! $0.asPureObject()})})
             .subscribeOnConcurrent(qos: .background)
             .flattenSequence()
             .doOnDispose(expect.fulfill)
@@ -459,7 +459,7 @@ public extension CoreDataManagerTest {
             // We expect the number of results returned by this fetch to be
             // limited to the predefined fetchLimit.
             .flatMap({manager.rx.fetch(fetchContext, fetchRq)})
-            .map({$0.map({$0.asPureObject()})})
+            .map({$0.map({try! $0.asPureObject()})})
             .subscribeOnConcurrent(qos: .background)
             .flattenSequence()
             .doOnDispose(expect.fulfill)
@@ -508,7 +508,7 @@ public extension CoreDataManagerTest {
             .flatMap({_ in manager.rx.savePureObjects(saveContext2, pureObjects)})
             .flatMap({manager.rx.persistLocally()})
             .flatMap({manager.rx.fetch(fetchContext3, fetchRq)})
-            .map({$0.map({$0.asPureObject()})})
+            .map({$0.map({try! $0.asPureObject()})})
             .subscribeOnConcurrent(qos: .background)
             .flattenSequence()
             .doOnDispose(expect.fulfill)
