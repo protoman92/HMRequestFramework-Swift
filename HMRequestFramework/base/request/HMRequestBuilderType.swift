@@ -6,8 +6,7 @@
 //  Copyright © 2017 Holmusk. All rights reserved.
 //
 
-public protocol HMRequestBuilderType: HMBuilderType {
-    associatedtype Buildable: HMRequestType
+public protocol HMRequestBuilderType: HMBuilderType where Buildable: HMRequestType {
     typealias MiddlewareFilter = Buildable.MiddlewareFilter
     
     /// Set the middleware filters.

@@ -24,6 +24,7 @@ public final class CoreDataFRCTest: CoreDataRootTest {
         super.setUp()
         iterationCount = 5
         dummyCount = 1000
+        dbWait = 0.1
     }
     
     public func test_sectionWithObjectLimit_shouldWork() {
@@ -481,11 +482,14 @@ public extension CoreDataFRCTest {
 
 public extension CoreDataFRCTest {
     public func test_fetchWithLimit_shouldNotReturnMoreThanLimit(_ limit: Int) {
+        print("Testing fetch limit with \(limit) count")
+        
         /// Setup
         let observer = scheduler.createObserver(Try<Void>.self)
         let streamObserver = scheduler.createObserver([Dummy1].self)
         let expect = expectation(description: "Should have completed")
         let disposeBag = self.disposeBag!
+        let dbWait = self.dbWait!
         let dbProcessor = self.dbProcessor!
         let dummyCount = 10
         let qos: DispatchQoS.QoSClass = .background
@@ -508,9 +512,12 @@ public extension CoreDataFRCTest {
             .map({_ in Dummy1()})
             .map(Try.success)
             .map({$0.map({[$0]})})
-            .observeOnConcurrent(qos: .background)
-            .flatMap({dbProcessor.saveToMemory($0, qos)})
-            .flatMap({dbProcessor.persistToDB($0, qos)})
+            .concatMap({
+                dbProcessor.saveToMemory($0, qos)
+                    .flatMap({dbProcessor.persistToDB($0, qos)})
+                    .subscribeOnConcurrent(qos: qos)
+                    .delay(dbWait, scheduler: ConcurrentDispatchQueueScheduler(qos: qos))
+            })
             .doOnDispose(expect.fulfill)
             .subscribe(observer)
             .disposed(by: disposeBag)
@@ -524,7 +531,7 @@ public extension CoreDataFRCTest {
     }
     
     public func test_fetchWithLimit_shouldNotReturnMoreThanLimit() {
-        for i in 1..<100 {
+        for i in 1..<10 {
             setUp()
             test_fetchWithLimit_shouldNotReturnMoreThanLimit(i)
             tearDown()

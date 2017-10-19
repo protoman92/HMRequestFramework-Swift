@@ -369,12 +369,25 @@ public extension HMCDRequestProcessor {
 }
 
 public extension HMCDRequestProcessor {
-    public func fetchAllRequest<PO>(_ cls: PO.Type) -> Req where PO: HMCDPureObjectType {
+    private func fetchAllRequest() -> Req {
         return Req.builder()
             .with(operation: .fetch)
-            .with(poType: cls)
             .with(predicate: NSPredicate(value: true))
             .shouldApplyMiddlewares()
+            .build()
+    }
+    
+    public func fetchAllRequest(_ entityName: String?) -> Req {
+        return fetchAllRequest().cloneBuilder()
+            .with(entityName: entityName)
+            .with(description: "Fetch all data for \(entityName ?? "")")
+            .build()
+    }
+    
+    public func fetchAllRequest<PO>(_ cls: PO.Type) -> Req where PO: HMCDPureObjectType {
+        return fetchAllRequest().cloneBuilder()
+            .with(poType: cls)
+            .with(description: "Fetch all data for \(cls)")
             .build()
     }
     
@@ -493,15 +506,11 @@ public extension HMCDRequestProcessor {
 }
 
 public extension HMCDRequestProcessor {
-    public func deleteAllRequest<PO>(_ cls: PO.Type) -> Req where
-        PO: HMCDPureObjectType,
-        PO.CDClass: HMCDPureObjectConvertibleType,
-        PO.CDClass.PureObject == PO
-    {
-        return fetchAllRequest(cls)
+    public func deleteAllRequest(_ entityName: String?) -> Req {
+        return fetchAllRequest(entityName)
             .cloneBuilder()
             .with(operation: .deleteBatch)
-            .with(description: "Delete all data for \(cls)")
+            .with(description: "Delete all data for \(entityName ?? "")")
             .build()
     }
     
@@ -509,22 +518,18 @@ public extension HMCDRequestProcessor {
     ///
     /// - Parameters:
     ///   - previous: The result of the previous request.
-    ///   - cls: The PureObject class type.
+    ///   - entityName: A String value denoting the entity name.
     ///   - defaultQoS: The QoSClass instance to perform work on.
     ///   - transforms: A Sequence of Request transformers.
     /// - Returns: An Observable instance.
-    public func deleteAllInMemory<Prev,PO,S>(_ previous: Try<Prev>,
-                                             _ cls: PO.Type,
-                                             _ defaultQoS: DispatchQoS.QoSClass,
-                                             _ transforms: S)
+    public func deleteAllInMemory<Prev,S>(_ previous: Try<Prev>,
+                                          _ entityName: String?,
+                                          _ defaultQoS: DispatchQoS.QoSClass,
+                                          _ transforms: S)
         -> Observable<Try<Void>> where
-        PO: HMCDPureObjectType,
-        PO.CDClass: HMCDPureObjectConvertibleType,
-        PO.CDClass.PureObject == PO,
-        S: Sequence,
-        S.Iterator.Element == HMTransform<Req>
+        S: Sequence, S.Iterator.Element == HMTransform<Req>
     {
-        let request = deleteAllRequest(cls)
+        let request = deleteAllRequest(entityName)
         let generator = HMRequestGenerators.forceGn(request, Prev.self, transforms)
         return processVoid(previous, generator, defaultQoS)
     }
@@ -675,6 +680,7 @@ public extension HMCDRequestProcessor {
             .with(poType: cls)
             .with(operation: .stream)
             .with(predicate: NSPredicate(value: true))
+            .with(description: "Stream DB events for \(cls)")
             .shouldApplyMiddlewares()
             .build()
     }

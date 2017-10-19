@@ -22,8 +22,8 @@ public protocol HMProtocolConvertibleType {
 
 /// Builders that implement this protocol must be able to copy properties
 /// from some protocol to the implementation object that is being built.
-public protocol HMProtocolConvertibleBuilderType: HMBuilderType {
-    associatedtype Buildable: HMProtocolConvertibleType
-    
+public protocol HMProtocolConvertibleBuilderType: HMBuilderType where
+    Buildable: HMProtocolConvertibleType
+{
     func with(generic: Buildable.PTCType?) -> Self
 }

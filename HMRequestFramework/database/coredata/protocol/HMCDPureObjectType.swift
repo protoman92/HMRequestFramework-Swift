@@ -21,14 +21,13 @@ public protocol HMCDPureObjectType {
 
 /// Pure object builders that implement this protocol must be able to copy
 /// properties from a HMCDObjectType object into the current pure object.
-public protocol HMCDPureObjectBuilderType: HMBuilderType {
-    associatedtype Buildable: HMCDPureObjectType
-    
+public protocol HMCDPureObjectBuilderType: HMBuilderType where
+    Buildable: HMCDPureObjectType
+{
     func with(cdObject: Buildable.CDClass) -> Self
 }
 
 /// Pure object classes that implement this protocol must have in-built Builder
 /// classes.
-public protocol HMCDPureObjectBuildableType: HMBuildableType {
-    associatedtype Builder: HMCDPureObjectBuilderType
-}
+public protocol HMCDPureObjectBuildableType: HMBuildableType where
+    Builder: HMCDPureObjectBuilderType {}
