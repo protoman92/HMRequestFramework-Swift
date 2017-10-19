@@ -14,6 +14,7 @@ public enum HttpOperation: EnumerableType {
     case patch
     case head
     case put
+    case delete
     case upload
     case sse
     
@@ -23,21 +24,12 @@ public enum HttpOperation: EnumerableType {
     
     public func method() -> String {
         switch self {
-        case .get, .sse:
-            return "GET"
-            
-        case .post, .upload:
-            return "POST"
-            
-        case .patch:
-            return "PATCH"
-            
-        case .head:
-            return "HEAD"
-            
-        case .put:
-            return "PUT"
-
+        case .get, .sse: return "GET"
+        case .post, .upload: return "POST"
+        case .patch: return "PATCH"
+        case .head: return "HEAD"
+        case .put: return "PUT"
+        case .delete: return "DELETE"
         }
     }
     
@@ -46,11 +38,8 @@ public enum HttpOperation: EnumerableType {
     /// - Returns: A Bool value.
     public func requiresBody() -> Bool {
         switch self {
-        case .post, .put, .upload, .patch:
-            return true
-            
-        default:
-            return false
+        case .post, .put, .upload, .patch: return true
+        default: return false
         }
     }
 }
