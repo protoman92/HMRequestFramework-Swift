@@ -175,8 +175,8 @@ public extension HMCDGeneralRequestProcessorType {
         )
     }
     
-    /// Fetch all data that have some properties. These properties will be
-    /// mapped into a series of predicates and joined together with AND.
+    /// Fetch all data that have some properties. These properties will be mapped
+    /// into a series of predicates and joined together with AND.
     ///
     /// - Parameters:
     ///   - previous: The result of the previous request.
@@ -247,7 +247,61 @@ public extension HMCDGeneralRequestProcessorType {
             let allTransforms = [propTransform] + transforms
             
             return deleteAllInMemory(previous, cls, defaultQoS, allTransforms)
-                .doOnNext(Preconditions.checkNotRunningOnMainThread)
+        } catch let e {
+            return Observable.just(Try.failure(e))
+        }
+    }
+}
+
+public extension HMCDGeneralRequestProcessorType {
+    
+    /// Get the predicate for some text search requests.
+    ///
+    /// - Parameter requests: A Sequence of text search requests.
+    /// - Returns: A NSPredicate instance.
+    /// - Throws: Exception if any of the request fails.
+    private func predicateForTextSearch<S>(_ requests: S) throws -> NSPredicate where
+        S: Sequence, S.Iterator.Element == HMCDTextSearchRequest
+    {
+        let predicates = try requests.map({try $0.textSearchPredicate()})
+        return NSCompoundPredicate(andPredicateWithSubpredicates: predicates)
+    }
+    
+    /// Fetch some objects using text search requests.
+    ///
+    /// Please note that this method only takes care of basic cases as it uses
+    /// AND to combine the predicates. For more sophisticated queries please
+    /// consider writing a custom predicate for fetchAllDataFromDB.
+    ///
+    /// - Parameters:
+    ///   - previous: The result of the previous request.
+    ///   - cls: The PO class type.
+    ///   - defaultQoS: A QoSClass instance to perform work on.
+    ///   - transforms: A Sequence of Request transformers.
+    /// - Returns: An Observable instance.
+    public func fetchWithTextSearch<PO,S>(_ previous: Try<[HMCDTextSearchRequest]>,
+                                          _ cls: PO.Type,
+                                          _ defaultQoS: DispatchQoS.QoSClass,
+                                          _ transforms: S)
+        -> Observable<Try<[PO]>> where
+        PO: HMCDPureObjectType,
+        PO.CDClass: HMCDPureObjectConvertibleType,
+        PO.CDClass.PureObject == PO,
+        S: Sequence,
+        S.Iterator.Element == HMTransform<HMCDRequest>
+    {
+        do {
+            let requests = try previous.getOrThrow()
+            let predicate = try predicateForTextSearch(requests)
+            
+            let tsTransform: HMTransform<HMCDRequest> = {
+                Observable.just($0.cloneBuilder()
+                    .with(predicate: predicate)
+                    .build())
+            }
+            
+            let allTransforms = [tsTransform] + transforms
+            return fetchAllDataFromDB(Try.success(()), cls, defaultQoS, allTransforms)
         } catch let e {
             return Observable.just(Try.failure(e))
         }
@@ -416,6 +470,18 @@ public extension HMCDGeneralRequestProcessorType {
         PO.CDClass.PureObject == PO
     {
         return fetchWithProperties(previous, cls, defaultQoS, transforms)
+    }
+    
+    public func fetchWithTextSearch<PO>(_ previous: Try<[HMCDTextSearchRequest]>,
+                                        _ cls: PO.Type,
+                                        _ defaultQoS: DispatchQoS.QoSClass,
+                                        _ transforms: HMTransform<HMCDRequest>...)
+        -> Observable<Try<[PO]>> where
+        PO: HMCDPureObjectType,
+        PO.CDClass: HMCDPureObjectConvertibleType,
+        PO.CDClass.PureObject == PO
+    {
+        return fetchWithTextSearch(previous, cls, defaultQoS, transforms)
     }
 }
 

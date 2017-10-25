@@ -59,6 +59,8 @@
 		D353BE851F507003004AD111 /* Dummy1.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3FF53631F29E2FE00F78806 /* Dummy1.swift */; };
 		D353BE861F50701F004AD111 /* Dummy2.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3FBDC141F2AF4D50052A94A /* Dummy2.swift */; };
 		D353BE881F508CC3004AD111 /* HMCDSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = D353BE871F508CC3004AD111 /* HMCDSection.swift */; };
+		D363F39B1FA06E230077BFAC /* HMCDTextSearchRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = D363F39A1FA06E230077BFAC /* HMCDTextSearchRequest.swift */; };
+		D363F39D1FA0720B0077BFAC /* CoreDataTextSearchTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = D363F39C1FA0720B0077BFAC /* CoreDataTextSearchTest.swift */; };
 		D36F19B51F2D12C30053CCBD /* HMRequestBuilderType.swift in Sources */ = {isa = PBXBuildFile; fileRef = D36F19B41F2D12C30053CCBD /* HMRequestBuilderType.swift */; };
 		D3757B651F4D8349001935EC /* HMCDManager+FRC+Rx.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3757B641F4D8349001935EC /* HMCDManager+FRC+Rx.swift */; };
 		D375B1701F4DC163007A3B01 /* CoreDataFRCTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = D375B16F1F4DC163007A3B01 /* CoreDataFRCTest.swift */; };
@@ -223,6 +225,8 @@
 		D353BE7A1F5065B6004AD111 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/FRCController.storyboard; sourceTree = "<group>"; };
 		D353BE7C1F5067AA004AD111 /* FRCController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FRCController.swift; sourceTree = "<group>"; };
 		D353BE871F508CC3004AD111 /* HMCDSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMCDSection.swift; sourceTree = "<group>"; };
+		D363F39A1FA06E230077BFAC /* HMCDTextSearchRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMCDTextSearchRequest.swift; sourceTree = "<group>"; };
+		D363F39C1FA0720B0077BFAC /* CoreDataTextSearchTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataTextSearchTest.swift; sourceTree = "<group>"; };
 		D36F19B41F2D12C30053CCBD /* HMRequestBuilderType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMRequestBuilderType.swift; sourceTree = "<group>"; };
 		D3757B641F4D8349001935EC /* HMCDManager+FRC+Rx.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HMCDManager+FRC+Rx.swift"; sourceTree = "<group>"; };
 		D375B16F1F4DC163007A3B01 /* CoreDataFRCTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataFRCTest.swift; sourceTree = "<group>"; };
@@ -377,6 +381,7 @@
 				D39E5EA21F5F02C20056C8A3 /* HMCDEvents.swift */,
 				D3FEC67F1F7D663900DCC41C /* HMCDMainContextMode.swift */,
 				D37D0B701F25E1BE0032C6AB /* HMCDOperation.swift */,
+				D30051CD1F87BCA700936C93 /* HMCDOperationMode.swift */,
 				D3206FBC1F55CA48006AEDDF /* HMCDPagination.swift */,
 				D3206FBE1F55D596006AEDDF /* HMCDPaginationMode.swift */,
 				D37D0B721F25E1BE0032C6AB /* HMCDRequest.swift */,
@@ -384,7 +389,7 @@
 				D353BE871F508CC3004AD111 /* HMCDSection.swift */,
 				D325C40F1F510E1200FC802C /* HMCDSectionInfo+DataSource.swift */,
 				D32E78011F59229400A60D50 /* HMCDSections.swift */,
-				D30051CD1F87BCA700936C93 /* HMCDOperationMode.swift */,
+				D363F39A1FA06E230077BFAC /* HMCDTextSearchRequest.swift */,
 			);
 			path = model;
 			sourceTree = "<group>";
@@ -757,12 +762,13 @@
 		D3FF53651F29E2FE00F78806 /* database */ = {
 			isa = PBXGroup;
 			children = (
+				D375B16F1F4DC163007A3B01 /* CoreDataFRCTest.swift */,
 				D3FF53661F29E2FE00F78806 /* CoreDataManagerTest.swift */,
 				D3AC07191F3DA0FA0085D329 /* CoreDataObjectTest.swift */,
 				D303E8701F3B1EE600123EE7 /* CoreDataRequestTest.swift */,
 				D33CAAB01F3C4D9B0000EE13 /* CoreDataRootTest.swift */,
+				D363F39C1FA0720B0077BFAC /* CoreDataTextSearchTest.swift */,
 				D32718301F3B8AC9003487FA /* CoreDataVersionTest.swift */,
-				D375B16F1F4DC163007A3B01 /* CoreDataFRCTest.swift */,
 			);
 			path = database;
 			sourceTree = "<group>";
@@ -1157,6 +1163,7 @@
 				D3A295371F81FAEF00F10756 /* HMCDResultControllerType.swift in Sources */,
 				D3AC07181F3D9C280085D329 /* HMCDKeyValueUpdatableType.swift in Sources */,
 				D33BB3241F469A5900025FD1 /* HMURLComponentProviderType.swift in Sources */,
+				D363F39B1FA06E230077BFAC /* HMCDTextSearchRequest.swift in Sources */,
 				D37D0BCB1F25F5A90032C6AB /* HMCDConstructor.swift in Sources */,
 				D352E2931F3ACA89001FD55E /* HMVersionableType.swift in Sources */,
 				D37D0BAA1F25E3A00032C6AB /* HMCDPureObjectType.swift in Sources */,
@@ -1221,6 +1228,7 @@
 				D3FF536D1F29E3A000F78806 /* CoreDataManagerTest.swift in Sources */,
 				D3FF53701F29E3A000F78806 /* Dummy1.swift in Sources */,
 				D3AC071A1F3DA0FA0085D329 /* CoreDataObjectTest.swift in Sources */,
+				D363F39D1FA0720B0077BFAC /* CoreDataTextSearchTest.swift in Sources */,
 				D32718311F3B8AC9003487FA /* CoreDataVersionTest.swift in Sources */,
 				D3FF53721F29E3A000F78806 /* NetworkingTest.swift in Sources */,
 				D34DF2971F2C52740076D6B1 /* MiddlewareTest.swift in Sources */,
