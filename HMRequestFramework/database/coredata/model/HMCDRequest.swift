@@ -102,6 +102,24 @@ extension HMCDRequest: HMBuildableType {
             return self
         }
         
+        /// Transform the predicate if it is available.
+        ///
+        /// - Parameter predicateFn: A predicate transform function.
+        /// - Returns: The current Builder instance.
+        @discardableResult
+        public func with(predicateFn: (NSPredicate) throws -> NSPredicate?) -> Self {
+            if let predicate = request.nsPredicate {
+                do {
+                    let newPredicate = try predicateFn(predicate)
+                    return self.with(predicate: newPredicate)
+                } catch {
+                    return self
+                }
+            } else {
+                return self
+            }
+        }
+        
         /// Set the sort descriptors.
         ///
         /// - Parameter sortDescriptors: A Sequence of NSSortDescriptor.

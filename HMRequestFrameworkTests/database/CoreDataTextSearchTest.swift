@@ -71,7 +71,7 @@ public final class CoreDataTextSearchTest: CoreDataRootTest {
         
         /// When
         dbProcessor
-            .fetchWithTextSearch(Try.success(requests), Dummy1.self, qos)
+            .fetchWithTextSearch(Try.success(requests), Dummy1.self, .and, qos)
             .map({try $0.getOrThrow()})
             .flattenSequence()
             .doOnDispose(expect.fulfill)

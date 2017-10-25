@@ -177,7 +177,7 @@ public class CoreDataRequestTest: CoreDataRootTest {
             
             // Fetch with properties and confirm that they match randomObjects.
             .map({$0.map({_ in fetchedProperties})})
-            .flatMap({dbProcessor.fetchWithProperties($0, Dummy1.self, qos)})
+            .flatMap({dbProcessor.fetchWithProperties($0, Dummy1.self, .and, qos)})
             .map({try $0.getOrThrow()})
             .doOnNext({XCTAssertEqual($0.count, pureObjects.count)})
             .doOnNext({XCTAssertTrue(pureObjects.all($0.contains))})
@@ -185,12 +185,12 @@ public class CoreDataRequestTest: CoreDataRootTest {
             // Delete with properties and confirm that the DB is empty.
             .map(Try.success)
             .map({$0.map({_ in fetchedProperties})})
-            .flatMap({dbProcessor.deleteWithProperties($0, Dummy1.self, qos)})
+            .flatMap({dbProcessor.deleteWithProperties($0, Dummy1.self, .and, qos)})
             .flatMap({dbProcessor.persistToDB($0, qos)})
             
             // Fetch with properties again to check that all objects are gone.
             .map({$0.map({_ in fetchedProperties})})
-            .flatMap({dbProcessor.fetchWithProperties($0, Dummy1.self, qos)})
+            .flatMap({dbProcessor.fetchWithProperties($0, Dummy1.self, .and, qos)})
             .map({try $0.getOrThrow()})
             .flattenSequence()
             .doOnDispose(expect.fulfill)
