@@ -162,11 +162,11 @@ public class CoreDataRequestTest: CoreDataRootTest {
         let dummyCount = self.dummyCount!
         let pureObjects = (0..<dummyCount).map({_ in Dummy1()})
         
-        var fetchedProperties: [String : [CVarArg]] = [:]
-        fetchedProperties["id"] = pureObjects.flatMap({$0.id})
-        fetchedProperties["date"] = pureObjects.flatMap({$0.date.map({$0 as NSDate})})
-        fetchedProperties["float"] = pureObjects.flatMap({$0.float})
-        fetchedProperties["int64"] = pureObjects.flatMap({$0.int64})
+        var fetchedProps: [String : [CVarArg]] = [:]
+        fetchedProps["id"] = pureObjects.flatMap({$0.id})
+        fetchedProps["date"] = pureObjects.flatMap({$0.date.map({$0 as NSDate})})
+        fetchedProps["float"] = pureObjects.flatMap({$0.float})
+        fetchedProps["int64"] = pureObjects.flatMap({$0.int64})
         
         let qos: DispatchQoS.QoSClass = .background
         
@@ -176,21 +176,18 @@ public class CoreDataRequestTest: CoreDataRootTest {
             .flatMap({dbProcessor.persistToDB($0, qos)})
             
             // Fetch with properties and confirm that they match randomObjects.
-            .map({$0.map({_ in fetchedProperties})})
-            .flatMap({dbProcessor.fetchWithProperties($0, Dummy1.self, .and, qos)})
+            .flatMap({dbProcessor.fetchWithProperties($0, Dummy1.self, fetchedProps, .and, qos)})
             .map({try $0.getOrThrow()})
             .doOnNext({XCTAssertEqual($0.count, pureObjects.count)})
             .doOnNext({XCTAssertTrue(pureObjects.all($0.contains))})
             
             // Delete with properties and confirm that the DB is empty.
             .map(Try.success)
-            .map({$0.map({_ in fetchedProperties})})
-            .flatMap({dbProcessor.deleteWithProperties($0, Dummy1.self, .and, qos)})
+            .flatMap({dbProcessor.deleteWithProperties($0, Dummy1.self, fetchedProps, .and, qos)})
             .flatMap({dbProcessor.persistToDB($0, qos)})
             
             // Fetch with properties again to check that all objects are gone.
-            .map({$0.map({_ in fetchedProperties})})
-            .flatMap({dbProcessor.fetchWithProperties($0, Dummy1.self, .and, qos)})
+            .flatMap({dbProcessor.fetchWithProperties($0, Dummy1.self, fetchedProps, .and, qos)})
             .map({try $0.getOrThrow()})
             .flattenSequence()
             .doOnDispose(expect.fulfill)
