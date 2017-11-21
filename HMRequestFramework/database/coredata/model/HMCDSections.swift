@@ -18,7 +18,7 @@ public final class HMCDSections {
     public static func object<ST,S>(_ sections: S, _ indexPath: IndexPath) -> ST.V? where
         ST: HMCDSectionType,
         S: Sequence,
-        S.Iterator.Element == ST
+        S.Element == ST
     {
         let sections = sections.map({$0})
         let section = indexPath.section
@@ -36,7 +36,7 @@ public final class HMCDSections {
     public static func sectionsWithLimit<ST,S>(_ sections: S, _ limit: Int) -> [ST] where
         ST: HMCDSectionType,
         S: Sequence,
-        S.Iterator.Element == ST
+        S.Element == ST
     {
         var slicedSects = [ST]()
         

@@ -39,7 +39,7 @@ public extension HMCDManager {
     func convert<S>(_ context: Context,
                     _ entityName: String,
                     _ upsertables: S) throws -> [HMCDResult] where
-        S: Sequence, S.Iterator.Element == HMCDUpsertableType
+        S: Sequence, S.Element == HMCDUpsertableType
     {
         let upsertables = upsertables.sorted(by: {$0.0.compare(against: $0.1)})
         let ids: [HMCDIdentifiableType] = upsertables
@@ -85,7 +85,7 @@ public extension HMCDManager {
                       _ entityName: String,
                       _ upsertables: S) throws -> [HMCDResult] where
         U: HMCDUpsertableType,
-        S: Sequence, S.Iterator.Element == U
+        S: Sequence, S.Element == U
     {
         let upsertables = upsertables.map({$0 as HMCDUpsertableType})
         return try self.convert(context, entityName, upsertables)
@@ -113,7 +113,7 @@ public extension HMCDManager {
                      _ opMode: HMCDOperationMode,
                      _ obs: O) -> Disposable where
         S: Sequence,
-        S.Iterator.Element == HMCDUpsertableType,
+        S.Element == HMCDUpsertableType,
         O: ObserverType,
         O.E == [HMCDResult]
     {
@@ -157,7 +157,7 @@ public extension HMCDManager {
                        _ obs: O) -> Disposable where
         U: HMCDUpsertableType,
         S: Sequence,
-        S.Iterator.Element == U,
+        S.Element == U,
         O: ObserverType,
         O.E == [HMCDResult]
     {
@@ -181,7 +181,7 @@ extension Reactive where Base == HMCDManager {
                    _ upsertables: S,
                    _ opMode: HMCDOperationMode = .queued)
         -> Observable<[HMCDResult]> where
-        S: Sequence, S.Iterator.Element == HMCDUpsertableType
+        S: Sequence, S.Element == HMCDUpsertableType
     {
         return Observable.create({
             self.base.upsert(context, entityName, upsertables, opMode, $0)
@@ -203,7 +203,7 @@ extension Reactive where Base == HMCDManager {
         -> Observable<[HMCDResult]> where
         U: HMCDUpsertableType,
         S: Sequence,
-        S.Iterator.Element == U
+        S.Element == U
     {
         return upsert(context,
                       entityName,

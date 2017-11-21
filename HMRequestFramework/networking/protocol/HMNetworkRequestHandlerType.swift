@@ -26,6 +26,13 @@ public protocol HMNetworkRequestHandlerType: HMRequestHandlerType {
     /// - Returns: An Observable instance.
     /// - Throws: Exception if the operation fails.
     func executeSSE(_ request: Req) throws -> Observable<Try<[HMSSEvent<HMSSEData>]>>
+    
+    /// Perform an upload request.
+    ///
+    /// - Parameter req: A Req instance.
+    /// - Returns: An Observable instance.
+    /// - Throws: Exception if the operation fails.
+    func executeUpload(_ req: Req) throws -> Observable<Try<Data>>
 }
 
 public extension HMNetworkRequestHandlerType {
@@ -58,5 +65,20 @@ public extension HMNetworkRequestHandlerType {
         -> Observable<Try<[HMSSEvent<HMSSEData>]>>
     {
         return execute(previous, generator, executeSSE, defaultQoS)
+    }
+    
+    /// Perfor an upload request.
+    ///
+    /// - Parameters:
+    ///   - previous: The result of the upstream request.
+    ///   - generator: Generator function to create the current request.
+    ///   - defaultQoS: The QoSClass instance to perform work on.
+    /// - Returns: An Observable instance.
+    public func executeUpload<Prev>(_ previous: Try<Prev>,
+                                    _ generator: @escaping HMRequestGenerator<Prev,Req>,
+                                    _ defaultQoS: DispatchQoS.QoSClass)
+        -> Observable<Try<Data>>
+    {
+        return execute(previous, generator, executeUpload, defaultQoS)
     }
 }

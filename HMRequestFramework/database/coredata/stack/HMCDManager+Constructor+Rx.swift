@@ -49,7 +49,7 @@ extension HMCDManager {
         PO: HMCDPureObjectType,
         PO.CDClass: HMCDObjectBuildableType,
         PO.CDClass.Builder.PureObject == PO,
-        S: Sequence, S.Iterator.Element == PO
+        S: Sequence, S.Element == PO
     {
         return try pureObjs.map({try self.constructUnsafely(context, $0)})
     }
@@ -71,7 +71,7 @@ public extension HMCDManager {
         PO: HMCDPureObjectType,
         PO.CDClass: HMCDObjectBuildableType,
         PO.CDClass.Builder.PureObject == PO,
-        S: Sequence, S.Iterator.Element == PO,
+        S: Sequence, S.Element == PO,
         O: ObserverType, O.E == [PO.CDClass]
     {
         Preconditions.checkNotRunningOnMainThread(pureObjs)
@@ -102,7 +102,7 @@ public extension Reactive where Base == HMCDManager {
         PO: HMCDPureObjectType,
         PO.CDClass: HMCDObjectBuildableType,
         PO.CDClass.Builder.PureObject == PO,
-        S: Sequence, S.Iterator.Element == PO
+        S: Sequence, S.Element == PO
     {
         return Observable.create({self.base.construct(context, pureObjs, $0)})
     }

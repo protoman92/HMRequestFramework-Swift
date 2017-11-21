@@ -20,7 +20,7 @@ public struct HMCDSection<V>: HMCDSectionType {
                    name: String,
                    numberOfObjects: Int,
                    objects: S) where
-        S: Sequence, S.Iterator.Element == V
+        S: Sequence, S.Element == V
     {
         self.indexTitle = indexTitle
         self.name = name

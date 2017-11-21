@@ -140,7 +140,7 @@ extension HMNetworkRequest: HMBuildableType {
         /// - Returns: The current Builder instance.
         @discardableResult
         public func with<S>(params: S) -> Self where
-            S: Sequence, S.Iterator.Element == URLQueryItem
+            S: Sequence, S.Element == URLQueryItem
         {
             request.httpParams.removeAll()
             return add(params: params)
@@ -152,7 +152,7 @@ extension HMNetworkRequest: HMBuildableType {
         /// - Returns: The current Builder instance.
         @discardableResult
         public func add<S>(params: S) -> Self where
-            S: Sequence, S.Iterator.Element == URLQueryItem
+            S: Sequence, S.Element == URLQueryItem
         {
             request.httpParams.append(contentsOf: params)
             return self
@@ -243,7 +243,7 @@ extension HMNetworkRequest.Builder: HMRequestBuilderType {
     /// - Parameter mwFilters: An Array of filters.
     /// - Returns: The current Builder instance.
     public func with<S>(mwFilters: S) -> Self where
-        S: Sequence, S.Iterator.Element == HMMiddlewareFilter<Buildable>
+        S: Sequence, S.Element == HMMiddlewareFilter<Buildable>
     {
         request.nwMWFilters = mwFilters.map({$0})
         return self

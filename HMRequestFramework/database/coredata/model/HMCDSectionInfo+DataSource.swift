@@ -24,6 +24,16 @@ extension HMCDSection: SectionModelType {
                   numberOfObjects: original.numberOfObjects,
                   objects: items)
     }
+    
+    /// Convenience method to map to a section.
+    ///
+    /// - Parameter f: Mapper function.
+    /// - Returns: A HMCDSection instance.
+    public func mapObjects<V2,S>(_ f: ([V]) throws -> S?) -> HMCDSection<V2> where
+        S: Sequence, S.Element == V2
+    {
+        return mapObjects(f, HMCDSection<V2>.self)
+    }
 }
 
 extension HMCDSection where V: Equatable, V: IdentifiableType {
@@ -49,7 +59,7 @@ public struct HMCDAnimatableSection<V: Equatable & IdentifiableType> {
                    name: String,
                    numberOfObjects: Int,
                    objects: S) where
-        S: Sequence, S.Iterator.Element == V
+        S: Sequence, S.Element == V
     {
         self.indexTitle = indexTitle
         self.name = name
@@ -77,5 +87,15 @@ extension HMCDAnimatableSection: AnimatableSectionModelType {
                   name: original.name,
                   numberOfObjects: original.numberOfObjects,
                   objects: items)
+    }
+    
+    /// Convenience method to map to an animatable section.
+    ///
+    /// - Parameter f: Mapper function.
+    /// - Returns: A HMCDAnimatableSection instance.
+    public func mapObjects<V2,S>(_ f: ([V]) throws -> S?) -> HMCDAnimatableSection<V2> where
+        V2: Equatable & IdentifiableType, S: Sequence, S.Element == V2
+    {
+        return mapObjects(f, HMCDAnimatableSection<V2>.self)
     }
 }

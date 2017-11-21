@@ -122,7 +122,7 @@ extension HMCDConstructor: HMBuildableType {
         /// - Returns: The current Builder instance.
         @discardableResult
         public func with<S>(cdTypes: S) -> Self where
-            S: Sequence, S.Iterator.Element == HMCDObjectType.Type
+            S: Sequence, S.Element == HMCDObjectType.Type
         {
             do {
                 let model = NSManagedObjectModel()
@@ -148,7 +148,7 @@ extension HMCDConstructor: HMBuildableType {
         /// - Returns: The current Builder instance.
         @discardableResult
         public func with<S>(settings: S?) -> Self where
-            S: Sequence, S.Iterator.Element == HMCDStoreSettings
+            S: Sequence, S.Element == HMCDStoreSettings
         {
             if let settings = settings {
                 constructor.cdStoreSettings.append(contentsOf: settings)

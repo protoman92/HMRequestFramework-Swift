@@ -62,7 +62,7 @@ public extension HMCDRequestType {
     /// - Returns: An Array of HMCDVersionUpdateRequest.
     /// - Throws: Exception if the operation fails.
     public func updateRequest<S>(_ versionables: S) throws -> [HMCDVersionUpdateRequest] where
-        S: Sequence, S.Iterator.Element == HMCDVersionableType
+        S: Sequence, S.Element == HMCDVersionableType
     {
         let conflictStrategy = try versionConflictStrategy()
         

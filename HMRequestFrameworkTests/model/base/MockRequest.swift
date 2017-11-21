@@ -67,7 +67,7 @@ public extension MockRequest {
         
         @discardableResult
         public func with<S>(mwFilters: S) -> Self where
-            S: Sequence, S.Iterator.Element == MiddlewareFilter
+            S: Sequence, S.Element == MiddlewareFilter
         {
             request.mFilters = mwFilters.map({$0})
             return self

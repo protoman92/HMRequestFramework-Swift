@@ -112,7 +112,7 @@ public extension HMCDManager {
     func convert<S>(_ context: Context,
                     _ entityName: String,
                     _ requests: S) throws -> [HMCDResult] where
-        S: Sequence, S.Iterator.Element == HMCDVersionUpdateRequest
+        S: Sequence, S.Element == HMCDVersionUpdateRequest
     {
         var requests = requests.sorted(by: {$0.0.compare(against: $0.1)})
         
@@ -192,7 +192,7 @@ public extension HMCDManager {
                             _ opMode: HMCDOperationMode,
                             _ obs: O) -> Disposable where
         S: Sequence,
-        S.Iterator.Element == HMCDVersionUpdateRequest,
+        S.Element == HMCDVersionUpdateRequest,
         O: ObserverType,
         O.E == [HMCDResult]
     {
@@ -236,7 +236,7 @@ extension Reactive where Base == HMCDManager {
                                  _ requests: S,
                                  _ opMode: HMCDOperationMode = .queued)
         -> Observable<[HMCDResult]> where
-        S: Sequence, S.Iterator.Element == HMCDVersionUpdateRequest
+        S: Sequence, S.Element == HMCDVersionUpdateRequest
     {
         return Observable.create({
             self.base.updateVersion(context, entityName, requests, opMode, $0)

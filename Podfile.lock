@@ -55,7 +55,7 @@ CHECKOUT OPTIONS:
     :commit: 6fba9a15c6eb90d4fd48492d1dcecf8894cc6c46
     :git: https://github.com/protoman92/SwiftUIUtilities.git
   SwiftUtilities:
-    :commit: 438abacf8bf3b73237e08439d3a31966a0fba9c4
+    :commit: 0e383d6e86f73e68e6bb0fd0235a3f8e60c86063
     :git: https://github.com/protoman92/SwiftUtilities.git
 
 SPEC CHECKSUMS:
@@ -74,4 +74,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: fd06924f37cc97448f4fbf49db07c6f5b1a58253
 
-COCOAPODS: 1.4.0.beta.1
+COCOAPODS: 1.4.0.beta.2

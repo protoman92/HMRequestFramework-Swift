@@ -46,7 +46,7 @@ public extension HMCDManager {
     ///   - data: A Sequence of NSManagedObject.
     /// - Throws: Exception if the delete fails.
     func deleteUnsafely<NS,S>(_ context: Context, _ data: S) throws where
-        NS: NSManagedObject, S: Sequence, S.Iterator.Element == NS
+        NS: NSManagedObject, S: Sequence, S.Element == NS
     {
         let data = data.map({$0})
         
@@ -72,7 +72,7 @@ public extension HMCDManager {
     func deleteIdentifiablesUnsafely<S>(_ context: Context,
                                         _ entityName: String,
                                         _ ids: S) throws where
-        S: Sequence, S.Iterator.Element == HMCDIdentifiableType
+        S: Sequence, S.Element == HMCDIdentifiableType
     {
         let data = try blockingFetchIdentifiables(context, entityName, ids)
         
@@ -129,7 +129,7 @@ public extension HMCDManager {
                                _ opMode: HMCDOperationMode,
                                _ obs: O) -> Disposable where
         NS: NSManagedObject,
-        S: Sequence, S.Iterator.Element == NS,
+        S: Sequence, S.Element == NS,
         O: ObserverType, O.E == Void
     {
         Preconditions.checkNotRunningOnMainThread(data)
@@ -163,7 +163,7 @@ public extension HMCDManager {
                                          _ opMode: HMCDOperationMode,
                                          _ obs: O) -> Disposable where
         S: Sequence,
-        S.Iterator.Element == HMCDIdentifiableType,
+        S.Element == HMCDIdentifiableType,
         O: ObserverType,
         O.E == Void
     {
@@ -213,7 +213,7 @@ public extension Reactive where Base == HMCDManager {
                           _ data: S,
                           _ opMode: HMCDOperationMode = .queued)
         -> Observable<Void> where
-        S: Sequence, S.Iterator.Element: NSManagedObject
+        S: Sequence, S.Element: NSManagedObject
     {
         return Observable.create({self.base.delete(context, data, opMode, $0)})
     }
@@ -235,7 +235,7 @@ public extension Reactive where Base == HMCDManager {
                                        _ ids: S,
                                        _ opMode: HMCDOperationMode = .queued)
         -> Observable<Void> where
-        S: Sequence, S.Iterator.Element == HMCDIdentifiableType
+        S: Sequence, S.Element == HMCDIdentifiableType
     {
         return Observable.create({
             self.base.deleteIdentifiables(context, entityName, ids, opMode, $0)
@@ -258,7 +258,7 @@ public extension Reactive where Base == HMCDManager {
         -> Observable<Void> where
         U: HMCDIdentifiableType,
         S: Sequence,
-        S.Iterator.Element == U
+        S.Element == U
     {
         let ids = ids.map({$0 as HMCDIdentifiableType})
         return deleteIdentifiables(context, entityName, ids, opMode)

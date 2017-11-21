@@ -19,7 +19,7 @@ public final class HMTransforms {
     /// - Returns: An Observable instance.
     public static func applyTransformers<A,S>(_ value: A, _ transforms: S)
         -> Observable<A> where
-        S: Sequence, S.Iterator.Element == HMTransform<A>
+        S: Sequence, S.Element == HMTransform<A>
     {
         var chain = Observable.just(value)
         

@@ -14,7 +14,7 @@ public final class HMIdentifiables {
     /// - Parameter ids: A Sequence of HMIdentifiableType.
     /// - Returns: A Dictionary instance.
     public static func segment<S>(_ ids: S) -> [String : [String]] where
-        S: Sequence, S.Iterator.Element == HMIdentifiableType
+        S: Sequence, S.Element == HMIdentifiableType
     {
         var segments: [String : [String]] = [:]
         
@@ -40,7 +40,7 @@ public final class HMIdentifiables {
     public static func segment<ID,S>(_ ids: S) -> [String : [String]] where
         ID: HMIdentifiableType,
         S: Sequence,
-        S.Iterator.Element == ID
+        S.Element == ID
     {
         return segment(ids.map({$0 as HMIdentifiableType}))
     }

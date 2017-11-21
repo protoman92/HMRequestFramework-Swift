@@ -15,7 +15,7 @@ public protocol HMRequestBuilderType: HMBuilderType where Buildable: HMRequestTy
     /// - Returns: The current Builder instance.
     @discardableResult
     func with<S>(mwFilters: S) -> Self where
-        S: Sequence, S.Iterator.Element == HMMiddlewareFilter<Buildable>
+        S: Sequence, S.Element == HMMiddlewareFilter<Buildable>
     
     /// Add a middleware filter.
     ///
@@ -61,7 +61,7 @@ public extension HMRequestBuilderType {
     /// - Returns: The current Builder instance.
     @discardableResult
     public func with<S>(mwFilters: S) -> Self where
-        S: Sequence, S.Iterator.Element == MiddlewareFilter.Filter
+        S: Sequence, S.Element == MiddlewareFilter.Filter
     {
         return with(mwFilters: mwFilters.map(HMMiddlewareFilter.init))
     }

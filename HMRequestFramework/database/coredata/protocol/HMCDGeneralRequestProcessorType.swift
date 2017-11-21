@@ -30,7 +30,7 @@ public protocol HMCDGeneralRequestProcessorType {
         PO.CDClass: HMCDPureObjectConvertibleType,
         PO.CDClass.PureObject == PO,
         S: Sequence,
-        S.Iterator.Element == HMTransform<HMCDRequest>
+        S.Element == HMTransform<HMCDRequest>
     
     /// Save some data to memory by constructing them and then saving the
     /// resulting managed objects.
@@ -49,7 +49,7 @@ public protocol HMCDGeneralRequestProcessorType {
         PO.CDClass: HMCDObjectBuildableType,
         PO.CDClass.Builder.PureObject == PO,
         S: Sequence,
-        S.Iterator.Element == HMTransform<HMCDRequest>
+        S.Element == HMTransform<HMCDRequest>
     
     /// Delete some data in memory.
     ///
@@ -65,7 +65,7 @@ public protocol HMCDGeneralRequestProcessorType {
         PO: HMCDPureObjectType,
         PO: HMCDObjectConvertibleType,
         S: Sequence,
-        S.Iterator.Element == HMTransform<HMCDRequest>
+        S.Element == HMTransform<HMCDRequest>
     
     /// Delete all data of some entity name in memory.
     ///
@@ -80,7 +80,7 @@ public protocol HMCDGeneralRequestProcessorType {
                                    _ defaultQoS: DispatchQoS.QoSClass,
                                    _ transforms: S)
         -> Observable<Try<Void>> where
-        S: Sequence, S.Iterator.Element == HMTransform<HMCDRequest>
+        S: Sequence, S.Element == HMTransform<HMCDRequest>
     
     /// Reset the CoreData stack and wipe DB.
     ///
@@ -92,7 +92,7 @@ public protocol HMCDGeneralRequestProcessorType {
                             _ defaultQoS: DispatchQoS.QoSClass,
                             _ transforms: S)
         -> Observable<Try<Void>> where
-        S: Sequence, S.Iterator.Element == HMTransform<HMCDRequest>
+        S: Sequence, S.Element == HMTransform<HMCDRequest>
     
     /// Perform an upsert operation with some upsertable data.
     ///
@@ -108,7 +108,7 @@ public protocol HMCDGeneralRequestProcessorType {
         U: HMCDObjectType,
         U: HMCDUpsertableType,
         S: Sequence,
-        S.Iterator.Element == HMTransform<HMCDRequest>
+        S.Element == HMTransform<HMCDRequest>
     
     /// Perform an upsert operation with some pure objects by constructing
     /// managed objects and then upserting them afterwards.
@@ -127,7 +127,7 @@ public protocol HMCDGeneralRequestProcessorType {
         PO.CDClass: HMCDObjectBuildableType,
         PO.CDClass.Builder.PureObject == PO,
         S: Sequence,
-        S.Iterator.Element == HMTransform<HMCDRequest>
+        S.Element == HMTransform<HMCDRequest>
     
     /// Persist all data to DB.
     ///
@@ -140,7 +140,7 @@ public protocol HMCDGeneralRequestProcessorType {
                              _ defaultQoS: DispatchQoS.QoSClass,
                              _ transform: S)
         -> Observable<Try<Void>> where
-        S: Sequence, S.Iterator.Element == HMTransform<HMCDRequest>
+        S: Sequence, S.Element == HMTransform<HMCDRequest>
     
     /// Stream DB changes for some pure object type.
     ///
@@ -157,7 +157,7 @@ public protocol HMCDGeneralRequestProcessorType {
         PO.CDClass: HMCDPureObjectConvertibleType,
         PO.CDClass.PureObject == PO,
         S: Sequence,
-        S.Iterator.Element == HMTransform<HMCDRequest>
+        S.Element == HMTransform<HMCDRequest>
 }
 
 public extension HMCDGeneralRequestProcessorType {
@@ -203,7 +203,7 @@ public extension HMCDGeneralRequestProcessorType {
         PO.CDClass: HMCDPureObjectConvertibleType,
         PO.CDClass.PureObject == PO,
         S: Sequence,
-        S.Iterator.Element == HMTransform<HMCDRequest>
+        S.Element == HMTransform<HMCDRequest>
     {
         let predicate = predicateForProperties(props, predicateMode)
         
@@ -240,7 +240,7 @@ public extension HMCDGeneralRequestProcessorType {
         PO.CDClass: HMCDPureObjectConvertibleType,
         PO.CDClass.PureObject == PO,
         S: Sequence,
-        S.Iterator.Element == HMTransform<HMCDRequest>
+        S.Element == HMTransform<HMCDRequest>
     {
         let predicate = predicateForProperties(props, predicateMode)
         
@@ -269,7 +269,7 @@ public extension HMCDGeneralRequestProcessorType {
     private func predicateForTextSearch<S>(
         _ requests: S,
         _ joinMode: HMCDCompoundPredicateMode) throws -> NSPredicate where
-        S: Sequence, S.Iterator.Element == HMCDTextSearchRequest
+        S: Sequence, S.Element == HMCDTextSearchRequest
     {
         let predicates = try requests.map({try $0.textSearchPredicate()})
         
@@ -304,7 +304,7 @@ public extension HMCDGeneralRequestProcessorType {
         PO.CDClass: HMCDPureObjectConvertibleType,
         PO.CDClass.PureObject == PO,
         S: Sequence,
-        S.Iterator.Element == HMTransform<HMCDRequest>
+        S.Element == HMTransform<HMCDRequest>
     {
         do {
             let predicate = try predicateForTextSearch(requests, predicateMode)
@@ -342,7 +342,7 @@ public extension HMCDGeneralRequestProcessorType {
         PO.CDClass: HMCDPureObjectConvertibleType,
         PO.CDClass.PureObject == PO,
         S: Sequence,
-        S.Iterator.Element == HMTransform<HMCDRequest>
+        S.Element == HMTransform<HMCDRequest>
     {
         let entityName = try? cls.CDClass.entityName()
         
@@ -382,7 +382,7 @@ public extension HMCDGeneralRequestProcessorType {
         O: ObservableConvertibleType,
         O.E == HMCDPaginationProviderType,
         S: Sequence,
-        S.Iterator.Element == HMTransform<HMCDRequest>
+        S.Element == HMTransform<HMCDRequest>
     {
         return pageObs.asObservable()
             .flatMapLatest({page -> Observable<Try<HMCDEvent<PO>>> in
@@ -427,7 +427,7 @@ public extension HMCDGeneralRequestProcessorType {
         O: ObservableConvertibleType,
         O.E == HMCursorDirection,
         S: Sequence,
-        S.Iterator.Element == HMTransform<HMCDRequest>
+        S.Element == HMTransform<HMCDRequest>
     {
         let paginationObs = pageObs.asObservable()
             .catchErrorJustReturn(.remain)

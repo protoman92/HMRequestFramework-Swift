@@ -408,7 +408,7 @@ public extension HMCDRequestProcessor {
         PO.CDClass: HMCDPureObjectConvertibleType,
         PO.CDClass.PureObject == PO,
         S: Sequence,
-        S.Iterator.Element == HMTransform<Req>
+        S.Element == HMTransform<Req>
     {
         let request = fetchAllRequest(cls)
         let generator = HMRequestGenerators.forceGn(request, Prev.self, transforms)
@@ -421,7 +421,7 @@ public extension HMCDRequestProcessor {
         CD: HMCDObjectType,
         CD: HMCDObjectConvertibleType,
         S: Sequence,
-        S.Iterator.Element == CD
+        S.Element == CD
     {
         return Req.builder()
             .with(cdType: CD.self)
@@ -449,7 +449,7 @@ public extension HMCDRequestProcessor {
         PO.CDClass: HMCDObjectBuildableType,
         PO.CDClass.Builder.PureObject == PO,
         S: Sequence,
-        S.Iterator.Element == HMTransform<Req>
+        S.Element == HMTransform<Req>
     {
         let manager = coreDataManager()
         let context = manager.disposableObjectContext()
@@ -470,7 +470,7 @@ public extension HMCDRequestProcessor {
         PO: HMCDPureObjectType,
         PO: HMCDObjectConvertibleType,
         S: Sequence,
-        S.Iterator.Element == PO
+        S.Element == PO
     {
         return Req.builder()
             .with(operation: .deleteData)
@@ -494,7 +494,7 @@ public extension HMCDRequestProcessor {
         PO: HMCDPureObjectType,
         PO: HMCDObjectConvertibleType,
         S: Sequence,
-        S.Iterator.Element == HMTransform<Req>
+        S.Element == HMTransform<Req>
     {
         let generator: HMRequestGenerator<[PO],Req> = HMRequestGenerators.forceGn({
             let request = self.deleteDataRequest($0)
@@ -527,7 +527,7 @@ public extension HMCDRequestProcessor {
                                           _ defaultQoS: DispatchQoS.QoSClass,
                                           _ transforms: S)
         -> Observable<Try<Void>> where
-        S: Sequence, S.Iterator.Element == HMTransform<Req>
+        S: Sequence, S.Element == HMTransform<Req>
     {
         let request = deleteAllRequest(entityName)
         let generator = HMRequestGenerators.forceGn(request, Prev.self, transforms)
@@ -555,7 +555,7 @@ public extension HMCDRequestProcessor {
                                    _ defaultQoS: DispatchQoS.QoSClass,
                                    _ transforms: S)
         -> Observable<Try<Void>> where
-        S: Sequence, S.Iterator.Element == HMTransform<Req>
+        S: Sequence, S.Element == HMTransform<Req>
     {
         let request = resetStackRequest()
         let generator = HMRequestGenerators.forceGn(request, Prev.self, transforms)
@@ -568,7 +568,7 @@ public extension HMCDRequestProcessor {
         U: HMCDObjectType,
         U: HMCDUpsertableType,
         S: Sequence,
-        S.Iterator.Element == U
+        S.Element == U
     {
         return Req.builder()
             .with(cdType: U.self)
@@ -594,7 +594,7 @@ public extension HMCDRequestProcessor {
         U: HMCDObjectType,
         U: HMCDUpsertableType,
         S: Sequence,
-        S.Iterator.Element == HMTransform<Req>
+        S.Element == HMTransform<Req>
     {
         let generator: HMRequestGenerator<[U],Req> = HMRequestGenerators.forceGn({
             let request = self.upsertRequest($0)
@@ -620,7 +620,7 @@ public extension HMCDRequestProcessor {
         PO.CDClass: HMCDObjectBuildableType,
         PO.CDClass.Builder.PureObject == PO,
         S: Sequence,
-        S.Iterator.Element == HMTransform<Req>
+        S.Element == HMTransform<Req>
     {
         let cdManager = coreDataManager()
         let context = cdManager.disposableObjectContext()
@@ -656,7 +656,7 @@ public extension HMCDRequestProcessor {
                                     _ defaultQoS: DispatchQoS.QoSClass,
                                     _ transforms: S)
         -> Observable<Try<Void>> where
-        S: Sequence, S.Iterator.Element == HMTransform<Req>
+        S: Sequence, S.Element == HMTransform<Req>
     {
         let request = persistToDBRequest()
         let generator = HMRequestGenerators.forceGn(request, Prev.self, transforms)
@@ -700,7 +700,7 @@ public extension HMCDRequestProcessor {
         PO.CDClass: HMCDPureObjectConvertibleType,
         PO.CDClass.PureObject == PO,
         S: Sequence,
-        S.Iterator.Element == HMTransform<Req>
+        S.Element == HMTransform<Req>
     {
         let manager = coreDataManager()
         let request = streamDBEventsRequest(cls)

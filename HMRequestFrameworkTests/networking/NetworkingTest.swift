@@ -85,14 +85,14 @@ public final class NetworkingTest: RootTest {
 
         let request = Req.builder()
             .with(urlString: "https://google.com")
-            .with(operation: .upload)
+            .with(operation: .put)
             .with(uploadData: data)
             .build()
 
         let generator = HMRequestGenerators.forceGn(request, Any.self)
 
         /// When
-        handler.execute(dummy, generator, .background)
+        handler.executeUpload(dummy, generator, .background)
             .doOnDispose(expect.fulfill)
             .subscribe(observer)
             .disposed(by: disposeBag)
@@ -141,12 +141,9 @@ public final class NetworkingTest: RootTest {
         let request6 = checkError(request5.cloneBuilder().with(body: ["1" : "2"]).build(), false)
         
         /// 7
-        let request7 = checkError(request6.cloneBuilder().with(operation: .upload).build(), true)
-        
-        /// 8
-        let request8 = checkError(request7.cloneBuilder().with(uploadData: Data(capacity: 0)).build(), false)
+        let request7 = checkError(request6.cloneBuilder().with(uploadData: Data(capacity: 0)).build(), false)
         
         /// End
-        _ = request8
+        _ = request7
     }
 }

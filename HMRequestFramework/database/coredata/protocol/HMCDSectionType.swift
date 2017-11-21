@@ -18,11 +18,10 @@ public protocol HMCDSectionType {
     var numberOfObjects: Int { get }
     var objects: [V] { get }
     
-    init<S>(indexTitle: String?,
-            name: String,
-            numberOfObjects: Int,
-            objects: S) where
-        S: Sequence, S.Iterator.Element == V
+    init(indexTitle: String?,
+         name: String,
+         numberOfObjects: Int,
+         objects: [V])
 }
 
 public extension HMCDSectionType {
@@ -31,10 +30,30 @@ public extension HMCDSectionType {
     ///
     /// - Returns: A Self instance.
     static func empty() -> Self {
-        return Self.init(indexTitle: nil,
-                         name: "",
-                         numberOfObjects: 0,
-                         objects: [])
+        return Self.init(indexTitle: nil, name: "", objects: [])
+    }
+    
+    public init(indexTitle: String?, name: String, objects: [V]) {
+        self.init(indexTitle: indexTitle,
+                  name: name,
+                  numberOfObjects: objects.count,
+                  objects: objects)
+    }
+    
+    public init<S>(indexTitle: String?,
+                   name: String,
+                   numberOfObjects: Int,
+                   objects: S) where S: Sequence, S.Element == V {
+        self.init(indexTitle: indexTitle,
+                  name: name,
+                  numberOfObjects: numberOfObjects,
+                  objects: objects.map({$0}))
+    }
+    
+    public init<S>(indexTitle: String?, name: String, objects: S) where
+        S: Sequence, S.Element == V
+    {
+        self.init(indexTitle: indexTitle, name: name, objects: objects.map({$0}))
     }
     
     public init<ST>(_ type: ST) where ST: HMCDSectionType, ST.V == V {
@@ -57,5 +76,25 @@ public extension HMCDSectionType {
     
     public func withObjectLimit(_ limit: Int) -> Self {
         return Self.init(self, limit)
+    }
+    
+    
+    /// Map the current objects to a different type using a mapper function.
+    ///
+    /// - Parameters:
+    ///   - f: Mapper function.
+    ///   - sectionCls: The section class type resulting from the conversion.
+    /// - Returns: A SC instance.
+    public func mapObjects<V2,SC,S>(_ f: (([V]) throws -> S?),
+                                    _ sectionCls: SC.Type) -> SC where
+        SC: HMCDSectionType, SC.V == V2, S: Sequence, S.Element == V2
+    {
+        let newObjects = ((try? f(objects)?.map({$0})) ?? []) ?? []
+        let numberOfObjects = newObjects.count
+        
+        return SC.init(indexTitle: indexTitle,
+                       name: name,
+                       numberOfObjects: numberOfObjects,
+                       objects: newObjects)
     }
 }

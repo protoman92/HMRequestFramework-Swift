@@ -126,7 +126,7 @@ extension HMCDRequest: HMBuildableType {
         /// - Returns: The current Builder instance.
         @discardableResult
         public func with<S>(sortDescriptors: S?) -> Self where
-            S: Sequence, S.Iterator.Element == NSSortDescriptor
+            S: Sequence, S.Element == NSSortDescriptor
         {
             if let descriptors = sortDescriptors {
                 request.nsSortDescriptors.append(contentsOf: descriptors)
@@ -141,7 +141,7 @@ extension HMCDRequest: HMBuildableType {
         /// - Returns: The current Builder instance.
         @discardableResult
         public func with<S>(sortDescriptors: S?) -> Self where
-            S: Sequence, S.Iterator.Element: NSSortDescriptor
+            S: Sequence, S.Element: NSSortDescriptor
         {
             return with(sortDescriptors: sortDescriptors?.map({$0 as NSSortDescriptor}))
         }
@@ -227,7 +227,7 @@ extension HMCDRequest: HMBuildableType {
         /// - Returns: The current Builder instance.
         @discardableResult
         public func with<S>(fetchProperties: S?) -> Self where
-            S: Sequence, S.Iterator.Element == Any
+            S: Sequence, S.Element == Any
         {
             request.cdFetchProperties = fetchProperties?.map({$0}) ?? []
             return self
@@ -239,7 +239,7 @@ extension HMCDRequest: HMBuildableType {
         /// - Returns: The current Builder instance.
         @discardableResult
         public func with<S>(fetchProperties: S?) -> Self where
-            S: Sequence, S.Iterator.Element: Any
+            S: Sequence, S.Element: Any
         {
             return with(fetchProperties: fetchProperties?.map({$0 as Any}))
         }
@@ -260,7 +260,7 @@ extension HMCDRequest: HMBuildableType {
         /// - Returns: The current Builder instance.
         @discardableResult
         public func with<S>(fetchGroupBy: S?) -> Self where
-            S: Sequence, S.Iterator.Element == Any
+            S: Sequence, S.Element == Any
         {
             request.cdFetchGroupBy = fetchGroupBy?.map({$0}) ?? []
             return self
@@ -272,7 +272,7 @@ extension HMCDRequest: HMBuildableType {
         /// - Returns: The current Builder instance.
         @discardableResult
         public func with<S>(fetchGroupBy: S?) -> Self where
-            S: Sequence, S.Iterator.Element: Any
+            S: Sequence, S.Element: Any
         {
             return with(fetchGroupBy: fetchGroupBy?.map({$0 as Any}))
         }
@@ -323,7 +323,7 @@ extension HMCDRequest: HMBuildableType {
         /// - Returns: The current Builder instance.
         @discardableResult
         public func with<S>(insertedData: S?) -> Self where
-            S: Sequence, S.Iterator.Element == HMCDObjectConvertibleType
+            S: Sequence, S.Element == HMCDObjectConvertibleType
         {
             if let data = insertedData {
                 request.cdInsertedData.append(contentsOf: data)
@@ -338,7 +338,7 @@ extension HMCDRequest: HMBuildableType {
         /// - Returns: The current Builder instance.
         @discardableResult
         public func with<S>(insertedData: S?) -> Self where
-            S: Sequence, S.Iterator.Element: HMCDObjectConvertibleType
+            S: Sequence, S.Element: HMCDObjectConvertibleType
         {
             return with(insertedData: insertedData?.map({$0 as HMCDObjectConvertibleType}))
         }
@@ -349,7 +349,7 @@ extension HMCDRequest: HMBuildableType {
         /// - Returns: The current Builder instance.
         @discardableResult
         public func with<S>(upsertedData: S?) -> Self where
-            S: Sequence, S.Iterator.Element == HMCDUpsertableType
+            S: Sequence, S.Element == HMCDUpsertableType
         {
             if let data = upsertedData {
                 request.cdUpsertedData.append(contentsOf: data)
@@ -364,7 +364,7 @@ extension HMCDRequest: HMBuildableType {
         /// - Returns: The current Builder instance.
         @discardableResult
         public func with<S>(upsertedData: S?) -> Self where
-            S: Sequence, S.Iterator.Element: HMCDUpsertableType
+            S: Sequence, S.Element: HMCDUpsertableType
         {
             return with(upsertedData: upsertedData?.map({$0 as HMCDUpsertableType}))
         }
@@ -375,7 +375,7 @@ extension HMCDRequest: HMBuildableType {
         /// - Returns: The current Builder instance.
         @discardableResult
         public func with<S>(deletedData: S?) -> Self where
-            S: Sequence, S.Iterator.Element == HMCDObjectConvertibleType
+            S: Sequence, S.Element == HMCDObjectConvertibleType
         {
             if let data = deletedData {
                 request.cdDeletedData.append(contentsOf: data)
@@ -390,7 +390,7 @@ extension HMCDRequest: HMBuildableType {
         /// - Returns: The current Builder instance.
         @discardableResult
         public func with<S>(deletedData: S?) -> Self where
-            S: Sequence, S.Iterator.Element: HMCDObjectConvertibleType
+            S: Sequence, S.Element: HMCDObjectConvertibleType
         {
             return with(deletedData: deletedData?.map({$0 as HMCDObjectConvertibleType}))
         }
@@ -434,7 +434,7 @@ extension HMCDRequest.Builder: HMRequestBuilderType {
     /// - Parameter mwFilters: An Array of filters.
     /// - Returns: The current Builder instance.
     public func with<S>(mwFilters: S) -> Self where
-        S: Sequence, S.Iterator.Element == HMMiddlewareFilter<Buildable>
+        S: Sequence, S.Element == HMMiddlewareFilter<Buildable>
     {
         request.cdMWFilters = mwFilters.map({$0})
         return self

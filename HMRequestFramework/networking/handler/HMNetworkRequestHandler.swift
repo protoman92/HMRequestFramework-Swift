@@ -53,13 +53,46 @@ public struct HMNetworkRequestHandler {
             .map(Try.success)
             .catchErrorJustReturn(Try.failure)
     }
+}
+
+extension HMNetworkRequestHandler: HMNetworkRequestHandlerType {
+    public typealias Req = HMNetworkRequest
+    
+    /// Override this method to provide default implementation.
+    ///
+    /// - Returns: A HMFilterMiddlewareManager instance.
+    public func requestMiddlewareManager() -> HMFilterMiddlewareManager<Req>? {
+        return rqmManager
+    }
+    
+    /// Override this method to provide default implementation.
+    ///
+    /// - Returns: A HMFilterMiddlewareManager instance.
+    public func errorMiddlewareManager() -> HMFilterMiddlewareManager<HMErrorHolder>? {
+        return emManager
+    }
+    
+    /// Perform a network request.
+    ///
+    /// - Parameters previous: A Req instance.
+    /// - Returns: An Observable instance.
+    public func execute(_ request: Req) throws -> Observable<Try<Data>> {
+        Preconditions.checkNotRunningOnMainThread(request)
+        return try executeData(request)
+    }
+    
+    public func executeSSE(_ request: Req) throws -> Observable<Try<[HMSSEvent<HMSSEData>]>> {
+        let sseManager = self.eventSourceManager()
+        let sseRequest = request.asSSERequest()
+        return sseManager.rx.openConnection(sseRequest).map(Try.success)
+    }
     
     /// Execute an upload request.
     ///
     /// - Parameter request: A Req instance.
     /// - Returns: An Observable instance.
     /// - Throws: Exception if the operation fails.
-    fileprivate func executeUpload(_ request: Req) throws -> Observable<Try<Data>> {
+    public func executeUpload(_ request: Req) throws -> Observable<Try<Data>> {
         Preconditions.checkNotRunningOnMainThread(request)
         let urlSession = self.urlSession()
         let urlRequest = try request.urlRequest()
@@ -80,47 +113,6 @@ public struct HMNetworkRequestHandler {
             .delayRetry(retries: retries, delay: delay)
             .map(Try.success)
             .catchErrorJustReturn(Try.failure)
-    }
-    
-    /// Perform a network request.
-    ///
-    /// - Parameters previous: A Req instance.
-    /// - Returns: An Observable instance.
-    public func execute(_ request: Req) throws -> Observable<Try<Data>> {
-        Preconditions.checkNotRunningOnMainThread(request)
-        let operation  = try request.operation()
-        
-        switch operation {
-        case .upload:
-            return try executeUpload(request)
-            
-        default:
-            return try executeData(request)
-        }
-    }
-}
-
-extension HMNetworkRequestHandler: HMNetworkRequestHandlerType {
-    public typealias Req = HMNetworkRequest
-    
-    /// Override this method to provide default implementation.
-    ///
-    /// - Returns: A HMFilterMiddlewareManager instance.
-    public func requestMiddlewareManager() -> HMFilterMiddlewareManager<Req>? {
-        return rqmManager
-    }
-    
-    /// Override this method to provide default implementation.
-    ///
-    /// - Returns: A HMFilterMiddlewareManager instance.
-    public func errorMiddlewareManager() -> HMFilterMiddlewareManager<HMErrorHolder>? {
-        return emManager
-    }
-    
-    public func executeSSE(_ request: Req) throws -> Observable<Try<[HMSSEvent<HMSSEData>]>> {
-        let sseManager = self.eventSourceManager()
-        let sseRequest = request.asSSERequest()
-        return sseManager.rx.openConnection(sseRequest).map(Try.success)
     }
 }
 

@@ -18,7 +18,7 @@ public extension HMCDManager {
     /// - Parameter data: A Sequence of HMCDIdentifiableType.
     /// - Returns: A NSPredicate instance.
     func predicateForIdentifiableFetch<S>(_ identifiables: S) -> NSPredicate where
-        S: Sequence, S.Iterator.Element == HMIdentifiableType
+        S: Sequence, S.Element == HMIdentifiableType
     {
         return NSCompoundPredicate(orPredicateWithSubpredicates:
             HMIdentifiables
@@ -34,7 +34,7 @@ public extension HMCDManager {
     /// - Parameter data: A Sequence of HMCDIdentifiableType.
     /// - Returns: A NSPredicate instance.
     func predicateForIdentifiableFetch<S>(_ identifiables: S) -> NSPredicate where
-        S: Sequence, S.Iterator.Element: HMIdentifiableType
+        S: Sequence, S.Element: HMIdentifiableType
     {
         let identifiables = identifiables.map({$0 as HMIdentifiableType})
         return predicateForIdentifiableFetch(identifiables)
@@ -45,7 +45,7 @@ public extension HMCDManager {
     /// - Parameter identifiables: A Sequence of HMCDIdentifiableType.
     /// - Returns: An Array of NSSortDescriptor.
     func sortForIdentifiableFetch<S>(_ identifiables: S) -> [NSSortDescriptor] where
-        S: Sequence, S.Iterator.Element == HMIdentifiableType
+        S: Sequence, S.Element == HMIdentifiableType
     {
         let pk = identifiables.first(where: {$0.primaryValue() != nil})?.primaryKey()
         return [NSSortDescriptor(key: pk, ascending: true)]
@@ -56,7 +56,7 @@ public extension HMCDManager {
     /// - Parameter identifiables: A Sequence of HMCDIdentifiableType.
     /// - Returns: An Array of NSSortDescriptor.
     func sortForIdentifiableFetch<S>(_ identifiables: S) -> [NSSortDescriptor] where
-        S: Sequence, S.Iterator.Element: HMIdentifiableType
+        S: Sequence, S.Element: HMIdentifiableType
     {
         let identifiables = identifiables.map({$0 as HMIdentifiableType})
         return sortForIdentifiableFetch(identifiables)
@@ -118,7 +118,7 @@ public extension HMCDManager {
     /// - Throws: Exception if the fetch fails.
     func blockingRefetch<S>(_ context: Context, _ data: S) throws
         -> [NSManagedObject] where
-        S: Sequence, S.Iterator.Element: NSManagedObject
+        S: Sequence, S.Element: NSManagedObject
     {
         return try data.map({$0.objectID}).flatMap(context.existingObject)
     }
@@ -154,8 +154,8 @@ public extension HMCDManager {
         _ iCls: ID.Type,
         _ rCls: FR.Type) throws -> [FR] where
         FR: NSFetchRequestResult,
-        S: Sequence, S.Iterator.Element == ID,
-        SS: Sequence, SS.Iterator.Element == NSSortDescriptor
+        S: Sequence, S.Element == ID,
+        SS: Sequence, SS.Element == NSSortDescriptor
     {
         Preconditions.checkNotRunningOnMainThread(entityName)
         
@@ -187,7 +187,7 @@ public extension HMCDManager {
         _ rCls: FR.Type) throws -> [FR] where
         FR: NSFetchRequestResult,
         S: Sequence,
-        S.Iterator.Element == HMCDIdentifiableType
+        S.Element == HMCDIdentifiableType
     {
         let identifiables = ids.map({$0 as HMIdentifiableType})
         let predicate = predicateForIdentifiableFetch(identifiables)
@@ -222,7 +222,7 @@ public extension HMCDManager {
         U: HMCDIdentifiableType,
         FR: NSFetchRequestResult,
         S: Sequence,
-        S.Iterator.Element == U
+        S.Element == U
     {
         let ids = ids.map({$0 as HMCDIdentifiableType})
         return try blockingFetchIdentifiables(context, entityName, ids, rCls)
@@ -243,7 +243,7 @@ public extension HMCDManager {
         U: NSFetchRequestResult,
         U: HMCDIdentifiableType,
         S: Sequence,
-        S.Iterator.Element == U
+        S.Element == U
     {
         return try blockingFetchIdentifiables(context, entityName, ids, U.self)
     }
@@ -262,7 +262,7 @@ public extension HMCDManager {
                                          _ ids: S) throws -> [NSManagedObject] where
         U: HMCDIdentifiableType,
         S: Sequence,
-        S.Iterator.Element == U
+        S.Element == U
     {
         let rCls = NSManagedObject.self
         return try blockingFetchIdentifiables(context, entityName, ids, rCls)
@@ -280,7 +280,7 @@ public extension HMCDManager {
     func blockingFetchIdentifiables<S>(_ context: Context,
                                        _ entityName: String,
                                        _ ids: S) throws -> [NSManagedObject] where
-        S: Sequence, S.Iterator.Element == HMCDIdentifiableType
+        S: Sequence, S.Element == HMCDIdentifiableType
     {
         let rCls = NSManagedObject.self
         return try blockingFetchIdentifiables(context, entityName, ids, rCls)
@@ -334,7 +334,7 @@ public extension HMCDManager {
                                    _ obs: O) -> Disposable where
         U: HMCDIdentifiableType,
         S: Sequence,
-        S.Iterator.Element == U,
+        S.Element == U,
         O: ObserverType,
         O.E == [NSManagedObject]
     {
@@ -370,7 +370,7 @@ public extension HMCDManager {
         U: NSFetchRequestResult,
         U: HMCDIdentifiableType,
         S: Sequence,
-        S.Iterator.Element == U,
+        S.Element == U,
         O: ObserverType,
         O.E == [U]
     {
@@ -457,7 +457,7 @@ public extension Reactive where Base == HMCDManager {
         -> Observable<[NSManagedObject]> where
         U: HMCDIdentifiableType,
         S: Sequence,
-        S.Iterator.Element == U
+        S.Element == U
     {
         return Observable.create({
             self.base.fetchIdentifiables(context, entityName, ids, opMode, $0)
@@ -481,7 +481,7 @@ public extension Reactive where Base == HMCDManager {
         U: NSFetchRequestResult,
         U: HMCDIdentifiableType,
         S: Sequence,
-        S.Iterator.Element == U
+        S.Element == U
     {
         return Observable.create({
             self.base.fetchIdentifiables(context, entityName, ids, opMode, $0)

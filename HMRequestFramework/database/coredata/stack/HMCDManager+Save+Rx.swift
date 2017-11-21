@@ -42,12 +42,12 @@ public extension HMCDManager {
     func saveUnsafely<S>(_ context: Context, _ pureObjects: S) throws where
         
         // For some reasons, XCode 8 cannot compile if we define a separate
-        // generics for S.Iterator.Element. Although this is longer, it works
+        // generics for S.Element. Although this is longer, it works
         // for both XCode 8 and 9.
         S: Sequence,
-        S.Iterator.Element: HMCDPureObjectType,
-        S.Iterator.Element.CDClass: HMCDObjectBuildableType,
-        S.Iterator.Element.CDClass.Builder.PureObject == S.Iterator.Element
+        S.Element: HMCDPureObjectType,
+        S.Element.CDClass: HMCDObjectBuildableType,
+        S.Element.CDClass.Builder.PureObject == S.Element
     {
         let pureObjects = pureObjects.map({$0})
         
@@ -69,7 +69,7 @@ public extension HMCDManager {
     /// - Returns: An Array of HMResult.
     /// - Throws: Exception if the operation fails.
     func convert<S>(_ context: Context, _ convertibles: S) -> [HMCDResult] where
-        S: Sequence, S.Iterator.Element == HMCDObjectConvertibleType
+        S: Sequence, S.Element == HMCDObjectConvertibleType
     {
         var results: [HMCDResult] = []
         
@@ -101,7 +101,7 @@ public extension HMCDManager {
     /// - Returns: An Array of HMResult.
     /// - Throws: Exception if the operation fails.
     func convert<U,S>(_ context: Context, _ convertibles: S) -> [HMCDResult] where
-        U: HMCDObjectConvertibleType, S: Sequence, S.Iterator.Element == U
+        U: HMCDObjectConvertibleType, S: Sequence, S.Element == U
     {
         return convert(context, convertibles.map({$0 as HMCDObjectConvertibleType}))
     }
@@ -177,7 +177,7 @@ public extension HMCDManager {
         PO.CDClass: HMCDObjectBuildableType,
         PO.CDClass.Builder.PureObject == PO,
         S: Sequence,
-        S.Iterator.Element == PO,
+        S.Element == PO,
         O: ObserverType,
         O.E == Void
     {
@@ -211,7 +211,7 @@ public extension HMCDManager {
                                _ opMode: HMCDOperationMode,
                                _ obs: O) -> Disposable where
         S: Sequence,
-        S.Iterator.Element == HMCDObjectConvertibleType,
+        S.Element == HMCDObjectConvertibleType,
         O: ObserverType,
         O.E == [HMCDResult]
     {
@@ -252,7 +252,7 @@ public extension HMCDManager {
                                  _ opMode: HMCDOperationMode,
                                  _ obs: O) -> Disposable where
         U: HMCDObjectConvertibleType,
-        S: Sequence, S.Iterator.Element == U,
+        S: Sequence, S.Element == U,
         O: ObserverType, O.E == [HMCDResult]
     {
         let convertibles = convertibles.map({$0 as HMCDObjectConvertibleType})
@@ -288,7 +288,7 @@ public extension Reactive where Base == HMCDManager {
         PO.CDClass: HMCDObjectBuildableType,
         PO.CDClass.Builder.PureObject == PO,
         S: Sequence,
-        S.Iterator.Element == PO
+        S.Element == PO
     {
         return Observable.create({
             self.base.savePureObjects(context, pureObjects, opMode, $0)
@@ -306,7 +306,7 @@ public extension Reactive where Base == HMCDManager {
                              _ convertibles: S,
                              _ opMode: HMCDOperationMode = .queued)
         -> Observable<[HMCDResult]> where
-        S: Sequence, S.Iterator.Element == HMCDObjectConvertibleType
+        S: Sequence, S.Element == HMCDObjectConvertibleType
     {
         return Observable.create({
             self.base.saveConvertibles(context, convertibles, opMode, $0)
@@ -325,7 +325,7 @@ public extension Reactive where Base == HMCDManager {
                                 _ opMode: HMCDOperationMode = .queued)
         -> Observable<[HMCDResult]> where
         OC: HMCDObjectConvertibleType,
-        S: Sequence, S.Iterator.Element == OC
+        S: Sequence, S.Element == OC
     {
         let convertibles = convertibles.map({$0 as HMCDObjectConvertibleType})
         return saveConvertibles(context, convertibles, opMode)

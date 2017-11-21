@@ -18,7 +18,7 @@ public final class HMMiddlewareFilters {
         -> HMMiddlewareFilter<T> where
         T: HMMiddlewareFilterableType,
         S: Sequence,
-        S.Iterator.Element == T.Filterable
+        S.Element == T.Filterable
     {
         return HMMiddlewareFilter<T>({filterables.contains($0.1)})
     }
@@ -43,7 +43,7 @@ public final class HMMiddlewareFilters {
         -> HMMiddlewareFilter<T> where
         T: HMMiddlewareFilterableType,
         S: Sequence,
-        S.Iterator.Element == T.Filterable
+        S.Element == T.Filterable
     {
         return HMMiddlewareFilter<T>({!filterables.contains($0.1)})
     }

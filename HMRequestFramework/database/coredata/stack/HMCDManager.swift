@@ -84,7 +84,7 @@ public struct HMCDManager {
     /// - Throws: Exception if the settings cannot be applied.
     func applyStoreSettings<S>(_ coordinator: NSPersistentStoreCoordinator,
                                _ settings: S) throws where
-        S: Sequence, S.Iterator.Element == HMCDStoreSettings
+        S: Sequence, S.Element == HMCDStoreSettings
     {
         try settings.forEach({
             try coordinator.addPersistentStore(

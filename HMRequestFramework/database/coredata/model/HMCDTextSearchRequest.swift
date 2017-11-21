@@ -120,7 +120,7 @@ extension HMCDTextSearchRequest: HMBuildableType {
         /// - Returns: The current Builder instance.
         @discardableResult
         public func add<S>(modifiers: S) -> Self where
-            S: Sequence, S.Iterator.Element == Modifier
+            S: Sequence, S.Element == Modifier
         {
             request.pModifiers.append(contentsOf: modifiers)
             return self
@@ -132,7 +132,7 @@ extension HMCDTextSearchRequest: HMBuildableType {
         /// - Returns: The current Builder instance.
         @discardableResult
         public func with<S>(modifiers: S) -> Self where
-            S: Sequence, S.Iterator.Element == Modifier
+            S: Sequence, S.Element == Modifier
         {
             request.pModifiers.removeAll()
             return self.add(modifiers: modifiers)

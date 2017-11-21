@@ -57,7 +57,7 @@ public final class HMRequestGenerators {
                                            _ pcls: Prev.Type,
                                            _ transforms: S)
         -> HMRequestGenerator<Prev,Req> where
-        S: Sequence, S.Iterator.Element == HMTransform<Req>
+        S: Sequence, S.Element == HMTransform<Req>
     {
         return forceGn({_ in HMTransforms.applyTransformers(request, transforms)})
     }

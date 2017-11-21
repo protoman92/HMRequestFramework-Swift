@@ -62,21 +62,28 @@ extension HMNetworkRequestProcessor: HMNetworkRequestHandlerType {
     
     /// Override this method to provide default implementation.
     ///
-    /// - Parameters:
-    ///   - previous: The result of the upstream request.
-    ///   - generator: Generator function to create the current request.
+    /// - Parameter request: A Req instance.
     /// - Returns: An Observable instance.
+    /// - Throws: Exception if the operation fails.
     public func execute(_ request: Req) throws -> Observable<Try<Data>> {
         return try handler.execute(request)
     }
     
     /// Override this method to provide default implementation.
     ///
-    /// - Parameters:
-    ///   - previous: The result of the upstream request.
-    ///   - generator: Generator function to create the current request.
+    /// - Parameter request: A Req instance.
     /// - Returns: An Observable instance.
+    /// - Throws: Exception if the operation fails.
     public func executeSSE(_ request: Req) throws -> Observable<Try<[HMSSEvent<HMSSEData>]>> {
         return try handler.executeSSE(request)
+    }
+    
+    /// Override this method to provide default implementation.
+    ///
+    /// - Parameter request: A Req instance.
+    /// - Returns: An Observable instance.
+    /// - Throws: Exception if the operation fails.
+    public func executeUpload(_ request: Req) throws -> Observable<Try<Data>> {
+        return try handler.executeUpload(request)
     }
 }
