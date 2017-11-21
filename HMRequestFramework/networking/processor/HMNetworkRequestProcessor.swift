@@ -21,28 +21,6 @@ public struct HMNetworkRequestProcessor {
     }
 }
 
-extension HMNetworkRequestProcessor: HMNetworkRequestProcessorType {
-    
-    /// Override this method to provide default implementation.
-    ///
-    /// - Parameters:
-    ///   - previous: The result of the upstream request.
-    ///   - generator: Generator function to create the current request.
-    ///   - processor: Processor function to process the result.
-    ///   - defaultQoS: The QoSClass instance to perform work on.
-    /// - Returns: An Observable instance.
-    public func process<Prev,Res>(
-        _ previous: Try<Prev>,
-        _ generator: @escaping HMRequestGenerator<Prev,HMNetworkRequest>,
-        _ processor: @escaping HMResultProcessor<Data,Res>,
-        _ defaultQoS: DispatchQoS.QoSClass)
-        -> Observable<Try<Res>>
-    {
-        return handler.execute(previous, generator, defaultQoS)
-            .flatMap({try HMResultProcessors.processResultFn($0, processor)})
-    }
-}
-
 extension HMNetworkRequestProcessor: HMNetworkRequestHandlerType {
     public typealias Req = HMNetworkRequestHandler.Req
     
@@ -87,3 +65,5 @@ extension HMNetworkRequestProcessor: HMNetworkRequestHandlerType {
         return try handler.executeUpload(request)
     }
 }
+
+extension HMNetworkRequestProcessor: HMNetworkRequestProcessorType {}

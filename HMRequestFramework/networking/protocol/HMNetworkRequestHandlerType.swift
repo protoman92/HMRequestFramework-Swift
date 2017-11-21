@@ -42,14 +42,14 @@ public extension HMNetworkRequestHandlerType {
     /// - Parameters:
     ///   - previous: The result of the upstream request.
     ///   - generator: Generator function to create the current request.
-    ///   - defaultQoS: The QoSClass instance to perform work on.
+    ///   - qos: The QoSClass instance to perform work on.
     /// - Returns: An Observable instance.
     public func execute<Prev>(_ previous: Try<Prev>,
                               _ generator: @escaping HMRequestGenerator<Prev,Req>,
-                              _ defaultQoS: DispatchQoS.QoSClass)
+                              _ qos: DispatchQoS.QoSClass)
         -> Observable<Try<Data>>
     {
-        return execute(previous, generator, execute, defaultQoS)
+        return execute(previous, generator, execute, qos)
     }
     
     /// Perform a SSE stream request.
@@ -57,14 +57,14 @@ public extension HMNetworkRequestHandlerType {
     /// - Parameters:
     ///   - previous: The result of the upstream request.
     ///   - generator: Generator function to create the current request.
-    ///   - defaultQoS: The QoSClass instance to perform work on.
+    ///   - qos: The QoSClass instance to perform work on.
     /// - Returns: An Observable instance.
     public func executeSSE<Prev>(_ previous: Try<Prev>,
                                  _ generator: @escaping HMRequestGenerator<Prev,Req>,
-                                 _ defaultQoS: DispatchQoS.QoSClass)
+                                 _ qos: DispatchQoS.QoSClass)
         -> Observable<Try<[HMSSEvent<HMSSEData>]>>
     {
-        return execute(previous, generator, executeSSE, defaultQoS)
+        return execute(previous, generator, executeSSE, qos)
     }
     
     /// Perfor an upload request.
@@ -72,13 +72,13 @@ public extension HMNetworkRequestHandlerType {
     /// - Parameters:
     ///   - previous: The result of the upstream request.
     ///   - generator: Generator function to create the current request.
-    ///   - defaultQoS: The QoSClass instance to perform work on.
+    ///   - qos: The QoSClass instance to perform work on.
     /// - Returns: An Observable instance.
     public func executeUpload<Prev>(_ previous: Try<Prev>,
                                     _ generator: @escaping HMRequestGenerator<Prev,Req>,
-                                    _ defaultQoS: DispatchQoS.QoSClass)
+                                    _ qos: DispatchQoS.QoSClass)
         -> Observable<Try<Data>>
     {
-        return execute(previous, generator, executeUpload, defaultQoS)
+        return execute(previous, generator, executeUpload, qos)
     }
 }

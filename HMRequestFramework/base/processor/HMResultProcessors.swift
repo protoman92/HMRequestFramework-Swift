@@ -25,10 +25,11 @@ public final class HMResultProcessors {
         _ processor: @escaping HMResultProcessor<Val,Res>) throws
         -> Observable<Try<Res>>
     {
-        return Observable.just(previous)
-            .map({try $0.getOrThrow()})
-            .flatMap(processor)
-            .catchErrorJustReturn(Try.failure)
+        do {
+            return try processor(previous.getOrThrow())
+        } catch let e {
+            return Observable.just(Try.failure(e))
+        }
     }
     
     /// Get a result processor that does no transformation.

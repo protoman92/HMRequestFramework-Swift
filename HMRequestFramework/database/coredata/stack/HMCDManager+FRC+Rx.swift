@@ -106,13 +106,13 @@ public extension Reactive where Base == HMCDManager {
     ///   - context: A Context instance.
     ///   - request: A FRCRequest instance.
     ///   - cls: The PO class type.
-    ///   - defaultQoS: The QoSClass instance to perform work on.
+    ///   - qos: The QoSClass instance to perform work on.
     /// - Return: An Observable instance.
     /// - Throws: Exception if the stream cannot be started.
     func startDBStream<PO>(_ context: HMCDManager.Context,
                            _ request: HMCDManager.FRCRequest,
                            _ cls: PO.Type,
-                           _ defaultQoS: DispatchQoS.QoSClass)
+                           _ qos: DispatchQoS.QoSClass)
         -> Observable<HMCDEvent<PO>> where
         PO: HMCDPureObjectType,
         PO.CDClass: HMCDPureObjectConvertibleType,
@@ -138,7 +138,7 @@ public extension Reactive where Base == HMCDManager {
                     
                     return self.startDBStream(frc, request, obs)
                 })
-                .subscribeOnConcurrent(qos: defaultQoS)
+                .subscribeOnConcurrent(qos: qos)
                 
                 // All events' objects will be implicitly converted to PO. For e.g.,
                 // for a section change event, the underlying HMCDEvent<Any> will
@@ -156,17 +156,17 @@ public extension Reactive where Base == HMCDManager {
     /// - Parameter:
     ///   - request: A FRCRequest instance.
     ///   - cls: The PO class type.
-    ///   - defaultQoS: The QoSClass instance to perform work on.
+    ///   - qos: The QoSClass instance to perform work on.
     /// - Return: An Observable instance.
     /// - Throws: Exception if the stream cannot be started.
     public func startDBStream<PO>(_ request: HMCDManager.FRCRequest,
                                   _ cls: PO.Type,
-                                  _ defaultQoS: DispatchQoS.QoSClass)
+                                  _ qos: DispatchQoS.QoSClass)
         -> Observable<HMCDEvent<PO>> where
         PO: HMCDPureObjectType,
         PO.CDClass: HMCDPureObjectConvertibleType,
         PO.CDClass.PureObject == PO
     {
-        return startDBStream(base.mainObjectContext(), request, cls, defaultQoS)
+        return startDBStream(base.mainObjectContext(), request, cls, qos)
     }
 }

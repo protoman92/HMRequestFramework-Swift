@@ -30,7 +30,7 @@ extension MockRequest: HMRequestType {
         return mFilters
     }
     
-    public func defaultQoS() -> DispatchQoS.QoSClass {
+    public func qos() -> DispatchQoS.QoSClass {
         return .background
     }
     
@@ -80,7 +80,7 @@ public extension MockRequest {
         }
         
         @discardableResult
-        public func with(defaultQoS: DispatchQoS.QoSClass) -> Self {
+        public func with(qos: DispatchQoS.QoSClass) -> Self {
             return self
         }
         

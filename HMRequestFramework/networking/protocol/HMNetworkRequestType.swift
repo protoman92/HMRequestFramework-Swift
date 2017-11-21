@@ -36,6 +36,11 @@ public protocol HMNetworkRequestType: HMRequestType, HMNetworkResourceType {
 }
 
 public extension HMNetworkRequestType {
+    
+    /// Get the base URLRequest that does not contain a body.
+    ///
+    /// - Returns: A URLRequest instance.
+    /// - Throws: Exception if the request cannot be generated.
     func baseUrlRequest() throws -> URLRequest {
         var urlString = try self.urlString()
         let params = self.params()
@@ -61,7 +66,7 @@ public extension HMNetworkRequestType {
     }
     
     /// Depending on the operation, we will need to add additional parameters
-    /// to the URLRequest.
+    /// to the URLRequest. This URLRequest may contain the body as well.
     ///
     /// - Returns: A URLRequest instance.
     /// - Throws: Exception if the request cannot be generated.
@@ -71,9 +76,10 @@ public extension HMNetworkRequestType {
         
         switch method {
         case .post, .put, .patch:
-            request.httpBody = try JSONSerialization.data(
-                withJSONObject: try self.body(),
-                options: .prettyPrinted)
+            let body = try self.body()
+            let options: JSONSerialization.WritingOptions = .prettyPrinted
+            let httpBody = try JSONSerialization.data(withJSONObject: body, options: options)
+            request.httpBody = httpBody
             
         default:
             break
