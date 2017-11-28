@@ -37,7 +37,7 @@ public extension HMCDSectionType {
         self.init(indexTitle: indexTitle,
                   name: name,
                   numberOfObjects: objects.count,
-                  objects: objects)
+                  objects: objects.map({$0}))
     }
     
     public init<S>(indexTitle: String?,
@@ -60,7 +60,7 @@ public extension HMCDSectionType {
         self.init(indexTitle: type.indexTitle,
                   name: type.name,
                   numberOfObjects: type.numberOfObjects,
-                  objects: type.objects)
+                  objects: type.objects.map({$0}))
     }
     
     public init<ST>(_ type: ST, _ objectLimit: Int) where ST: HMCDSectionType, ST.V == V {
@@ -95,6 +95,6 @@ public extension HMCDSectionType {
         return SC.init(indexTitle: indexTitle,
                        name: name,
                        numberOfObjects: numberOfObjects,
-                       objects: newObjects)
+                       objects: newObjects.map({$0}))
     }
 }

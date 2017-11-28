@@ -7,6 +7,7 @@
 //
 
 import CoreData
+import RxSwift
 import SwiftUtilities
 
 /// Use this class to receive CoreData FRC events.
@@ -18,104 +19,18 @@ public final class HMCDResultControllerDelegate: NSObject {
     public typealias Controller = NSFetchedResultsController<Result>
     public typealias SectionInfo = NSFetchedResultsSectionInfo
     
-    public typealias DidChangeContent = (Controller) -> Void
-    public typealias WillChangeContent = (Controller) -> Void
-    public typealias DidChangeObject = (Controller, Any, IndexPath?, ChangeType, IndexPath?) -> Void
-    public typealias DidChangeSection = (Controller, SectionInfo, Int, ChangeType) -> Void
-    
-    fileprivate var didChangeContent: DidChangeContent?
-    fileprivate var willChangeContent: WillChangeContent?
-    fileprivate var didChangeObject: DidChangeObject?
-    fileprivate var didChangeSection: DidChangeSection?
+    fileprivate let observer: AnyObserver<DBEvent>
     
     deinit {
         // Make sure references are properly disposed of.
         debugPrint("Deinit \(self)")
     }
     
-    fileprivate override init() {}
-    
-    public func removeCallbacks() {
-        didChangeContent = nil
-        willChangeContent = nil
-        didChangeObject = nil
-        didChangeSection = nil
-    }
-}
-
-extension HMCDResultControllerDelegate: HMBuildableType {
-    public static func builder() -> Builder {
-        return Builder()
+    public init(_ observer: AnyObserver<DBEvent>) {
+        self.observer = observer
     }
     
-    public final class Builder {
-        fileprivate var delegate: Buildable
-        
-        fileprivate init() {
-            delegate = Buildable()
-        }
-        
-        /// Set willChangeContent.
-        ///
-        /// - Parameter willChangeContent: A WillChangeContent instance.
-        /// - Returns: The current Builder instance.
-        @discardableResult
-        public func with(willChangeContent: WillChangeContent?) -> Self {
-            delegate.willChangeContent = willChangeContent
-            return self
-        }
-        
-        /// Set didChangeContent.
-        ///
-        /// - Parameter didChangeContent: A DidChangeContent instance.
-        /// - Returns: The current Builder instance.
-        @discardableResult
-        public func with(didChangeContent: DidChangeContent?) -> Self {
-            delegate.didChangeContent = didChangeContent
-            return self
-        }
-        
-        /// Set didChangeObject.
-        ///
-        /// - Parameter didChangeObject: A DidChangeObject instance.
-        /// - Returns: The current Builder instance.
-        @discardableResult
-        public func with(didChangeObject: DidChangeObject?) -> Self {
-            delegate.didChangeObject = didChangeObject
-            return self
-        }
-        
-        /// Set didChangeSection.
-        ///
-        /// - Parameter didChangeSection: A DidChangeSection instance.
-        /// - Returns: The current Builder instance.
-        @discardableResult
-        public func with(didChangeSection: DidChangeSection?) -> Self {
-            delegate.didChangeSection = didChangeSection
-            return self
-        }
-    }
-}
-
-extension HMCDResultControllerDelegate.Builder: HMBuilderType {
-    public typealias Buildable = HMCDResultControllerDelegate
-    
-    @discardableResult
-    public func with(buildable: Buildable?) -> Self {
-        if let buildable = buildable {
-            return self
-                .with(willChangeContent: buildable.willChangeContent)
-                .with(didChangeContent: buildable.didChangeContent)
-                .with(didChangeObject: buildable.didChangeObject)
-                .with(didChangeSection: buildable.didChangeSection)
-        } else {
-            return self
-        }
-    }
-    
-    public func build() -> Buildable {
-        return delegate
-    }
+    public func deinitialize() {}
 }
 
 extension HMCDResultControllerDelegate: NSFetchedResultsControllerDelegate {
@@ -129,7 +44,8 @@ extension HMCDResultControllerDelegate: NSFetchedResultsControllerDelegate {
     /// enable change tracking if you do not care about the individual callbacks.
     public func controllerDidChangeContent(_ controller: Controller) {
         Preconditions.checkNotRunningOnMainThread(nil)
-        didChangeContent?(controller)
+        observer.onNext(dbLevel(controller, DBEvent.didLoad))
+        observer.onNext(DBEvent.didChange)
     }
     
     /// Notifies the delegate that section and object changes are about to be
@@ -141,7 +57,8 @@ extension HMCDResultControllerDelegate: NSFetchedResultsControllerDelegate {
     /// an update block for their view.
     public func controllerWillChangeContent(_ controller: Controller) {
         Preconditions.checkNotRunningOnMainThread(nil)
-        willChangeContent?(controller)
+        observer.onNext(DBEvent.willLoad)
+        observer.onNext(DBEvent.willChange)
     }
     
     /// Asks the delegate to return the corresponding section index entry for a
@@ -190,7 +107,7 @@ extension HMCDResultControllerDelegate: NSFetchedResultsControllerDelegate {
                            for type: NSFetchedResultsChangeType,
                            newIndexPath: IndexPath?) {
         Preconditions.checkNotRunningOnMainThread(nil)
-        didChangeObject?(controller, anObject, indexPath, type, newIndexPath)
+        observer.onNext(DBEvent.objectLevel(type, anObject, indexPath, newIndexPath))
     }
     
     /// Notifies the delegate of added or removed sections.
@@ -209,6 +126,21 @@ extension HMCDResultControllerDelegate: NSFetchedResultsControllerDelegate {
                            atSectionIndex sectionIndex: Int,
                            for type: NSFetchedResultsChangeType) {
         Preconditions.checkNotRunningOnMainThread(nil)
-        didChangeSection?(controller, sectionInfo, sectionIndex, type)
+        observer.onNext(DBEvent.sectionLevel(type, sectionInfo, sectionIndex))
+    }
+}
+
+public extension HMCDResultControllerDelegate {
+    
+    /// Get a DB change Event from the associated result controller.
+    ///
+    /// - Parameter controller: A Controller instance.
+    /// - Returns: An Event instance.
+    public func dbLevel(_ controller: Controller,
+                        _ mapper: (DBLevel<Any>) -> DBEvent) -> DBEvent {
+        return DBEvent.dbLevel(controller.sections,
+                               controller.fetchedObjects,
+                               controller.fetchRequest.fetchLimit,
+                               mapper)
     }
 }

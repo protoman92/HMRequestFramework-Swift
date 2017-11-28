@@ -51,7 +51,7 @@ public final class CDDummy1: NSManagedObject {
     }
 }
 
-public final class Dummy1 {
+public struct Dummy1 {
     fileprivate static var counter = 0
     
     public var id: String?

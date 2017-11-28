@@ -42,7 +42,7 @@ extension HMCDSection where V: Equatable, V: IdentifiableType {
     ///
     /// - Returns: A HMCDAnimatableSection instance.
     public func animated() -> HMCDAnimatableSection<V> {
-        return HMCDAnimatableSection<V>(self)
+        return HMCDAnimatableSection<V>.init(self)
     }
 }
 

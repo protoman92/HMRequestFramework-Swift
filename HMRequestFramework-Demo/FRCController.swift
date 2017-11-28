@@ -32,7 +32,7 @@ public final class FRCController: UIViewController {
     @IBOutlet private weak var frcTableView: UITableView!
     @IBOutlet private weak var scrollView: UIScrollView!
     
-    private let dummyCount = 100
+    private let dummyCount = 5
     private let dateMilestone = Date.random() ?? Date()
     
     private var contentHeight: NSLayoutConstraint? {
@@ -40,6 +40,7 @@ public final class FRCController: UIViewController {
     }
     
     private var data: Variable<[Section]> = Variable([])
+    private var data2: Variable<Try<HMCDEvent<Dummy1>>> = Variable(Try.failure(Exception()))
     private let disposeBag: DisposeBag = DisposeBag()
     
     private var dbProcessor: HMCDRequestProcessor?
@@ -182,7 +183,7 @@ public final class FRCController: UIViewController {
             .streamPaginatedDBEvents(
                 Dummy1.self, pageObs,
                 HMCDPagination.builder()
-                    .with(fetchLimit: 1000)
+                    .with(fetchLimit: 1)
                     .with(fetchOffset: 0)
                     .with(paginationMode: .fixedPageCount)
                     .build(), qos,
@@ -190,22 +191,15 @@ public final class FRCController: UIViewController {
                     Observable.just($0.cloneBuilder()
                         .with(predicate: NSPredicate(value: true))
                         .add(ascendingSortWithKey: "date")
-//                        .with(frcSectionName: "id")
-                        .with(frcSectionName: "sectionName")
+                        .with(frcSectionName: "id")
                         .with(frcCacheName: "FRC_Dummy1")
                         .build())
                 }
             )
-            .flatMap(HMCDEvents.didLoadAnimatedSections)
-            .logCheckMainThread()
-            .observeOnMain()
+            .map({HMCDEvents.didLoadAnimatedSections($0)})
+            .filter({$0.isNotEmpty})
             .bind(to: data)
             .disposed(by: disposeBag)
-        
-        DispatchQueue.global(qos: .userInteractive).async {
-            var count: Double = 0 
-            while true { count += 1 }
-        }
     }
     
     func contentSizeChanged(_ ctSize: CGSize, _ vc: FRCController) {

@@ -60,7 +60,7 @@ public extension HMCDSection where V == Any {
             indexTitle: sectionInfo.indexTitle,
             name: sectionInfo.name,
             numberOfObjects: sectionInfo.numberOfObjects,
-            objects: sectionInfo.objects ?? []
+            objects: sectionInfo.objects.map({$0}) ?? []
         )
     }
 }

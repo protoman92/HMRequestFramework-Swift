@@ -22,41 +22,4 @@ public protocol HMCDResultControllerType: HMCDTypealiasType {
     typealias SectionInfo = Delegate.SectionInfo
     
     typealias FRCRequest = HMCDFetchedResultRequestType
-    
-    func didChangeContent<O>(_ controller: Controller, _ obs: O) where
-        O: ObserverType, O.E == DBEvent
-    
-    func willChangeContent<O>(_ controller: Controller, _ obs: O) where
-        O: ObserverType, O.E == DBEvent
-    
-    func didChangeObject<O>(_ controller: Controller,
-                            _ object: Any,
-                            _ oldIndex: IndexPath?,
-                            _ changeType: ChangeType,
-                            _ newIndex: IndexPath?,
-                            _ obs: O) where
-        O: ObserverType, O.E == DBEvent
-    
-    func didChangeSection<O>(_ controller: Controller,
-                             _ sectionInfo: SectionInfo,
-                             _ index: Int,
-                             _ changeType: ChangeType,
-                             _ obs: O) where
-        O: ObserverType, O.E == DBEvent
 }
-
-public extension HMCDResultControllerType {
-    
-    /// Get a DB change Event from the associated result controller.
-    ///
-    /// - Parameter controller: A Controller instance.
-    /// - Returns: An Event instance.
-    func dbLevel(_ controller: Controller,
-                 _ mapper: (DBLevel<Any>) -> DBEvent) -> DBEvent {
-        return DBEvent.dbLevel(controller.sections,
-                               controller.fetchedObjects,
-                               controller.fetchRequest.fetchLimit,
-                               mapper)
-    }
-}
-

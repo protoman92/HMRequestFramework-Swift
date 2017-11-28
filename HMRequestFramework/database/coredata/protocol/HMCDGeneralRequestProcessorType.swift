@@ -396,7 +396,6 @@ public extension HMCDGeneralRequestProcessorType {
                 let allTransforms = [pageTransform] + transforms
                 return self.streamDBEvents(cls, qos, allTransforms)
             })
-            .doOnNext(Preconditions.checkNotRunningOnMainThread)
     }
     
     /// Stream events paginated by increments. The most likely uses for this

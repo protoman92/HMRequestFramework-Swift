@@ -13,29 +13,17 @@ import SwiftUtilities
 /// HMCDEvent utilities.
 public final class HMCDEvents {
     
-    /// Extract didLoad event.
-    ///
-    /// - Parameter event: A Try HMCDEvent instance.
-    /// - Returns: An Observable instance.
-    private static func didLoad<PO>(_ event: Try<HMCDEvent<PO>>) -> Observable<DBLevel<PO>> {
-        return Observable.just(event)
-            .flatMap({event -> Observable<DBLevel<PO>> in
-                switch event {
-                case .success(.didLoad(let change)): return .just(change)
-                default: return .empty()
-                }
-            })
-    }
-    
     /// Extract didLoad sections.
     ///
     /// - Parameter event: A Try HMCDEvent instance.
     /// - Returns: An Observable instance.
     public static func didLoadSections<PO>(_ event: Try<HMCDEvent<PO>>)
-        -> Observable<[HMCDSection<PO>]>
+        -> [HMCDSection<PO>]
     {
-        return didLoad(event).map({$0})
-            .catchErrorJustReturn([HMCDSection<PO>]())
+        switch event {
+        case .success(.didLoad(let change)): return change
+        default: return []
+        }
     }
     
     /// Extract didLoad sections.
@@ -43,10 +31,10 @@ public final class HMCDEvents {
     /// - Parameter event: A Try HMCDEvent instance.
     /// - Returns: An Observable instance.
     public static func didLoadAnimatedSections<PO>(_ event: Try<HMCDEvent<PO>>)
-        -> Observable<[HMCDAnimatableSection<PO>]> where
+        -> [HMCDAnimatableSection<PO>] where
         PO: IdentifiableType & Equatable
     {
-        return didLoadSections(event).map({$0.map({$0.animated()})})
+        return didLoadSections(event).map({$0.animated()})
     }
     
     private init() {}

@@ -129,7 +129,7 @@ public enum HMCDEvent<V> {
     public static func sectionLevel(_ type: NSFetchedResultsChangeType,
                                     _ section: NSFetchedResultsSectionInfo,
                                     _ sectionIndex: Int) -> HMCDEvent<Any> {
-        let section = HMCDSection<Any>(section)
+        let section = HMCDSection<Any>.init(section)
         let change = SectionLevel(section: section, sectionIndex: sectionIndex)
         
         switch type {
@@ -253,7 +253,7 @@ public extension HMCDEvent {
     fileprivate func mapDBLevel<V2>(_ f: (V) throws -> V2,
                                     _ m: ((DBLevel<V2>)) -> HMCDEvent<V2>,
                                     _ change: DBLevel<V>) -> HMCDEvent<V2> {
-        let sections = change.map({$0.map(f)})
+        let sections = change.map({$0.map({try f($0)})})
         return m(DBLevel(sections))
     }
     

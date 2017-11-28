@@ -85,7 +85,6 @@ public extension HMCDRequestProcessorType {
             })
             .map(Try.success)
             .catchErrorJustReturn(Try.failure)
-            .doOnNext(Preconditions.checkNotRunningOnMainThread)
     }
 
     /// Perform a CoreData get request and process the result.

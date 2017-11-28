@@ -11,48 +11,7 @@ import RxCocoa
 import RxSwift
 import SwiftUtilities
 
-extension HMCDManager: HMCDResultControllerType {
-    public typealias DBEvent = HMCDResultControllerType.DBEvent
-    
-    public func didChangeContent<O>(_ controller: Controller, _ obs: O) where
-        O: ObserverType, O.E == DBEvent
-    {
-        Preconditions.checkNotRunningOnMainThread(nil)
-        obs.onNext(self.dbLevel(controller, DBEvent.didLoad))
-        obs.onNext(DBEvent.didChange)
-    }
-    
-    public func willChangeContent<O>(_ controller: Controller, _ obs: O) where
-        O: ObserverType, O.E == DBEvent
-    {
-        Preconditions.checkNotRunningOnMainThread(nil)
-        obs.onNext(DBEvent.willLoad)
-        obs.onNext(DBEvent.willChange)
-    }
-    
-    public func didChangeObject<O>(_ controller: Controller,
-                                   _ object: Any,
-                                   _ oldIndex: IndexPath?,
-                                   _ changeType: ChangeType,
-                                   _ newIndex: IndexPath?,
-                                   _ obs: O) where
-        O: ObserverType, O.E == DBEvent
-    {
-        Preconditions.checkNotRunningOnMainThread(object)
-        obs.onNext(DBEvent.objectLevel(changeType, object, oldIndex, newIndex))
-    }
-    
-    public func didChangeSection<O>(_ controller: Controller,
-                                    _ sectionInfo: SectionInfo,
-                                    _ index: Int,
-                                    _ changeType: ChangeType,
-                                    _ obs: O) where
-        O: ObserverType, O.E == DBEvent
-    {
-        Preconditions.checkNotRunningOnMainThread(sectionInfo)
-        obs.onNext(DBEvent.sectionLevel(changeType, sectionInfo, index))
-    }
-}
+extension HMCDManager: HMCDResultControllerType {}
 
 public extension Reactive where Base == HMCDManager {
     
@@ -64,40 +23,33 @@ public extension Reactive where Base == HMCDManager {
     ///   - obs: An ObserverType instance.
     /// - Return: A Disposable instance.
     /// - Throws: Exception if the stream cannot be started.
-    private func startDBStream<O>(_ frc: HMCDManager.Controller,
-                                  _ request: HMCDManager.FRCRequest,
-                                  _ obs: O) -> Disposable where
-        O: ObserverType, O.E == HMCDManager.DBEvent
-    {
-        Preconditions.checkNotRunningOnMainThread(frc.fetchRequest)
+    private func startDBStream(_ frc: HMCDManager.Controller,
+                               _ request: HMCDManager.FRCRequest,
+                               _ obs: AnyObserver<HMCDManager.DBEvent>) -> Disposable {
+//        Preconditions.checkNotRunningOnMainThread(frc.fetchRequest)
         
         let base = self.base
         
-        let delegate = HMCDManager.Delegate.builder()
-            .with(didChangeContent: {base.didChangeContent($0, obs)})
-            .with(willChangeContent: {base.willChangeContent($0, obs)})
-            .with(didChangeObject: {base.didChangeObject($0.0, $0.1, $0.2, $0.3, $0.4, obs)})
-            .with(didChangeSection: {base.didChangeSection($0.0, $0.1, $0.2, $0.3, obs)})
-            .build()
-        
+        let delegate = HMCDManager.Delegate(obs)
         frc.delegate = delegate
-        
         obs.onNext(HMCDManager.DBEvent.willLoad)
         
         let context = frc.managedObjectContext
         let operationMode = request.operationMode()
         
-        base.performOperation(context, .perform, operationMode, {
+        base.performOperation(context, .perform, operationMode, {[weak frc] in
+            guard let frc = frc else { return }
+            
             do {
                 try frc.performFetch()
-                obs.onNext(base.dbLevel(frc, HMCDManager.DBEvent.didLoad))
+                obs.onNext(delegate.dbLevel(frc, HMCDManager.DBEvent.didLoad))
             } catch let e {
-                obs.onNext(base.dbLevel(frc, HMCDManager.DBEvent.didLoad))
+                obs.onNext(delegate.dbLevel(frc, HMCDManager.DBEvent.didLoad))
                 obs.onError(e)
             }
         })
         
-        return Disposables.create(with: delegate.removeCallbacks)
+        return Disposables.create(with: {delegate.deinitialize()})
     }
     
     /// Start the stream and convert all event data to PO.
@@ -145,7 +97,6 @@ public extension Reactive where Base == HMCDManager {
                 // be mapped to PO generics.
                 .map({$0.cast(to: PO.CDClass.self)})
                 .map({$0.map({try $0.asPureObject()})})
-                .doOnNext(Preconditions.checkNotRunningOnMainThread)
         } catch let e {
             return Observable.error(e)
         }
