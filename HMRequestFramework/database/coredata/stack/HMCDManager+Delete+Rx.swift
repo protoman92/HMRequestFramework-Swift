@@ -137,7 +137,7 @@ public extension HMCDManager {
         performOperation(opMode, {
             do {
                 try self.deleteUnsafely(context, data)
-                obs.onNext()
+                obs.onNext(())
                 obs.onCompleted()
             } catch let e {
                 obs.onError(e)
@@ -172,7 +172,7 @@ public extension HMCDManager {
         performOperation(opMode, {
             do {
                 try self.deleteIdentifiablesUnsafely(context, entityName, ids)
-                obs.onNext()
+                obs.onNext(())
                 obs.onCompleted()
             } catch let e {
                 obs.onError(e)

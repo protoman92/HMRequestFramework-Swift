@@ -37,30 +37,14 @@ public extension HMCDSectionType {
         self.init(indexTitle: indexTitle,
                   name: name,
                   numberOfObjects: objects.count,
-                  objects: objects.map({$0}))
-    }
-    
-    public init<S>(indexTitle: String?,
-                   name: String,
-                   numberOfObjects: Int,
-                   objects: S) where S: Sequence, S.Element == V {
-        self.init(indexTitle: indexTitle,
-                  name: name,
-                  numberOfObjects: numberOfObjects,
-                  objects: objects.map({$0}))
-    }
-    
-    public init<S>(indexTitle: String?, name: String, objects: S) where
-        S: Sequence, S.Element == V
-    {
-        self.init(indexTitle: indexTitle, name: name, objects: objects.map({$0}))
+                  objects: objects)
     }
     
     public init<ST>(_ type: ST) where ST: HMCDSectionType, ST.V == V {
         self.init(indexTitle: type.indexTitle,
                   name: type.name,
                   numberOfObjects: type.numberOfObjects,
-                  objects: type.objects.map({$0}))
+                  objects: type.objects)
     }
     
     public init<ST>(_ type: ST, _ objectLimit: Int) where ST: HMCDSectionType, ST.V == V {
@@ -85,9 +69,9 @@ public extension HMCDSectionType {
     ///   - f: Mapper function.
     ///   - sectionCls: The section class type resulting from the conversion.
     /// - Returns: A SC instance.
-    public func mapObjects<V2,SC,S>(_ f: (([V]) throws -> S?),
-                                    _ sectionCls: SC.Type) -> SC where
-        SC: HMCDSectionType, SC.V == V2, S: Sequence, S.Element == V2
+    public func mapObjects<V2,SC>(_ f: (([V]) throws -> [V2]?),
+                                  _ sectionCls: SC.Type) -> SC where
+        SC: HMCDSectionType, SC.V == V2
     {
         let newObjects = ((try? f(objects)?.map({$0})) ?? []) ?? []
         let numberOfObjects = newObjects.count
@@ -95,6 +79,6 @@ public extension HMCDSectionType {
         return SC.init(indexTitle: indexTitle,
                        name: name,
                        numberOfObjects: numberOfObjects,
-                       objects: newObjects.map({$0}))
+                       objects: newObjects)
     }
 }

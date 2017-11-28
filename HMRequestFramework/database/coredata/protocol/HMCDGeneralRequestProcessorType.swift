@@ -21,16 +21,14 @@ public protocol HMCDGeneralRequestProcessorType {
     ///   - qos: A QoSClass instance to perform work on.
     ///   - transforms: A Sequence of Request transformer.
     /// - Returns: An Observable instance.
-    func fetchAllDataFromDB<Prev,PO,S>(_ previous: Try<Prev>,
-                                       _ cls: PO.Type,
-                                       _ qos: DispatchQoS.QoSClass,
-                                       _ transforms: S)
+    func fetchAllDataFromDB<Prev,PO>(_ previous: Try<Prev>,
+                                     _ cls: PO.Type,
+                                     _ qos: DispatchQoS.QoSClass,
+                                     _ transforms: [HMTransform<HMCDRequest>])
         -> Observable<Try<[PO]>> where
         PO: HMCDPureObjectType,
         PO.CDClass: HMCDPureObjectConvertibleType,
-        PO.CDClass.PureObject == PO,
-        S: Sequence,
-        S.Element == HMTransform<HMCDRequest>
+        PO.CDClass.PureObject == PO
     
     /// Save some data to memory by constructing them and then saving the
     /// resulting managed objects.
@@ -40,16 +38,14 @@ public protocol HMCDGeneralRequestProcessorType {
     ///   - qos: The QosClass to be used for CD object construction.
     ///   - transforms: A Sequence of Request transformer.
     /// - Returns: An Observable instance.
-    func saveToMemory<PO,S>(_ previous: Try<[PO]>,
-                            _ qos: DispatchQoS.QoSClass,
-                            _ transforms: S)
+    func saveToMemory<PO>(_ previous: Try<[PO]>,
+                          _ qos: DispatchQoS.QoSClass,
+                          _ transforms: [HMTransform<HMCDRequest>])
         -> Observable<Try<Void>> where
         PO: HMCDPureObjectType,
         PO.CDClass: HMCDObjectConvertibleType,
         PO.CDClass: HMCDObjectBuildableType,
-        PO.CDClass.Builder.PureObject == PO,
-        S: Sequence,
-        S.Element == HMTransform<HMCDRequest>
+        PO.CDClass.Builder.PureObject == PO
     
     /// Delete some data in memory.
     ///
@@ -58,14 +54,12 @@ public protocol HMCDGeneralRequestProcessorType {
     ///   - qos: A QoSClass instance to perform work on.
     ///   - transforms: A Sequence of Request transformers.
     /// - Returns: An Observable instance.
-    func deleteInMemory<PO,S>(_ previous: Try<[PO]>,
-                              _ qos: DispatchQoS.QoSClass,
-                              _ transforms: S)
+    func deleteInMemory<PO>(_ previous: Try<[PO]>,
+                            _ qos: DispatchQoS.QoSClass,
+                            _ transforms: [HMTransform<HMCDRequest>])
         -> Observable<Try<Void>> where
         PO: HMCDPureObjectType,
-        PO: HMCDObjectConvertibleType,
-        S: Sequence,
-        S.Element == HMTransform<HMCDRequest>
+        PO: HMCDObjectConvertibleType
     
     /// Delete all data of some entity name in memory.
     ///
@@ -75,12 +69,11 @@ public protocol HMCDGeneralRequestProcessorType {
     ///   - qos: A QoSClass instance to perform work on.
     ///   - transforms: A Sequence of Request transformers.
     /// - Returns: An Observable instance.
-    func deleteAllInMemory<Prev,S>(_ previous: Try<Prev>,
-                                   _ entityName: String?,
-                                   _ qos: DispatchQoS.QoSClass,
-                                   _ transforms: S)
-        -> Observable<Try<Void>> where
-        S: Sequence, S.Element == HMTransform<HMCDRequest>
+    func deleteAllInMemory<Prev>(_ previous: Try<Prev>,
+                                 _ entityName: String?,
+                                 _ qos: DispatchQoS.QoSClass,
+                                 _ transforms: [HMTransform<HMCDRequest>])
+        -> Observable<Try<Void>>
     
     /// Reset the CoreData stack and wipe DB.
     ///
@@ -88,11 +81,10 @@ public protocol HMCDGeneralRequestProcessorType {
     ///   - previous: The result of the previous operation.
     ///   - transforms: A Sequence of Request transformers.
     /// - Returns: An Observable instance.
-    func resetStack<Prev,S>(_ previous: Try<Prev>,
-                            _ qos: DispatchQoS.QoSClass,
-                            _ transforms: S)
-        -> Observable<Try<Void>> where
-        S: Sequence, S.Element == HMTransform<HMCDRequest>
+    func resetStack<Prev>(_ previous: Try<Prev>,
+                          _ qos: DispatchQoS.QoSClass,
+                          _ transforms: [HMTransform<HMCDRequest>])
+        -> Observable<Try<Void>>
     
     /// Perform an upsert operation with some upsertable data.
     ///
@@ -101,14 +93,11 @@ public protocol HMCDGeneralRequestProcessorType {
     ///   - qos: A QoSClass instance to perform work on.
     ///   - transforms: A Sequence of Request transformers.
     /// - Returns: An Observable instance.
-    func upsertInMemory<U,S>(_ previous: Try<[U]>,
-                             _ qos: DispatchQoS.QoSClass,
-                             _ transforms: S)
+    func upsertInMemory<U>(_ previous: Try<[U]>,
+                           _ qos: DispatchQoS.QoSClass,
+                           _ transforms: [HMTransform<HMCDRequest>])
         -> Observable<Try<[HMCDResult]>> where
-        U: HMCDObjectType,
-        U: HMCDUpsertableType,
-        S: Sequence,
-        S.Element == HMTransform<HMCDRequest>
+        U: HMCDObjectType, U: HMCDUpsertableType
     
     /// Perform an upsert operation with some pure objects by constructing
     /// managed objects and then upserting them afterwards.
@@ -118,16 +107,14 @@ public protocol HMCDGeneralRequestProcessorType {
     ///   - qos: The QoSClass to be used for CD object construction.
     ///   - transforms: A Sequence of Request transformers.
     /// - Returns: An Observable instance.
-    func upsertInMemory<PO,S>(_ previous: Try<[PO]>,
-                              _ qos: DispatchQoS.QoSClass,
-                              _ transform: S)
+    func upsertInMemory<PO>(_ previous: Try<[PO]>,
+                            _ qos: DispatchQoS.QoSClass,
+                            _ transform: [HMTransform<HMCDRequest>])
         -> Observable<Try<[HMCDResult]>> where
         PO: HMCDPureObjectType,
         PO.CDClass: HMCDUpsertableType,
         PO.CDClass: HMCDObjectBuildableType,
-        PO.CDClass.Builder.PureObject == PO,
-        S: Sequence,
-        S.Element == HMTransform<HMCDRequest>
+        PO.CDClass.Builder.PureObject == PO
     
     /// Persist all data to DB.
     ///
@@ -136,11 +123,10 @@ public protocol HMCDGeneralRequestProcessorType {
     ///   - qos: A QoSClass instance to perform work on.
     ///   - transform: A Sequence of Request transformers.
     /// - Returns: An Observable instance.
-    func persistToDB<Prev,S>(_ previous: Try<Prev>,
-                             _ qos: DispatchQoS.QoSClass,
-                             _ transform: S)
-        -> Observable<Try<Void>> where
-        S: Sequence, S.Element == HMTransform<HMCDRequest>
+    func persistToDB<Prev>(_ previous: Try<Prev>,
+                           _ qos: DispatchQoS.QoSClass,
+                           _ transform: [HMTransform<HMCDRequest>])
+        -> Observable<Try<Void>>
     
     /// Stream DB changes for some pure object type.
     ///
@@ -149,15 +135,13 @@ public protocol HMCDGeneralRequestProcessorType {
     ///   - qos: A QoSClass instance to perform work on.
     ///   - transforms: A Sequence of Request transformers.
     /// - Returns: An Observable instance.
-    func streamDBEvents<S,PO>(_ cls: PO.Type,
-                              _ qos: DispatchQoS.QoSClass,
-                              _ transforms: S)
+    func streamDBEvents<PO>(_ cls: PO.Type,
+                            _ qos: DispatchQoS.QoSClass,
+                            _ transforms: [HMTransform<HMCDRequest>])
         -> Observable<Try<HMCDEvent<PO>>> where
         PO: HMCDPureObjectType,
         PO.CDClass: HMCDPureObjectConvertibleType,
-        PO.CDClass.PureObject == PO,
-        S: Sequence,
-        S.Element == HMTransform<HMCDRequest>
+        PO.CDClass.PureObject == PO
 }
 
 public extension HMCDGeneralRequestProcessorType {

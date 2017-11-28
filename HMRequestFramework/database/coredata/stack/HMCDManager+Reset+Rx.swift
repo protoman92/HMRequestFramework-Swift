@@ -120,6 +120,6 @@ extension Reactive where Base == HMCDManager {
                 // Store reset must not happen on the main thread.
                 resetStores(opMode)
             )
-            .reduce((), accumulator: {_ in ()})
+            .reduce((), accumulator: {(_, _) in ()})
     }
 }

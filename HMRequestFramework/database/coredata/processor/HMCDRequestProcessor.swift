@@ -295,7 +295,7 @@ public extension HMCDRequestProcessor {
                     manager.rx.delete(context2, nonIds, opMode)
                 )
             })
-            .reduce((), accumulator: {_ in ()})
+            .reduce((), accumulator: {_, _ in ()})
             .delayRetry(retries: retries, delay: delay)
             .map(Try.success)
             .catchErrorJustReturn(Try.failure)
@@ -399,16 +399,14 @@ public extension HMCDRequestProcessor {
     ///   - qos: The QoSClass instance to perform work on.
     ///   - transforms: A Sequence of Request transformers.
     /// - Returns: An Observable instance.
-    public func fetchAllDataFromDB<Prev,PO,S>(_ previous: Try<Prev>,
-                                              _ cls: PO.Type,
-                                              _ qos: DispatchQoS.QoSClass,
-                                              _ transforms: S)
+    public func fetchAllDataFromDB<Prev,PO>(_ previous: Try<Prev>,
+                                            _ cls: PO.Type,
+                                            _ qos: DispatchQoS.QoSClass,
+                                            _ transforms: [HMTransform<Req>])
         -> Observable<Try<[PO]>> where
         PO: HMCDPureObjectType,
         PO.CDClass: HMCDPureObjectConvertibleType,
-        PO.CDClass.PureObject == PO,
-        S: Sequence,
-        S.Element == HMTransform<Req>
+        PO.CDClass.PureObject == PO
     {
         let request = fetchAllRequest(cls)
         let generator = HMRequestGenerators.forceGn(request, Prev.self, transforms)
@@ -440,16 +438,14 @@ public extension HMCDRequestProcessor {
     ///   - qos: The QoSClass instance to perform work on.
     ///   - transforms: A Sequence of Request transformers.
     /// - Returns: An Observable instance.
-    public func saveToMemory<PO,S>(_ previous: Try<[PO]>,
-                                   _ qos: DispatchQoS.QoSClass,
-                                   _ transforms: S)
+    public func saveToMemory<PO>(_ previous: Try<[PO]>,
+                                 _ qos: DispatchQoS.QoSClass,
+                                 _ transforms: [HMTransform<Req>])
         -> Observable<Try<Void>> where
         PO: HMCDPureObjectType,
         PO.CDClass: HMCDObjectConvertibleType,
         PO.CDClass: HMCDObjectBuildableType,
-        PO.CDClass.Builder.PureObject == PO,
-        S: Sequence,
-        S.Element == HMTransform<Req>
+        PO.CDClass.Builder.PureObject == PO
     {
         let manager = coreDataManager()
         let context = manager.disposableObjectContext()
@@ -487,14 +483,12 @@ public extension HMCDRequestProcessor {
     ///   - transforms: A Sequence of Request transformers.
     ///   - qos: The QoSClass instance to perform work on.
     /// - Returns: An Observable instance.
-    public func deleteInMemory<PO,S>(_ previous: Try<[PO]>,
-                                     _ qos: DispatchQoS.QoSClass,
-                                     _ transforms: S)
+    public func deleteInMemory<PO>(_ previous: Try<[PO]>,
+                                   _ qos: DispatchQoS.QoSClass,
+                                   _ transforms: [HMTransform<Req>])
         -> Observable<Try<Void>> where
         PO: HMCDPureObjectType,
-        PO: HMCDObjectConvertibleType,
-        S: Sequence,
-        S.Element == HMTransform<Req>
+        PO: HMCDObjectConvertibleType
     {
         let generator: HMRequestGenerator<[PO],Req> = HMRequestGenerators.forceGn({
             let request = self.deleteDataRequest($0)
@@ -522,12 +516,11 @@ public extension HMCDRequestProcessor {
     ///   - qos: The QoSClass instance to perform work on.
     ///   - transforms: A Sequence of Request transformers.
     /// - Returns: An Observable instance.
-    public func deleteAllInMemory<Prev,S>(_ previous: Try<Prev>,
-                                          _ entityName: String?,
-                                          _ qos: DispatchQoS.QoSClass,
-                                          _ transforms: S)
-        -> Observable<Try<Void>> where
-        S: Sequence, S.Element == HMTransform<Req>
+    public func deleteAllInMemory<Prev>(_ previous: Try<Prev>,
+                                        _ entityName: String?,
+                                        _ qos: DispatchQoS.QoSClass,
+                                        _ transforms: [HMTransform<Req>])
+        -> Observable<Try<Void>>
     {
         let request = deleteAllRequest(entityName)
         let generator = HMRequestGenerators.forceGn(request, Prev.self, transforms)
@@ -551,11 +544,10 @@ public extension HMCDRequestProcessor {
     ///   - transforms: A Sequence of Request transformers.
     ///   - qos: The QoSClass instance to perform work on.
     /// - Returns: An Observable instance.
-    public func resetStack<Prev,S>(_ previous: Try<Prev>,
-                                   _ qos: DispatchQoS.QoSClass,
-                                   _ transforms: S)
-        -> Observable<Try<Void>> where
-        S: Sequence, S.Element == HMTransform<Req>
+    public func resetStack<Prev>(_ previous: Try<Prev>,
+                                 _ qos: DispatchQoS.QoSClass,
+                                 _ transforms: [HMTransform<Req>])
+        -> Observable<Try<Void>>
     {
         let request = resetStackRequest()
         let generator = HMRequestGenerators.forceGn(request, Prev.self, transforms)
@@ -587,14 +579,11 @@ public extension HMCDRequestProcessor {
     ///   - transforms: A Sequence of Request transformers.
     ///   - qos: The QoSClass instance to perform work on.
     /// - Returns: An Observable instance.
-    public func upsertInMemory<U,S>(_ previous: Try<[U]>,
-                                    _ qos: DispatchQoS.QoSClass,
-                                    _ transforms: S)
+    public func upsertInMemory<U>(_ previous: Try<[U]>,
+                                  _ qos: DispatchQoS.QoSClass,
+                                  _ transforms: [HMTransform<Req>])
         -> Observable<Try<[HMCDResult]>> where
-        U: HMCDObjectType,
-        U: HMCDUpsertableType,
-        S: Sequence,
-        S.Element == HMTransform<Req>
+        U: HMCDObjectType, U: HMCDUpsertableType
     {
         let generator: HMRequestGenerator<[U],Req> = HMRequestGenerators.forceGn({
             let request = self.upsertRequest($0)
@@ -611,16 +600,14 @@ public extension HMCDRequestProcessor {
     ///   - qos: A QoSClass instance.
     ///   - transforms: A Sequence of Request transformers.
     /// - Returns: An Observable instance.
-    public func upsertInMemory<PO,S>(_ previous: Try<[PO]>,
-                                     _ qos: DispatchQoS.QoSClass,
-                                     _ transforms: S)
+    public func upsertInMemory<PO>(_ previous: Try<[PO]>,
+                                   _ qos: DispatchQoS.QoSClass,
+                                   _ transforms: [HMTransform<Req>])
         -> Observable<Try<[HMCDResult]>> where
         PO: HMCDPureObjectType,
         PO.CDClass: HMCDUpsertableType,
         PO.CDClass: HMCDObjectBuildableType,
-        PO.CDClass.Builder.PureObject == PO,
-        S: Sequence,
-        S.Element == HMTransform<Req>
+        PO.CDClass.Builder.PureObject == PO
     {
         let cdManager = coreDataManager()
         let context = cdManager.disposableObjectContext()
@@ -652,11 +639,10 @@ public extension HMCDRequestProcessor {
     ///   - qos: The QoSClass instance to perform work on.
     ///   - transforms: A Sequence of Request transformers.
     /// - Returns: An Observable instance.
-    public func persistToDB<Prev,S>(_ previous: Try<Prev>,
-                                    _ qos: DispatchQoS.QoSClass,
-                                    _ transforms: S)
-        -> Observable<Try<Void>> where
-        S: Sequence, S.Element == HMTransform<Req>
+    public func persistToDB<Prev>(_ previous: Try<Prev>,
+                                  _ qos: DispatchQoS.QoSClass,
+                                  _ transforms: [HMTransform<Req>])
+        -> Observable<Try<Void>>
     {
         let request = persistToDBRequest()
         let generator = HMRequestGenerators.forceGn(request, Prev.self, transforms)
@@ -692,15 +678,13 @@ public extension HMCDRequestProcessor {
     ///   - qos: The QoSClass instance to perform work on.
     ///   - transforms: A Sequence of Request transformers.
     /// - Returns: An Observable instance.
-    public func streamDBEvents<S,PO>(_ cls: PO.Type,
-                                     _ qos: DispatchQoS.QoSClass,
-                                     _ transforms: S)
+    public func streamDBEvents<PO>(_ cls: PO.Type,
+                                   _ qos: DispatchQoS.QoSClass,
+                                   _ transforms: [HMTransform<Req>])
         -> Observable<Try<HMCDEvent<PO>>> where
         PO: HMCDPureObjectType,
         PO.CDClass: HMCDPureObjectConvertibleType,
-        PO.CDClass.PureObject == PO,
-        S: Sequence,
-        S.Element == HMTransform<Req>
+        PO.CDClass.PureObject == PO
     {
         let manager = coreDataManager()
         let request = streamDBEventsRequest(cls)

@@ -41,7 +41,7 @@ public final class HMCDSections {
         var slicedSects = [ST]()
         
         for section in sections {
-            let sectionLimit = limit - slicedSects.reduce(0, {$0.1.numberOfObjects + $0.0})
+            let sectionLimit = limit - slicedSects.reduce(0, {$1.numberOfObjects + $0})
             
             if sectionLimit > 0 {
                 slicedSects.append(section.withObjectLimit(sectionLimit))

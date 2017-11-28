@@ -242,15 +242,15 @@ public final class FRCController: UIViewController {
         
         source.configureCell = {[weak self] in
             if let `self` = self {
-                return self.configureCell($0.0, $0.1, $0.2, $0.3)
+                return self.configureCell($0, $1, $2, $3)
             } else {
                 return UITableViewCell()
             }
         }
         
-        source.canEditRowAtIndexPath = {_ in true}
-        source.canMoveRowAtIndexPath = {_ in true}
-        source.titleForHeaderInSection = {$0.0[$0.1].name}
+        source.canEditRowAtIndexPath = {(_, _) in true}
+        source.canMoveRowAtIndexPath = {(_, _) in true}
+        source.titleForHeaderInSection = {$0[$1].name}
         return source
     }
     

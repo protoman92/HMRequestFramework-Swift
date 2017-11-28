@@ -41,7 +41,7 @@ public extension HMCDManager {
                     _ upsertables: S) throws -> [HMCDResult] where
         S: Sequence, S.Element == HMCDUpsertableType
     {
-        let upsertables = upsertables.sorted(by: {$0.0.compare(against: $0.1)})
+        let upsertables = upsertables.sorted(by: {$0.compare(against: $1)})
         let ids: [HMCDIdentifiableType] = upsertables
         var objects = try blockingFetchIdentifiables(context, entityName, ids)
         var results: [HMCDResult] = []

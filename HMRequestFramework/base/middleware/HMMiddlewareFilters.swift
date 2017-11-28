@@ -20,7 +20,7 @@ public final class HMMiddlewareFilters {
         S: Sequence,
         S.Element == T.Filterable
     {
-        return HMMiddlewareFilter<T>({filterables.contains($0.1)})
+        return HMMiddlewareFilter<T>({filterables.contains($1)})
     }
     
     /// Get a middleware filter that includes some middlewares with certain
@@ -45,7 +45,7 @@ public final class HMMiddlewareFilters {
         S: Sequence,
         S.Element == T.Filterable
     {
-        return HMMiddlewareFilter<T>({!filterables.contains($0.1)})
+        return HMMiddlewareFilter<T>({!filterables.contains($1)})
     }
     
     /// Get a middleware filter that excludes some middlewares with certain

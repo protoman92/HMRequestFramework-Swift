@@ -114,7 +114,7 @@ public extension HMCDManager {
                     _ requests: S) throws -> [HMCDResult] where
         S: Sequence, S.Element == HMCDVersionUpdateRequest
     {
-        var requests = requests.sorted(by: {$0.0.compare(against: $0.1)})
+        var requests = requests.sorted(by: {$0.compare(against: $1)})
         
         // It's ok for these requests not to have the original object. We will
         // get them right below.

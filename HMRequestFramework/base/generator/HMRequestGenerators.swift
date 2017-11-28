@@ -59,7 +59,9 @@ public final class HMRequestGenerators {
         -> HMRequestGenerator<Prev,Req> where
         S: Sequence, S.Element == HMTransform<Req>
     {
-        return forceGn({_ in HMTransforms.applyTransformers(request, transforms)})
+        return forceGn({_ in
+            HMTransforms.applyTransformers(request, transforms.map({$0}))
+        })
     }
     
     private init() {}

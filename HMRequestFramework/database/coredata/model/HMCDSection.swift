@@ -16,16 +16,14 @@ public struct HMCDSection<V>: HMCDSectionType {
     public let numberOfObjects: Int
     public let objects: [V]
     
-    public init<S>(indexTitle: String?,
-                   name: String,
-                   numberOfObjects: Int,
-                   objects: S) where
-        S: Sequence, S.Element == V
-    {
+    public init(indexTitle: String?,
+                name: String,
+                numberOfObjects: Int,
+                objects: [V]) {
         self.indexTitle = indexTitle
         self.name = name
         self.numberOfObjects = numberOfObjects
-        self.objects = objects.map({$0})
+        self.objects = Array(objects)
     }
     
     /// Map the current section info to a different generic.

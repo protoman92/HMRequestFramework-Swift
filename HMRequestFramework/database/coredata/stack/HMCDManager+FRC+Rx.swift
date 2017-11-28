@@ -95,8 +95,7 @@ public extension Reactive where Base == HMCDManager {
                 // All events' objects will be implicitly converted to PO. For e.g.,
                 // for a section change event, the underlying HMCDEvent<Any> will
                 // be mapped to PO generics.
-                .map({$0.cast(to: PO.CDClass.self)})
-                .map({$0.map({try $0.asPureObject()})})
+                .map({$0.cast(to: PO.CDClass.self).map({try $0.asPureObject()})})
         } catch let e {
             return Observable.error(e)
         }

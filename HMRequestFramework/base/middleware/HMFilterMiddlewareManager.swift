@@ -58,7 +58,7 @@ extension HMFilterMiddlewareManager: HMMiddlewareManagerType {
         S: Sequence, S.Element == (Filterable, Transform)
     {
         let filtered = filterMiddlewares(result, middlewares).map({$0.1})
-        return HMTransforms.applyTransformers(result, filtered)
+        return HMTransforms.applyTransformers(result, filtered.map({$0}))
     }
     
     /// Sequentially apply a Sequence of side effect middlewares.
@@ -130,9 +130,7 @@ extension HMFilterMiddlewareManager: HMBuildableType {
         /// - Parameter transforms: A Sequence of Filterable/Transform.
         /// - Returns: The current Builder instance.
         @discardableResult
-        public func add<S>(transforms: S) -> Self where
-            S: Sequence, S.Element == (Filterable, Transform)
-        {
+        public func add(transforms: [(Filterable, Transform)]) -> Self {
             manager.tfMiddlewares.append(contentsOf: transforms)
             return self
         }
@@ -141,9 +139,7 @@ extension HMFilterMiddlewareManager: HMBuildableType {
         ///
         /// - Parameter transforms: A Sequence of Filterable/Transform.
         /// - Returns: The current Builder instance.
-        public func addDebug<S>(transforms: S) -> Self where
-            S: Sequence, S.Element == (Filterable, Transform)
-        {
+        public func addDebug(transforms: [(Filterable, Transform)]) -> Self {
             return isInDebugMode() ? with(transforms: transforms) : self
         }
         
@@ -151,9 +147,7 @@ extension HMFilterMiddlewareManager: HMBuildableType {
         ///
         /// - Parameter transforms: A Sequence of Filterable/Transform.
         /// - Returns: The current Builder instance.
-        public func with<S>(transforms: S) -> Self where
-            S: Sequence, S.Element == (Filterable, Transform)
-        {
+        public func with(transforms: [(Filterable, Transform)]) -> Self {
             manager.tfMiddlewares.removeAll()
             return add(transforms: transforms)
         }
@@ -162,9 +156,7 @@ extension HMFilterMiddlewareManager: HMBuildableType {
         ///
         /// - Parameter transforms: A Sequence of Filterable/Transform.
         /// - Returns: The current Builder instance.
-        public func withDebug<S>(transforms: S) -> Self where
-            S: Sequence, S.Element == (Filterable, Transform)
-        {
+        public func withDebug(transforms: [(Filterable, Transform)]) -> Self {
             return isInDebugMode() ? with(transforms: transforms) : self
         }
         
@@ -206,9 +198,7 @@ extension HMFilterMiddlewareManager: HMBuildableType {
         ///
         /// - Parameter sideEffects: A Sequence of Filterable/SideEffect.
         /// - Returns: The current Builder instance.
-        public func addDebug<S>(sideEffects: S) -> Self where
-            S: Sequence, S.Element == (Filterable, SideEffect)
-        {
+        public func addDebug(sideEffects: [(Filterable, SideEffect)]) -> Self {
             return isInDebugMode() ? add(sideEffects: sideEffects) : self
         }
         
@@ -216,9 +206,7 @@ extension HMFilterMiddlewareManager: HMBuildableType {
         ///
         /// - Parameter sideEffects: A Sequence of Filterable/SideEffect.
         /// - Returns: The current Builder instance.
-        public func with<S>(sideEffects: S) -> Self where
-            S: Sequence, S.Element == (Filterable, SideEffect)
-        {
+        public func with(sideEffects: [(Filterable, SideEffect)]) -> Self {
             manager.seMiddlewares.removeAll()
             return add(sideEffects: sideEffects)
         }
@@ -227,9 +215,7 @@ extension HMFilterMiddlewareManager: HMBuildableType {
         ///
         /// - Parameter sideEffects: A Sequence of Filterable/SideEffect.
         /// - Returns: The current Builder instance.
-        public func withDebug<S>(sideEffects: S) -> Self where
-            S: Sequence, S.Element == (Filterable, SideEffect)
-        {
+        public func withDebug(sideEffects: [(Filterable, SideEffect)]) -> Self {
             return isInDebugMode() ? with(sideEffects: sideEffects) : self
         }
     }
@@ -284,9 +270,7 @@ public extension HMFilterMiddlewareManager.Builder where Target: HMMiddlewareGlo
     ///
     /// - Parameter transforms: A Sequence of Transform.
     /// - Returns: The current Builder instance.
-    public func addDebug<S>(transforms: S) -> Self where
-        S: Sequence, S.Element == GBTransform
-    {
+    public func addDebug(transforms: [GBTransform]) -> Self {
         return isInDebugMode() ? with(transforms: transforms) : self
     }
     
@@ -306,9 +290,7 @@ public extension HMFilterMiddlewareManager.Builder where Target: HMMiddlewareGlo
     ///
     /// - Parameter transforms: A Sequence of Transform.
     /// - Returns: The current Builder instance.
-    public func withDebug<S>(transforms: S) -> Self where
-        S: Sequence, S.Element == GBTransform
-    {
+    public func withDebug(transforms: [GBTransform]) -> Self {
         return isInDebugMode() ? with(transforms: transforms) : self
     }
     
@@ -332,9 +314,7 @@ public extension HMFilterMiddlewareManager.Builder where Target: HMMiddlewareGlo
     ///
     /// - Parameter sideEffects: A Sequence of SideEffect.
     /// - Returns: The current Builder instance.
-    public func add<S>(sideEffects: S) -> Self where
-        S: Sequence, S.Element == GBSideEffect
-    {
+    public func add(sideEffects: [GBSideEffect]) -> Self {
         let key = globalMiddlewareKey
         let sideEffects = sideEffects.map({(key, $0)})
         return add(sideEffects: sideEffects)
@@ -344,9 +324,7 @@ public extension HMFilterMiddlewareManager.Builder where Target: HMMiddlewareGlo
     ///
     /// - Parameter sideEffects: A Sequence of SideEffect.
     /// - Returns: The current Builder instance.
-    public func addDebug<S>(sideEffects: S) -> Self where
-        S: Sequence, S.Element == GBSideEffect
-    {
+    public func addDebug(sideEffects: [GBSideEffect]) -> Self {
         return isInDebugMode() ? add(sideEffects: sideEffects) : self
     }
     
@@ -354,9 +332,7 @@ public extension HMFilterMiddlewareManager.Builder where Target: HMMiddlewareGlo
     ///
     /// - Parameter sideEffects: A Sequence of SideEffect.
     /// - Returns: The current Builder instance.
-    public func with<S>(sideEffects: S) -> Self where
-        S: Sequence, S.Element == GBSideEffect
-    {
+    public func with(sideEffects: [GBSideEffect]) -> Self {
         return with(sideEffects: sideEffects)
     }
     
@@ -364,9 +340,7 @@ public extension HMFilterMiddlewareManager.Builder where Target: HMMiddlewareGlo
     ///
     /// - Parameter sideEffects: A Sequence of SideEffect.
     /// - Returns: The current Builder instance.
-    public func withDebug<S>(sideEffects: S) -> Self where
-        S: Sequence, S.Element == GBSideEffect
-    {
+    public func withDebug(sideEffects: [GBSideEffect]) -> Self {
         return isInDebugMode() ? with(sideEffects: sideEffects) : self
     }
 }

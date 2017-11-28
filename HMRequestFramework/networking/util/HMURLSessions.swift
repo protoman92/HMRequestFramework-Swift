@@ -9,14 +9,16 @@
 import RxSwift
 
 public extension Reactive where Base == URLSession {
-    private func uploadCompletionBlock<O>(_ res: (Data?, URLResponse?, Error?),
+    private func uploadCompletionBlock<O>(_ data: Data?,
+                                          _ response: URLResponse?,
+                                          _ error: Error?,
                                           _ obs: O) where
         O: ObserverType, O.E == Data
     {
-        if let error = res.2 {
+        if let error = error {
             obs.onError(error)
         } else {
-            obs.onNext(res.0 ?? Data(capacity: 0))
+            obs.onNext(data ?? Data(capacity: 0))
             obs.onCompleted()
         }
     }
@@ -34,7 +36,7 @@ public extension Reactive where Base == URLSession {
             let base = self.base
             
             let task = base.uploadTask(with: request, from: data) {
-                self.uploadCompletionBlock($0, obs)
+                self.uploadCompletionBlock($0, $1, $2, obs)
             }
             
             task.resume()
@@ -55,7 +57,7 @@ public extension Reactive where Base == URLSession {
             let base = self.base
             
             let task = base.uploadTask(with: request, fromFile: url) {
-                self.uploadCompletionBlock($0, obs)
+                self.uploadCompletionBlock($0, $1, $2, obs)
             }
             
             task.resume()

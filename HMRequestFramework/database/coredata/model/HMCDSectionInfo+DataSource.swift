@@ -29,9 +29,7 @@ extension HMCDSection: SectionModelType {
     ///
     /// - Parameter f: Mapper function.
     /// - Returns: A HMCDSection instance.
-    public func mapObjects<V2,S>(_ f: ([V]) throws -> S?) -> HMCDSection<V2> where
-        S: Sequence, S.Element == V2
-    {
+    public func mapObjects<V2>(_ f: ([V]) throws -> [V2]?) -> HMCDSection<V2> {
         return mapObjects(f, HMCDSection<V2>.self)
     }
 }
@@ -55,16 +53,14 @@ public struct HMCDAnimatableSection<V: Equatable & IdentifiableType> {
     public let numberOfObjects: Int
     public let objects: [V]
     
-    public init<S>(indexTitle: String?,
-                   name: String,
-                   numberOfObjects: Int,
-                   objects: S) where
-        S: Sequence, S.Element == V
-    {
+    public init(indexTitle: String?,
+                name: String,
+                numberOfObjects: Int,
+                objects: [V]) {
         self.indexTitle = indexTitle
         self.name = name
         self.numberOfObjects = numberOfObjects
-        self.objects = objects.map({$0})
+        self.objects = Array(objects)
     }
 }
 
@@ -93,9 +89,7 @@ extension HMCDAnimatableSection: AnimatableSectionModelType {
     ///
     /// - Parameter f: Mapper function.
     /// - Returns: A HMCDAnimatableSection instance.
-    public func mapObjects<V2,S>(_ f: ([V]) throws -> S?) -> HMCDAnimatableSection<V2> where
-        V2: Equatable & IdentifiableType, S: Sequence, S.Element == V2
-    {
+    public func mapObjects<V2>(_ f: ([V]) throws -> [V2]?) -> HMCDAnimatableSection<V2> {
         return mapObjects(f, HMCDAnimatableSection<V2>.self)
     }
 }

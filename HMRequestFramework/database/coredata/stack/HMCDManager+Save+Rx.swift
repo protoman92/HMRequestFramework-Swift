@@ -150,7 +150,7 @@ public extension HMCDManager {
         performOperation(opMode, {
             do {
                 try self.saveUnsafely(context)
-                obs.onNext()
+                obs.onNext(())
                 obs.onCompleted()
             } catch let e {
                 obs.onError(e)
@@ -186,7 +186,7 @@ public extension HMCDManager {
         performOperation(opMode, {
             do {
                 try self.saveUnsafely(context, pureObjects)
-                obs.onNext()
+                obs.onNext(())
                 obs.onCompleted()
             } catch let e {
                 obs.onError(e)
