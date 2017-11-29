@@ -645,26 +645,25 @@ extension HMCDRequest: HMCDRequestType {
     }
 }
 
-//extension HMCDRequest: CustomStringConvertible {
-//    public var description: String {
-//        var ops: String
-//        
-//        if let operation = try? self.operation() {
-//            ops = String(describing: operation)
-//            
-//            if
-//                case .fetch = operation,
-//                let predicate = try? self.predicate(),
-//                let sorts = try? self.sortDescriptors()
-//            {
-//                ops = "\(ops) with predicate \(predicate) and sort \(sorts)"
-//            }
-//        } else {
-//            ops = "INVALID OPERATION"
-//        }
-//        
-//        let description = self.requestDescription() ?? "NONE"
-//        return "Performing \(ops). Description: \(description)"
-//    }
-//}
-
+extension HMCDRequest: CustomStringConvertible {
+    public var description: String {
+        var ops: String
+        
+        if let operation = try? self.operation() {
+            ops = String(describing: operation)
+            
+            if
+                case .fetch = operation,
+                let predicate = try? self.predicate(),
+                let sorts = try? self.sortDescriptors()
+            {
+                ops = "\(ops) with predicate \(predicate) and sort \(sorts)"
+            }
+        } else {
+            ops = "INVALID OPERATION"
+        }
+        
+        let description = self.requestDescription() ?? "NONE"
+        return "Performing \(ops). Description: \(description)"
+    }
+}

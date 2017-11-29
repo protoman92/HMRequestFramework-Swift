@@ -35,7 +35,7 @@ public final class HMCDEvents {
         /// Swift Enum bug.
 //        switch event {
 //        case .success(.didLoad(let change)): return .just(change)
-//        default: return []
+//        default: return .empty()
 //        }
         switch event {
         case .success(let event): return didLoadSections(event)
