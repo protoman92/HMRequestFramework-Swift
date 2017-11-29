@@ -8,42 +8,6 @@
 
 import RxDataSources
 
-// We can ask HMCDSection to implement these protocols so that it becomes
-// usable with RxDataSources. As a result, it might be easier to use UITableView/
-// UICollectionView's rx extensions.
-extension HMCDSection: SectionModelType {
-    public typealias Item = V
-    
-    public var items: [Item] {
-        return objects
-    }
-    
-    public init(original: HMCDSection<V>, items: [Item]) {
-        self.init(indexTitle: original.indexTitle,
-                  name: original.name,
-                  numberOfObjects: original.numberOfObjects,
-                  objects: items)
-    }
-    
-    /// Convenience method to map to a section.
-    ///
-    /// - Parameter f: Mapper function.
-    /// - Returns: A HMCDSection instance.
-    public func mapObjects<V2>(_ f: ([V]) throws -> [V2]?) -> HMCDSection<V2> {
-        return mapObjects(f, HMCDSection<V2>.self)
-    }
-}
-
-extension HMCDSection where V: Equatable, V: IdentifiableType {
-    
-    /// Get an animatable section.
-    ///
-    /// - Returns: A HMCDAnimatableSection instance.
-    public func animated() -> HMCDAnimatableSection<V> {
-        return HMCDAnimatableSection<V>.init(self)
-    }
-}
-
 /// Instead of asking HMCDSection to implement AnimatableSectionModelType, we
 /// can delegate that to a subtype. This is because the FRC requires the section
 /// objects to be of Any generics at first when delegate methods are called.
@@ -91,5 +55,29 @@ extension HMCDAnimatableSection: AnimatableSectionModelType {
     /// - Returns: A HMCDAnimatableSection instance.
     public func mapObjects<V2>(_ f: ([V]) throws -> [V2]?) -> HMCDAnimatableSection<V2> {
         return mapObjects(f, HMCDAnimatableSection<V2>.self)
+    }
+}
+
+extension HMCDSection {
+    
+    /// Get a reload section model.
+    ///
+    /// - Returns: A SectionModel instance.
+    public func reloadModel() -> SectionModel<String,V> {
+        return SectionModel(model: name, items: objects)
+    }
+}
+
+extension HMCDSection where V: Equatable, V: IdentifiableType {
+    
+    /// Get an animatable section model.
+    ///
+    /// - Returns: A AnimatableSectionModel instance.
+    public func animatableModel() -> AnimatableSectionModel<String,V> {
+        return AnimatableSectionModel(model: name, items: objects)
+    }
+    
+    public func animatableSection() -> HMCDAnimatableSection<V> {
+        return HMCDAnimatableSection(self)
     }
 }

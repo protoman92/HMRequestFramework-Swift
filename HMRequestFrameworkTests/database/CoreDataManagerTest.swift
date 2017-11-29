@@ -263,7 +263,7 @@ public extension CoreDataManagerTest {
         let fetchContext2 = manager.disposableObjectContext()
         
         /// When
-        Observable.from(0..<iterationCount)
+        Observable.from((0..<iterationCount).map({$0}))
 
             // For each iteration, create a bunch of dummies in a disposable
             // context and save them in memory. The main context should then
@@ -284,7 +284,7 @@ public extension CoreDataManagerTest {
                     .map(toVoid)
                     .subscribeOnConcurrent(qos: .background)
             })
-            .reduce((), accumulator: {_ in ()})
+            .reduce((), accumulator: {(_, _) in ()})
 
             // Persist all changes to DB.
             .flatMap({manager.rx.persistLocally()})

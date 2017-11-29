@@ -51,7 +51,7 @@ public final class CDDummy1: NSManagedObject {
     }
 }
 
-public struct Dummy1 {
+public final class Dummy1 {
     fileprivate static var counter = 0
     
     public var id: String?
@@ -63,7 +63,7 @@ public struct Dummy1 {
     public init() {
         Dummy1.counter += 1
         let counter = Dummy1.counter
-        id = "\(counter)"
+        id = String(describing: counter)
         date = Date.random()
         int64 = Int64(Int.randomBetween(0, 10000)) as NSNumber
         float = Float(Int.randomBetween(0, 10000)) as NSNumber

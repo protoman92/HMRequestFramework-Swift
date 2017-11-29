@@ -41,7 +41,7 @@ public protocol HMCDGeneralRequestProcessorType {
     func saveToMemory<PO>(_ previous: Try<[PO]>,
                           _ qos: DispatchQoS.QoSClass,
                           _ transforms: [HMTransform<HMCDRequest>])
-        -> Observable<Try<Void>> where
+        -> Observable<Try<[HMCDResult]>> where
         PO: HMCDPureObjectType,
         PO.CDClass: HMCDObjectConvertibleType,
         PO.CDClass: HMCDObjectBuildableType,
@@ -501,7 +501,7 @@ public extension HMCDGeneralRequestProcessorType {
     public func saveToMemory<PO>(_ previous: Try<[PO]>,
                                  _ qos: DispatchQoS.QoSClass,
                                  _ transforms: HMTransform<HMCDRequest>...)
-        -> Observable<Try<Void>> where
+        -> Observable<Try<[HMCDResult]>> where
         PO: HMCDPureObjectType,
         PO.CDClass: HMCDObjectConvertibleType,
         PO.CDClass: HMCDObjectBuildableType,

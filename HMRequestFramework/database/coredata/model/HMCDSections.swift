@@ -15,10 +15,9 @@ public final class HMCDSections {
     ///   - sections: A Sequence of HMCDSectionType.
     ///   - indexPath: An IndexPath instance.
     /// - Returns: A ST.V instance.
-    public static func object<ST,S>(_ sections: S, _ indexPath: IndexPath) -> ST.V? where
-        ST: HMCDSectionType,
-        S: Sequence,
-        S.Element == ST
+    public static func object<ST,S>(_ sections: S,
+                                    _ indexPath: IndexPath) -> ST.V? where
+        ST: HMCDSectionType, S: Sequence, S.Element == ST
     {
         let sections = sections.map({$0})
         let section = indexPath.section
@@ -33,24 +32,23 @@ public final class HMCDSections {
     ///   - sections: A Sequence of sections.
     ///   - limit: An Int value.
     /// - Returns: An Array of sections.
-    public static func sectionsWithLimit<ST,S>(_ sections: S, _ limit: Int) -> [ST] where
-        ST: HMCDSectionType,
-        S: Sequence,
-        S.Element == ST
+    public static func sectionsWithLimit<ST,S>(_ sections: S,
+                                               _ limit: Int) -> [ST] where
+        ST: HMCDSectionType, S: Sequence, S.Element == ST
     {
-        var slicedSects = [ST]()
+        var sliced = [ST]()
         
         for section in sections {
-            let sectionLimit = limit - slicedSects.reduce(0, {$1.numberOfObjects + $0})
+            let sectionLimit = limit - sliced.reduce(0, {$1.numberOfObjects + $0})
             
             if sectionLimit > 0 {
-                slicedSects.append(section.withObjectLimit(sectionLimit))
+                sliced.append(section.withObjectLimit(sectionLimit))
             } else {
                 break
             }
         }
         
-        return slicedSects
+        return sliced
     }
     
     private init() {}

@@ -116,8 +116,8 @@ public final class MiddlewareTest: RootTest {
             .build()
         
         let request = MockRequest.builder()
-            .add(mwFilter: {_ in throw Exception("FilterError1")})
-            .add(mwFilter: {_ in throw Exception("FilterError2")})
+            .add(mwFilter: {(_, _) in throw Exception("FilterError1")})
+            .add(mwFilter: {(_, _) in throw Exception("FilterError2")})
             .build()
         
         let tfMiddlewares = rqmManager.tfMiddlewares

@@ -145,6 +145,7 @@ public extension HMCDPureObjectConvertibleType where
     /// With the right protocol constraints, we can directly implement this
     /// method by default.
     public func asPureObject() throws -> PureObject {
+        /// We need to use this method to fire all possible faults.
         willAccessValue(forKey: nil)
         
         if isFault {

@@ -71,7 +71,7 @@ public final class CoreDataTextSearchTest: CoreDataRootTest {
         
         /// When
         dbProcessor
-            .fetchWithTextSearch(Try.success(), Dummy1.self, requests, .and, qos)
+            .fetchWithTextSearch(Try.success(()), Dummy1.self, requests, .and, qos)
             .map({try $0.getOrThrow()})
             .flattenSequence()
             .doOnDispose(expect.fulfill)
@@ -90,13 +90,13 @@ public final class CoreDataTextSearchTest: CoreDataRootTest {
     
     public func test_fetchWithContains_shouldWork() {
         test_fetchWithTextSearch_shouldWork(
-            .contains, {"\($0.0)\($0.1)"},
+            .contains, {"\($0)\($1)"},
             {(text, dummies) in XCTAssertTrue(dummies.all({$0.id!.contains(text)}))})
     }
     
     public func test_fetchWithBeginsWith_shouldWork() {
         test_fetchWithTextSearch_shouldWork(
-            .contains, {"\($0.1)\($0.0)"},
+            .contains, {"\($1)\($0)"},
             {(text, dummies) in XCTAssertTrue(dummies.all({$0.id!.starts(with: text)}))})
     }
 }

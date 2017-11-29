@@ -26,8 +26,6 @@ public extension Reactive where Base == HMCDManager {
     private func startDBStream(_ frc: HMCDManager.Controller,
                                _ request: HMCDManager.FRCRequest,
                                _ obs: AnyObserver<HMCDManager.DBEvent>) -> Disposable {
-//        Preconditions.checkNotRunningOnMainThread(frc.fetchRequest)
-        
         let base = self.base
         
         let delegate = HMCDManager.Delegate(obs)
@@ -52,6 +50,44 @@ public extension Reactive where Base == HMCDManager {
         return Disposables.create(with: {delegate.deinitialize()})
     }
     
+    /// Start the stream and emit base DB events.
+    ///
+    /// - Parameter:
+    ///   - context: A Context instance.
+    ///   - request: A FRCRequest instance.
+    ///   - qos: The QoSClass instance to perform work on.
+    /// - Return: An Observable instance.
+    func startDBStream(_ context: HMCDManager.Context,
+                       _ request: HMCDManager.FRCRequest,
+                       _ qos: DispatchQoS.QoSClass)
+        -> Observable<HMCDManager.DBEvent>
+    {
+        do {
+            let fetchRequest = try request.untypedFetchRequest()
+            let sectionName = request.frcSectionName()
+            let cacheName = request.frcCacheName()
+            
+            let frc = HMCDManager.Controller(
+                fetchRequest: fetchRequest,
+                managedObjectContext: context,
+                sectionNameKeyPath: sectionName,
+                cacheName: cacheName
+            )
+            
+            return Observable<HMCDManager.DBEvent>
+                .create({obs in
+                    if let cacheName = cacheName {
+                        HMCDManager.Controller.deleteCache(withName: cacheName)
+                    }
+                    
+                    return self.startDBStream(frc, request, obs)
+                })
+                .subscribeOnConcurrent(qos: qos)
+        } catch let e {
+            return Observable.error(e)
+        }
+    }
+    
     /// Start the stream and convert all event data to PO.
     ///
     /// - Parameter:
@@ -70,35 +106,21 @@ public extension Reactive where Base == HMCDManager {
         PO.CDClass: HMCDPureObjectConvertibleType,
         PO.CDClass.PureObject == PO
     {
-        do {
-            let fetchRequest = try request.untypedFetchRequest()
-            let sectionName = request.frcSectionName()
-            let cacheName = request.frcCacheName()
-            
-            let frc = HMCDManager.Controller(
-                fetchRequest: fetchRequest,
-                managedObjectContext: context,
-                sectionNameKeyPath: sectionName,
-                cacheName: cacheName
-            )
-            
-            return Observable<Base.DBEvent>
-                .create({obs in
-                    if let cacheName = cacheName {
-                        HMCDManager.Controller.deleteCache(withName: cacheName)
-                    }
-                    
-                    return self.startDBStream(frc, request, obs)
-                })
-                .subscribeOnConcurrent(qos: qos)
-                
-                // All events' objects will be implicitly converted to PO. For e.g.,
-                // for a section change event, the underlying HMCDEvent<Any> will
-                // be mapped to PO generics.
-                .map({$0.cast(to: PO.CDClass.self).map({try $0.asPureObject()})})
-        } catch let e {
-            return Observable.error(e)
-        }
+        return startDBStream(context, request, qos)
+            .map({$0.cast(to: PO.CDClass.self).map({try $0.asPureObject()})})
+    }
+    
+    /// Start the stream and emit base DB events.
+    ///
+    /// - Parameter:
+    ///   - request: A FRCRequest instance.
+    ///   - qos: The QoSClass instance to perform work on.
+    /// - Return: An Observable instance.
+    public func startDBStream(_ request: HMCDManager.FRCRequest,
+                              _ qos: DispatchQoS.QoSClass)
+        -> Observable<HMCDManager.DBEvent>
+    {
+        return startDBStream(base.mainObjectContext(), request, qos)
     }
     
     /// Start the stream and convert all event data to PO.

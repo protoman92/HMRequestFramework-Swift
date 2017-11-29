@@ -21,7 +21,7 @@
 		D3206FBD1F55CA48006AEDDF /* HMCDPagination.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3206FBC1F55CA48006AEDDF /* HMCDPagination.swift */; };
 		D3206FBF1F55D596006AEDDF /* HMCDPaginationMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3206FBE1F55D596006AEDDF /* HMCDPaginationMode.swift */; };
 		D3218AA41F4F2612006BCB66 /* HMIdentifiables.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3218AA31F4F2611006BCB66 /* HMIdentifiables.swift */; };
-		D325C4101F510E1200FC802C /* HMCDSectionInfo+DataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = D325C40F1F510E1200FC802C /* HMCDSectionInfo+DataSource.swift */; };
+		D325C4101F510E1200FC802C /* HMCDSection+DataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = D325C40F1F510E1200FC802C /* HMCDSection+DataSource.swift */; };
 		D325C4121F512E1B00FC802C /* HMCDSectionType.swift in Sources */ = {isa = PBXBuildFile; fileRef = D325C4111F512E1B00FC802C /* HMCDSectionType.swift */; };
 		D32649721F288EDC000226FA /* HMCDAttributeDescription.swift in Sources */ = {isa = PBXBuildFile; fileRef = D32649711F288EDC000226FA /* HMCDAttributeDescription.swift */; };
 		D326B1821F2D7B210021216C /* HMBuildableType.swift in Sources */ = {isa = PBXBuildFile; fileRef = D326B1811F2D7B210021216C /* HMBuildableType.swift */; };
@@ -193,7 +193,7 @@
 		D3206FBC1F55CA48006AEDDF /* HMCDPagination.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMCDPagination.swift; sourceTree = "<group>"; };
 		D3206FBE1F55D596006AEDDF /* HMCDPaginationMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMCDPaginationMode.swift; sourceTree = "<group>"; };
 		D3218AA31F4F2611006BCB66 /* HMIdentifiables.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HMIdentifiables.swift; sourceTree = "<group>"; };
-		D325C40F1F510E1200FC802C /* HMCDSectionInfo+DataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HMCDSectionInfo+DataSource.swift"; sourceTree = "<group>"; };
+		D325C40F1F510E1200FC802C /* HMCDSection+DataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HMCDSection+DataSource.swift"; sourceTree = "<group>"; };
 		D325C4111F512E1B00FC802C /* HMCDSectionType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMCDSectionType.swift; sourceTree = "<group>"; };
 		D32649711F288EDC000226FA /* HMCDAttributeDescription.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMCDAttributeDescription.swift; sourceTree = "<group>"; };
 		D326B1811F2D7B210021216C /* HMBuildableType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMBuildableType.swift; sourceTree = "<group>"; };
@@ -392,7 +392,7 @@
 				D37D0B721F25E1BE0032C6AB /* HMCDRequest.swift */,
 				D3DE120C1F3F7B8700F3C86F /* HMCDResult.swift */,
 				D353BE871F508CC3004AD111 /* HMCDSection.swift */,
-				D325C40F1F510E1200FC802C /* HMCDSectionInfo+DataSource.swift */,
+				D325C40F1F510E1200FC802C /* HMCDSection+DataSource.swift */,
 				D32E78011F59229400A60D50 /* HMCDSections.swift */,
 				D363F39A1FA06E230077BFAC /* HMCDTextSearchRequest.swift */,
 			);
@@ -1166,7 +1166,7 @@
 				D3C043DD1F3B35CC005948B9 /* HMCDMasterType.swift in Sources */,
 				D34DF2921F2C2D740076D6B1 /* HMMiddleware.swift in Sources */,
 				D37D0BA91F25E3A00032C6AB /* HMCDOperation.swift in Sources */,
-				D325C4101F510E1200FC802C /* HMCDSectionInfo+DataSource.swift in Sources */,
+				D325C4101F510E1200FC802C /* HMCDSection+DataSource.swift in Sources */,
 				D3A295371F81FAEF00F10756 /* HMCDResultControllerType.swift in Sources */,
 				D3AC07181F3D9C280085D329 /* HMCDKeyValueUpdatableType.swift in Sources */,
 				D33BB3241F469A5900025FD1 /* HMURLComponentProviderType.swift in Sources */,
@@ -1433,7 +1433,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.holmusk.HMRequestFramework;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 3.0;
 			};
 			name = Debug;
 		};
@@ -1455,7 +1455,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.holmusk.HMRequestFramework;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 3.0;
 			};
 			name = Release;
 		};
@@ -1470,7 +1470,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.holmusk.HMRequestFrameworkTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 3.0;
 			};
 			name = Debug;
 		};
@@ -1485,7 +1485,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.holmusk.HMRequestFrameworkTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 3.0;
 			};
 			name = Release;
 		};
@@ -1511,7 +1511,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.holmusk.HMRequestFramework-Demo";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 3.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -1538,7 +1538,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.holmusk.HMRequestFramework-Demo";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 3.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;

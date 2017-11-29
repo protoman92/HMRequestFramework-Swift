@@ -439,7 +439,7 @@ public class CoreDataRequestTest: CoreDataRootTest {
             currentCheck += 1
             print("Checking request \(currentCheck)")
             
-            let request = $0.0
+            let request = $0
             
             do {
                 _ = try processor.execute(request)
@@ -448,7 +448,7 @@ public class CoreDataRequestTest: CoreDataRootTest {
                     .first()
             } catch let e {
                 print(e)
-                XCTAssertTrue($0.1)
+                XCTAssertTrue($1)
             }
             
             return request

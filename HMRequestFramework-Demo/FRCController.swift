@@ -19,6 +19,18 @@ extension CDDummy1 {
     }
 }
 
+extension HMCDSectionType {
+    public var sectionName: String {
+        return name
+    }
+}
+
+extension AnimatableSectionModel where Section == String {
+    public var sectionName: String {
+        return model
+    }
+}
+
 // Please do not use forced unwraps in production apps.
 public final class FRCController: UIViewController {
     typealias Section = HMCDAnimatableSection<Dummy1>
@@ -32,7 +44,7 @@ public final class FRCController: UIViewController {
     @IBOutlet private weak var frcTableView: UITableView!
     @IBOutlet private weak var scrollView: UIScrollView!
     
-    private let dummyCount = 5
+    private let dummyCount = 100
     private let dateMilestone = Date.random() ?? Date()
     
     private var contentHeight: NSLayoutConstraint? {
@@ -40,7 +52,6 @@ public final class FRCController: UIViewController {
     }
     
     private var data: Variable<[Section]> = Variable([])
-    private var data2: Variable<Try<HMCDEvent<Dummy1>>> = Variable(Try.failure(Exception()))
     private let disposeBag: DisposeBag = DisposeBag()
     
     private var dbProcessor: HMCDRequestProcessor?
@@ -183,7 +194,7 @@ public final class FRCController: UIViewController {
             .streamPaginatedDBEvents(
                 Dummy1.self, pageObs,
                 HMCDPagination.builder()
-                    .with(fetchLimit: 1)
+                    .with(fetchLimit: 10)
                     .with(fetchOffset: 0)
                     .with(paginationMode: .fixedPageCount)
                     .build(), qos,
@@ -196,8 +207,7 @@ public final class FRCController: UIViewController {
                         .build())
                 }
             )
-            .map({HMCDEvents.didLoadAnimatedSections($0)})
-            .filter({$0.isNotEmpty})
+            .flatMap(HMCDEvents.didLoadAnimatableSections)
             .bind(to: data)
             .disposed(by: disposeBag)
     }
@@ -221,7 +231,7 @@ public final class FRCController: UIViewController {
         scrollView.contentSize.height = scrollHeight
         
         let newConstraint = NSLayoutConstraint(
-            item: contentHeight.firstItem,
+            item: contentHeight.firstItem!,
             attribute: contentHeight.firstAttribute,
             relatedBy: contentHeight.relation,
             toItem: contentHeight.secondItem,
@@ -250,14 +260,14 @@ public final class FRCController: UIViewController {
         
         source.canEditRowAtIndexPath = {(_, _) in true}
         source.canMoveRowAtIndexPath = {(_, _) in true}
-        source.titleForHeaderInSection = {$0[$1].name}
+        source.titleForHeaderInSection = {$0[$1].sectionName}
         return source
     }
     
     func configureCell(_ source: DataSource,
                        _ tableView: UITableView,
                        _ indexPath: IndexPath,
-                       _ object: Dummy1) -> UITableViewCell {
+                       _ object: Section.Item) -> UITableViewCell {
         guard
             let cell = tableView.dequeueReusableCell(
                 withIdentifier: "FRCCell",
@@ -270,46 +280,6 @@ public final class FRCController: UIViewController {
         
         titleLbl.text = dateFormatter.string(from: date)
         return cell
-    }
-    
-    // This is not needed yet. So far RxDataSources seems to be working well
-    // enough.
-    func onStreamEventReceived(_ event: HMCDEvent<Dummy1>, _ vc: FRCController) {
-        let tableView = vc.frcTableView!
-        
-        switch event {
-        case .willLoad:
-            tableView.beginUpdates()
-            
-        case .didLoad:
-            tableView.endUpdates()
-            
-        case .insert(let change):
-            if let newIndex = change.newIndex {
-                tableView.insertRows(at: [newIndex], with: .fade)
-            }
-            
-        case .delete(let change):
-            if let oldIndex = change.oldIndex {
-                tableView.deleteRows(at: [oldIndex], with: .fade)
-            }
-            
-        case .move(let change):
-            onStreamEventReceived(.delete(change), vc)
-            onStreamEventReceived(.insert(change), vc)
-            
-        case .insertSection(_, let sectionIndex):
-            tableView.insertSections(IndexSet(integer: sectionIndex), with: .fade)
-            
-        case .deleteSection(_, let sectionIndex):
-            tableView.deleteSections(IndexSet(integer: sectionIndex), with: .fade)
-            
-        case .updateSection(_, let sectionIndex):
-            tableView.reloadSections(IndexSet(integer: sectionIndex), with: .fade)
-            
-        default:
-            break
-        }
     }
 }
 

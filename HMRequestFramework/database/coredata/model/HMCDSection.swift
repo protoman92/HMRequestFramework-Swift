@@ -34,7 +34,15 @@ public struct HMCDSection<V>: HMCDSectionType {
         return HMCDSection<V2>(indexTitle: self.indexTitle,
                                name: self.name,
                                numberOfObjects: self.numberOfObjects,
-                               objects: self.objects.flatMap({try? f($0)}))
+                               objects: (try? self.objects.map(f)) ?? [])
+    }
+    
+    /// Convenience method to map to a section.
+    ///
+    /// - Parameter f: Mapper function.
+    /// - Returns: A HMCDSection instance.
+    public func mapObjects<V2>(_ f: ([V]) throws -> [V2]?) -> HMCDSection<V2> {
+        return mapObjects(f, HMCDSection<V2>.self)
     }
     
     /// Convenience function to cast the current generic to some other type.

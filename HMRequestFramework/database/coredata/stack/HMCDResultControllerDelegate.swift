@@ -137,7 +137,7 @@ public extension HMCDResultControllerDelegate {
     /// - Parameter controller: A Controller instance.
     /// - Returns: An Event instance.
     public func dbLevel(_ controller: Controller,
-                        _ mapper: (DBLevel<Any>) -> DBEvent) -> DBEvent {
+                        _ mapper: (DBEvent.DBLevel) -> DBEvent) -> DBEvent {
         return DBEvent.dbLevel(controller.sections,
                                controller.fetchedObjects,
                                controller.fetchRequest.fetchLimit,

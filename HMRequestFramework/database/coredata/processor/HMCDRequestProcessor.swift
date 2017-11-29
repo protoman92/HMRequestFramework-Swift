@@ -441,7 +441,7 @@ public extension HMCDRequestProcessor {
     public func saveToMemory<PO>(_ previous: Try<[PO]>,
                                  _ qos: DispatchQoS.QoSClass,
                                  _ transforms: [HMTransform<Req>])
-        -> Observable<Try<Void>> where
+        -> Observable<Try<[HMCDResult]>> where
         PO: HMCDPureObjectType,
         PO.CDClass: HMCDObjectConvertibleType,
         PO.CDClass: HMCDObjectBuildableType,
@@ -457,7 +457,7 @@ public extension HMCDRequestProcessor {
                 .flatMap({HMTransforms.applyTransformers($0, transforms)})
         })
         
-        return processResult(previous, generator, qos).map({$0.map(toVoid)})
+        return processResult(previous, generator, qos)
     }
 }
 

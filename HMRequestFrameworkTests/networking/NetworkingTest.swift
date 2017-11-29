@@ -51,14 +51,14 @@ public extension NetworkingTest {
         
         let checkError: (HMNetworkRequest, Bool) -> HMNetworkRequest = {
             currentCheck += 1
-            let request = $0.0
+            let request = $0
             print("Checking request \(currentCheck): \(request)")
             
             do {
                 _ = try request.urlRequest()
             } catch let e {
                 print(e)
-                XCTAssertTrue($0.1)
+                XCTAssertTrue($1)
             }
             
             return request

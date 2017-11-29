@@ -9,19 +9,6 @@
 import CoreData
 import SwiftUtilities
 
-public typealias DBLevel<V> = ([HMCDSection<V>])
-
-public typealias ObjectLevel<V> = (
-    object: V,
-    oldIndex: IndexPath?,
-    newIndex: IndexPath?
-)
-
-public typealias SectionLevel<V> = (
-    section: HMCDSection<V>,
-    sectionIndex: Int
-)
-
 /// Use this enum to represent stream events from CoreData. There are two ways
 /// we can use these events to represent DB data:
 ///
@@ -49,18 +36,31 @@ public typealias SectionLevel<V> = (
 /// - dummy: Used when we cannot categorize this even anywhere else.
 public enum HMCDEvent<V> {
     case willLoad
-    case didLoad(DBLevel<V>)
+    case didLoad(DBLevel)
     case willChange
     case didChange
-    case insert(ObjectLevel<V>)
-    case delete(ObjectLevel<V>)
-    case move(ObjectLevel<V>)
-    case update(ObjectLevel<V>)
-    case insertSection(SectionLevel<V>)
-    case deleteSection(SectionLevel<V>)
-    case moveSection(SectionLevel<V>)
-    case updateSection(SectionLevel<V>)
+    case insert(ObjectLevel)
+    case delete(ObjectLevel)
+    case move(ObjectLevel)
+    case update(ObjectLevel)
+    case insertSection(SectionLevel)
+    case deleteSection(SectionLevel)
+    case moveSection(SectionLevel)
+    case updateSection(SectionLevel)
     case dummy
+    
+    public typealias DBLevel = [HMCDSection<V>]
+    
+    public typealias ObjectLevel = (
+        object: V,
+        oldIndex: IndexPath?,
+        newIndex: IndexPath?
+    )
+    
+    public typealias SectionLevel = (
+        section: HMCDSection<V>,
+        index: Int
+    )
     
     /// Map a DB change type to an instance of this enum.
     ///
@@ -74,13 +74,13 @@ public enum HMCDEvent<V> {
     public static func dbLevel(_ sections: [NSFetchedResultsSectionInfo]?,
                                _ objects: [Any]?,
                                _ fetchLimit: Int,
-                               _ m: (DBLevel<Any>) -> HMCDEvent<Any>)
+                               _ m: (HMCDEvent<Any>.DBLevel) -> HMCDEvent<Any>)
         -> HMCDEvent<Any>
     {
         let limit = fetchLimit > 0 ? fetchLimit : Int.max 
         let sections = sections?.map(HMCDSection<Any>.init) ?? []
         let slicedSections = HMCDSections.sectionsWithLimit(sections, limit)
-        return m(DBLevel(slicedSections))
+        return m(HMCDEvent<Any>.DBLevel(slicedSections))
     }
     
     /// Map an object change type to an instance of this enum.
@@ -95,9 +95,9 @@ public enum HMCDEvent<V> {
                                    _ object: V,
                                    _ oldIndex: IndexPath?,
                                    _ newIndex: IndexPath?) -> HMCDEvent<V> {
-        let change = ObjectLevel<V>(object: object,
-                                     oldIndex: oldIndex,
-                                     newIndex: newIndex)
+        let change = HMCDEvent<V>.ObjectLevel(object: object,
+                                              oldIndex: oldIndex,
+                                              newIndex: newIndex)
         
         switch type {
         case .insert:
@@ -128,9 +128,9 @@ public enum HMCDEvent<V> {
     /// - Returns: A HMCDEvent instance.
     public static func sectionLevel(_ type: NSFetchedResultsChangeType,
                                     _ section: NSFetchedResultsSectionInfo,
-                                    _ sectionIndex: Int) -> HMCDEvent<Any> {
+                                    _ index: Int) -> HMCDEvent<Any> {
         let section = HMCDSection<Any>.init(section)
-        let change = SectionLevel(section: section, sectionIndex: sectionIndex)
+        let change = HMCDEvent<Any>.SectionLevel(section: section, index: index)
         
         switch type {
         case .insert:
@@ -154,34 +154,34 @@ public enum HMCDEvent<V> {
     public func map<V2>(_ f: (V) throws -> V2) -> HMCDEvent<V2> {
         switch self {
         case .insert(let change):
-            return mapObjectLevel(f, HMCDEvent<V2>.insert, change)
-            
+            return mapObject(f, {.insert($0)}, change)
+
         case .delete(let change):
-            return mapObjectLevel(f, HMCDEvent<V2>.delete, change)
-            
+            return mapObject(f, {.delete($0)}, change)
+
         case .move(let change):
-            return mapObjectLevel(f, HMCDEvent<V2>.move, change)
-            
+            return mapObject(f, {.move($0)}, change)
+
         case .update(let change):
-            return mapObjectLevel(f, HMCDEvent<V2>.update, change)
-            
+            return mapObject(f, {.update($0)}, change)
+
         case .insertSection(let change):
-            return mapSectionLevel(f, HMCDEvent<V2>.insertSection, change)
-            
+            return mapSection(f, {.insertSection($0)}, change)
+
         case .deleteSection(let change):
-            return mapSectionLevel(f, HMCDEvent<V2>.deleteSection, change)
-            
+            return mapSection(f, {.deleteSection($0)}, change)
+
         case .moveSection(let change):
-            return mapSectionLevel(f, HMCDEvent<V2>.moveSection, change)
-            
+            return mapSection(f, {.moveSection($0)}, change)
+
         case .updateSection(let change):
-            return mapSectionLevel(f, HMCDEvent<V2>.updateSection, change)
+            return mapSection(f, {.updateSection($0)}, change)
             
         case .willLoad:
             return .willLoad
             
         case .didLoad(let change):
-            return mapDBLevel(f, HMCDEvent<V2>.didLoad, change)
+            return mapDB(f, {.didLoad($0)}, change)
             
         case .willChange:
             return .willChange
@@ -189,7 +189,7 @@ public enum HMCDEvent<V> {
         case .didChange:
             return .didChange
             
-        case .dummy:
+        default:
             return .dummy
         }
     }
@@ -250,11 +250,11 @@ public extension HMCDEvent {
     ///   - m: Enum mapper so that we can reuse this for multiple DB changes.
     ///   - change: An DBLevel instance.
     /// - Returns: A HMCDEvent instance.
-    fileprivate func mapDBLevel<V2>(_ f: (V) throws -> V2,
-                                    _ m: ((DBLevel<V2>)) -> HMCDEvent<V2>,
-                                    _ change: DBLevel<V>) -> HMCDEvent<V2> {
-        let sections = change.map({$0.map({try f($0)})})
-        return m(DBLevel(sections))
+    func mapDB<V2>(_ f: (V) throws -> V2,
+                   _ m: ((HMCDEvent<V2>.DBLevel)) -> HMCDEvent<V2>,
+                   _ change: HMCDEvent<V>.DBLevel) -> HMCDEvent<V2> {
+        let sections = change.map({$0.map(f)})
+        return m(HMCDEvent<V2>.DBLevel(sections))
     }
     
     /// Map an object event to another object event with a different generics.
@@ -264,13 +264,13 @@ public extension HMCDEvent {
     ///   - m: Enum mapper so that we can reuse this for multiple object changes.
     ///   - change: An ObjectLevel instance.
     /// - Returns: A HMCDEvent instance.
-    fileprivate func mapObjectLevel<V2>(_ f: (V) throws -> V2,
-                                        _ m: ((ObjectLevel<V2>) -> HMCDEvent<V2>),
-                                        _ change: ObjectLevel<V>) -> HMCDEvent<V2> {
+    func mapObject<V2>(_ f: (V) throws -> V2,
+                       _ m: ((HMCDEvent<V2>.ObjectLevel) -> HMCDEvent<V2>),
+                       _ change: HMCDEvent<V>.ObjectLevel) -> HMCDEvent<V2> {
         if let value = try? f(change.object) {
-            return m(ObjectLevel(object: value,
-                                 oldIndex: change.oldIndex,
-                                 newIndex: change.newIndex))
+            return m(HMCDEvent<V2>.ObjectLevel(object: value,
+                                               oldIndex: change.oldIndex,
+                                               newIndex: change.newIndex))
         } else {
             return .dummy
         }
@@ -283,10 +283,10 @@ public extension HMCDEvent {
     ///   - m: Enum mapper so that we can reuse this for multiple section changes.
     ///   - change: An SectionLevel instance.
     /// - Returns: A HMCDEvent instance.
-    fileprivate func mapSectionLevel<V2>(_ f: (V) throws -> V2,
-                                         _ m: ((SectionLevel<V2>) -> HMCDEvent<V2>),
-                                         _ change: SectionLevel<V>) -> HMCDEvent<V2> {
-        return m(SectionLevel(section: change.section.map(f),
-                              sectionIndex: change.sectionIndex))
+    func mapSection<V2>(_ f: (V) throws -> V2,
+                        _ m: ((HMCDEvent<V2>.SectionLevel) -> HMCDEvent<V2>),
+                        _ change: HMCDEvent<V>.SectionLevel) -> HMCDEvent<V2> {
+        return m(HMCDEvent<V2>.SectionLevel(section: change.section.map(f),
+                                            index: change.index))
     }
 }

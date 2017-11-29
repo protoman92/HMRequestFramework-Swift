@@ -244,9 +244,13 @@ public final class CoreDataFRCTest: CoreDataRootTest {
         let expect = expectation(description: "Should have completed")
         let disposeBag = self.disposeBag!
         let dummyCount = self.dummyCount!
+        let fetchLimit: UInt = 50
         let pureObjects = (0..<dummyCount).map({_ in Dummy1()})
         let dbProcessor = self.dbProcessor!
         let qos: DispatchQoS.QoSClass = .background
+        
+        let fetchOffset: UInt = 0
+        let pageLoadTimes = dummyCount / Int(fetchLimit)
     
         dbProcessor.saveToMemory(Try.success(pureObjects), qos)
             .flatMap({dbProcessor.persistToDB($0, qos)})
@@ -263,13 +267,9 @@ public final class CoreDataFRCTest: CoreDataRootTest {
         XCTAssertTrue(pureObjects.all(nextElements.contains))
         
         // Here comes the actual streams.
-        let sortedPureObjects = pureObjects.sorted(by: {$0.0.id! < $0.1.id!})
+        let sortedPureObjects = pureObjects.sorted(by: {$0.id! < $1.id!})
         let pageSubject = BehaviorSubject<HMCursorDirection>(value: .remain)
         var callCount = 0
-        
-        let fetchLimit: UInt = 50
-        let fetchOffset: UInt = 0
-        let pageLoadTimes = dummyCount / Int(fetchLimit)
         
         let original = HMCDPagination.builder()
             .with(fetchLimit: fetchLimit)
@@ -291,6 +291,7 @@ public final class CoreDataFRCTest: CoreDataRootTest {
             // changing/updating anything in the DB. This event contains
             // only the original, unchanged objects.
             .flatMap(HMCDEvents.didLoadSections)
+            .filter({$0.isNotEmpty})
             .map({$0.flatMap({$0.objects})})
             .ifEmpty(default: [Dummy1]())
             .doOnNext({_ in callCount += 1})
@@ -423,11 +424,11 @@ public extension CoreDataFRCTest {
                         manager.rx.savePureObjects(context, pureObjects),
                         manager.rx.persistLocally()
                     )
-                    .reduce((), accumulator: {_ in ()})
+                    .reduce((), accumulator: {(_, _) in ()})
                     .doOnNext({onSave(pureObjects)})
                     .subscribeOnConcurrent(qos: .background)
             })
-            .reduce((), accumulator: {_ in ()})
+            .reduce((), accumulator: {(_, _) in ()})
             .subscribeOnConcurrent(qos: .background)
             .cast(to: Any.self)
     }
@@ -446,7 +447,7 @@ public extension CoreDataFRCTest {
         return manager.rx.savePureObjects(context, original)
             .flatMap({manager.rx.persistLocally()})
             .doOnNext({onInsert(original)})
-            .flatMap({Observable.range(start: 0, count: iterationCount)
+            .flatMap({_ in Observable.range(start: 0, count: iterationCount)
                 .flatMap({(_) -> Observable<Void> in
                     let context = manager.disposableObjectContext()
                     let upsertCtx = manager.disposableObjectContext()
@@ -466,11 +467,11 @@ public extension CoreDataFRCTest {
                             
                             manager.rx.persistLocally()
                         )
-                        .reduce((), accumulator: {_ in ()})
+                        .reduce((), accumulator: {(_, _) in ()})
                         .doOnNext({onUpsert(replace)})
                         .subscribeOnConcurrent(qos: .background)
                 })
-                .reduce((), accumulator: {_ in ()})
+                .reduce((), accumulator: {(_, _) in ()})
             })
             .flatMap({manager.rx.deleteIdentifiables(deleteContext, entity, original)})
             .flatMap({manager.rx.persistLocally()})
@@ -503,6 +504,7 @@ public extension CoreDataFRCTest {
             // Skip the initialize (both willLoad and didLoad) events, since
             // they will just return an empty Array anyway.
             .flatMap(HMCDEvents.didLoadSections)
+            .filter({$0.isNotEmpty})
             .map({$0.flatMap({$0.objects})})
             .skip(1)
             .subscribe(streamObserver)
