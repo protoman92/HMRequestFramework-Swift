@@ -13,7 +13,7 @@ import SwiftUtilitiesTests
 import XCTest
 @testable import HMRequestFramework
 
-public final class NetworkingTest: RootTest {
+public final class NetworkingTest: RootTest, HMNetworkRequestAliasType {
     fileprivate typealias Req = HMNetworkRequestHandler.Req
     fileprivate var rqmManager: HMFilterMiddlewareManager<Req>!
     fileprivate var handler: HMNetworkRequestHandler!
@@ -139,8 +139,10 @@ public extension NetworkingTest {
 
 public extension NetworkingTest {
     public func test_uploadData_shouldWork() {
+        typealias UploadResult = HMNetworkRequestAliasType.UploadResult
+        
         /// Setup
-        let observer = scheduler.createObserver(Try<Data>.self)
+        let observer = scheduler.createObserver(Try<UploadResult>.self)
         let expect = expectation(description: "Should have completed")
         let nwProcessor = self.processor!
         let data = Data(count: 1)
@@ -152,7 +154,7 @@ public extension NetworkingTest {
             .build()
 
         let generator = HMRequestGenerators.forceGn(request, Any.self)
-        let processor = HMResultProcessors.eqProcessor(Data.self)
+        let processor = HMResultProcessors.eqProcessor(UploadResult.self)
         let qos: DispatchQoS.QoSClass = .background
 
         /// When

@@ -13,12 +13,12 @@ public extension Reactive where Base == URLSession {
                                           _ response: URLResponse?,
                                           _ error: Error?,
                                           _ obs: O) where
-        O: ObserverType, O.E == Data
+        O: ObserverType, O.E == HMNetworkRequestAliasType.UploadResult
     {
         if let error = error {
             obs.onError(error)
         } else {
-            obs.onNext(data ?? Data(capacity: 0))
+            obs.onNext((data, response))
             obs.onCompleted()
         }
     }
@@ -30,9 +30,9 @@ public extension Reactive where Base == URLSession {
     ///   - data: A Data instance.
     /// - Returns: An Observable instance.
     public func uploadWithCompletion(_ request: URLRequest, _ data: Data)
-        -> Observable<Data>
+        -> Observable<HMNetworkRequestAliasType.UploadResult>
     {
-        return Observable<Data>.create({obs in
+        return Observable<HMNetworkRequestAliasType.UploadResult>.create({obs in
             let base = self.base
             
             let task = base.uploadTask(with: request, from: data) {
@@ -51,9 +51,9 @@ public extension Reactive where Base == URLSession {
     ///   - data: A Data instance.
     /// - Returns: An Observable instance.
     public func uploadWithCompletion(_ request: URLRequest, _ url: URL)
-        -> Observable<Data>
+        -> Observable<HMNetworkRequestAliasType.UploadResult>
     {
-        return Observable<Data>.create({obs in
+        return Observable<HMNetworkRequestAliasType.UploadResult>.create({obs in
             let base = self.base
             
             let task = base.uploadTask(with: request, fromFile: url) {

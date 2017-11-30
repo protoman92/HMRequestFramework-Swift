@@ -65,7 +65,7 @@ public extension HMNetworkRequestProcessorType {
     public func processUpload<Prev,Res>(
         _ previous: Try<Prev>,
         _ generator: @escaping HMRequestGenerator<Prev,Req>,
-        _ processor: @escaping HMResultProcessor<Data,Res>,
+        _ processor: @escaping HMResultProcessor<UploadResult,Res>,
         _ qos: DispatchQoS.QoSClass)
         -> Observable<Try<Res>>
     {

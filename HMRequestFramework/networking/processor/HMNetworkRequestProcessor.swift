@@ -61,7 +61,7 @@ extension HMNetworkRequestProcessor: HMNetworkRequestHandlerType {
     /// - Parameter request: A Req instance.
     /// - Returns: An Observable instance.
     /// - Throws: Exception if the operation fails.
-    public func executeUpload(_ request: Req) throws -> Observable<Try<Data>> {
+    public func executeUpload(_ request: Req) throws -> Observable<Try<UploadResult>> {
         return try handler.executeUpload(request)
     }
 }

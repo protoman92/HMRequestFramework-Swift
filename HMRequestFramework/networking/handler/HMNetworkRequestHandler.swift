@@ -92,14 +92,14 @@ extension HMNetworkRequestHandler: HMNetworkRequestHandlerType {
     /// - Parameter request: A Req instance.
     /// - Returns: An Observable instance.
     /// - Throws: Exception if the operation fails.
-    public func executeUpload(_ request: Req) throws -> Observable<Try<Data>> {
+    public func executeUpload(_ request: Req) throws -> Observable<Try<UploadResult>> {
         Preconditions.checkNotRunningOnMainThread(request)
         let urlSession = self.urlSession()
         
         /// We only get the base URLRequest because for an upload operation, no
         /// request body is required.
         let urlRequest = try request.baseUrlRequest()
-        let uploadTask: Observable<Data>
+        let uploadTask: Observable<UploadResult>
         
         if let data = request.uploadData() {
             uploadTask = urlSession.rx.uploadWithCompletion(urlRequest, data)

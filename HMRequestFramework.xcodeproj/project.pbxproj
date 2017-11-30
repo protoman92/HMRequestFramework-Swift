@@ -125,6 +125,7 @@
 		D3DE120D1F3F7B8700F3C86F /* HMCDResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3DE120C1F3F7B8700F3C86F /* HMCDResult.swift */; };
 		D3E7B51D1F4AFE62009357F5 /* HMTransformers.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3E7B51C1F4AFE62009357F5 /* HMTransformers.swift */; };
 		D3EBB70C1F2BB6C6003CEB5F /* HMNetworkRequestProcessorType.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3EBB70B1F2BB6C6003CEB5F /* HMNetworkRequestProcessorType.swift */; };
+		D3F3AD141FCFAA2900C00E1F /* HMNetworkRequestAliasType.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3F3AD131FCFAA2900C00E1F /* HMNetworkRequestAliasType.swift */; };
 		D3F668CC1F5903A300ED8CAB /* HMResultProcessors.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3F668CB1F5903A300ED8CAB /* HMResultProcessors.swift */; };
 		D3F668CF1F5903D400ED8CAB /* HMRequestPerformer.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3F668CE1F5903D400ED8CAB /* HMRequestPerformer.swift */; };
 		D3F668D11F59049F00ED8CAB /* HMRequestPerformers.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3F668D01F59049F00ED8CAB /* HMRequestPerformers.swift */; };
@@ -298,6 +299,7 @@
 		D3DE120C1F3F7B8700F3C86F /* HMCDResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMCDResult.swift; sourceTree = "<group>"; };
 		D3E7B51C1F4AFE62009357F5 /* HMTransformers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMTransformers.swift; sourceTree = "<group>"; };
 		D3EBB70B1F2BB6C6003CEB5F /* HMNetworkRequestProcessorType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMNetworkRequestProcessorType.swift; sourceTree = "<group>"; };
+		D3F3AD131FCFAA2900C00E1F /* HMNetworkRequestAliasType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMNetworkRequestAliasType.swift; sourceTree = "<group>"; };
 		D3F668CB1F5903A300ED8CAB /* HMResultProcessors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMResultProcessors.swift; sourceTree = "<group>"; };
 		D3F668CE1F5903D400ED8CAB /* HMRequestPerformer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMRequestPerformer.swift; sourceTree = "<group>"; };
 		D3F668D01F59049F00ED8CAB /* HMRequestPerformers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMRequestPerformers.swift; sourceTree = "<group>"; };
@@ -489,6 +491,7 @@
 				D37D0B5C1F25E1BE0032C6AB /* HMNetworkRequestType.swift */,
 				D37D0B5D1F25E1BE0032C6AB /* HMNetworkResourceType.swift */,
 				D33BB3231F469A5900025FD1 /* HMURLComponentProviderType.swift */,
+				D3F3AD131FCFAA2900C00E1F /* HMNetworkRequestAliasType.swift */,
 			);
 			path = protocol;
 			sourceTree = "<group>";
@@ -1214,6 +1217,7 @@
 				D37D0BB21F25E3A00032C6AB /* HMNetworkRequestProcessor.swift in Sources */,
 				D37D0BB31F25E3A00032C6AB /* HMNetworkRequest.swift in Sources */,
 				D3FBDC171F2AFA080052A94A /* HMCDManager+Constructor+Rx.swift in Sources */,
+				D3F3AD141FCFAA2900C00E1F /* HMNetworkRequestAliasType.swift in Sources */,
 				D39BDAAF1F4E789600A397BD /* HMMiddlewareFilter.swift in Sources */,
 				D3922E081F262B41004A49B9 /* HMCDStoreSettings.swift in Sources */,
 				D37D0BB41F25E3A00032C6AB /* HMNetworkRequestType.swift in Sources */,

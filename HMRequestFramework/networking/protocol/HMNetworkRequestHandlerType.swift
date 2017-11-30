@@ -11,7 +11,7 @@ import RxSwift
 import SwiftUtilities
 
 /// Classes that implement this protocol must be able to handle network requests.
-public protocol HMNetworkRequestHandlerType: HMRequestHandlerType {
+public protocol HMNetworkRequestHandlerType: HMRequestHandlerType, HMNetworkRequestAliasType {
     
     /// Perform a network request.
     ///
@@ -32,7 +32,7 @@ public protocol HMNetworkRequestHandlerType: HMRequestHandlerType {
     /// - Parameter req: A Req instance.
     /// - Returns: An Observable instance.
     /// - Throws: Exception if the operation fails.
-    func executeUpload(_ req: Req) throws -> Observable<Try<Data>>
+    func executeUpload(_ req: Req) throws -> Observable<Try<UploadResult>>
 }
 
 public extension HMNetworkRequestHandlerType {
@@ -77,7 +77,7 @@ public extension HMNetworkRequestHandlerType {
     public func executeUpload<Prev>(_ previous: Try<Prev>,
                                     _ generator: @escaping HMRequestGenerator<Prev,Req>,
                                     _ qos: DispatchQoS.QoSClass)
-        -> Observable<Try<Data>>
+        -> Observable<Try<UploadResult>>
     {
         return execute(previous, generator, executeUpload, qos)
     }
