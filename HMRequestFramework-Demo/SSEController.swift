@@ -71,7 +71,7 @@ public final class SSEController: UIViewController {
         let previous = Try.success(())
         let generator = HMRequestGenerators.forceGn(request, Void.self)
         
-        networkHandler.executeSSE(previous, generator, .background)
+        networkHandler.executeReachabilitySSE(previous, generator, .background)
             .mapNonNilOrEmpty({$0.value})
             .map(HMSSEvents.eventData)
             .flattenSequence()

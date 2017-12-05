@@ -49,13 +49,13 @@ EXTERNAL SOURCES:
 
 CHECKOUT OPTIONS:
   HMEventSourceManager:
-    :commit: e4d1be094fb54119dc8a1b26043f1c0587c6eb87
+    :commit: e8296e55f7a3166aa0cf7f7522241d3c8ee086e6
     :git: https://github.com/Holmusk/HMEventSourceManager-iOS.git
   SwiftUIUtilities:
     :commit: 6fba9a15c6eb90d4fd48492d1dcecf8894cc6c46
     :git: https://github.com/protoman92/SwiftUIUtilities.git
   SwiftUtilities:
-    :commit: 0e383d6e86f73e68e6bb0fd0235a3f8e60c86063
+    :commit: a33668b18e5bb84245b63e2cbd9131b740da3967
     :git: https://github.com/protoman92/SwiftUtilities.git
 
 SPEC CHECKSUMS:

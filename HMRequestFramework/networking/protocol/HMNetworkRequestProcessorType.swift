@@ -35,7 +35,7 @@ public extension HMNetworkRequestProcessorType {
             .flatMap({try HMResultProcessors.processResultFn($0, processor)})
     }
     
-    /// Perform a SSE request and process the result.
+    /// Open a SSE stream whose lifecycle with infinite retries.
     ///
     /// - Parameters:
     ///   - previous: The result of the upstream request.
@@ -43,14 +43,34 @@ public extension HMNetworkRequestProcessorType {
     ///   - processor: Processor function to process the result.
     ///   - qos: The QoSClass instance to perform work on.
     /// - Returns: An Observable instance.
-    public func processSSE<Prev,Res>(
+    public func processRetrySSE<Prev,Res>(
         _ previous: Try<Prev>,
         _ generator: @escaping HMRequestGenerator<Prev,Req>,
         _ processor: @escaping HMResultProcessor<[HMSSEvent<HMSSEData>],Res>,
         _ qos: DispatchQoS.QoSClass)
         -> Observable<Try<Res>>
     {
-        return executeSSE(previous, generator, qos)
+        return executeRetrySSE(previous, generator, qos)
+            .flatMap({try HMResultProcessors.processResultFn($0, processor)})
+    }
+    
+    /// Open a SSE stream whose lifecycle is tied to reachability and process
+    /// the result.
+    ///
+    /// - Parameters:
+    ///   - previous: The result of the upstream request.
+    ///   - generator: Generator function to create the current request.
+    ///   - processor: Processor function to process the result.
+    ///   - qos: The QoSClass instance to perform work on.
+    /// - Returns: An Observable instance.
+    public func processReachabilitySSE<Prev,Res>(
+        _ previous: Try<Prev>,
+        _ generator: @escaping HMRequestGenerator<Prev,Req>,
+        _ processor: @escaping HMResultProcessor<[HMSSEvent<HMSSEData>],Res>,
+        _ qos: DispatchQoS.QoSClass)
+        -> Observable<Try<Res>>
+    {
+        return executeReachabilitySSE(previous, generator, qos)
             .flatMap({try HMResultProcessors.processResultFn($0, processor)})
     }
     

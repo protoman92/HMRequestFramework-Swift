@@ -76,15 +76,33 @@ extension HMNetworkRequestHandler: HMNetworkRequestHandlerType {
     ///
     /// - Parameters previous: A Req instance.
     /// - Returns: An Observable instance.
+    /// - Throws: Exception if the operation fails.
     public func execute(_ request: Req) throws -> Observable<Try<Data>> {
         Preconditions.checkNotRunningOnMainThread(request)
         return try executeData(request)
     }
     
-    public func executeSSE(_ request: Req) throws -> Observable<Try<[HMSSEvent<HMSSEData>]>> {
+    /// Open a SSE stream whose lifecycle is tied with reachability.
+    ///
+    /// - Parameter request: A Req instance.
+    /// - Returns: An Observable instance.
+    /// - Throws: Exception if the operation fails.
+    public func executeReachabilitySSE(_ request: Req) throws -> Observable<Try<[HMSSEvent<HMSSEData>]>> {
         let sseManager = self.eventSourceManager()
         let sseRequest = request.asSSERequest()
-        return sseManager.rx.openConnection(sseRequest).map(Try.success)
+        return sseManager.openConnection(sseRequest).map(Try.success)
+    }
+    
+    /// Open a SSE stream that simply retries whenever it fails to connect to
+    /// the source.
+    ///
+    /// - Parameter request: A Req instance.
+    /// - Returns: An Observable instance.
+    /// - Throws: Exception if the operation fails.
+    public func executeRetrySSE(_ request: Req) throws -> Observable<Try<[HMSSEvent<HMSSEData>]>> {
+        let sseManager = self.eventSourceManager()
+        let sseRequest = request.asSSERequest()
+        return sseManager.retrySSE(sseRequest).map(Try.success)
     }
     
     /// Execute an upload request.
