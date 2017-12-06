@@ -6,11 +6,18 @@
 //  Copyright © 2017 Holmusk. All rights reserved.
 //
 
-import Foundation
+import HMEventSourceManager
 import SwiftUtilities
 
 /// Use this concrete class whenever a HMNetworkRequestType is needed.
 public struct HMNetworkRequest {
+    fileprivate var retryCount: Int
+    fileprivate var retryDelayIntv: TimeInterval
+    fileprivate var middlewaresEnabled: Bool
+    fileprivate var rqDescription: String?
+    
+    fileprivate var sseStrategy: HMSSEStrategy
+    
     fileprivate var httpURL: String?
     fileprivate var httpMethod: HttpOperation?
     fileprivate var httpParams: [URLQueryItem]
@@ -20,12 +27,9 @@ public struct HMNetworkRequest {
     fileprivate var httpUploadURL: URL?
     fileprivate var nwMWFilters: [MiddlewareFilter]
     fileprivate var timeoutInterval: TimeInterval
-    fileprivate var retryCount: Int
-    fileprivate var retryDelayIntv: TimeInterval
-    fileprivate var middlewaresEnabled: Bool
-    fileprivate var rqDescription: String?
     
     fileprivate init() {
+        sseStrategy = .retryOnError
         retryCount = 1
         retryDelayIntv = 0
         httpParams = []
@@ -33,6 +37,95 @@ public struct HMNetworkRequest {
         nwMWFilters = []
         middlewaresEnabled = true
         timeoutInterval = TimeInterval.infinity
+    }
+}
+
+extension HMNetworkRequest: HMRequestType {
+    public typealias Filterable = String
+    
+    public func middlewareFilters() -> [MiddlewareFilter] {
+        return nwMWFilters
+    }
+    
+    public func retries() -> Int {
+        return Swift.max(retryCount, 1)
+    }
+    
+    public func retryDelay() -> TimeInterval {
+        return retryDelayIntv
+    }
+    
+    public func applyMiddlewares() -> Bool {
+        return middlewaresEnabled
+    }
+    
+    public func requestDescription() -> String? {
+        return rqDescription
+    }
+}
+
+extension HMNetworkRequest: HMSSERequestType {
+    public func urlString() throws -> String {
+        if let url = self.httpURL {
+            return url
+        } else {
+            throw Exception("URL cannot be nil")
+        }
+    }
+    
+    public func additionalHeaders() -> [String : Any] {
+        return httpHeaders
+    }
+    
+    public func sseStreamStrategy() -> HMSSEStrategy {
+        return sseStrategy
+    }
+}
+
+extension HMNetworkRequest: HMNetworkRequestType {
+    public func operation() throws -> HttpOperation {
+        if let method = httpMethod {
+            return method
+        } else {
+            throw Exception("Operation cannot be nil")
+        }
+    }
+    
+    public func body() throws -> Any {
+        if let body = httpBody {
+            return body
+        } else {
+            throw Exception("Body cannot be nil")
+        }
+    }
+    
+    public func uploadData() -> Data? {
+        return httpUploadedData
+    }
+    
+    public func uploadURL() -> URL? {
+        return httpUploadURL
+    }
+    
+    public func params() -> [URLQueryItem] {
+        return httpParams
+    }
+    
+    public func headers() -> [String : String]? {
+        return httpHeaders.isEmpty ? nil : httpHeaders
+    }
+    
+    public func timeout() -> TimeInterval {
+        return timeoutInterval
+    }
+}
+
+extension HMNetworkRequest: CustomStringConvertible {
+    public var description: String {
+        let method = (try? self.operation().method()) ?? "INVALID METHOD"
+        let url = (try? self.url().absoluteString) ?? "INVALID URL"
+        let description = (self.requestDescription()) ?? "NONE"
+        return "Performing \(method) at: \(url). Description: \(description)"
     }
 }
 
@@ -235,6 +328,18 @@ extension HMNetworkRequest: HMBuildableType {
     }
 }
 
+public extension HMNetworkRequest.Builder {
+    
+    /// Set the SSE strategy.
+    ///
+    /// - Parameter sseStrategy: A HMSSEStrategy instance.
+    /// - Returns: The current Builder instance.
+    public func with(sseStrategy: HMSSEStrategy) -> Self {
+        request.sseStrategy = sseStrategy
+        return self
+    }
+}
+
 extension HMNetworkRequest.Builder: HMRequestBuilderType {
     public typealias Buildable = HMNetworkRequest
 
@@ -306,6 +411,12 @@ extension HMNetworkRequest.Builder: HMRequestBuilderType {
     public func with(buildable: Buildable?) -> Self {
         if let buildable = buildable {
             return self
+                .with(mwFilters: buildable.nwMWFilters)
+                .with(retries: buildable.retryCount)
+                .with(retryDelay: buildable.retryDelayIntv)
+                .with(applyMiddlewares: buildable.middlewaresEnabled)
+                .with(description: buildable.rqDescription)
+                .with(sseStrategy: buildable.sseStrategy)
                 .with(urlString: buildable.httpURL)
                 .with(operation: buildable.httpMethod)
                 .with(body: buildable.httpBody)
@@ -314,11 +425,6 @@ extension HMNetworkRequest.Builder: HMRequestBuilderType {
                 .with(uploadData: buildable.httpUploadedData)
                 .with(uploadURL: buildable.httpUploadURL)
                 .with(timeout: buildable.timeoutInterval)
-                .with(mwFilters: buildable.nwMWFilters)
-                .with(retries: buildable.retryCount)
-                .with(retryDelay: buildable.retryDelayIntv)
-                .with(applyMiddlewares: buildable.middlewaresEnabled)
-                .with(description: buildable.rqDescription)
         } else {
             return self
         }
@@ -328,83 +434,3 @@ extension HMNetworkRequest.Builder: HMRequestBuilderType {
         return request
     }
 }
-
-extension HMNetworkRequest: HMRequestType {
-    public typealias Filterable = String
-    
-    public func middlewareFilters() -> [MiddlewareFilter] {
-        return nwMWFilters
-    }
-    
-    public func retries() -> Int {
-        return Swift.max(retryCount, 1)
-    }
-    
-    public func retryDelay() -> TimeInterval {
-        return retryDelayIntv
-    }
-    
-    public func applyMiddlewares() -> Bool {
-        return middlewaresEnabled
-    }
-    
-    public func requestDescription() -> String? {
-        return rqDescription
-    }
-}
-
-extension HMNetworkRequest: HMNetworkRequestType {
-    public func urlString() throws -> String {
-        if let url = self.httpURL {
-            return url
-        } else {
-            throw Exception("URL cannot be nil")
-        }
-    }
-    
-    public func operation() throws -> HttpOperation {
-        if let method = httpMethod {
-            return method
-        } else {
-            throw Exception("Operation cannot be nil")
-        }
-    }
-    
-    public func body() throws -> Any {
-        if let body = httpBody {
-            return body
-        } else {
-            throw Exception("Body cannot be nil")
-        }
-    }
-    
-    public func uploadData() -> Data? {
-        return httpUploadedData
-    }
-    
-    public func uploadURL() -> URL? {
-        return httpUploadURL
-    }
-    
-    public func params() -> [URLQueryItem] {
-        return httpParams
-    }
-    
-    public func headers() -> [String : String]? {
-        return httpHeaders.isEmpty ? nil : httpHeaders
-    }
-    
-    public func timeout() -> TimeInterval {
-        return timeoutInterval
-    }
-}
-
-extension HMNetworkRequest: CustomStringConvertible {
-    public var description: String {
-        let method = (try? self.operation().method()) ?? "INVALID METHOD"
-        let url = (try? self.url().absoluteString) ?? "INVALID URL"
-        let description = (self.requestDescription()) ?? "NONE"
-        return "Performing \(method) at: \(url). Description: \(description)"
-    }
-}
-

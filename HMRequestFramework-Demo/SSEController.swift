@@ -37,11 +37,11 @@ public final class SSEController: UIViewController {
         let addAuthTokenKey = "ADD-AUTH-TOKEN"
         let logRequestKey = "LOG-REQUEST"
         
-        let middlewareManager = HMFilterMiddlewareManager<HMNetworkRequest>
-            .builder()
+        let middlewareManager = HMFilterMiddlewareManager<HMNetworkRequest>.builder()
             .add(transform: {
                 Observable.just($0.cloneBuilder()
                     .with(baseUrl: "http://127.0.0.1:8080")
+                    .with(sseStrategy: .retryOnConnectivity)
                     .build())
             }, forKey: addBaseURLKey)
             .add(transform: {
@@ -71,10 +71,11 @@ public final class SSEController: UIViewController {
         let previous = Try.success(())
         let generator = HMRequestGenerators.forceGn(request, Void.self)
         
-        networkHandler.executeReachabilitySSE(previous, generator, .background)
+        networkHandler.executeSSE(previous, generator, .background)
             .mapNonNilOrEmpty({$0.value})
             .map(HMSSEvents.eventData)
             .flattenSequence()
+            .observeOnMain()
             .doOnNext({[weak textView] in
                 if let textView = textView {
                     let description = $0.description

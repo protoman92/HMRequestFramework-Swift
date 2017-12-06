@@ -6,13 +6,14 @@
 //  Copyright © 2017 Holmusk. All rights reserved.
 //
 
+import HMEventSourceManager
 import RxSwift
 import SwiftUtilities
 
 /// Instead of having different request subtypes, we put all possible
 /// requirements here, and differentiate among multiple types of requests
 /// using the associated HttpOperation.
-public protocol HMNetworkRequestType: HMRequestType, HMNetworkResourceType {
+public protocol HMNetworkRequestType: HMRequestType, HMSSERequestType, HMNetworkResourceType {
     func operation() throws -> HttpOperation
     
     func body() throws -> Any

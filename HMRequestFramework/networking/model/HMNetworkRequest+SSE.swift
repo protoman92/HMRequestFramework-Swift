@@ -17,9 +17,10 @@ public extension HMNetworkRequest {
     /// - Returns: A HMSSERequest instance.
     public func asSSERequest() -> HMSSERequest {
         return HMSSERequest.builder()
-            .with(urlString: try? self.urlString())
-            .with(headers: self.headers() as [String : Any]?)
-            .with(retryDelay: self.retryDelay())
+            .with(urlString: try? urlString())
+            .with(headers: additionalHeaders())
+            .with(retryDelay: retryDelay())
+            .with(sseStrategy: sseStreamStrategy())
             .build()
     }
 }

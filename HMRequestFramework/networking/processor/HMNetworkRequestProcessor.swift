@@ -49,20 +49,15 @@ extension HMNetworkRequestProcessor: HMNetworkRequestHandlerType {
     
     /// Override this method to provide default implementation.
     ///
-    /// - Parameter request: A Req instance.
+    /// - Parameter:
+    ///   - request: A Req instance.
+    ///   - qos: The QoSClass instance to perform work on.
     /// - Returns: An Observable instance.
     /// - Throws: Exception if the operation fails.
-    public func executeReachabilitySSE(_ request: Req) throws -> Observable<Try<[HMSSEvent<HMSSEData>]>> {
-        return try handler.executeReachabilitySSE(request)
-    }
-    
-    /// Override this method to provide default implementation.
-    ///
-    /// - Parameter request: A Req instance.
-    /// - Returns: An Observable instance.
-    /// - Throws: Exception if the operation fails.
-    public func executeRetrySSE(_ request: Req) throws -> Observable<Try<[HMSSEvent<HMSSEData>]>> {
-        return try handler.executeRetrySSE(request)
+    public func executeSSE(_ request: Req, _ qos: DispatchQoS.QoSClass) throws
+        -> Observable<Try<[HMSSEvent<HMSSEData>]>>
+    {
+        return try handler.executeSSE(request, qos)
     }
     
     /// Override this method to provide default implementation.
