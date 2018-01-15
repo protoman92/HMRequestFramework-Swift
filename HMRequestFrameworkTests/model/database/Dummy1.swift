@@ -7,7 +7,7 @@
 //
 
 import CoreData
-import RxDataSources
+import Differentiator
 import SwiftUtilities
 @testable import HMRequestFramework
 

@@ -33,6 +33,7 @@ PODS:
     - RxTest (~> 3.0)
 
 DEPENDENCIES:
+  - Differentiator
   - HMEventSourceManager/Main (from `https://github.com/Holmusk/HMEventSourceManager-iOS.git`)
   - RxDataSources
   - SwiftUIUtilities/Main (from `https://github.com/protoman92/SwiftUIUtilities.git`)
@@ -52,10 +53,10 @@ CHECKOUT OPTIONS:
     :commit: ceb49b04137fd568b6a60d35eb2c53a6e77a8ad6
     :git: https://github.com/Holmusk/HMEventSourceManager-iOS.git
   SwiftUIUtilities:
-    :commit: 6fba9a15c6eb90d4fd48492d1dcecf8894cc6c46
+    :commit: c61523950d92ba1f16f2f68e7ab34ecfbbe540d6
     :git: https://github.com/protoman92/SwiftUIUtilities.git
   SwiftUtilities:
-    :commit: a33668b18e5bb84245b63e2cbd9131b740da3967
+    :commit: 18d4bbe1368555569822681f18dd167e5d3c32e4
     :git: https://github.com/protoman92/SwiftUtilities.git
 
 SPEC CHECKSUMS:
@@ -68,10 +69,10 @@ SPEC CHECKSUMS:
   RxReachability: 0e781fc978c3c850dda6cafa2c5956ff806a1fcc
   RxSwift: f9de85ea20cd2f7716ee5409fc13523dc638e4e4
   RxTest: 1d00348a7848c91ab5bf5d197d2378aa6b2bb356
-  SwiftUIUtilities: f283a6b34a08dcebc9086509bd4c3bb91e022a4b
+  SwiftUIUtilities: 4c540492fe56917d38beacf9a02b5d54c4dcba19
   SwiftUtilities: ef0087625fe58fb8909af372111e23461d10af55
   SwiftUtilitiesTests: cc224ef1ef1b455dc89bc43358d999e56ffbec00
 
-PODFILE CHECKSUM: fd06924f37cc97448f4fbf49db07c6f5b1a58253
+PODFILE CHECKSUM: 6513682f53367366414efb8e8419a667d3852ff2
 
-COCOAPODS: 1.4.0.beta.2
+COCOAPODS: 1.4.0.rc.1

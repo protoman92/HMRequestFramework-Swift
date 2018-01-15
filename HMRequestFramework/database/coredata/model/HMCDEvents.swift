@@ -6,7 +6,7 @@
 //  Copyright © 2017 Holmusk. All rights reserved.
 //
 
-import RxDataSources
+import Differentiator
 import RxSwift
 import SwiftUtilities
 

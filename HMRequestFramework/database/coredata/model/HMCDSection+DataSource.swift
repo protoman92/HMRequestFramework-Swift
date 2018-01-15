@@ -6,7 +6,7 @@
 //  Copyright © 2017 Holmusk. All rights reserved.
 //
 
-import RxDataSources
+import Differentiator
 
 /// Instead of asking HMCDSection to implement AnimatableSectionModelType, we
 /// can delegate that to a subtype. This is because the FRC requires the section

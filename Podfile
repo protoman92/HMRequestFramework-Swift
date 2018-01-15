@@ -4,7 +4,7 @@
 def allPods
     pod 'HMEventSourceManager/Main', :git => 'https://github.com/Holmusk/HMEventSourceManager-iOS.git'
     pod 'SwiftUtilities/Main', git: 'https://github.com/protoman92/SwiftUtilities.git'
-    pod 'RxDataSources'
+    pod 'Differentiator'
 end
 
 target 'HMRequestFramework' do
@@ -25,6 +25,7 @@ target 'HMRequestFramework' do
         inherit! :search_paths
         # Pods for testing
         allPods
+        pod 'RxDataSources'
         pod 'SwiftUIUtilities/Main', git: 'https://github.com/protoman92/SwiftUIUtilities.git'
     end
 end

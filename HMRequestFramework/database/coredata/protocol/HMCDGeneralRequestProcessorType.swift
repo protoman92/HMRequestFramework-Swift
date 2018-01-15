@@ -151,18 +151,14 @@ public extension HMCDGeneralRequestProcessorType {
     ///
     /// - Parameter:
     ///    - properties: A Dictionary of properties.
-    ///    - joinMode: A HMCDCompoundPredicateMode instance.
+    ///    - joinMode: A NSCompoundPredicate.LogicalType instance.
     /// - Returns: A NSPredicate instance.
     private func predicateForProperties(_ properties: [String : [CVarArg]],
-                                        _ joinMode: HMCDCompoundPredicateMode)
+                                        _ joinMode: NSCompoundPredicate.LogicalType)
         -> NSPredicate
     {
         let predicates = properties.map({NSPredicate(format: "%K in %@", $0.0, $0.1)})
-        
-        switch joinMode {
-        case .and: return NSCompoundPredicate(andPredicateWithSubpredicates: predicates)
-        case .or: return NSCompoundPredicate(orPredicateWithSubpredicates: predicates)
-        }
+        return NSCompoundPredicate(type: joinMode, subpredicates: predicates)
     }
     
     /// Fetch all data that have some properties. These properties will be mapped
@@ -172,14 +168,14 @@ public extension HMCDGeneralRequestProcessorType {
     ///   - previous: The result of the previous request.
     ///   - cls: The PO class type.
     ///   - props: The properties to search for.
-    ///   - predicateMode: A HMCDCompoundPredicateMode instance.
+    ///   - predicateMode: A NSCompoundPredicate.LogicalType instance.
     ///   - qos: A QoSClass instance to perform work on.
     ///   - transforms: A Sequence of Request transformers.
     /// - Returns: An Observable instance.
     public func fetchWithProperties<Prev,PO,S>(_ previous: Try<Prev>,
                                                _ cls: PO.Type,
                                                _ props: [String : [CVarArg]],
-                                               _ predicateMode: HMCDCompoundPredicateMode,
+                                               _ predicateMode: NSCompoundPredicate.LogicalType,
                                                _ qos: DispatchQoS.QoSClass,
                                                _ transforms: S)
         -> Observable<Try<[PO]>> where
@@ -209,14 +205,14 @@ public extension HMCDGeneralRequestProcessorType {
     ///   - previous: The result of the previous request.
     ///   - cls: The PO class type.
     ///   - props: The properties to search for.
-    ///   - predicateMode: A HMCDCompoundPredicateMode instance.
+    ///   - predicateMode: A NSCompoundPredicate.LogicalType instance.
     ///   - qos: A QoSClass instance to perform work on.
     ///   - transforms: A Sequence of Request transformers.
     /// - Returns: An Observable instance.
     public func deleteWithProperties<Prev,PO,S>(_ previous: Try<Prev>,
                                                 _ cls: PO.Type,
                                                 _ props: [String : [CVarArg]],
-                                                _ predicateMode: HMCDCompoundPredicateMode,
+                                                _ predicateMode: NSCompoundPredicate.LogicalType,
                                                 _ qos: DispatchQoS.QoSClass,
                                                 _ transforms: S)
         -> Observable<Try<Void>> where
@@ -247,20 +243,16 @@ public extension HMCDGeneralRequestProcessorType {
     ///
     /// - Parameter:
     ///   - requests: A Sequence of text search requests.
-    ///   - joinMode: A HMCDCompoundPredicateMode instance.
+    ///   - joinMode: A NSCompoundPredicate.LogicalType instance.
     /// - Returns: A NSPredicate instance.
     /// - Throws: Exception if any of the request fails.
     private func predicateForTextSearch<S>(
         _ requests: S,
-        _ joinMode: HMCDCompoundPredicateMode) throws -> NSPredicate where
+        _ joinMode: NSCompoundPredicate.LogicalType) throws -> NSPredicate where
         S: Sequence, S.Element == HMCDTextSearchRequest
     {
         let predicates = try requests.map({try $0.textSearchPredicate()})
-        
-        switch joinMode {
-        case .and: return NSCompoundPredicate(andPredicateWithSubpredicates: predicates)
-        case .or: return NSCompoundPredicate(orPredicateWithSubpredicates: predicates)
-        }
+        return NSCompoundPredicate(type: joinMode, subpredicates: predicates)
     }
     
     /// Fetch some objects using text search requests.
@@ -273,14 +265,14 @@ public extension HMCDGeneralRequestProcessorType {
     ///   - previous: The result of the previous request.
     ///   - cls: The PO class type.
     ///   - requests: A Sequence of text search requests.
-    ///   - predicateMode: A HMCDCompoundPredicateMode instance.
+    ///   - predicateMode: A NSCompoundPredicate.LogicalType instance.
     ///   - qos: A QoSClass instance to perform work on.
     ///   - transforms: A Sequence of Request transformers.
     /// - Returns: An Observable instance.
     public func fetchWithTextSearch<Prev,PO,S>(_ previous: Try<Prev>,
                                                _ cls: PO.Type,
                                                _ requests: [HMCDTextSearchRequest],
-                                               _ predicateMode: HMCDCompoundPredicateMode,
+                                               _ predicateMode: NSCompoundPredicate.LogicalType,
                                                _ qos: DispatchQoS.QoSClass,
                                                _ transforms: S)
         -> Observable<Try<[PO]>> where
@@ -461,7 +453,7 @@ public extension HMCDGeneralRequestProcessorType {
     public func fetchWithProperties<Prev,PO>(_ previous: Try<Prev>,
                                              _ cls: PO.Type,
                                              _ props: [String : [CVarArg]],
-                                             _ predicateMode: HMCDCompoundPredicateMode,
+                                             _ predicateMode: NSCompoundPredicate.LogicalType,
                                              _ qos: DispatchQoS.QoSClass,
                                              _ transforms: HMTransform<HMCDRequest>...)
         -> Observable<Try<[PO]>> where
@@ -480,7 +472,7 @@ public extension HMCDGeneralRequestProcessorType {
     public func fetchWithTextSearch<Prev,PO>(_ previous: Try<Prev>,
                                              _ cls: PO.Type,
                                              _ requests: [HMCDTextSearchRequest],
-                                             _ predicateMode: HMCDCompoundPredicateMode,
+                                             _ predicateMode: NSCompoundPredicate.LogicalType,
                                              _ qos: DispatchQoS.QoSClass,
                                              _ transforms: HMTransform<HMCDRequest>...)
         -> Observable<Try<[PO]>> where
@@ -575,7 +567,7 @@ public extension HMCDGeneralRequestProcessorType {
     public func deleteWithProperties<Prev,PO>(_ previous: Try<Prev>,
                                               _ cls: PO.Type,
                                               _ props: [String : [CVarArg]],
-                                              _ predicateMode: HMCDCompoundPredicateMode,
+                                              _ predicateMode: NSCompoundPredicate.LogicalType,
                                               _ qos: DispatchQoS.QoSClass,
                                               _ transforms: HMTransform<HMCDRequest>...)
         -> Observable<Try<Void>> where

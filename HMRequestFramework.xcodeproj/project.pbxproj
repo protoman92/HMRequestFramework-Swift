@@ -62,7 +62,6 @@
 		D353BE881F508CC3004AD111 /* HMCDSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = D353BE871F508CC3004AD111 /* HMCDSection.swift */; };
 		D363F39B1FA06E230077BFAC /* HMCDTextSearchRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = D363F39A1FA06E230077BFAC /* HMCDTextSearchRequest.swift */; };
 		D363F39D1FA0720B0077BFAC /* CoreDataTextSearchTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = D363F39C1FA0720B0077BFAC /* CoreDataTextSearchTest.swift */; };
-		D363F3A31FA08A050077BFAC /* HMCDCompoundPredicateMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = D363F3A21FA08A050077BFAC /* HMCDCompoundPredicateMode.swift */; };
 		D36F19B51F2D12C30053CCBD /* HMRequestBuilderType.swift in Sources */ = {isa = PBXBuildFile; fileRef = D36F19B41F2D12C30053CCBD /* HMRequestBuilderType.swift */; };
 		D3757B651F4D8349001935EC /* HMCDManager+FRC+Rx.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3757B641F4D8349001935EC /* HMCDManager+FRC+Rx.swift */; };
 		D375B1701F4DC163007A3B01 /* CoreDataFRCTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = D375B16F1F4DC163007A3B01 /* CoreDataFRCTest.swift */; };
@@ -125,6 +124,7 @@
 		D3DE120D1F3F7B8700F3C86F /* HMCDResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3DE120C1F3F7B8700F3C86F /* HMCDResult.swift */; };
 		D3E7B51D1F4AFE62009357F5 /* HMTransformers.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3E7B51C1F4AFE62009357F5 /* HMTransformers.swift */; };
 		D3EBB70C1F2BB6C6003CEB5F /* HMNetworkRequestProcessorType.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3EBB70B1F2BB6C6003CEB5F /* HMNetworkRequestProcessorType.swift */; };
+		D3EFEB44200C59C80078A183 /* Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3EFEB43200C59C80078A183 /* Extension.swift */; };
 		D3F3AD141FCFAA2900C00E1F /* HMNetworkRequestAliasType.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3F3AD131FCFAA2900C00E1F /* HMNetworkRequestAliasType.swift */; };
 		D3F668CC1F5903A300ED8CAB /* HMResultProcessors.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3F668CB1F5903A300ED8CAB /* HMResultProcessors.swift */; };
 		D3F668CF1F5903D400ED8CAB /* HMRequestPerformer.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3F668CE1F5903D400ED8CAB /* HMRequestPerformer.swift */; };
@@ -231,7 +231,6 @@
 		D353BE871F508CC3004AD111 /* HMCDSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMCDSection.swift; sourceTree = "<group>"; };
 		D363F39A1FA06E230077BFAC /* HMCDTextSearchRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMCDTextSearchRequest.swift; sourceTree = "<group>"; };
 		D363F39C1FA0720B0077BFAC /* CoreDataTextSearchTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataTextSearchTest.swift; sourceTree = "<group>"; };
-		D363F3A21FA08A050077BFAC /* HMCDCompoundPredicateMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMCDCompoundPredicateMode.swift; sourceTree = "<group>"; };
 		D36F19B41F2D12C30053CCBD /* HMRequestBuilderType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMRequestBuilderType.swift; sourceTree = "<group>"; };
 		D3757B641F4D8349001935EC /* HMCDManager+FRC+Rx.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HMCDManager+FRC+Rx.swift"; sourceTree = "<group>"; };
 		D375B16F1F4DC163007A3B01 /* CoreDataFRCTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataFRCTest.swift; sourceTree = "<group>"; };
@@ -299,6 +298,7 @@
 		D3DE120C1F3F7B8700F3C86F /* HMCDResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMCDResult.swift; sourceTree = "<group>"; };
 		D3E7B51C1F4AFE62009357F5 /* HMTransformers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMTransformers.swift; sourceTree = "<group>"; };
 		D3EBB70B1F2BB6C6003CEB5F /* HMNetworkRequestProcessorType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMNetworkRequestProcessorType.swift; sourceTree = "<group>"; };
+		D3EFEB43200C59C80078A183 /* Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extension.swift; sourceTree = "<group>"; };
 		D3F3AD131FCFAA2900C00E1F /* HMNetworkRequestAliasType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMNetworkRequestAliasType.swift; sourceTree = "<group>"; };
 		D3F668CB1F5903A300ED8CAB /* HMResultProcessors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMResultProcessors.swift; sourceTree = "<group>"; };
 		D3F668CE1F5903D400ED8CAB /* HMRequestPerformer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMRequestPerformer.swift; sourceTree = "<group>"; };
@@ -383,7 +383,6 @@
 		D32656FF1F3EBCB80081E0F3 /* model */ = {
 			isa = PBXGroup;
 			children = (
-				D363F3A21FA08A050077BFAC /* HMCDCompoundPredicateMode.swift */,
 				D333335E1F4F4C45007DE849 /* HMCDEvent.swift */,
 				D39E5EA21F5F02C20056C8A3 /* HMCDEvents.swift */,
 				D3FEC67F1F7D663900DCC41C /* HMCDMainContextMode.swift */,
@@ -568,6 +567,7 @@
 				D378D6D71F25E088009B89B2 /* HMRequestFramework.h */,
 				D378D6D81F25E088009B89B2 /* Info.plist */,
 				D37D0B541F25E1BE0032C6AB /* networking */,
+				D3EFEB42200C59BC0078A183 /* util */,
 			);
 			path = HMRequestFramework;
 			sourceTree = "<group>";
@@ -737,6 +737,14 @@
 				D37D0B651F25E1BE0032C6AB /* HMRequestProcessorType.swift */,
 			);
 			path = protocol;
+			sourceTree = "<group>";
+		};
+		D3EFEB42200C59BC0078A183 /* util */ = {
+			isa = PBXGroup;
+			children = (
+				D3EFEB43200C59C80078A183 /* Extension.swift */,
+			);
+			path = util;
 			sourceTree = "<group>";
 		};
 		D3F668CD1F5903C900ED8CAB /* perform */ = {
@@ -1063,7 +1071,6 @@
 				"${BUILT_PRODUCTS_DIR}/ReachabilitySwift/ReachabilitySwift.framework",
 				"${BUILT_PRODUCTS_DIR}/RxBlocking/RxBlocking.framework",
 				"${BUILT_PRODUCTS_DIR}/RxCocoa/RxCocoa.framework",
-				"${BUILT_PRODUCTS_DIR}/RxDataSources/RxDataSources.framework",
 				"${BUILT_PRODUCTS_DIR}/RxReachability/RxReachability.framework",
 				"${BUILT_PRODUCTS_DIR}/RxSwift/RxSwift.framework",
 				"${BUILT_PRODUCTS_DIR}/SwiftUtilities/SwiftUtilities.framework",
@@ -1077,7 +1084,6 @@
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/ReachabilitySwift.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxBlocking.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxCocoa.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxDataSources.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxReachability.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxSwift.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftUtilities.framework",
@@ -1101,10 +1107,10 @@
 				"${BUILT_PRODUCTS_DIR}/ReachabilitySwift/ReachabilitySwift.framework",
 				"${BUILT_PRODUCTS_DIR}/RxBlocking/RxBlocking.framework",
 				"${BUILT_PRODUCTS_DIR}/RxCocoa/RxCocoa.framework",
-				"${BUILT_PRODUCTS_DIR}/RxDataSources/RxDataSources.framework",
 				"${BUILT_PRODUCTS_DIR}/RxReachability/RxReachability.framework",
 				"${BUILT_PRODUCTS_DIR}/RxSwift/RxSwift.framework",
 				"${BUILT_PRODUCTS_DIR}/SwiftUtilities/SwiftUtilities.framework",
+				"${BUILT_PRODUCTS_DIR}/RxDataSources/RxDataSources.framework",
 				"${BUILT_PRODUCTS_DIR}/SwiftUIUtilities/SwiftUIUtilities.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
@@ -1114,10 +1120,10 @@
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/ReachabilitySwift.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxBlocking.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxCocoa.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxDataSources.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxReachability.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxSwift.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftUtilities.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxDataSources.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftUIUtilities.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1147,7 +1153,6 @@
 				D37D0BA31F25E3A00032C6AB /* HMRequestProcessorType.swift in Sources */,
 				D3206FBF1F55D596006AEDDF /* HMCDPaginationMode.swift in Sources */,
 				D3351DC41F53BEB2001EC2B1 /* HMCDTypealiasType.swift in Sources */,
-				D363F3A31FA08A050077BFAC /* HMCDCompoundPredicateMode.swift in Sources */,
 				D37D0BA41F25E3A00032C6AB /* HMResultProcessor.swift in Sources */,
 				D32649721F288EDC000226FA /* HMCDAttributeDescription.swift in Sources */,
 				D33CAAB31F3C50060000EE13 /* HMCDObjectConvertibleType.swift in Sources */,
@@ -1203,6 +1208,7 @@
 				D3FEC6801F7D663900DCC41C /* HMCDMainContextMode.swift in Sources */,
 				D352E2991F3AD7F0001FD55E /* HMCDManager+Delete+Rx.swift in Sources */,
 				D37D0BAF1F25E3A00032C6AB /* HMDatabaseRequestType.swift in Sources */,
+				D3EFEB44200C59C80078A183 /* Extension.swift in Sources */,
 				D37D0BB01F25E3A00032C6AB /* HMNetworkRequestHandler.swift in Sources */,
 				D3A03AEA1F4C0065006CBA02 /* HMCDManager+Reset+Rx.swift in Sources */,
 				D37D0BB11F25E3A00032C6AB /* HMNetworkRequestHandlerType.swift in Sources */,
@@ -1360,6 +1366,7 @@
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 3.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
@@ -1412,6 +1419,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+				SWIFT_VERSION = 3.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
 				VERSIONING_SYSTEM = "apple-generic";

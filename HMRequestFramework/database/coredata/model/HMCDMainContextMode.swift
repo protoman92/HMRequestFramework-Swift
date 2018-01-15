@@ -21,7 +21,7 @@ public enum HMCDMainContextMode {
     /// - Returns: A NSManagedObjectContextConcurrencyType instance.
     public func queueType() -> NSManagedObjectContextConcurrencyType {
         switch self {
-        case .background:return .privateQueueConcurrencyType
+        case .background: return .privateQueueConcurrencyType
         case .mainThread: return .mainQueueConcurrencyType
         }
     }

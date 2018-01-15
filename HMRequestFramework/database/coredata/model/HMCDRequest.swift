@@ -120,6 +120,53 @@ extension HMCDRequest: HMBuildableType {
             }
         }
         
+        /// Transform the predicate to include some other predicates with a
+        /// logical connector.
+        ///
+        /// - Parameters:
+        ///   - predicates: A Sequence of predicates.
+        ///   - type: A predicate connector.
+        /// - Returns: The current Builder instance.
+        public func with<SP>(predicates: SP, type: NSCompoundPredicate.LogicalType)
+            -> Self where SP: Sequence, SP.Element == NSPredicate
+        {
+            return with(predicateFn: {
+                NSCompoundPredicate(type: type, subpredicates: [$0] + predicates)
+            })
+        }
+        
+        /// Transform the predicate to include some other predicates with a
+        /// logical connector.
+        ///
+        /// - Parameters:
+        ///   - type: A predicate connector.
+        ///   - predicates: Varargs of predicates.
+        /// - Returns: The current Builder instance.
+        public func with(type: NSCompoundPredicate.LogicalType,
+                         predicates: NSPredicate...) -> Self {
+            return with(predicates: predicates, type: type)
+        }
+        
+        /// Transform the predicate to include some other predicates with AND
+        /// connector.
+        ///
+        /// - Parameter predicates: A Sequence of predicates.
+        /// - Returns: The current Builder instance.
+        public func with<SP>(andPredicates predicates: SP) -> Self where
+            SP: Sequence, SP.Element == NSPredicate
+        {
+            return with(predicates: predicates, type: .and)
+        }
+        
+        /// Transform the predicate to include some other predicates with AND
+        /// connector.
+        ///
+        /// - Parameter predicates: Varargs of predicates.
+        /// - Returns: The current Builder instance.
+        public func with(andPredicats predicates: NSPredicate...) -> Self {
+            return with(andPredicates: predicates)
+        }
+        
         /// Set the sort descriptors.
         ///
         /// - Parameter sortDescriptors: A Sequence of NSSortDescriptor.
