@@ -163,8 +163,48 @@ extension HMCDRequest: HMBuildableType {
         ///
         /// - Parameter predicates: Varargs of predicates.
         /// - Returns: The current Builder instance.
-        public func with(andPredicats predicates: NSPredicate...) -> Self {
+        public func with(andPredicates predicates: NSPredicate...) -> Self {
             return with(andPredicates: predicates)
+        }
+        
+        /// Transform the predicate to include some other predicates with OR
+        /// connector.
+        ///
+        /// - Parameter predicates: A Sequence of predicates.
+        /// - Returns: The current Builder instance.
+        public func with<SP>(orPredicates predicates: SP) -> Self where
+            SP: Sequence, SP.Element == NSPredicate
+        {
+            return with(predicates: predicates, type: .or)
+        }
+        
+        /// Transform the predicate to include some other predicates with OR
+        /// connector.
+        ///
+        /// - Parameter predicates: Varargs of predicates.
+        /// - Returns: The current Builder instance.
+        public func with(orPredicates predicates: NSPredicate...) -> Self {
+            return with(orPredicates: predicates)
+        }
+        
+        /// Transform the predicate to include some other predicates with NOT
+        /// connector.
+        ///
+        /// - Parameter predicates: A Sequence of predicates.
+        /// - Returns: The current Builder instance.
+        public func with<SP>(notPredicates predicates: SP) -> Self where
+            SP: Sequence, SP.Element == NSPredicate
+        {
+            return with(predicates: predicates, type: .not)
+        }
+        
+        /// Transform the predicate to include some other predicates with NOT
+        /// connector.
+        ///
+        /// - Parameter predicates: Varargs of predicates.
+        /// - Returns: The current Builder instance.
+        public func with(notPredicates predicates: NSPredicate...) -> Self {
+            return with(notPredicates: predicates)
         }
         
         /// Set the sort descriptors.

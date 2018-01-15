@@ -50,7 +50,7 @@ EXTERNAL SOURCES:
 
 CHECKOUT OPTIONS:
   HMEventSourceManager:
-    :commit: ceb49b04137fd568b6a60d35eb2c53a6e77a8ad6
+    :commit: c5b0dc4141c23b645b75e6dd7ebf272384e5689a
     :git: https://github.com/Holmusk/HMEventSourceManager-iOS.git
   SwiftUIUtilities:
     :commit: c61523950d92ba1f16f2f68e7ab34ecfbbe540d6
