@@ -83,10 +83,11 @@ public protocol HMCDPureObjectConvertibleType {
     
     func asPureObject() throws -> PureObject
     
-    /// Copy all properties from a pure object.
+    /// Copy all properties from a pure object. Beware that this method will
+    /// mutate the object's internal state, and thus must be used with caution.
     ///
-    /// - Parameter object: A PO instance.
-    func fromPureObject(_ object: PureObject)
+    /// - Parameter object: A PureObject instance.
+    func mutateWithPureObject(_ object: PureObject)
 }
 
 public extension HMCDPureObjectConvertibleType where

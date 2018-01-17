@@ -35,7 +35,7 @@ extension HMCDManager {
         PO.CDClass.PureObject == PO
     {
         let cdObject = try PO.CDClass.init(context)
-        cdObject.fromPureObject(pureObj)
+        cdObject.mutateWithPureObject(pureObj)
         return cdObject
     }
     

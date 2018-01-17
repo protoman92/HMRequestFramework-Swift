@@ -76,7 +76,7 @@ extension CDDummy2: HMCDObjectMasterType {
         ]
     }
     
-    public func fromPureObject(_ object: PureObject) {
+    public func mutateWithPureObject(_ object: PureObject) {
         id2 = object.id2
         count = object.count
     }

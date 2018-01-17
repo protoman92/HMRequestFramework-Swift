@@ -46,7 +46,7 @@ public extension HMCDObjectConvertibleType where
 {
     public func asManagedObject(_ context: Context) throws -> NSManagedObject {
         let cdObject = try CDClass.init(context)
-        cdObject.fromPureObject(self)
+        cdObject.mutateWithPureObject(self)
         return cdObject.asManagedObject()
     }
 }

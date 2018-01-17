@@ -130,7 +130,7 @@ extension CDDummy1: HMCDVersionableMasterType {
         ]
     }
     
-    public func fromPureObject(_ object: PureObject) {
+    public func mutateWithPureObject(_ object: PureObject) {
         id = object.id
         date = object.date
         float = object.float
