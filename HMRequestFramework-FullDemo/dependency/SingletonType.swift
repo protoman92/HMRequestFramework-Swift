@@ -27,12 +27,16 @@ public final class Singleton: SingletonType {
         
         synchronized(self, then: {
             if instance == nil {
-                _instance = Singleton()
+                _instance = Singleton(.SQLite)
                 instance = _instance
             }
         })
         
         return instance!
+    }
+    
+    public static func create(_ storeType: HMCDStoreSettings.StoreType) -> Singleton {
+        return Singleton(storeType)
     }
     
     fileprivate var _dbRequestManager: HMCDRequestProcessor
@@ -46,7 +50,7 @@ public final class Singleton: SingletonType {
         return _trackedObjectManager
     }
     
-    private init() {
+    private init(_ storeType: HMCDStoreSettings.StoreType) {
         let cdURL = HMCDStoreURL.builder()
             .with(fileName: "FullDemo")
             .with(domainMask: .userDomainMask)
@@ -56,7 +60,7 @@ public final class Singleton: SingletonType {
             .build()
         
         let cdSettings = HMCDStoreSettings.builder()
-            .with(storeType: .SQLite)
+            .with(storeType: storeType)
             .with(persistentStoreURL: cdURL)
             .build()
         

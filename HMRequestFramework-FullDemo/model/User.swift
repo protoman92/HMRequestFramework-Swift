@@ -158,12 +158,18 @@ extension User: HMCDPureObjectMasterType {
             return self
         }
         
+        public func with(updatedAt date: Date?) -> Self {
+            user._updatedAt = date
+            return self
+        }
+        
         public func with(user: UserType?) -> Self {
             return user.map({self
                 .with(id: $0.id)
                 .with(name: $0.name)
                 .with(age: $0.age)
                 .with(visible: $0.visible)
+                .with(updatedAt: $0.updatedAt)
             }).getOrElse(self)
         }
     }
@@ -182,5 +188,22 @@ extension User.Builder: HMCDPureObjectBuilderMasterType {
     
     public func build() -> Buildable {
         return user
+    }
+}
+
+extension User: CustomStringConvertible {
+    public var description: String {
+        return id.getOrElse("No id present")
+    }
+}
+
+extension User: Equatable {
+    public static func ==(lhs: User, rhs: User) -> Bool {
+        return true
+            && lhs.id == rhs.id
+            && lhs.name == rhs.name
+            && lhs.age == rhs.age
+            && lhs.visible == rhs.visible
+            && lhs.updatedAt == rhs.updatedAt
     }
 }

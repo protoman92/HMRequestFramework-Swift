@@ -45,6 +45,8 @@
 		D33BB3271F46A3BF00025FD1 /* HMURLSessions.swift in Sources */ = {isa = PBXBuildFile; fileRef = D33BB3261F46A3BF00025FD1 /* HMURLSessions.swift */; };
 		D33CAAB11F3C4D9B0000EE13 /* CoreDataRootTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = D33CAAB01F3C4D9B0000EE13 /* CoreDataRootTest.swift */; };
 		D33CAAB31F3C50060000EE13 /* HMCDObjectConvertibleType.swift in Sources */ = {isa = PBXBuildFile; fileRef = D33CAAB21F3C50060000EE13 /* HMCDObjectConvertibleType.swift */; };
+		D34246EE200FBFDE00A9BE59 /* TrackedObjectManagerTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = D34246ED200FBFDE00A9BE59 /* TrackedObjectManagerTest.swift */; };
+		D34246F0200FC12900A9BE59 /* RootTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = D34246EF200FC12900A9BE59 /* RootTest.swift */; };
 		D347671A1F5004F1006C8E9E /* HMMiddlewares.swift in Sources */ = {isa = PBXBuildFile; fileRef = D34767191F5004F1006C8E9E /* HMMiddlewares.swift */; };
 		D34DF2921F2C2D740076D6B1 /* HMMiddleware.swift in Sources */ = {isa = PBXBuildFile; fileRef = D34DF2911F2C2D740076D6B1 /* HMMiddleware.swift */; };
 		D34DF2941F2C323A0076D6B1 /* HMFilterMiddlewareManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D34DF2931F2C323A0076D6B1 /* HMFilterMiddlewareManager.swift */; };
@@ -250,6 +252,8 @@
 		D33BB3261F46A3BF00025FD1 /* HMURLSessions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMURLSessions.swift; sourceTree = "<group>"; };
 		D33CAAB01F3C4D9B0000EE13 /* CoreDataRootTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataRootTest.swift; sourceTree = "<group>"; };
 		D33CAAB21F3C50060000EE13 /* HMCDObjectConvertibleType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMCDObjectConvertibleType.swift; sourceTree = "<group>"; };
+		D34246ED200FBFDE00A9BE59 /* TrackedObjectManagerTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackedObjectManagerTest.swift; sourceTree = "<group>"; };
+		D34246EF200FC12900A9BE59 /* RootTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootTest.swift; sourceTree = "<group>"; };
 		D34767191F5004F1006C8E9E /* HMMiddlewares.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMMiddlewares.swift; sourceTree = "<group>"; };
 		D34DF2911F2C2D740076D6B1 /* HMMiddleware.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMMiddleware.swift; sourceTree = "<group>"; };
 		D34DF2931F2C323A0076D6B1 /* HMFilterMiddlewareManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMFilterMiddlewareManager.swift; sourceTree = "<group>"; };
@@ -874,6 +878,8 @@
 			isa = PBXGroup;
 			children = (
 				D3F59B73200F50C100EB5960 /* Info.plist */,
+				D34246ED200FBFDE00A9BE59 /* TrackedObjectManagerTest.swift */,
+				D34246EF200FC12900A9BE59 /* RootTest.swift */,
 			);
 			path = "HMRequestFramework-FullDemoTests";
 			sourceTree = "<group>";
@@ -1139,6 +1145,7 @@
 					D3F59B6C200F50C100EB5960 = {
 						CreatedOnToolsVersion = 9.2;
 						DevelopmentTeam = 785WJQ47KY;
+						LastSwiftMigration = 0920;
 						ProvisioningStyle = Automatic;
 						TestTargetID = D3F59B56200F50C100EB5960;
 					};
@@ -1691,6 +1698,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D34246EE200FBFDE00A9BE59 /* TrackedObjectManagerTest.swift in Sources */,
+				D34246F0200FC12900A9BE59 /* RootTest.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2047,6 +2056,7 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_MODULES = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
@@ -2057,6 +2067,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.holmusk.HMRequestFramework-FullDemoTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 3.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/HMRequestFramework-FullDemo.app/HMRequestFramework-FullDemo";
@@ -2070,6 +2081,7 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_MODULES = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;

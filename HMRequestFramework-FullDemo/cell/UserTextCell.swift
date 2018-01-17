@@ -110,9 +110,14 @@ public struct UserTextCellModel: UserTextCellModelType {
     }
     
     public func updateUserInDB(_ user: Try<User>) -> Observable<Try<Void>> {
+        let provider = self.provider
         let prev = user.map({[$0]})
         let qos: DispatchQoS.QoSClass = .background
-        return provider.dbRequestManager.upsertInMemory(prev, qos).map({$0.map(toVoid)})
+        
+        return Observable.just(())
+            .delay(2, scheduler: ConcurrentDispatchQueueScheduler(qos: qos))
+            .flatMap({_ in provider.dbRequestManager.upsertInMemory(prev, qos)})
+            .map({$0.map(toVoid)})
     }
     
     public func userProperty(_ user: User) -> String? {
