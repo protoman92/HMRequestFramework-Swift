@@ -857,11 +857,11 @@
 		D3F59B58200F50C100EB5960 /* HMRequestFramework-FullDemo */ = {
 			isa = PBXGroup;
 			children = (
-				D31002C2200F6C340043C6CE /* dependency */,
 				D3F59B59200F50C100EB5960 /* AppDelegate.swift */,
 				D3F59B63200F50C100EB5960 /* Assets.xcassets */,
 				D3F59B87200F587A00EB5960 /* cell */,
 				D3F59B7C200F524000EB5960 /* controller */,
+				D31002C2200F6C340043C6CE /* dependency */,
 				D3F59B68200F50C100EB5960 /* Info.plist */,
 				D3F59B7A200F523600EB5960 /* model */,
 				D3F59B7B200F523B00EB5960 /* storyboard */,
@@ -2010,7 +2010,7 @@
 				DEVELOPMENT_TEAM = 785WJQ47KY;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = "HMRequestFramework-FullDemo/Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 11.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.holmusk.HMRequestFramework-FullDemo";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -2031,7 +2031,7 @@
 				DEVELOPMENT_TEAM = 785WJQ47KY;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = "HMRequestFramework-FullDemo/Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 11.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.holmusk.HMRequestFramework-FullDemo";
 				PRODUCT_NAME = "$(TARGET_NAME)";

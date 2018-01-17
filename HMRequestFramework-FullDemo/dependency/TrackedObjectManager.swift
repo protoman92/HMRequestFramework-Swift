@@ -23,7 +23,12 @@ public struct TrackedObjectManager {
     }
     
     fileprivate func initializeUserStream() {
-        dbRequestManager.streamDBEvents(User.self, .userInteractive)
+        dbRequestManager
+            .streamDBEvents(User.self, .userInteractive, {
+                Observable.just($0.cloneBuilder()
+                    .add(descendingSortWithKey: User.updatedAtKey)
+                    .build())
+            })
             .flatMap({HMCDEvents.didLoadSections($0)})
             .map({$0.flatMap({$0.objects})})
             .map({$0.first.asTry(error: "No user found")})

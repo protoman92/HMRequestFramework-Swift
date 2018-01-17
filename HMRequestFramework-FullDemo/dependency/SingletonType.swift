@@ -47,8 +47,17 @@ public final class Singleton: SingletonType {
     }
     
     private init() {
+        let cdURL = HMCDStoreURL.builder()
+            .with(fileName: "FullDemo")
+            .with(domainMask: .userDomainMask)
+            .with(searchPath: .documentDirectory)
+            .with(storeType: .SQLite)
+            .withDefaultFileManager()
+            .build()
+        
         let cdSettings = HMCDStoreSettings.builder()
-            .with(storeType: .InMemory)
+            .with(storeType: .SQLite)
+            .with(persistentStoreURL: cdURL)
             .build()
         
         let cdConstructor = HMCDConstructor.builder()

@@ -14,6 +14,7 @@ public protocol UserType {
     var name: String? { get }
     var age: NSNumber? { get }
     var visible: NSNumber? { get }
+    var updatedAt: Date? { get }
 }
 
 public extension UserType {
@@ -31,6 +32,7 @@ public final class CDUser: NSManagedObject {
     @NSManaged public var name: String?
     @NSManaged public var age: NSNumber?
     @NSManaged public var visible: NSNumber?
+    @NSManaged public var updatedAt: Date?
     
     public convenience init(_ context: Context) throws {
         let entity = try CDUser.entityDescription(in: context)
@@ -49,28 +51,30 @@ extension CDUser: HMCDObjectMasterType {
                 .with(name: "id")
                 .with(type: .stringAttributeType)
                 .with(optional: false)
-                .with(defaultValue: UUID().uuidString)
                 .build(),
             
             NSAttributeDescription.builder()
                 .with(name: "name")
                 .with(type: .stringAttributeType)
                 .with(optional: false)
-                .with(defaultValue: UUID().uuidString)
                 .build(),
             
             NSAttributeDescription.builder()
                 .with(name: "age")
-                .with(type: .integer16AttributeType)
+                .with(type: .integer64AttributeType)
                 .with(optional: false)
-                .with(defaultValue: UUID().uuidString)
                 .build(),
             
             NSAttributeDescription.builder()
                 .with(name: "visible")
                 .with(type: .booleanAttributeType)
                 .with(optional: false)
-                .with(defaultValue: UUID().uuidString)
+                .build(),
+            
+            NSAttributeDescription.builder()
+                .with(name: "updatedAt")
+                .with(type: .dateAttributeType)
+                .with(optional: false)
                 .build(),
         ]
     }
@@ -80,14 +84,18 @@ extension CDUser: HMCDObjectMasterType {
         name = object.name
         age = object.age
         visible = object.visible
+        updatedAt = object.updatedAt
     }
 }
 
 public struct User {
+    public static let updatedAtKey = "updatedAt"
+    
     fileprivate var _id: String?
     fileprivate var _name: String?
     fileprivate var _age: NSNumber?
     fileprivate var _visible: NSNumber?
+    fileprivate var _updatedAt: Date?
     
     public var id: String? {
         return _id
@@ -103,6 +111,14 @@ public struct User {
     
     public var visible: NSNumber? {
         return _visible
+    }
+    
+    public var updatedAt: Date? {
+        return _updatedAt
+    }
+    
+    fileprivate init() {
+        _updatedAt = Date()
     }
 }
 
