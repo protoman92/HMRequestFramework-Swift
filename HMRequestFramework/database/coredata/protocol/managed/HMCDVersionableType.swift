@@ -40,30 +40,3 @@ public protocol HMCDVersionBuilderType: HMCDObjectBuilderType {
     /// - Returns: The current Builder instance.
     func with(version: String?) -> Self
 }
-
-public extension HMCDVersionBuildableType where
-    Self: HMCDVersionableType,
-    Builder: HMCDVersionBuilderType,
-    Builder.Buildable == Self
-{
-    /// Clone the current object and assign a specified version to it.
-    ///
-    /// - Parameters:
-    ///   - context: A Context instance.
-    ///   - version: A String value.
-    /// - Returns: The current Buildable instance.
-    /// - Throws: Exception if the operation fails.
-    public func cloneWithVersion(_ context: Context,
-                                 _ version: String?) throws -> Self {
-        return try cloneBuilder(context).with(version: version).build()
-    }
-    
-    /// Clone the current object and bump version to one level higher.
-    ///
-    /// - Parameters context: A Context instance.
-    /// - Returns: The current Buildable instance.
-    @discardableResult
-    public func cloneAndBumpVersion(_ context: Context) throws -> Self {
-        return try cloneBuilder(context).with(version: oneVersionHigher()).build()
-    }
-}

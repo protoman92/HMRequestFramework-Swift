@@ -405,6 +405,7 @@ public extension HMCDRequestProcessor {
                                             _ transforms: [HMTransform<Req>])
         -> Observable<Try<[PO]>> where
         PO: HMCDPureObjectType,
+        PO.CDClass: NSManagedObject,
         PO.CDClass: HMCDPureObjectConvertibleType,
         PO.CDClass.PureObject == PO
     {

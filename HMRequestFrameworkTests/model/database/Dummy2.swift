@@ -98,6 +98,11 @@ extension CDDummy2: HMCDUpsertableMasterType {
             super.init(cdo)
         }
     }
+    
+    public func fromPureObject(_ object: PureObject) {
+        id2 = object.id2
+        count = object.count
+    }
 }
 
 extension CDDummy2.Builder: HMCDObjectBuilderMasterType {

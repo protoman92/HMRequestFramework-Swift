@@ -446,28 +446,16 @@
 		D34767131F5003F1006C8E9E /* protocol */ = {
 			isa = PBXGroup;
 			children = (
+				D395205E200F3169003B9E81 /* request */,
+				D395205D200F312A003B9E81 /* pure */,
+				D395205C200F311F003B9E81 /* managed */,
 				D37D0BC81F25F2EE0032C6AB /* HMCDConstructorType.swift */,
-				D375B1731F4DD386007A3B01 /* HMCDFetchedResultRequestType.swift */,
-				D375B1711F4DD2ED007A3B01 /* HMCDFetchRequestType.swift */,
 				D399C7F31F4ACFF90083C130 /* HMCDGeneralRequestProcessorType.swift */,
-				D3FC6E7F1F2F0C7F007471E2 /* HMCDIdentifiableType.swift */,
-				D3B386661F4FDF7900A641F8 /* HMCDKeyValueRepresentableType.swift */,
-				D3AC07171F3D9C280085D329 /* HMCDKeyValueUpdatableType.swift */,
-				D3C043DC1F3B35CC005948B9 /* HMCDMasterType.swift */,
-				D32F6C1A1F3C1C94004F7133 /* HMCDObjectAliasType.swift */,
-				D33CAAB21F3C50060000EE13 /* HMCDObjectConvertibleType.swift */,
-				D398B7941F265CAC00DCE4D8 /* HMCDObjectType.swift */,
 				D3206FBA1F55C68C006AEDDF /* HMCDPaginationMultipleType.swift */,
 				D3206FB81F55C445006AEDDF /* HMCDPaginationProviderType.swift */,
-				D37D0B711F25E1BE0032C6AB /* HMCDPureObjectType.swift */,
 				D37D0B6D1F25E1BE0032C6AB /* HMCDRequestProcessorType.swift */,
-				D37D0B731F25E1BE0032C6AB /* HMCDRequestType.swift */,
 				D3A295361F81FAEF00F10756 /* HMCDResultControllerType.swift */,
 				D325C4111F512E1B00FC802C /* HMCDSectionType.swift */,
-				D3351DC31F53BEB2001EC2B1 /* HMCDTypealiasType.swift */,
-				D38D24981F3DFED00055E5BA /* HMCDUpsertableType.swift */,
-				D352E29C1F3AF226001FD55E /* HMCDVersionableType.swift */,
-				D3B3866A1F4FE52200A641F8 /* HMCDVersionUpdateRequest.swift */,
 			);
 			path = protocol;
 			sourceTree = "<group>";
@@ -706,6 +694,42 @@
 				D3922E091F26334A004A49B9 /* HMCDStoreURL.swift */,
 			);
 			path = stack;
+			sourceTree = "<group>";
+		};
+		D395205C200F311F003B9E81 /* managed */ = {
+			isa = PBXGroup;
+			children = (
+				D3FC6E7F1F2F0C7F007471E2 /* HMCDIdentifiableType.swift */,
+				D3B386661F4FDF7900A641F8 /* HMCDKeyValueRepresentableType.swift */,
+				D3AC07171F3D9C280085D329 /* HMCDKeyValueUpdatableType.swift */,
+				D3C043DC1F3B35CC005948B9 /* HMCDMasterType.swift */,
+				D32F6C1A1F3C1C94004F7133 /* HMCDObjectAliasType.swift */,
+				D33CAAB21F3C50060000EE13 /* HMCDObjectConvertibleType.swift */,
+				D398B7941F265CAC00DCE4D8 /* HMCDObjectType.swift */,
+				D3351DC31F53BEB2001EC2B1 /* HMCDTypealiasType.swift */,
+				D38D24981F3DFED00055E5BA /* HMCDUpsertableType.swift */,
+				D352E29C1F3AF226001FD55E /* HMCDVersionableType.swift */,
+			);
+			path = managed;
+			sourceTree = "<group>";
+		};
+		D395205D200F312A003B9E81 /* pure */ = {
+			isa = PBXGroup;
+			children = (
+				D37D0B711F25E1BE0032C6AB /* HMCDPureObjectType.swift */,
+			);
+			path = pure;
+			sourceTree = "<group>";
+		};
+		D395205E200F3169003B9E81 /* request */ = {
+			isa = PBXGroup;
+			children = (
+				D3B3866A1F4FE52200A641F8 /* HMCDVersionUpdateRequest.swift */,
+				D37D0B731F25E1BE0032C6AB /* HMCDRequestType.swift */,
+				D375B1711F4DD2ED007A3B01 /* HMCDFetchRequestType.swift */,
+				D375B1731F4DD386007A3B01 /* HMCDFetchedResultRequestType.swift */,
+			);
+			path = request;
 			sourceTree = "<group>";
 		};
 		D39BDA9B1F4E6B5500A397BD /* HMRequestFramework-Demo */ = {

@@ -16,7 +16,13 @@ import CoreData
 /// These objects should simply contain data that mirror their NSManagedObject
 /// counterparts.
 public protocol HMCDPureObjectType {
-    associatedtype CDClass: NSManagedObject, HMCDObjectType
+    
+    /// Initially, the CDClass also inherits from NSManagedObject, but I decided
+    /// to remove that constraint in order to access the init(_:) method from
+    /// HMCDObjectType conformance (Otherwise, the compiler will complain about
+    /// duplicate init methods, since there is also one with similar signature
+    /// but only available from iOS 10.0+).
+    associatedtype CDClass: HMCDObjectType
 }
 
 /// Pure object builders that implement this protocol must be able to copy

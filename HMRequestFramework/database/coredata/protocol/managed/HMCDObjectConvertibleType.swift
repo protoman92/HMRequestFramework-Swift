@@ -23,12 +23,17 @@ public protocol HMCDObjectConvertibleType: HMCDTypealiasType {
     func asManagedObject(_ context: Context) throws -> NSManagedObject
 }
 
+/// We need to implement this extension because CoreData objects are not allowed
+/// to changed contexts. In order to replicate an object across different
+/// contexts, we must create a new one in the receiving context and copy all
+/// properties from the current object.
 public extension HMCDObjectConvertibleType where
-    Self: HMCDObjectBuildableType,
-    Self.Builder.Buildable == Self
+    Self: HMCDObjectType, Self: HMCDKeyValueUpdatableType
 {
     public func asManagedObject(_ context: Context) throws -> NSManagedObject {
-        return try cloneBuilder(context).build()
+        let cdObject = try Self.init(context)
+        try cdObject.update(from: self)
+        return cdObject.asManagedObject()
     }
 }
 
@@ -36,11 +41,12 @@ public extension HMCDObjectConvertibleType where
 // CoreData counterparts implement certain protocols.
 public extension HMCDObjectConvertibleType where
     Self: HMCDPureObjectType,
-    Self.CDClass: HMCDObjectBuildableType,
-    Self.CDClass.Builder.PureObject == Self
+    Self.CDClass: HMCDPureObjectConvertibleType,
+    Self.CDClass.PureObject == Self
 {
     public func asManagedObject(_ context: Context) throws -> NSManagedObject {
-        return try CDClass.builder(context).with(pureObject: self).build()
+        let cdObject = try CDClass.init(context)
+        cdObject.fromPureObject(self)
+        return cdObject.asManagedObject()
     }
 }
-

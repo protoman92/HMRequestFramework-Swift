@@ -194,6 +194,14 @@ extension CDDummy1: HMCDVersionableMasterType {
         }
     }
     
+    public func fromPureObject(_ object: PureObject) {
+        id = object.id
+        date = object.date
+        float = object.float
+        int64 = object.int64
+        version = object.version
+    }
+    
     public func currentVersion() -> String? {
         if let version = self.version {
             return String(describing: version)

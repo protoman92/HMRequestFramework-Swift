@@ -6,6 +6,7 @@
 //  Copyright © 2017 Holmusk. All rights reserved.
 //
 
+import CoreData
 import RxSwift
 import SwiftUtilities
 
@@ -17,6 +18,7 @@ public final class HMCDResultProcessors {
     /// - Returns: A HMCDTypedResultProcessor instance.
     public static func pureObjectPs<PO>() -> HMResultProcessor<PO.CDClass,PO> where
         PO: HMCDPureObjectType,
+        PO.CDClass: NSManagedObject,
         PO.CDClass: HMCDPureObjectConvertibleType,
         PO.CDClass.PureObject == PO
     {
@@ -35,6 +37,7 @@ public final class HMCDResultProcessors {
     /// - Returns: A HMCDTypedResultProcessor instance.
     public static func pureObjectPs<PO>(_ cls: PO.Type) -> HMResultProcessor<PO.CDClass,PO> where
         PO: HMCDPureObjectType,
+        PO.CDClass: NSManagedObject,
         PO.CDClass: HMCDPureObjectConvertibleType,
         PO.CDClass.PureObject == PO
     {

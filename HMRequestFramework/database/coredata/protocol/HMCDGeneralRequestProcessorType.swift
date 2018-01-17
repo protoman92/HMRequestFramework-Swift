@@ -6,6 +6,7 @@
 //  Copyright © 2017 Holmusk. All rights reserved.
 //
 
+import CoreData
 import RxSwift
 import SwiftUtilities
 
@@ -27,6 +28,7 @@ public protocol HMCDGeneralRequestProcessorType {
                                      _ transforms: [HMTransform<HMCDRequest>])
         -> Observable<Try<[PO]>> where
         PO: HMCDPureObjectType,
+        PO.CDClass: NSManagedObject,
         PO.CDClass: HMCDPureObjectConvertibleType,
         PO.CDClass.PureObject == PO
     
@@ -43,6 +45,7 @@ public protocol HMCDGeneralRequestProcessorType {
                           _ transforms: [HMTransform<HMCDRequest>])
         -> Observable<Try<[HMCDResult]>> where
         PO: HMCDPureObjectType,
+        PO.CDClass: NSManagedObject,
         PO.CDClass: HMCDObjectConvertibleType,
         PO.CDClass: HMCDObjectBuildableType,
         PO.CDClass.Builder.PureObject == PO
@@ -180,6 +183,7 @@ public extension HMCDGeneralRequestProcessorType {
                                                _ transforms: S)
         -> Observable<Try<[PO]>> where
         PO: HMCDPureObjectType,
+        PO.CDClass: NSManagedObject,
         PO.CDClass: HMCDPureObjectConvertibleType,
         PO.CDClass.PureObject == PO,
         S: Sequence,
@@ -277,6 +281,7 @@ public extension HMCDGeneralRequestProcessorType {
                                                _ transforms: S)
         -> Observable<Try<[PO]>> where
         PO: HMCDPureObjectType,
+        PO.CDClass: NSManagedObject,
         PO.CDClass: HMCDPureObjectConvertibleType,
         PO.CDClass.PureObject == PO,
         S: Sequence,
@@ -435,8 +440,7 @@ public extension HMCDGeneralRequestProcessorType {
     }
 }
 
-/// Convenience method for varargs.
-
+// MARK: - Convenience method for varargs.
 public extension HMCDGeneralRequestProcessorType {
     public func fetchAllDataFromDB<Prev,PO>(_ previous: Try<Prev>,
                                             _ cls: PO.Type,
@@ -444,20 +448,23 @@ public extension HMCDGeneralRequestProcessorType {
                                             _ transforms: HMTransform<HMCDRequest>...)
         -> Observable<Try<[PO]>> where
         PO: HMCDPureObjectType,
+        PO.CDClass: NSManagedObject,
         PO.CDClass: HMCDPureObjectConvertibleType,
         PO.CDClass.PureObject == PO
     {
         return fetchAllDataFromDB(previous, cls, qos, transforms)
     }
     
-    public func fetchWithProperties<Prev,PO>(_ previous: Try<Prev>,
-                                             _ cls: PO.Type,
-                                             _ props: [String : [CVarArg]],
-                                             _ predicateMode: NSCompoundPredicate.LogicalType,
-                                             _ qos: DispatchQoS.QoSClass,
-                                             _ transforms: HMTransform<HMCDRequest>...)
+    public func fetchWithProperties<Prev,PO>(
+        _ previous: Try<Prev>,
+        _ cls: PO.Type,
+        _ props: [String : [CVarArg]],
+        _ predicateMode: NSCompoundPredicate.LogicalType,
+        _ qos: DispatchQoS.QoSClass,
+        _ transforms: HMTransform<HMCDRequest>...)
         -> Observable<Try<[PO]>> where
         PO: HMCDPureObjectType,
+        PO.CDClass: NSManagedObject,
         PO.CDClass: HMCDPureObjectConvertibleType,
         PO.CDClass.PureObject == PO
     {
@@ -477,6 +484,7 @@ public extension HMCDGeneralRequestProcessorType {
                                              _ transforms: HMTransform<HMCDRequest>...)
         -> Observable<Try<[PO]>> where
         PO: HMCDPureObjectType,
+        PO.CDClass: NSManagedObject,
         PO.CDClass: HMCDPureObjectConvertibleType,
         PO.CDClass.PureObject == PO
     {
@@ -489,12 +497,14 @@ public extension HMCDGeneralRequestProcessorType {
     }
 }
 
+// MARK: - Convenience method for varargs.
 public extension HMCDGeneralRequestProcessorType {
     public func saveToMemory<PO>(_ previous: Try<[PO]>,
                                  _ qos: DispatchQoS.QoSClass,
                                  _ transforms: HMTransform<HMCDRequest>...)
         -> Observable<Try<[HMCDResult]>> where
         PO: HMCDPureObjectType,
+        PO.CDClass: NSManagedObject,
         PO.CDClass: HMCDObjectConvertibleType,
         PO.CDClass: HMCDObjectBuildableType,
         PO.CDClass.Builder.PureObject == PO
@@ -516,6 +526,7 @@ public extension HMCDGeneralRequestProcessorType {
                                    _ transforms: HMTransform<HMCDRequest>...)
         -> Observable<Try<[HMCDResult]>> where
         PO: HMCDPureObjectType,
+        PO.CDClass: NSManagedObject,
         PO.CDClass: HMCDUpsertableType,
         PO.CDClass: HMCDObjectBuildableType,
         PO.CDClass.Builder.PureObject == PO
@@ -532,6 +543,7 @@ public extension HMCDGeneralRequestProcessorType {
     }
 }
 
+// MARK: - Convenience method for varargs.
 public extension HMCDGeneralRequestProcessorType {
     public func deleteInMemory<PO>(_ previous: Try<[PO]>,
                                    _ qos: DispatchQoS.QoSClass,
@@ -583,7 +595,8 @@ public extension HMCDGeneralRequestProcessorType {
                                     transforms)
     }
 }
-    
+
+// MARK: - Convenience method for varargs.
 public extension HMCDGeneralRequestProcessorType {
     public func resetStack<Prev>(_ previous: Try<Prev>,
                                  _ qos: DispatchQoS.QoSClass,
@@ -594,6 +607,7 @@ public extension HMCDGeneralRequestProcessorType {
     }
 }
 
+// MARK: - Convenience method for varargs.
 public extension HMCDGeneralRequestProcessorType {
     public func streamDBEvents<PO>(_ cls: PO.Type,
                                    _ qos: DispatchQoS.QoSClass,

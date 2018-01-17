@@ -9,8 +9,8 @@
 /// Use this for CoreData classes that do not need upsert/version control.
 public protocol HMCDObjectMasterType:
     HMCDObjectType,
-    HMCDObjectConvertibleType,
     HMCDObjectBuildableType,
+    HMCDKeyValueUpdatableType,
     HMCDPureObjectConvertibleType {}
 
 /// Use this for CoreData Builder classes.
@@ -44,4 +44,3 @@ public protocol HMCDUpsertablePureObjectMasterType:
 
 /// Use this for PureObject Builder classes.
 public protocol HMCDPureObjectBuilderMasterType: HMCDPureObjectBuilderType {}
-
