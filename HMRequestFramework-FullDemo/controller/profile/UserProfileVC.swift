@@ -27,10 +27,15 @@ public final class UserProfileVC: UIViewController {
         
         /// This is actually not the correct implementation of MVVM, because
         /// the view model should be injected in by the controller that started
-        /// the navigation process to this controller. However, for a simple
-        /// exercise it will have to do.
+        /// the navigation process to this controller. This way, we can pass
+        /// on the singleton provider from view model to view model, without
+        /// having to call Singleton.instance, and as a result, be able to mock
+        /// the provider instance during testing.
+        ///
+        /// However, for a simple exercise this will have to do.
+        let provider = Singleton.instance
         let model = UserProfileModel()
-        viewModel = UserProfileViewModel(model)
+        viewModel = UserProfileViewModel(provider, model)
         
         setupViews(self)
         bindViewModel(self)
@@ -125,14 +130,25 @@ public struct UserProfileModel {
 }
 
 public struct UserProfileViewModel {
+    fileprivate let provider: SingletonType
     fileprivate let model: UserProfileModel
     
-    public init(_ model: UserProfileModel) {
+    public init(_ provider: SingletonType, _ model: UserProfileModel) {
+        self.provider = provider
         self.model = model
     }
     
     public func vmForUserTextCell(_ info: UserInformation) -> UserTextCellViewModel? {
-        let model = UserTextCellModel()
-        return UserTextCellViewModel(model)
+        let provider = self.provider
+        
+        switch info {
+        case .age:
+            let model = UserAgeTextCellModel(provider)
+            return UserTextCellViewModel(provider, model)
+            
+        case .name:
+            let model = UserNameTextCellModel(provider)
+            return UserTextCellViewModel(provider, model)
+        }
     }
 }

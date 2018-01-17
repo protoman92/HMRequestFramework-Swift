@@ -157,6 +157,14 @@ extension HMCDConstructor: HMBuildableType {
             return self
         }
         
+        /// Set the store settings.
+        ///
+        /// - Parameter settings: Varargs of store settings.
+        /// - Returns: The current Builder instance.
+        public func with(settings: HMCDStoreSettings...) -> Self {
+            return with(settings: settings)
+        }
+        
         /// Set the main context mode.
         ///
         /// - Parameter mainContextMode: A HMCDMainContextMode instance.
