@@ -10,8 +10,8 @@ import CoreData
 @testable import HMRequestFramework
 
 public protocol Dummy2Type {
-    var id2: String { get set }
-    var count: Int64 { get set }
+    var id2: String { get }
+    var count: Int64 { get }
 }
 
 public extension Dummy2Type {
@@ -37,40 +37,27 @@ public final class CDDummy2: NSManagedObject {
 public final class Dummy2 {
     fileprivate static var counter = 0
     
-    public var id2: String
-    public var count: Int64
+    fileprivate var _id2: String
+    fileprivate var _count: Int64
+    
+    public var id2: String {
+        return _id2
+    }
+    
+    public var count: Int64 {
+        return _count
+    }
     
     init() {
         Dummy2.counter += 1
-        id2 = "\(Dummy2.counter)"
-        count = Int64(Int.random(0, 10000))
-    }
-}
-
-public class Dummy2Builder<D2: Dummy2Type> {
-    fileprivate var d2: D2
-    
-    fileprivate init(_ d2: D2) {
-        self.d2 = d2
-    }
-    
-    public func with(dummy2: Dummy2Type?) -> Self {
-        if let dummy2 = dummy2 {
-            d2.id2 = dummy2.id2
-            d2.count = dummy2.count
-        }
-        
-        return self
-    }
-    
-    public func build() -> D2 {
-        return d2
+        _id2 = "\(Dummy2.counter)"
+        _count = Int64(Int.random(0, 10000))
     }
 }
 
 extension CDDummy2: Dummy2Type {}
 
-extension CDDummy2: HMCDUpsertableMasterType {
+extension CDDummy2: HMCDObjectMasterType {
     public typealias PureObject = Dummy2
     
     public static func cdAttributes() throws -> [NSAttributeDescription]? {
@@ -89,31 +76,9 @@ extension CDDummy2: HMCDUpsertableMasterType {
         ]
     }
     
-    public static func builder(_ context: Context) throws -> Builder {
-        return try Builder(CDDummy2(context))
-    }
-    
-    public final class Builder: Dummy2Builder<CDDummy2> {
-        override fileprivate init(_ cdo: PureObject.CDClass) {
-            super.init(cdo)
-        }
-    }
-    
     public func fromPureObject(_ object: PureObject) {
         id2 = object.id2
         count = object.count
-    }
-}
-
-extension CDDummy2.Builder: HMCDObjectBuilderMasterType {
-    public typealias PureObject = Dummy2
-    
-    public func with(pureObject: PureObject?) -> Self {
-        return with(dummy2: pureObject)
-    }
-    
-    public func with(buildable: Buildable?) -> Self {
-        return with(dummy2: buildable)
     }
 }
 
@@ -131,16 +96,28 @@ extension Dummy2: Equatable {
     }
 }
 
-extension Dummy2: HMCDUpsertablePureObjectMasterType {
+extension Dummy2: HMCDPureObjectMasterType {
     public typealias CDClass = CDDummy2
 
     public static func builder() -> Builder {
         return Builder()
     }
     
-    public final class Builder: Dummy2Builder<Dummy2> {
+    public final class Builder {
+        fileprivate let d2: Buildable
+        
         fileprivate init() {
-            super.init(Dummy2())
+            d2 = Buildable()
+        }
+        
+        public func with(dummy2: Dummy2Type?) -> Self {
+            if let dummy2 = dummy2 {
+                d2._id2 = dummy2.id2
+                d2._count = dummy2.count
+                return self
+            } else {
+                return self
+            }
         }
     }
 }
@@ -158,5 +135,9 @@ extension Dummy2.Builder: HMCDPureObjectBuilderMasterType {
         } else {
             return self
         }
+    }
+    
+    public func build() -> Buildable {
+        return d2
     }
 }

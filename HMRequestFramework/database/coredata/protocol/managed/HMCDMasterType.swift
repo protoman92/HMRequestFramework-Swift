@@ -9,38 +9,21 @@
 /// Use this for CoreData classes that do not need upsert/version control.
 public protocol HMCDObjectMasterType:
     HMCDObjectType,
-    HMCDObjectBuildableType,
     HMCDKeyValueUpdatableType,
-    HMCDPureObjectConvertibleType {}
-
-/// Use this for CoreData Builder classes.
-public protocol HMCDObjectBuilderMasterType: HMCDObjectBuilderType {}
-
-/// Use this for CoreData classes that require upsert.
-public protocol HMCDUpsertableMasterType:
-    HMCDObjectMasterType,
+    HMCDPureObjectConvertibleType,
     HMCDUpsertableType {}
 
 /// Use this for CoreData classes that require version control. Upsertable is
 /// implied.
-public protocol HMCDVersionableMasterType:
-    HMCDUpsertableMasterType,
-    HMCDVersionableType,
-    HMCDVersionBuildableType {}
+public protocol HMCDVersionableMasterType: HMCDObjectMasterType, HMCDVersionableType {}
 
 /// Use this for PureObject classes that mirror CoreData classes.
 public protocol HMCDPureObjectMasterType:
+    // Instead of constructing the managed object to perform upserts, we can
+    // simply use the primary key/value from the pure object.
+    HMCDIdentifiableType,
     HMCDPureObjectType,
-    HMCDPureObjectBuildableType,
-    HMCDObjectConvertibleType {}
-
-/// Use this for PureObject classes whose CoreData counterparts are upsertable.
-public protocol HMCDUpsertablePureObjectMasterType:
-    HMCDPureObjectMasterType,
-    
-    // Instead of constructing the managed object, we can simply use the
-    // primary key/value from the pure object.
-    HMCDIdentifiableType {}
+    HMCDPureObjectBuildableType {}
 
 /// Use this for PureObject Builder classes.
 public protocol HMCDPureObjectBuilderMasterType: HMCDPureObjectBuilderType {}

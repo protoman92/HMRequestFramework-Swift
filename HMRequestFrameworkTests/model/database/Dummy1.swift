@@ -12,11 +12,11 @@ import SwiftUtilities
 @testable import HMRequestFramework
 
 public protocol Dummy1Type {
-    var id: String? { get set }
-    var date: Date? { get set }
-    var int64: NSNumber? { get set }
-    var float: NSNumber? { get set }
-    var version: NSNumber? { get set }
+    var id: String? { get }
+    var date: Date? { get }
+    var int64: NSNumber? { get }
+    var float: NSNumber? { get }
+    var version: NSNumber? { get }
 }
 
 public extension Dummy1Type {
@@ -54,94 +54,40 @@ public final class CDDummy1: NSManagedObject {
 public final class Dummy1 {
     fileprivate static var counter = 0
     
-    public var id: String?
-    public var int64: NSNumber?
-    public var date: Date?
-    public var float: NSNumber?
-    public var version: NSNumber?
+    fileprivate var _id: String?
+    fileprivate var _int64: NSNumber?
+    fileprivate var _date: Date?
+    fileprivate var _float: NSNumber?
+    fileprivate var _version: NSNumber?
+    
+    public var id: String? {
+        return _id
+    }
+    
+    public var int64: NSNumber? {
+        return _int64
+    }
+    
+    public var date: Date? {
+        return _date
+    }
+    
+    public var float: NSNumber? {
+        return _float
+    }
+    
+    public var version: NSNumber? {
+        return _version
+    }
     
     public init() {
         Dummy1.counter += 1
         let counter = Dummy1.counter
-        id = String(describing: counter)
-        date = Date.random()
-        int64 = Int64(Int.randomBetween(0, 10000)) as NSNumber
-        float = Float(Int.randomBetween(0, 10000)) as NSNumber
-        version = 1
-    }
-}
-
-public class Dummy1Builder<D1: Dummy1Type> {
-    fileprivate var d1: D1
-    
-    fileprivate init(_ d1: D1) {
-        self.d1 = d1
-    }
-    
-    @discardableResult
-    public func with(id: String?) -> Self {
-        d1.id = id
-        return self
-    }
-    
-    @discardableResult
-    public func with(date: Date?) -> Self {
-        d1.date = date
-        return self
-    }
-    
-    @discardableResult
-    public func with(int64: NSNumber?) -> Self {
-        d1.int64 = int64
-        return self
-    }
-    
-    @discardableResult
-    public func with(float: NSNumber?) -> Self {
-        d1.float = float
-        return self
-    }
-    
-    @discardableResult
-    public func with(version: NSNumber?) -> Self {
-        d1.version = version
-        return self
-    }
-    
-    @discardableResult
-    public func with(version: String?) -> Self {
-        if let version = version, let dbl = Double(version) {
-            return with(version: NSNumber(value: dbl).intValue as NSNumber)
-        } else {
-            return self
-        }
-    }
-    
-    @discardableResult
-    public func with(json: [String : Any?]) -> Self {
-        return self
-            .with(id: json["id"] as? String)
-            .with(date: json["date"] as? Date)
-            .with(int64: json["int64"] as? NSNumber)
-            .with(float: json["float"] as? NSNumber)
-            .with(version: json["version"] as? NSNumber)
-    }
-    
-    public func with(dummy1: Dummy1Type?) -> Self {
-        if let dummy1 = dummy1 {
-            return self
-                .with(id: dummy1.id)
-                .with(date: dummy1.date)
-                .with(int64: dummy1.int64)
-                .with(float: dummy1.float)
-                .with(version: dummy1.version)
-        } else {
-            return self
-        }
-    }
-    
-    public func build() -> D1 {
-        return d1
+        _id = String(describing: counter)
+        _date = Date.random()
+        _int64 = Int64(Int.randomBetween(0, 10000)) as NSNumber
+        _float = Float(Int.randomBetween(0, 10000)) as NSNumber
+        _version = 1
     }
 }
 
@@ -184,16 +130,6 @@ extension CDDummy1: HMCDVersionableMasterType {
         ]
     }
     
-    public static func builder(_ context: Context) throws -> Builder {
-        return try Builder(Dummy1.CDClass.init(context))
-    }
-    
-    public final class Builder: Dummy1Builder<CDDummy1> {
-        override fileprivate init(_ cdo: PureObject.CDClass) {
-            super.init(cdo)
-        }
-    }
-    
     public func fromPureObject(_ object: PureObject) {
         id = object.id
         date = object.date
@@ -233,18 +169,6 @@ extension CDDummy1: HMCDVersionableMasterType {
     }
 }
 
-extension CDDummy1.Builder: HMCDObjectBuilderMasterType {
-    public typealias PureObject = Dummy1
-    
-    public func with(pureObject: PureObject?) -> Self {
-        return with(dummy1: pureObject)
-    }
-    
-    public func with(buildable: Buildable?) -> Self {
-        return with(dummy1: buildable)
-    }
-}
-
 extension Dummy1: Equatable {
     public static func ==(lhs: Dummy1, rhs: Dummy1) -> Bool {
         // We don't compare the version here because it will be bumped when
@@ -269,23 +193,91 @@ extension Dummy1: CustomStringConvertible {
     public var description: String {
         return ""
             + "id: \(String(describing: id)), "
-//            + "int64: \(String(describing: int64)), "
-//            + "float: \(String(describing: float)), "
-//            + "date: \(String(describing: date)), "
-//            + "version: \(String(describing: version))"
+            + "int64: \(String(describing: int64)), "
+            + "float: \(String(describing: float)), "
+            + "date: \(String(describing: date)), "
+            + "version: \(String(describing: version))"
     }
 }
 
-extension Dummy1: HMCDUpsertablePureObjectMasterType {
+extension Dummy1: HMCDPureObjectMasterType {
     public typealias CDClass = CDDummy1
 
     public static func builder() -> Builder {
         return Builder()
     }
     
-    public final class Builder: Dummy1Builder<Dummy1> {
+    public final class Builder {
+        private let d1: Dummy1
+        
         fileprivate init() {
-            super.init(Dummy1())
+            d1 = Dummy1()
+        }
+        
+        @discardableResult
+        public func with(id: String?) -> Self {
+            d1._id = id
+            return self
+        }
+        
+        @discardableResult
+        public func with(date: Date?) -> Self {
+            d1._date = date
+            return self
+        }
+        
+        @discardableResult
+        public func with(int64: NSNumber?) -> Self {
+            d1._int64 = int64
+            return self
+        }
+        
+        @discardableResult
+        public func with(float: NSNumber?) -> Self {
+            d1._float = float
+            return self
+        }
+        
+        @discardableResult
+        public func with(version: NSNumber?) -> Self {
+            d1._version = version
+            return self
+        }
+        
+        @discardableResult
+        public func with(version: String?) -> Self {
+            if let version = version, let dbl = Double(version) {
+                return with(version: NSNumber(value: dbl).intValue as NSNumber)
+            } else {
+                return self
+            }
+        }
+        
+        @discardableResult
+        public func with(json: [String : Any?]) -> Self {
+            return self
+                .with(id: json["id"] as? String)
+                .with(date: json["date"] as? Date)
+                .with(int64: json["int64"] as? NSNumber)
+                .with(float: json["float"] as? NSNumber)
+                .with(version: json["version"] as? NSNumber)
+        }
+        
+        public func with(dummy1: Dummy1Type?) -> Self {
+            if let dummy1 = dummy1 {
+                return self
+                    .with(id: dummy1.id)
+                    .with(date: dummy1.date)
+                    .with(int64: dummy1.int64)
+                    .with(float: dummy1.float)
+                    .with(version: dummy1.version)
+            } else {
+                return self
+            }
+        }
+        
+        public func build() -> Dummy1 {
+            return d1
         }
     }
 }

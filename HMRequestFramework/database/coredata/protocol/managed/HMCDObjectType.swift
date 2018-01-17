@@ -76,48 +76,6 @@ public extension HMCDObjectType where Self: NSManagedObject {
     }
 }
 
-/// Classes that implement this protocol must be able to construct a CoreData
-/// NSManagedObject.
-///
-/// This protocol is useful when we have 2 parallel classes, one of which
-/// inherits from NSManagedObject and the other simply copies the former's
-/// properties. The upper layers should only be aware of the latter, so when
-/// we wish to save it to CoreData, we will have methods to implicitly convert
-/// the pure data class into a CoreData-compatible object.
-///
-/// The with(pureObject:) method will copy all attributes from the pure data
-/// object into the newly constructor CoreData object.
-public protocol HMCDObjectBuilderType {
-    associatedtype PureObject: HMCDPureObjectType
-    typealias Buildable = PureObject.CDClass
-
-    /// Copy properties from a PureObject.
-    ///
-    /// - Parameter pureObject: A PureObject instance.
-    /// - Return: The current Builder instance.
-    func with(pureObject: PureObject?) -> Self
-
-    /// Copy properties from a Buildable.
-    ///
-    /// - Parameter buildable: A Buildable instance.
-    /// - Return: The current Builder instance.
-    func with(buildable: Buildable?) -> Self
-
-    func build() -> Buildable
-}
-
-/// Classes that implement this protocol are usually NSManagedObject that
-/// has in-built Builders that implement HMCDObjectBuilderType. It should also
-/// be convertible to a pure data object.
-///
-/// This protocol is not related to HMBuildableType, because the initializer
-/// requirements are different.
-public protocol HMCDObjectBuildableType: HMCDTypealiasType {
-    associatedtype Builder: HMCDObjectBuilderType
-    
-    static func builder(_ context: Context) throws -> Builder
-}
-
 /// CoreData classes that implement this protocol must be able to transform
 /// into a pure object (that does not inherit from NSManagedObject).
 public protocol HMCDPureObjectConvertibleType {

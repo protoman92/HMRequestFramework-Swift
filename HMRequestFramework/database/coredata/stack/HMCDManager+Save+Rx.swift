@@ -44,10 +44,9 @@ public extension HMCDManager {
         // For some reasons, XCode 8 cannot compile if we define a separate
         // generics for S.Element. Although this is longer, it works
         // for both XCode 8 and 9.
-        S: Sequence,
-        S.Element: HMCDPureObjectType,
-        S.Element.CDClass: HMCDObjectBuildableType,
-        S.Element.CDClass.Builder.PureObject == S.Element
+        S: Sequence, S.Element: HMCDPureObjectType,
+        S.Element.CDClass: HMCDPureObjectConvertibleType,
+        S.Element.CDClass.PureObject == S.Element
     {
         let pureObjects = pureObjects.map({$0})
         
@@ -174,12 +173,10 @@ public extension HMCDManager {
                                  _ opMode: HMCDOperationMode,
                                  _ obs: O) -> Disposable where
         PO: HMCDPureObjectType,
-        PO.CDClass: HMCDObjectBuildableType,
-        PO.CDClass.Builder.PureObject == PO,
-        S: Sequence,
-        S.Element == PO,
-        O: ObserverType,
-        O.E == Void
+        PO.CDClass: HMCDPureObjectConvertibleType,
+        PO.CDClass.PureObject == PO,
+        S: Sequence, S.Element == PO,
+        O: ObserverType, O.E == Void
     {
         Preconditions.checkNotRunningOnMainThread(pureObjects)
         
@@ -285,10 +282,9 @@ public extension Reactive where Base == HMCDManager {
                                       _ opMode: HMCDOperationMode = .queued)
         -> Observable<Void> where
         PO: HMCDPureObjectType,
-        PO.CDClass: HMCDObjectBuildableType,
-        PO.CDClass.Builder.PureObject == PO,
-        S: Sequence,
-        S.Element == PO
+        PO.CDClass: HMCDPureObjectConvertibleType,
+        PO.CDClass.PureObject == PO,
+        S: Sequence, S.Element == PO
     {
         return Observable.create({
             self.base.savePureObjects(context, pureObjects, opMode, $0)

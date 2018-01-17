@@ -28,12 +28,15 @@ extension HMCDManager {
     ///   - pureObj: A PO instance.
     /// - Returns: A PO.CDClass object.
     /// - Throws: Exception if the construction fails.
-    func constructUnsafely<PO>(_ context: Context, _ pureObj: PO) throws -> PO.CDClass where
+    func constructUnsafely<PO>(_ context: Context, _ pureObj: PO) throws
+        -> PO.CDClass where
         PO: HMCDPureObjectType,
-        PO.CDClass: HMCDObjectBuildableType,
-        PO.CDClass.Builder.PureObject == PO
+        PO.CDClass: HMCDPureObjectConvertibleType,
+        PO.CDClass.PureObject == PO
     {
-        return try PO.CDClass.builder(context).with(pureObject: pureObj).build()
+        let cdObject = try PO.CDClass.init(context)
+        cdObject.fromPureObject(pureObj)
+        return cdObject
     }
     
     /// Construct CoreData objects from multiple pure objects.
@@ -44,11 +47,10 @@ extension HMCDManager {
     /// - Returns: An Array of PO.CDClass.
     /// - Throws: Exception if the construction fails.
     func constructUnsafely<PO,S>(_ context: Context,
-                                 _ pureObjs: S) throws
-        -> [PO.CDClass] where
+                                 _ pureObjs: S) throws -> [PO.CDClass] where
         PO: HMCDPureObjectType,
-        PO.CDClass: HMCDObjectBuildableType,
-        PO.CDClass.Builder.PureObject == PO,
+        PO.CDClass: HMCDPureObjectConvertibleType,
+        PO.CDClass.PureObject == PO,
         S: Sequence, S.Element == PO
     {
         return try pureObjs.map({try self.constructUnsafely(context, $0)})
@@ -69,8 +71,8 @@ public extension HMCDManager {
                            _ pureObjs: S,
                            _ obs: O) -> Disposable where
         PO: HMCDPureObjectType,
-        PO.CDClass: HMCDObjectBuildableType,
-        PO.CDClass.Builder.PureObject == PO,
+        PO.CDClass: HMCDPureObjectConvertibleType,
+        PO.CDClass.PureObject == PO,
         S: Sequence, S.Element == PO,
         O: ObserverType, O.E == [PO.CDClass]
     {
@@ -100,8 +102,8 @@ public extension Reactive where Base == HMCDManager {
     public func construct<PO,S>(_ context: HMCDManager.Context, _ pureObjs: S)
         -> Observable<[PO.CDClass]> where
         PO: HMCDPureObjectType,
-        PO.CDClass: HMCDObjectBuildableType,
-        PO.CDClass.Builder.PureObject == PO,
+        PO.CDClass: HMCDPureObjectConvertibleType,
+        PO.CDClass.PureObject == PO,
         S: Sequence, S.Element == PO
     {
         return Observable.create({self.base.construct(context, pureObjs, $0)})

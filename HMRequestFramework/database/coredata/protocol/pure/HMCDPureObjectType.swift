@@ -35,5 +35,13 @@ public protocol HMCDPureObjectBuilderType: HMBuilderType where
 
 /// Pure object classes that implement this protocol must have in-built Builder
 /// classes.
+///
+/// You may notice that pure objects need builders, but managed objects do not.
+/// In the old implementation of this framework, managed objects also had to
+/// implement the builder pattern (with their corresponding cloneBuilder(_:)).
+/// However, even with the builders there was no way to enforce immutability
+/// for those objects, since they can simply call setValue(forKey:) to mutate
+/// internal state. Therefore, builders for managed objects have been scrapped
+/// to simplify the parallel object model.
 public protocol HMCDPureObjectBuildableType: HMBuildableType where
     Builder: HMCDPureObjectBuilderType {}

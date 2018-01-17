@@ -47,8 +47,8 @@ public protocol HMCDGeneralRequestProcessorType {
         PO: HMCDPureObjectType,
         PO.CDClass: NSManagedObject,
         PO.CDClass: HMCDObjectConvertibleType,
-        PO.CDClass: HMCDObjectBuildableType,
-        PO.CDClass.Builder.PureObject == PO
+        PO.CDClass: HMCDPureObjectConvertibleType,
+        PO.CDClass.PureObject == PO
     
     /// Delete some data in memory.
     ///
@@ -116,8 +116,8 @@ public protocol HMCDGeneralRequestProcessorType {
         -> Observable<Try<[HMCDResult]>> where
         PO: HMCDPureObjectType,
         PO.CDClass: HMCDUpsertableType,
-        PO.CDClass: HMCDObjectBuildableType,
-        PO.CDClass.Builder.PureObject == PO
+        PO.CDClass: HMCDPureObjectConvertibleType,
+        PO.CDClass.PureObject == PO
     
     /// Persist all data to DB.
     ///
@@ -506,8 +506,8 @@ public extension HMCDGeneralRequestProcessorType {
         PO: HMCDPureObjectType,
         PO.CDClass: NSManagedObject,
         PO.CDClass: HMCDObjectConvertibleType,
-        PO.CDClass: HMCDObjectBuildableType,
-        PO.CDClass.Builder.PureObject == PO
+        PO.CDClass: HMCDPureObjectConvertibleType,
+        PO.CDClass.PureObject == PO
     {
         return saveToMemory(previous, qos, transforms)
     }
@@ -528,8 +528,8 @@ public extension HMCDGeneralRequestProcessorType {
         PO: HMCDPureObjectType,
         PO.CDClass: NSManagedObject,
         PO.CDClass: HMCDUpsertableType,
-        PO.CDClass: HMCDObjectBuildableType,
-        PO.CDClass.Builder.PureObject == PO
+        PO.CDClass: HMCDPureObjectConvertibleType,
+        PO.CDClass.PureObject == PO
     {
         return upsertInMemory(previous, qos, transforms)
     }

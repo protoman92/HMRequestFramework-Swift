@@ -27,16 +27,3 @@ public protocol HMCDVersionUpdatableType {
     /// - Parameter version: A String value.
     func updateVersion(_ version: String?) throws
 }
-
-/// Similar to HMVersionBuildableType, customized for CoreData.
-public protocol HMCDVersionBuildableType: HMCDObjectBuildableType {}
-
-/// Similar to HMVersionBuilderType, customized for CoreData.
-public protocol HMCDVersionBuilderType: HMCDObjectBuilderType {
-    
-    /// Set the version.
-    ///
-    /// - Parameter version: A String value denoting the version.
-    /// - Returns: The current Builder instance.
-    func with(version: String?) -> Self
-}

@@ -39,19 +39,21 @@ public final class CoreDataVersionTest: CoreDataRootTest {
         // pureObjects2 have the same version while pureObjects3 differ.
         
         editedPureObjects = (0..<dummyCount).map({(i) -> Dummy1 in
-            let dummy = Dummy1()
             let previous = pureObjects1[i]
-            dummy.id = previous.id
-            dummy.version = previous.version
-            return dummy
+            
+            return Dummy1.builder()
+                .with(id: previous.id)
+                .with(version: previous.version)
+                .build()
         })
         
         serverPureObjects = (0..<dummyCount).map({(i) -> Dummy1 in
-            let dummy = Dummy1()
             let previous = pureObjects1[i]
-            dummy.id = previous.id
-            dummy.version = (previous.version!.intValue + 1) as NSNumber
-            return dummy
+            
+            return Dummy1.builder()
+                .with(id: previous.id)
+                .with(version: (previous.version!.intValue + 1) as NSNumber)
+                .build()
         })
         
         fetchRq = try! dummy1FetchRequest().fetchRequest(Dummy1.self)

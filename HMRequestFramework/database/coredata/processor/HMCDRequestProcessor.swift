@@ -445,8 +445,8 @@ public extension HMCDRequestProcessor {
         -> Observable<Try<[HMCDResult]>> where
         PO: HMCDPureObjectType,
         PO.CDClass: HMCDObjectConvertibleType,
-        PO.CDClass: HMCDObjectBuildableType,
-        PO.CDClass.Builder.PureObject == PO
+        PO.CDClass: HMCDPureObjectConvertibleType,
+        PO.CDClass.PureObject == PO
     {
         let manager = coreDataManager()
         let context = manager.disposableObjectContext()
@@ -607,8 +607,8 @@ public extension HMCDRequestProcessor {
         -> Observable<Try<[HMCDResult]>> where
         PO: HMCDPureObjectType,
         PO.CDClass: HMCDUpsertableType,
-        PO.CDClass: HMCDObjectBuildableType,
-        PO.CDClass.Builder.PureObject == PO
+        PO.CDClass: HMCDPureObjectConvertibleType,
+        PO.CDClass.PureObject == PO
     {
         let cdManager = coreDataManager()
         let context = cdManager.disposableObjectContext()

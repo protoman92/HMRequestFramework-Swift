@@ -139,9 +139,7 @@ public extension CoreDataManagerTest {
         let pureObjects1 = (0..<dummyCount).map({_ in Dummy1()})
         
         let pureObjects2 = (0..<dummyCount).flatMap({(i) -> Dummy1 in
-            let dummy = Dummy1()
-            dummy.id = pureObjects1[i].id
-            return dummy
+            Dummy1.builder().with(id: pureObjects1[i].id).build()
         })
         
         let cdObjects1 = try! manager.constructUnsafely(context, pureObjects1)
@@ -392,9 +390,7 @@ public extension CoreDataManagerTest {
         let originalPureObjects = (0..<dummyCount).map({_ in Dummy1()})
         
         let editedPureObjects = (0..<dummyCount).map({(i) -> Dummy1 in
-            let dummy = Dummy1()
-            dummy.id = originalPureObjects[i].id
-            return dummy
+            Dummy1.builder().with(id: originalPureObjects[i].id).build()
         })
         
         let newPureObjects = (0..<dummyCount).map({_ in Dummy1()})

@@ -454,9 +454,7 @@ public extension CoreDataFRCTest {
                     
                     let replace = (0..<dummyCount).map({(i) -> Dummy1 in
                         let previous = original[i]
-                        let dummy = Dummy1()
-                        dummy.id = previous.id
-                        return dummy
+                        return Dummy1.builder().with(id: previous.id).build()
                     })
 
                     return Observable

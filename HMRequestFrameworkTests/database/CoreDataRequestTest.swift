@@ -254,11 +254,12 @@ public class CoreDataRequestTest: CoreDataRootTest {
 
         // Since we are using overwrite, we expect the upsert to still succeed.
         let pureObjects3 = (0..<times1).map({(index) -> Dummy1 in
-            let dummy = Dummy1()
             let previous = pureObjects1[index]
-            dummy.id = previous.id
-            dummy.version = (previous.version!.intValue + 1) as NSNumber
-            return dummy
+            
+            return Dummy1.builder()
+                .with(id: previous.id)
+                .with(version: (previous.version!.intValue + 1) as NSNumber)
+                .build()
         })
 
         let pureObjects23 = [pureObjects2, pureObjects3].flatMap({$0})
@@ -315,11 +316,12 @@ public class CoreDataRequestTest: CoreDataRootTest {
 
         // Since we are using error, we expect the upsert to fail.
         let pureObjects2 = (0..<times).map({(index) -> Dummy1 in
-            let dummy = Dummy1()
             let previous = pureObjects1[index]
-            dummy.id = previous.id
-            dummy.version = (previous.version!.intValue + 1) as NSNumber
-            return dummy
+            
+            return Dummy1.builder()
+                .with(id: previous.id)
+                .with(version: (previous.version!.intValue + 1) as NSNumber)
+                .build()
         })
 
         let cdObjects2 = try! manager.constructUnsafely(context, pureObjects2)
