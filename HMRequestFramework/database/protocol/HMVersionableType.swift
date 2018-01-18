@@ -10,6 +10,7 @@
 /// can be updated and compared. This is done so to prevent race conditions when
 /// we read/modify/save some objects from/to the DB.
 public protocol HMVersionableType {
+    typealias MergeFn = (HMVersionableType, HMVersionableType) throws -> Void
     
     /// Get the current version.
     ///
@@ -29,4 +30,15 @@ public protocol HMVersionableType {
     /// - Returns: A Bool value.
     /// - Throws: Exception if the operation fails.
     func hasPreferableVersion(over obj: HMVersionableType) throws -> Bool
+    
+    /// Merge with another object with a different version.
+    ///
+    /// - Parameter obj: A HMVersionableType instance.
+    /// - Throws: Exception if the merge fails.
+    func mergeWithOriginalVersion(_ obj: HMVersionableType) throws
+    
+    /// Update the version by mutating property.
+    ///
+    /// - Parameter version: A String value.
+    func updateVersion(_ version: String?) throws
 }

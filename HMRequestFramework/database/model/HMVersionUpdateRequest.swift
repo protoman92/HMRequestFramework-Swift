@@ -16,7 +16,7 @@ public struct HMVersionUpdateRequest<VC> {
     fileprivate var strategy: VersionConflict.Strategy
     
     fileprivate init() {
-        strategy = .error
+        strategy = .takePreferable
     }
     
     public func originalVC() throws -> VC {

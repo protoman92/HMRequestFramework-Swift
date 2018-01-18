@@ -26,15 +26,41 @@ public final class VersionConflict {
     /// Specify the strategy to apply when a version conflict is encountered.
     ///
     /// - error: Throw an Error.
+    /// - merge: Merge the objects based on some merging strategy.
     /// - overwrite: Ignore and continue the update.
     /// - takePreferable: Take the ones with preferable versions.
-    public enum Strategy: EnumerableType {
+    public enum Strategy {
         case error
+        case merge(HMVersionableType.MergeFn?)
         case overwrite
         case takePreferable
         
-        public static func allValues() -> [VersionConflict.Strategy] {
-            return [.error, .overwrite, .takePreferable]
+        public func isError() -> Bool {
+            switch self {
+            case .error: return true
+            default: return false
+            }
+        }
+        
+        public func isMerge() -> Bool {
+            switch self {
+            case .merge: return true
+            default: return false
+            }
+        }
+        
+        public func isOverwrite() -> Bool {
+            switch self {
+            case .overwrite: return true
+            default: return false
+            }
+        }
+        
+        public func isTakePreferable() -> Bool {
+            switch self {
+            case .takePreferable: return true
+            default: return false
+            }
         }
     }
     

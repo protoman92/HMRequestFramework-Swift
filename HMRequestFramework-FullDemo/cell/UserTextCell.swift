@@ -57,7 +57,6 @@ public final class UserTextCell: UITableViewCell {
         
         let propStream = vm.userPropertyStream()
             .mapNonNilOrEmpty()
-            .distinctUntilChanged()
             .shareReplay(1)
         
         propStream
@@ -114,9 +113,20 @@ public struct UserTextCellModel: UserTextCellModelType {
         let prev = user.map({[$0]})
         let qos: DispatchQoS.QoSClass = .background
         
+        /// Simulate concurrent database modifications. The version control
+        /// mechanism should take care of the conflict, based on the specified
+        /// resolutation strategy.
         return Observable.just(())
             .delay(2, scheduler: ConcurrentDispatchQueueScheduler(qos: qos))
-            .flatMap({_ in provider.dbRequestManager.upsertInMemory(prev, qos)})
+            .flatMap({_ in provider.dbRequestManager.upsertInMemory(prev, qos, {
+                Observable.just($0.cloneBuilder()
+                    .with(vcStrategy: .merge(nil))
+                    .build())
+            })})
+            .map({$0.map({$0.map({$0.asTry()})})})
+            .map({$0.flatMap({$0.reduce(Try.success([]), {
+                return $0.zipWith($1, {$0 + [$1]})
+            })})})
             .map({$0.map(toVoid)})
     }
     

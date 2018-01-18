@@ -219,13 +219,13 @@ public extension HMCDRequestProcessor {
         let versionables = data.flatMap({$0 as? HMCDVersionableType})
         let nonVersionables = data.filter({!($0 is HMCDVersionableType)})
         let vRequests = try request.updateRequest(versionables)
-        let versionContext = manager.disposableObjectContext()
-        let upsertContext = manager.disposableObjectContext()
+        let vContext = manager.disposableObjectContext()
+        let uContext = manager.disposableObjectContext()
         
         return Observable
             .concat(
-                manager.rx.updateVersion(versionContext, entityName, vRequests, opMode),
-                manager.rx.upsert(upsertContext, entityName, nonVersionables, opMode)
+                manager.rx.updateVersion(vContext, entityName, vRequests, opMode),
+                manager.rx.upsert(uContext, entityName, nonVersionables, opMode)
             )
             .reduce([], accumulator: +)
             .map(Try.success)
@@ -567,7 +567,7 @@ public extension HMCDRequestProcessor {
             .with(cdType: U.self)
             .with(operation: .upsert)
             .with(upsertedData: data.map({$0 as HMCDUpsertableType}))
-            .with(vcStrategy: .overwrite)
+            .with(vcStrategy: .takePreferable)
             .with(description: "Upsert \(U.self) in memory")
             .shouldApplyMiddlewares()
             .build()

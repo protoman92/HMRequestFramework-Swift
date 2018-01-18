@@ -333,11 +333,9 @@ public class CoreDataRequestTest: CoreDataRootTest {
         /// When
         // Insert the first set of data.
         dbProcessor.saveToMemory(Try.success(pureObjects1), qos)
-            .map({$0.map({$0 as Any})})
 
             // Persist changes to DB.
             .flatMap({dbProcessor.persistToDB($0, qos)})
-            .map({$0.map({$0 as Any})})
 
             .flatMap({dbProcessor.fetchAllDataFromDB($0, Dummy1.self, qos)})
             .map({try $0.getOrThrow()})
@@ -347,11 +345,9 @@ public class CoreDataRequestTest: CoreDataRootTest {
 
             // Upsert the second set of data.
             .flatMap({dbProcessor.process($0, upsertGn, upsertPs, qos)})
-            .map({$0.map({$0 as Any})})
 
             // Persist changes to DB.
             .flatMap({dbProcessor.persistToDB($0, qos)})
-            .map({$0.map({$0 as Any})})
 
             // Fetch all data to check that the upsert failed.
             .flatMap({dbProcessor.fetchAllDataFromDB($0, Dummy1.self, qos)})

@@ -165,21 +165,18 @@ public extension UserProfileVC {
         
         vm.userNameStream()
             .mapNonNilOrElse("No information yet")
-            .distinctUntilChanged()
             .observeOnMain()
             .bind(to: nameLbl.rx.text)
             .disposed(by: disposeBag)
         
         vm.userAgeStream()
             .mapNonNilOrElse("No information yet")
-            .distinctUntilChanged()
             .observeOnMain()
             .bind(to: ageLbl.rx.text)
             .disposed(by: disposeBag)
         
         vm.userVisibilityStream()
             .mapNonNilOrElse("No information yet")
-            .distinctUntilChanged()
             .observeOnMain()
             .bind(to: visibleLbl.rx.text)
             .disposed(by: disposeBag)
@@ -313,7 +310,7 @@ public struct UserProfileViewModel {
     
     public func userOnInsertTriggered() -> Observable<User> {
         return insertUserStream().map({User.builder()
-            .with(name: "DefaultName-\(String.random(withLength: 5))")
+            .with(name: "Hai Pham - \(String.random(withLength: 5))")
             .with(id: UUID().uuidString)
             .with(age: NSNumber(value: Int.randomBetween(10, 99)))
             .with(visible: NSNumber(value: Bool.random()))

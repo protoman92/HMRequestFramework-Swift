@@ -21,6 +21,7 @@ public final class CoreDataVersionTest: CoreDataRootTest {
     fileprivate var serverPureObjects: [Dummy1]!
     fileprivate var strategies: [VersionConflict.Strategy]!
     fileprivate var errorCount: Int!
+    fileprivate var mergeCount: Int!
     fileprivate var overwriteCount: Int!
     fileprivate var takePreferableCount: Int!
     fileprivate var fetchRq: NSFetchRequest<Dummy1.CDClass>!
@@ -31,9 +32,10 @@ public final class CoreDataVersionTest: CoreDataRootTest {
         super.setUp()
         let dummyCount = updateCount
         strategies = randomStrategies(dummyCount)
-        errorCount = strategies.filter({$0 == .error}).count
-        overwriteCount = strategies.filter({$0 == .overwrite}).count
-        takePreferableCount = strategies.filter({$0 == .takePreferable}).count
+        errorCount = strategies.filter({$0.isError()}).count
+        mergeCount = strategies.filter({$0.isMerge()}).count
+        overwriteCount = strategies.filter({$0.isOverwrite()}).count
+        takePreferableCount = strategies.filter({$0.isTakePreferable()}).count
         pureObjects1 = (0..<dummyCount).map({_ in Dummy1()})
         
         // pureObjects2 have the same version while pureObjects3 differ.
@@ -68,6 +70,7 @@ public final class CoreDataVersionTest: CoreDataRootTest {
         let entityName = self.entityName!
         let strategies = self.strategies!
         let errorCount = self.errorCount!
+        let mergeCount = self.mergeCount!
         let overwriteCount = self.overwriteCount!
         let takePreferableCount = self.takePreferableCount!
         let context = manager.disposableObjectContext()
@@ -113,19 +116,23 @@ public final class CoreDataVersionTest: CoreDataRootTest {
         /// Then
         let nextElements = observer.nextElements()
         var resultOverwriteCount = 0
-        var otherCount = 0
+        var resultMergeCount = 0
+        var resultOtherCount = 0
 
         for element in nextElements {
             if editedPureObjects.contains(element) {
                 resultOverwriteCount += 1
+            } else if element.int64 == versionMergeCode {
+                resultMergeCount += 1
             } else if serverPureObjects.contains(element) {
-                otherCount += 1
+                resultOtherCount += 1
             }
         }
 
         XCTAssertEqual(nextElements.count, updateCount)
         XCTAssertEqual(resultOverwriteCount, overwriteCount)
-        XCTAssertEqual(otherCount, errorCount + takePreferableCount)
+        XCTAssertEqual(resultMergeCount, mergeCount)
+        XCTAssertEqual(resultOtherCount, errorCount + takePreferableCount)
     }
     
     public func test_versionControlWithNonExistingItem_shouldWork() {
@@ -184,9 +191,19 @@ public final class CoreDataVersionTest: CoreDataRootTest {
 }
 
 public extension CoreDataVersionTest {
-    func randomStrategies(_ times: Int) -> [VersionConflict.Strategy] {
+    fileprivate var versionMergeCode: NSNumber {
+        return NSNumber(value: Int64(999999999))
+    }
+    
+    fileprivate func mergeFn(a: HMVersionableType, b: HMVersionableType) throws {
+        let a1 = a as! CDDummy1
+        a1.int64 = versionMergeCode
+    }
+    
+    fileprivate func randomStrategies(_ times: Int) -> [VersionConflict.Strategy] {
         let strategies: [VersionConflict.Strategy] = [
             .error,
+            .merge(self.mergeFn),
             .overwrite,
             .takePreferable
         ]

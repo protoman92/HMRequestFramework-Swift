@@ -16,11 +16,13 @@ public class RootTest: XCTestCase {
     public var disposeBag: DisposeBag!
     public var singleton: SingletonType!
     public var scheduler: TestScheduler!
+    public var timeout: TimeInterval!
     
     override public func setUp() {
         super.setUp()
         disposeBag = DisposeBag()
         singleton = Singleton.create(.InMemory)
         scheduler = TestScheduler(initialClock: 0)
+        timeout = 10
     }
 }

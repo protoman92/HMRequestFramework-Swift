@@ -32,6 +32,7 @@ public struct TrackedObjectManager {
             .flatMap({HMCDEvents.didLoadSections($0)})
             .map({$0.flatMap({$0.objects})})
             .map({$0.first.asTry(error: "No user found")})
+            .observeOnConcurrent(qos: .userInteractive)
             .subscribe(dbUser)
             .disposed(by: disposeBag)
     }

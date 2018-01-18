@@ -42,7 +42,8 @@ public final class CDUser: NSManagedObject {
 
 extension CDUser: UserType {}
 
-extension CDUser: HMCDObjectMasterType {
+/// Version control to enable optimistic locking.
+extension CDUser: HMCDVersionableMasterType {
     public typealias PureObject = User
     
     public static func cdAttributes() throws -> [NSAttributeDescription]? {
@@ -85,6 +86,44 @@ extension CDUser: HMCDObjectMasterType {
         age = object.age
         visible = object.visible
         updatedAt = object.updatedAt
+    }
+    
+    fileprivate func versionDateFormat() -> String {
+        return "yyyy/MM/dd hh:mm:ss a"
+    }
+    
+    fileprivate func formatDateForVersioning(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = versionDateFormat()
+        return formatter.string(from: date)
+    }
+    
+    fileprivate func convertVersionToDate(_ string: String) -> Date? {
+        let formatter = DateFormatter()
+        formatter.dateFormat = versionDateFormat()
+        return formatter.date(from: string)
+    }
+    
+    public func currentVersion() -> String? {
+        return updatedAt.map({formatDateForVersioning($0)})
+    }
+    
+    public func oneVersionHigher() -> String? {
+        return formatDateForVersioning(Date())
+    }
+    
+    public func hasPreferableVersion(over obj: HMVersionableType) throws -> Bool {
+        let date = obj.currentVersion().flatMap({convertVersionToDate($0)})
+        return updatedAt.zipWith(date, {$0 >= $1}).getOrElse(false)
+    }
+    
+    public func mergeWithOriginalVersion(_ obj: HMVersionableType) throws {
+        name = "MergedDueToVersionConflict"
+        age = 999
+    }
+    
+    public func updateVersion(_ version: String?) throws {
+        updatedAt = version.flatMap({convertVersionToDate($0)})
     }
 }
 
@@ -158,7 +197,9 @@ extension User: HMCDPureObjectMasterType {
             return self
         }
         
-        public func with(updatedAt date: Date?) -> Self {
+        /// Do not allow external modifications since this is also used for
+        /// version control.
+        fileprivate func with(updatedAt date: Date?) -> Self {
             user._updatedAt = date
             return self
         }
@@ -193,7 +234,8 @@ extension User.Builder: HMCDPureObjectBuilderMasterType {
 
 extension User: CustomStringConvertible {
     public var description: String {
-        return id.getOrElse("No id present")
+        return age.map({String(describing: $0)}).getOrElse("")
+//        return id.getOrElse("No id present")
     }
 }
 

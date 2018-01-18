@@ -31,9 +31,8 @@ public extension HMCDManager {
     ///   - context: A Context instance.
     ///   - request: A HMVersionUpdateRequest instance.
     /// - Throws: Exception if the operation fails.
-    func resolveVersionConflictUnsafely(
-        _ context: Context,
-        _ request: HMCDVersionUpdateRequest) throws
+    func resolveVersionConflictUnsafely(_ context: Context,
+                                        _ request: HMCDVersionUpdateRequest) throws
     {
         let original = try request.originalVC()
         let edited = try request.editedVC()
@@ -44,6 +43,10 @@ public extension HMCDManager {
                 .with(existingVersion: original.currentVersion())
                 .with(conflictVersion: edited.currentVersion())
                 .build()
+            
+        case .merge(let fn):
+            try fn?(edited, original) ?? edited.mergeWithOriginalVersion(original)
+            try attempVersionUpdateUnsafely(context, request)
             
         case .overwrite:
             try attempVersionUpdateUnsafely(context, request)

@@ -20,23 +20,20 @@ public extension TrackedObjectManagerTest {
     public func test_multipleSavingOperations_shouldWorkCorrectly() {
         /// Setup
         let observer = scheduler.createObserver(User.self)
+        let expect = expectation(description: "Should have completed")
         let disposeBag = self.disposeBag!
         let singleton = self.singleton!
         let rqManager = singleton.dbRequestManager
-        let times = 5
+        let times = 100
         let qos: DispatchQoS.QoSClass = .background
         
-        let users = (0..<times).map({User.builder()
+        let users = (0..<times).map({_ in User.builder()
             .with(id: UUID().uuidString)
             .with(name: String.random(withLength: 10))
             .with(age: NSNumber(value: Int.randomBetween(0, 99)))
             .with(visible: NSNumber(value: Bool.random()))
-            .with(updatedAt: Date().addingTimeInterval(Double($0 * 100000)))
             .build()
         })
-        
-        users.forEach({print($0)})
-        print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
         
         singleton.trackedObjectManager.dbUserStream()
             .mapNonNilOrEmpty()
@@ -44,27 +41,19 @@ public extension TrackedObjectManagerTest {
             .disposed(by: disposeBag)
         
         /// When
-        let saveOps = users.enumerated().map({(i, user) -> () -> Void in {
-            background(closure: {
-                let prev = Try.success([user])
-                let delay = Double(i) / 50
-                let scheduler = ConcurrentDispatchQueueScheduler(qos: .background)
-                print("Delay: \(delay) for \(user)")
-                
-                Observable.just(())
-                    .delay(delay, scheduler: scheduler)
-                    .flatMap({_ in rqManager.upsertInMemory(prev, qos)})
-                    .map({$0.map(toVoid)})
-                    .subscribe()
-                    .disposed(by: disposeBag)
+        Observable.from(users)
+            .flatMap({rqManager.upsertInMemory(Try.success([$0]), qos)
+                .delay(0.2, scheduler: ConcurrentDispatchQueueScheduler(qos: qos))
             })
-        }})
+            .reduce(Try.success([]), accumulator: {$0.zipWith($1, +)})
+            .doOnDispose(expect.fulfill)
+            .subscribe()
+            .disposed(by: disposeBag)
         
-        saveOps.forEach({$0()})
-        waitOnMainThread(Double(times) * 0.2)
+        waitForExpectations(timeout: timeout!, handler: nil)
         
         /// Then
         let nextElements = observer.nextElements()
-        XCTAssertEqual(nextElements, users)
+        XCTAssertEqual(nextElements.count, users.count)
     }
 }

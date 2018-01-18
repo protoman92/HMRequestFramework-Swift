@@ -162,6 +162,8 @@ extension CDDummy1: HMCDVersionableMasterType {
         }
     }
     
+    public func mergeWithOriginalVersion(_ obj: HMVersionableType) throws {}
+    
     public func updateVersion(_ version: String?) {
         if let version = version, let dbl = Double(version) {
             self.version = NSNumber(value: dbl).intValue as NSNumber

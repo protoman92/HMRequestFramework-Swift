@@ -15,15 +15,4 @@ import CoreData
 public protocol HMCDVersionableType:
     HMVersionableType,              // Minimally versionable.
     HMCDUpsertableType,             // Upsertable in DB.
-    HMCDKeyValueUpdatableType,      // Updatable with key-value pairs.
-    HMCDVersionUpdatableType {}     // Updatable w.r.t version.
-
-/// Classes that implement this protocol must be able to update version. Since
-/// this protocol implies mutation, we should avoid using it as much as possible.
-public protocol HMCDVersionUpdatableType {
-    
-    /// Update the version by mutating property.
-    ///
-    /// - Parameter version: A String value.
-    func updateVersion(_ version: String?) throws
-}
+    HMCDKeyValueUpdatableType {}    // Updatable with key-value pairs.
