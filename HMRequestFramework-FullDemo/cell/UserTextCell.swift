@@ -117,7 +117,7 @@ public struct UserTextCellModel: UserTextCellModelType {
         /// mechanism should take care of the conflict, based on the specified
         /// resolutation strategy.
         return Observable.just(())
-            .delay(2, scheduler: ConcurrentDispatchQueueScheduler(qos: qos))
+            .delay(0.1, scheduler: ConcurrentDispatchQueueScheduler(qos: qos))
             .flatMap({_ in provider.dbRequestManager.upsertInMemory(prev, qos, {
                 Observable.just($0.cloneBuilder()
                     .with(vcStrategy: .merge(nil))

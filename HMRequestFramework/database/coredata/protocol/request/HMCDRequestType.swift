@@ -61,7 +61,8 @@ public extension HMCDRequestType {
     /// - Parameter versionables: A Sequence of versionable objects.
     /// - Returns: An Array of HMCDVersionUpdateRequest.
     /// - Throws: Exception if the operation fails.
-    public func updateRequest<S>(_ versionables: S) throws -> [HMCDVersionUpdateRequest] where
+    public func updateRequest<S>(_ versionables: S) throws
+        -> [HMCDVersionUpdateRequest] where
         S: Sequence, S.Element == HMCDVersionableType
     {
         let conflictStrategy = try versionConflictStrategy()

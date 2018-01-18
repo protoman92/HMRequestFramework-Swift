@@ -33,7 +33,7 @@ public struct TrackedObjectManager {
             .map({$0.flatMap({$0.objects})})
             .map({$0.first.asTry(error: "No user found")})
             .observeOnConcurrent(qos: .userInteractive)
-            .subscribe(dbUser)
+            .bind(to: dbUser)
             .disposed(by: disposeBag)
     }
     

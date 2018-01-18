@@ -31,7 +31,11 @@ extension AnimatableSectionModel where Section == String {
     }
 }
 
-// Please do not use forced unwraps in production apps.
+/// Please do not use forced unwraps in production apps.
+///
+/// This is a very poor implementation of a view controller. Its only purpose
+/// is to showcase some techniques supported by the request framework, and under
+/// no circumstances should it be treated as sample code.
 public final class FRCController: UIViewController {
     typealias Section = HMCDAnimatableSection<Dummy1>
     typealias DataSource = TableViewSectionedDataSource<Section>
@@ -44,7 +48,7 @@ public final class FRCController: UIViewController {
     @IBOutlet private weak var frcTableView: UITableView!
     @IBOutlet private weak var scrollView: UIScrollView!
     
-    private let dummyCount = 100
+    private let dummyCount = 10
     private let dateMilestone = Date.random() ?? Date()
     
     private var contentHeight: NSLayoutConstraint? {
@@ -99,11 +103,7 @@ public final class FRCController: UIViewController {
         frcTableView.rx.setDelegate(self).disposed(by: disposeBag)
         
         frcTableView.rx.contentSize
-            .doOnNext({[weak self] in
-                if let `self` = self {
-                    self.contentSizeChanged($0, self)
-                }
-            })
+            .doOnNext({[weak self] cs in self.map({$0.contentSizeChanged(cs, $0)})})
             .map(toVoid)
             .subscribe()
             .disposed(by: disposeBag)
@@ -194,7 +194,7 @@ public final class FRCController: UIViewController {
             .streamPaginatedDBEvents(
                 Dummy1.self, pageObs,
                 HMCDPagination.builder()
-                    .with(fetchLimit: 10)
+                    .with(fetchLimit: 5)
                     .with(fetchOffset: 0)
                     .with(paginationMode: .fixedPageCount)
                     .build(), qos,
@@ -202,7 +202,7 @@ public final class FRCController: UIViewController {
                     Observable.just($0.cloneBuilder()
                         .with(predicate: NSPredicate(value: true))
                         .add(ascendingSortWithKey: "date")
-                        .with(frcSectionName: "id")
+                        .with(frcSectionName: "date")
                         .with(frcCacheName: "FRC_Dummy1")
                         .build())
                 }

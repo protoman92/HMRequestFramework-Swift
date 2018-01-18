@@ -529,9 +529,6 @@
 		D34767131F5003F1006C8E9E /* protocol */ = {
 			isa = PBXGroup;
 			children = (
-				D395205E200F3169003B9E81 /* request */,
-				D395205D200F312A003B9E81 /* pure */,
-				D395205C200F311F003B9E81 /* managed */,
 				D37D0BC81F25F2EE0032C6AB /* HMCDConstructorType.swift */,
 				D399C7F31F4ACFF90083C130 /* HMCDGeneralRequestProcessorType.swift */,
 				D3206FBA1F55C68C006AEDDF /* HMCDPaginationMultipleType.swift */,
@@ -539,6 +536,9 @@
 				D37D0B6D1F25E1BE0032C6AB /* HMCDRequestProcessorType.swift */,
 				D3A295361F81FAEF00F10756 /* HMCDResultControllerType.swift */,
 				D325C4111F512E1B00FC802C /* HMCDSectionType.swift */,
+				D395205C200F311F003B9E81 /* managed */,
+				D395205D200F312A003B9E81 /* pure */,
+				D395205E200F3169003B9E81 /* request */,
 			);
 			path = protocol;
 			sourceTree = "<group>";
@@ -609,11 +609,11 @@
 		D378D6CA1F25E088009B89B2 = {
 			isa = PBXGroup;
 			children = (
+				2EBC354C778D426DD12A8747 /* Frameworks */,
+				D378D6D61F25E088009B89B2 /* HMRequestFramework */,
 				D39BDA9B1F4E6B5500A397BD /* HMRequestFramework-Demo */,
 				D3F59B58200F50C100EB5960 /* HMRequestFramework-FullDemo */,
 				D3F59B70200F50C100EB5960 /* HMRequestFramework-FullDemoTests */,
-				2EBC354C778D426DD12A8747 /* Frameworks */,
-				D378D6D61F25E088009B89B2 /* HMRequestFramework */,
 				D3B54E061F283BAE006A46E9 /* HMRequestFramework.podspec */,
 				D378D6E11F25E088009B89B2 /* HMRequestFrameworkTests */,
 				060145948BA8308B82232F3B /* Pods */,
