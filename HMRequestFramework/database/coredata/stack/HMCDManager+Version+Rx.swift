@@ -40,6 +40,8 @@ public extension HMCDManager {
         switch request.conflictStrategy() {
         case .error:
             throw VersionConflict.Exception.builder()
+                .with(editedRepr: edited.stringRepresentationForResult())
+                .with(originalRepr: original.stringRepresentationForResult())
                 .with(existingVersion: original.currentVersion())
                 .with(conflictVersion: edited.currentVersion())
                 .build()

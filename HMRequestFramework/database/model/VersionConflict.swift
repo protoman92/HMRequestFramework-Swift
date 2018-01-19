@@ -11,8 +11,18 @@ import SwiftUtilities
 /// This class contains convenient enums to deal with version conflicts.
 public final class VersionConflict {
     public struct Exception {
+        fileprivate var editedRepr: String?
+        fileprivate var originalRepr: String?
         fileprivate var existingVer: String?
         fileprivate var conflictVer: String?
+        
+        public func editedObjectRepresentation() -> String? {
+            return editedRepr
+        }
+        
+        public func originalObjectRepresentation() -> String? {
+            return originalRepr
+        }
         
         public func existingVersion() -> String? {
             return existingVer
@@ -69,6 +79,28 @@ public final class VersionConflict {
 
 extension VersionConflict.Exception: Error {}
 
+extension VersionConflict.Exception: LocalizedError {
+    public var cause: Error {
+        return self
+    }
+    
+    public var localizedDescription: String {
+        return errorDescription ?? ""
+    }
+    
+    public var errorDescription: String? {
+        return originalRepr.zipWith(editedRepr, {($0, $1)})
+            .zipWith(existingVer, {($0.0, $0.1, $1)})
+            .zipWith(conflictVer, {($0.0, $0.1, $0.2, $1)})
+            .map({""
+                + "Conflict encountered while updating original object \"\($0)\" "
+                + "using edited object \"\($1)\".\n"
+                + "Existing version: \($2)\n"
+                + "Conflict version: \($3)."})
+            .getOrElse("Unable to get error message")
+    }
+}
+
 extension VersionConflict.Exception: HMBuildableType {
     public static func builder() -> Builder {
         return Builder()
@@ -79,6 +111,24 @@ extension VersionConflict.Exception: HMBuildableType {
         
         fileprivate init() {
             exception = VersionConflict.Exception()
+        }
+        
+        /// Set the edited object representation.
+        ///
+        /// - Parameter editedRepr: A String value.
+        /// - Returns: The current Builder instance.
+        public func with(editedRepr: String?) -> Self {
+            exception.editedRepr = editedRepr
+            return self
+        }
+        
+        /// Set the original object representation.
+        ///
+        /// - Parameter originalRepr: A String value.
+        /// - Returns: The current Builder instance.
+        public func with(originalRepr: String?) -> Self {
+            exception.originalRepr = originalRepr
+            return self
         }
         
         /// Set the existing version.
@@ -113,6 +163,8 @@ extension VersionConflict.Exception.Builder: HMBuilderType {
     public func with(buildable: Buildable?) -> Self {
         if let buildable = buildable {
             return self
+                .with(editedRepr: buildable.editedRepr)
+                .with(originalRepr: buildable.originalRepr)
                 .with(existingVersion: buildable.existingVer)
                 .with(conflictVersion: buildable.conflictVer)
         } else {

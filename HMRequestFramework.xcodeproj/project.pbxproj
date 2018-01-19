@@ -19,6 +19,10 @@
 		D30B85BE1F4FBCC8008F8CD1 /* HMMiddlewareFilters.swift in Sources */ = {isa = PBXBuildFile; fileRef = D30B85BD1F4FBCC8008F8CD1 /* HMMiddlewareFilters.swift */; };
 		D31002C4200F6C4C0043C6CE /* SingletonType.swift in Sources */ = {isa = PBXBuildFile; fileRef = D31002C3200F6C4C0043C6CE /* SingletonType.swift */; };
 		D31002C8200F6FBF0043C6CE /* TrackedObjectManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D31002C7200F6FBF0043C6CE /* TrackedObjectManager.swift */; };
+		D310A046201265F400F96648 /* NavigationVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = D310A045201265F400F96648 /* NavigationVC.swift */; };
+		D310A048201266C400F96648 /* ReduxReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = D310A047201266C400F96648 /* ReduxReducer.swift */; };
+		D310A04B2012694F00F96648 /* MainVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = D310A04A2012694F00F96648 /* MainVC.swift */; };
+		D310A04D20126A8300F96648 /* NavigationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = D310A04C20126A8300F96648 /* NavigationService.swift */; };
 		D31C58761F278A8A00C8D8CC /* HMProtocolConvertibleType.swift in Sources */ = {isa = PBXBuildFile; fileRef = D31C58751F278A8A00C8D8CC /* HMProtocolConvertibleType.swift */; };
 		D3206FB91F55C445006AEDDF /* HMCDPaginationProviderType.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3206FB81F55C445006AEDDF /* HMCDPaginationProviderType.swift */; };
 		D3206FBB1F55C68C006AEDDF /* HMCDPaginationMultipleType.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3206FBA1F55C68C006AEDDF /* HMCDPaginationMultipleType.swift */; };
@@ -225,6 +229,10 @@
 		D30B85BD1F4FBCC8008F8CD1 /* HMMiddlewareFilters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMMiddlewareFilters.swift; sourceTree = "<group>"; };
 		D31002C3200F6C4C0043C6CE /* SingletonType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SingletonType.swift; sourceTree = "<group>"; };
 		D31002C7200F6FBF0043C6CE /* TrackedObjectManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackedObjectManager.swift; sourceTree = "<group>"; };
+		D310A045201265F400F96648 /* NavigationVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationVC.swift; sourceTree = "<group>"; };
+		D310A047201266C400F96648 /* ReduxReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReduxReducer.swift; sourceTree = "<group>"; };
+		D310A04A2012694F00F96648 /* MainVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainVC.swift; sourceTree = "<group>"; };
+		D310A04C20126A8300F96648 /* NavigationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationService.swift; sourceTree = "<group>"; };
 		D31C58751F278A8A00C8D8CC /* HMProtocolConvertibleType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HMProtocolConvertibleType.swift; sourceTree = "<group>"; };
 		D3206FB81F55C445006AEDDF /* HMCDPaginationProviderType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMCDPaginationProviderType.swift; sourceTree = "<group>"; };
 		D3206FBA1F55C68C006AEDDF /* HMCDPaginationMultipleType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMCDPaginationMultipleType.swift; sourceTree = "<group>"; };
@@ -448,10 +456,28 @@
 		D31002C2200F6C340043C6CE /* dependency */ = {
 			isa = PBXGroup;
 			children = (
+				D310A04C20126A8300F96648 /* NavigationService.swift */,
+				D310A047201266C400F96648 /* ReduxReducer.swift */,
 				D31002C3200F6C4C0043C6CE /* SingletonType.swift */,
 				D31002C7200F6FBF0043C6CE /* TrackedObjectManager.swift */,
 			);
 			path = dependency;
+			sourceTree = "<group>";
+		};
+		D310A044201265E200F96648 /* navigator */ = {
+			isa = PBXGroup;
+			children = (
+				D310A045201265F400F96648 /* NavigationVC.swift */,
+			);
+			path = navigator;
+			sourceTree = "<group>";
+		};
+		D310A0492012693F00F96648 /* main */ = {
+			isa = PBXGroup;
+			children = (
+				D310A04A2012694F00F96648 /* MainVC.swift */,
+			);
+			path = main;
 			sourceTree = "<group>";
 		};
 		D31C58551F27861800C8D8CC /* dependency */ = {
@@ -529,6 +555,7 @@
 		D34767131F5003F1006C8E9E /* protocol */ = {
 			isa = PBXGroup;
 			children = (
+				D3351DC31F53BEB2001EC2B1 /* HMCDTypealiasType.swift */,
 				D37D0BC81F25F2EE0032C6AB /* HMCDConstructorType.swift */,
 				D399C7F31F4ACFF90083C130 /* HMCDGeneralRequestProcessorType.swift */,
 				D3206FBA1F55C68C006AEDDF /* HMCDPaginationMultipleType.swift */,
@@ -793,7 +820,6 @@
 				D32F6C1A1F3C1C94004F7133 /* HMCDObjectAliasType.swift */,
 				D33CAAB21F3C50060000EE13 /* HMCDObjectConvertibleType.swift */,
 				D398B7941F265CAC00DCE4D8 /* HMCDObjectType.swift */,
-				D3351DC31F53BEB2001EC2B1 /* HMCDTypealiasType.swift */,
 				D38D24981F3DFED00055E5BA /* HMCDUpsertableType.swift */,
 				D352E29C1F3AF226001FD55E /* HMCDVersionableType.swift */,
 			);
@@ -905,6 +931,8 @@
 		D3F59B7C200F524000EB5960 /* controller */ = {
 			isa = PBXGroup;
 			children = (
+				D310A0492012693F00F96648 /* main */,
+				D310A044201265E200F96648 /* navigator */,
 				D3F59B7F200F55F100EB5960 /* profile */,
 			);
 			path = controller;
@@ -1337,6 +1365,7 @@
 				"${BUILT_PRODUCTS_DIR}/SwiftUtilities/SwiftUtilities.framework",
 				"${BUILT_PRODUCTS_DIR}/RxTest/RxTest.framework",
 				"${BUILT_PRODUCTS_DIR}/SwiftUtilitiesTests/SwiftUtilitiesTests.framework",
+				"${BUILT_PRODUCTS_DIR}/HMReactiveRedux/HMReactiveRedux.framework",
 				"${BUILT_PRODUCTS_DIR}/RxDataSources/RxDataSources.framework",
 				"${BUILT_PRODUCTS_DIR}/SwiftUIUtilities/SwiftUIUtilities.framework",
 			);
@@ -1352,6 +1381,7 @@
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftUtilities.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxTest.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftUtilitiesTests.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/HMReactiveRedux.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxDataSources.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftUIUtilities.framework",
 			);
@@ -1426,6 +1456,7 @@
 				"${BUILT_PRODUCTS_DIR}/RxReachability/RxReachability.framework",
 				"${BUILT_PRODUCTS_DIR}/RxSwift/RxSwift.framework",
 				"${BUILT_PRODUCTS_DIR}/SwiftUtilities/SwiftUtilities.framework",
+				"${BUILT_PRODUCTS_DIR}/HMReactiveRedux/HMReactiveRedux.framework",
 				"${BUILT_PRODUCTS_DIR}/RxDataSources/RxDataSources.framework",
 				"${BUILT_PRODUCTS_DIR}/SwiftUIUtilities/SwiftUIUtilities.framework",
 			);
@@ -1439,6 +1470,7 @@
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxReachability.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxSwift.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftUtilities.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/HMReactiveRedux.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxDataSources.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftUIUtilities.framework",
 			);
@@ -1513,6 +1545,7 @@
 				"${BUILT_PRODUCTS_DIR}/RxReachability/RxReachability.framework",
 				"${BUILT_PRODUCTS_DIR}/RxSwift/RxSwift.framework",
 				"${BUILT_PRODUCTS_DIR}/SwiftUtilities/SwiftUtilities.framework",
+				"${BUILT_PRODUCTS_DIR}/HMReactiveRedux/HMReactiveRedux.framework",
 				"${BUILT_PRODUCTS_DIR}/RxDataSources/RxDataSources.framework",
 				"${BUILT_PRODUCTS_DIR}/SwiftUIUtilities/SwiftUIUtilities.framework",
 			);
@@ -1526,6 +1559,7 @@
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxReachability.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxSwift.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftUtilities.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/HMReactiveRedux.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxDataSources.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftUIUtilities.framework",
 			);
@@ -1685,11 +1719,15 @@
 			buildActionMask = 2147483647;
 			files = (
 				D31002C8200F6FBF0043C6CE /* TrackedObjectManager.swift in Sources */,
+				D310A04B2012694F00F96648 /* MainVC.swift in Sources */,
 				D3F59B8B200F5C0B00EB5960 /* UserInformation.swift in Sources */,
 				D3F59B7E200F525300EB5960 /* User.swift in Sources */,
 				D3F59B89200F588400EB5960 /* UserTextCell.swift in Sources */,
 				D31002C4200F6C4C0043C6CE /* SingletonType.swift in Sources */,
 				D3F59B5A200F50C100EB5960 /* AppDelegate.swift in Sources */,
+				D310A04D20126A8300F96648 /* NavigationService.swift in Sources */,
+				D310A048201266C400F96648 /* ReduxReducer.swift in Sources */,
+				D310A046201265F400F96648 /* NavigationVC.swift in Sources */,
 				D3F59B81200F560700EB5960 /* UserProfileVC.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

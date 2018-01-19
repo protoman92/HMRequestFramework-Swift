@@ -6,6 +6,7 @@
 //  Copyright © 2018 Holmusk. All rights reserved.
 //
 
+import HMReactiveRedux
 import HMRequestFramework
 import RxSwift
 import SwiftUtilities
@@ -17,6 +18,7 @@ import SwiftUtilities
 /// Under normal circumstances, forced unwraps should be avoided at all costs.
 public protocol SingletonType {
     var dbRequestManager: HMCDRequestProcessor { get }
+    var reduxStore: HMStateStore { get }
     var trackedObjectManager: TrackedObjectManager { get }
 }
 
@@ -40,11 +42,16 @@ public final class Singleton: SingletonType {
         return Singleton(storeType)
     }
     
-    fileprivate var _dbRequestManager: HMCDRequestProcessor
-    fileprivate var _trackedObjectManager: TrackedObjectManager
+    fileprivate let _dbRequestManager: HMCDRequestProcessor
+    fileprivate let _reduxStore: HMStateStore
+    fileprivate let _trackedObjectManager: TrackedObjectManager
     
     public var dbRequestManager: HMCDRequestProcessor {
         return _dbRequestManager
+    }
+    
+    public var reduxStore: HMStateStore {
+        return _reduxStore
     }
     
     public var trackedObjectManager: TrackedObjectManager {
@@ -93,6 +100,7 @@ public final class Singleton: SingletonType {
             .with(emManager: errMiddlewareManager)
             .build()
         
+        _reduxStore = HMStateStore.createInstance(ReduxReducer.reducer)
         _trackedObjectManager = TrackedObjectManager(_dbRequestManager)
     }
 }

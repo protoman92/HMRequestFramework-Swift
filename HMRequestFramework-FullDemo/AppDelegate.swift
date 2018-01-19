@@ -17,6 +17,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
+        let provider = Singleton.instance
+        let topVC = (window?.rootViewController as? NavigationVC)!
+        let navigator = NavigationService(topVC)
+        let vm = NavigationViewModel(provider, navigator)
+        topVC.viewModel = vm
         return true
     }
 

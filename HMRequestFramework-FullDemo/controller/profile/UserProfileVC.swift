@@ -29,23 +29,11 @@ public final class UserProfileVC: UIViewController {
     
     fileprivate let disposeBag = DisposeBag()
     fileprivate let decorator = UserProfileVCDecorator()
-    fileprivate var viewModel: UserProfileViewModel?
+    
+    public var viewModel: UserProfileViewModel?
     
     override public func viewDidLoad() {
-        super.viewDidLoad()
-        
-        /// This is actually not the correct implementation of MVVM, because
-        /// the view model should be injected in by the controller that started
-        /// the navigation process to this controller. This way, we can pass
-        /// on the singleton provider from view model to view model, without
-        /// having to call Singleton.instance, and as a result, be able to mock
-        /// the provider instance during testing.
-        ///
-        /// However, for a simple exercise this will have to do.
-        let provider = Singleton.instance
-        let model = UserProfileModel(provider)
-        viewModel = UserProfileViewModel(provider, model)
-        
+        super.viewDidLoad()        
         setupViews(self)
         bindViewModel(self)
     }

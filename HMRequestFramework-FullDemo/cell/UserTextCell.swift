@@ -6,6 +6,7 @@
 //  Copyright © 2018 Holmusk. All rights reserved.
 //
 
+import HMReactiveRedux
 import RxSwift
 import SwiftUtilities
 import UIKit
@@ -209,12 +210,19 @@ public struct UserTextCellViewModel {
     }
     
     public func setupBindings() {
+        let provider = self.provider
         let disposeBag = self.disposeBag
         let model = self.model
         
-        updatedUserOnTextTriggered()
+        let updateUser = updatedUserOnTextTriggered()
             .flatMapLatest({model.updateUserInDB($0)})
-            .subscribe()
+            .shareReplay(1)
+        
+        updateUser
+            .mapNonNilOrEmpty({$0.error})
+            .map(HMGeneralReduxAction.Error.Display.updateShowError)
+            .observeOnMain()
+            .bind(to: provider.reduxStore.actionTrigger())
             .disposed(by: disposeBag)
     }
     

@@ -4,6 +4,8 @@ PODS:
     - ReachabilitySwift
     - RxReachability
     - SwiftUtilities/Main
+  - HMReactiveRedux/Main (1.0.0):
+    - SwiftUtilities/Main
   - ReachabilitySwift (3)
   - RxBlocking (3.6.1):
     - RxSwift (~> 3.6)
@@ -35,6 +37,7 @@ PODS:
 DEPENDENCIES:
   - Differentiator
   - HMEventSourceManager/Main (from `https://github.com/Holmusk/HMEventSourceManager-iOS.git`)
+  - HMReactiveRedux/Main (from `https://github.com/Holmusk/HMReactiveRedux-iOS.git`)
   - ReachabilitySwift
   - RxDataSources
   - SwiftUIUtilities/Main (from `https://github.com/protoman92/SwiftUIUtilities.git`)
@@ -44,6 +47,8 @@ DEPENDENCIES:
 EXTERNAL SOURCES:
   HMEventSourceManager:
     :git: https://github.com/Holmusk/HMEventSourceManager-iOS.git
+  HMReactiveRedux:
+    :git: https://github.com/Holmusk/HMReactiveRedux-iOS.git
   SwiftUIUtilities:
     :git: https://github.com/protoman92/SwiftUIUtilities.git
   SwiftUtilities:
@@ -53,6 +58,9 @@ CHECKOUT OPTIONS:
   HMEventSourceManager:
     :commit: c5b0dc4141c23b645b75e6dd7ebf272384e5689a
     :git: https://github.com/Holmusk/HMEventSourceManager-iOS.git
+  HMReactiveRedux:
+    :commit: 05b3ad64bcc02bdca822edd7ff81dd3e181e9172
+    :git: https://github.com/Holmusk/HMReactiveRedux-iOS.git
   SwiftUIUtilities:
     :commit: c61523950d92ba1f16f2f68e7ab34ecfbbe540d6
     :git: https://github.com/protoman92/SwiftUIUtilities.git
@@ -63,6 +71,7 @@ CHECKOUT OPTIONS:
 SPEC CHECKSUMS:
   Differentiator: caa9b3957981a2ac8e6b2eac8a676af461caa604
   HMEventSourceManager: e91abf386747445d67419546f0f498001c5b619c
+  HMReactiveRedux: 7d93a35bbf8eca71782c677424261b87a47b971b
   ReachabilitySwift: f5b9bb30a0777fac8f09ce8b067e32faeb29bb64
   RxBlocking: 4f4bd5732e8b952e54ae8a57739bcfb645de12bc
   RxCocoa: 84a08739ab186248c7f31ce4ee92d6f8a947d690
@@ -74,6 +83,6 @@ SPEC CHECKSUMS:
   SwiftUtilities: ef0087625fe58fb8909af372111e23461d10af55
   SwiftUtilitiesTests: cc224ef1ef1b455dc89bc43358d999e56ffbec00
 
-PODFILE CHECKSUM: b126d7a77629936e42dd5186d5bbd60cfdbd4ec1
+PODFILE CHECKSUM: 81d37813ef3b4cffae9ee076a4d008764fe998f9
 
 COCOAPODS: 1.4.0.rc.1
