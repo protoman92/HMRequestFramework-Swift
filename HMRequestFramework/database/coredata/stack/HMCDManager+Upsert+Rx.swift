@@ -55,8 +55,9 @@ public extension HMCDManager {
                 let index = objects.index(where: upsertable.identifiable),
                 let item = objects.element(at: index)
             {
+                let representation = upsertable.stringRepresentationForResult()
                 item.update(from: upsertable)
-                results.append(HMCDResult.just(upsertable))
+                results.append(HMCDResult.just(representation))
                 objects.remove(at: index)
             } else {
                 nonExisting.append(upsertable)

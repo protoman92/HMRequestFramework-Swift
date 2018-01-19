@@ -74,13 +74,14 @@ public extension HMCDManager {
         
         for item in convertibles {
             let result: HMCDResult
+            let representation = item.stringRepresentationForResult()
             
             do {
                 _ = try item.asManagedObject(context)
-                result = HMCDResult.just(item)
+                result = HMCDResult.just(representation)
             } catch let e {
                 result = HMCDResult.builder()
-                    .with(object: item)
+                    .with(object: representation)
                     .with(error: e)
                     .build()
             }

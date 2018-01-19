@@ -22,13 +22,17 @@ public extension Dummy2Type {
     public func primaryValue() -> String? {
         return id2
     }
+    
+    public func stringRepresentationForResult() -> String {
+        return id2
+    }
 }
 
 public final class CDDummy2: NSManagedObject {
     @NSManaged public var id2: String
     @NSManaged public var count: Int64
     
-    public convenience required init(_ context: Context) throws {
+    convenience public init(_ context: Context) throws {
         let entity = try CDDummy2.entityDescription(in: context)
         self.init(entity: entity, insertInto: context)
     }

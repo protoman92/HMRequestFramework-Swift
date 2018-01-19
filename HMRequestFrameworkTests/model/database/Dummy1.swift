@@ -27,6 +27,10 @@ public extension Dummy1Type {
     public func primaryValue() -> String? {
         return id
     }
+    
+    public func stringRepresentationForResult() -> String {
+        return id.getOrElse("")
+    }
 }
 
 public final class CDDummy1: NSManagedObject {

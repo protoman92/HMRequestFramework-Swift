@@ -6,6 +6,7 @@
 //  Copyright © 2017 Holmusk. All rights reserved.
 //
 
+import ReachabilitySwift
 import RxSwift
 import RxTest
 import SwiftUtilities
@@ -139,6 +140,7 @@ public extension NetworkingTest {
 
 public extension NetworkingTest {
     public func test_uploadData_shouldWork() {
+        guard Reachability()!.isReachable else { return }
         typealias UploadResult = HMNetworkRequestAliasType.UploadResult
         
         /// Setup

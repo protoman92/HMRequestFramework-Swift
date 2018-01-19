@@ -121,7 +121,8 @@ public extension HMCDManager {
         
         // It's ok for these requests not to have the original object. We will
         // get them right below.
-        let ids: [HMCDIdentifiableType] = requests.flatMap({try? $0.editedVC()})
+        let versionables = requests.flatMap({try? $0.editedVC()})
+        let ids = versionables as [HMCDIdentifiableType]
         var originals = try self.blockingFetchIdentifiables(context, entityName, ids)
         var results: [HMCDResult] = []
         
@@ -129,7 +130,7 @@ public extension HMCDManager {
         // the DB yet.
         var nonExisting: [HMCDObjectConvertibleType] = []
         
-        for item in ids {
+        for item in versionables {
             if
                 let oIndex = originals.index(where: item.identifiable),
                 let rIndex = requests.index(where: {($0.ownsEditedVC(item))}),
@@ -148,13 +149,14 @@ public extension HMCDManager {
                     .build()
             {
                 let result: HMCDResult
+                let representation = item.stringRepresentationForResult()
                 
                 do {
                     try self.updateVersionUnsafely(context, request)
-                    result = HMCDResult.just(item)
+                    result = HMCDResult.just(representation)
                 } catch let e {
                     result = HMCDResult.builder()
-                        .with(object: item)
+                        .with(object: representation)
                         .with(error: e)
                         .build()
                 }

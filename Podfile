@@ -24,6 +24,7 @@ target 'HMRequestFramework' do
         inherit! :search_paths
         # Pods for testing
         allPods
+        pod 'ReachabilitySwift'
         pod 'SwiftUtilitiesTests/Main'
     end
     

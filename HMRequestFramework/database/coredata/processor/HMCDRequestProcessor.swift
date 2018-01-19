@@ -216,8 +216,17 @@ public extension HMCDRequestProcessor {
         let opMode = request.operationMode()
         
         // If the data requires versioning, we call updateVersionn.
-        let versionables = data.flatMap({$0 as? HMCDVersionableType})
-        let nonVersionables = data.filter({!($0 is HMCDVersionableType)})
+        var versionables: [HMCDVersionableType] = []
+        var nonVersionables: [HMCDUpsertableType] = []
+        
+        for datum in data {
+            if let versionable = datum as? HMCDVersionableType {
+                versionables.append(versionable)
+            } else {
+                nonVersionables.append(datum)
+            }
+        }
+        
         let vRequests = try request.updateRequest(versionables)
         let vContext = manager.disposableObjectContext()
         let uContext = manager.disposableObjectContext()
@@ -267,12 +276,17 @@ public extension HMCDRequestProcessor {
                     // We delete NSManagedObject using their ObjectID. If not, we
                     // construct the managed objects using a disposable context,
                     // and see if any of these objects is identifiable.
-                    let aliases = data.flatMap({$0 as? NSManagedObject})
+                    var cdObjects: [NSManagedObject] = []
                     
-                    let nonAliases = data.filter({!($0 is NSManagedObject)})
-                        .flatMap({try? $0.asManagedObject(context)})
+                    for datum in data {
+                        if let cdObject = datum as? NSManagedObject {
+                            cdObjects.append(cdObject)
+                        } else if let cdObject = try? datum.asManagedObject(context) {
+                            cdObjects.append(cdObject)
+                        }
+                    }
                     
-                    $0.onNext([aliases, nonAliases].flatMap({$0}))
+                    $0.onNext(cdObjects)
                     $0.onCompleted()
                 } catch let e {
                     $0.onError(e)
@@ -285,8 +299,17 @@ public extension HMCDRequestProcessor {
                 // We deal with identifiables and normal objects differently.
                 // For identifiables, we need to fetch their counterparts in the
                 // DB first before deleting.
-                let ids = objects.flatMap({$0 as? HMCDIdentifiableType})
-                let nonIds = objects.filter({!($0 is HMCDIdentifiableType)})
+                var ids: [HMCDIdentifiableType] = []
+                var nonIds: [NSManagedObject] = []
+                
+                for object in objects {
+                    if let identifiable = object as? HMCDIdentifiableType {
+                        ids.append(identifiable)
+                    } else {
+                        nonIds.append(object)
+                    }
+                }
+                
                 let context1 = manager.disposableObjectContext()
                 let context2 = manager.disposableObjectContext()
                 
@@ -312,13 +335,7 @@ public extension HMCDRequestProcessor {
     fileprivate func executeDeleteWithRequest(_ request: Req) throws
         -> Observable<Try<Void>>
     {
-//        let manager = coreDataManager()
-        
-//        if manager.areAllStoresSQLite() {
-//            return try executeBatchDelete(request)
-//        } else {
         return try executeFetchAndDelete(request)
-//        }
     }
     
     /// Perform a batch delete operation. This only works for SQLite stores.

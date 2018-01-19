@@ -25,6 +25,10 @@ public extension UserType {
     public func primaryValue() -> String? {
         return id
     }
+    
+    public func stringRepresentationForResult() -> String {
+        return id.getOrElse("")
+    }
 }
 
 public final class CDUser: NSManagedObject {
@@ -234,8 +238,7 @@ extension User.Builder: HMCDPureObjectBuilderMasterType {
 
 extension User: CustomStringConvertible {
     public var description: String {
-        return age.map({String(describing: $0)}).getOrElse("")
-//        return id.getOrElse("No id present")
+        return id.getOrElse("No id? present")
     }
 }
 

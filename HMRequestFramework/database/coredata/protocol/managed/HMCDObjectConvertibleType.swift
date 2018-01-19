@@ -21,6 +21,19 @@ public protocol HMCDObjectConvertibleType: HMCDTypealiasType {
     /// - Returns: A NSManagedObject instance.
     /// - Throws: Exception if the conversion fails.
     func asManagedObject(_ context: Context) throws -> NSManagedObject
+    
+    /// Get the string representation of the current object, so that when this
+    /// object to converted to a managed object, we should know how to fetch
+    /// it again. This is especially useful for HMCDResult because it is not
+    /// advisable to publish a constructed CD object lest it is deallocated
+    /// unexpectedly.
+    ///
+    /// We can return anything here as long as it can be used to identity this
+    /// object. We could also just return the primary value if this object
+    /// conforms to HMCDIdentifiableType.
+    ///
+    /// - Returns: A String value.
+    func stringRepresentationForResult() -> String
 }
 
 /// We need to implement this extension because CoreData objects are not allowed

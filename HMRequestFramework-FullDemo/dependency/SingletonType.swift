@@ -7,6 +7,7 @@
 //
 
 import HMRequestFramework
+import RxSwift
 import SwiftUtilities
 
 /// We use forced unwraps here because if this singleton fails to initialize,
@@ -72,8 +73,24 @@ public final class Singleton: SingletonType {
         
         let cdManager = try! HMCDManager(constructor: cdConstructor)
         
+        let rqMiddlewareManager = HMFilterMiddlewareManager<HMCDRequest>.builder()
+            .add(transform: {
+                Observable.just($0.cloneBuilder().with(retries: 3).build())
+            }, forKey: "RetryMiddleware")
+            .add(transform: {
+                Observable.just($0.cloneBuilder().with(vcStrategy: .error).build())
+            }, forKey: "VCMiddleware")
+            .add(sideEffect: {print($0)}, forKey: "LogMiddleware")
+            .build()
+        
+        let errMiddlewareManager = HMGlobalMiddlewareManager<HMErrorHolder>.builder()
+            .add(sideEffect: {print($0.localizedDescription)})
+            .build()
+        
         _dbRequestManager = HMCDRequestProcessor.builder()
             .with(manager: cdManager)
+            .with(rqmManager: rqMiddlewareManager)
+            .with(emManager: errMiddlewareManager)
             .build()
         
         _trackedObjectManager = TrackedObjectManager(_dbRequestManager)

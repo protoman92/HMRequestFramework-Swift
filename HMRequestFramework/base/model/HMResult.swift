@@ -131,7 +131,7 @@ extension HMResult: TryConvertibleType {
         } else if let object = self.appliedObject() {
             return Try.success(object)
         } else {
-            return Try.failure(Exception("Invalid result"))
+            return Try.failure(Exception("Invalid result \(self)"))
         }
     }
 }

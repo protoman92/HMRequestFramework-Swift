@@ -115,18 +115,13 @@ public struct UserTextCellModel: UserTextCellModelType {
         
         /// Simulate concurrent database modifications. The version control
         /// mechanism should take care of the conflict, based on the specified
-        /// resolutation strategy.
+        /// resolutation strategy (optimistic locking).
         return Observable.just(())
-            .delay(0.1, scheduler: ConcurrentDispatchQueueScheduler(qos: qos))
-            .flatMap({_ in provider.dbRequestManager.upsertInMemory(prev, qos, {
-                Observable.just($0.cloneBuilder()
-                    .with(vcStrategy: .merge(nil))
-                    .build())
-            })})
+            .delay(3, scheduler: ConcurrentDispatchQueueScheduler(qos: qos))
+            .flatMap({_ in provider.dbRequestManager.upsertInMemory(prev, qos)})
             .map({$0.map({$0.map({$0.asTry()})})})
-            .map({$0.flatMap({$0.reduce(Try.success([]), {
-                return $0.zipWith($1, {$0 + [$1]})
-            })})})
+            .map({$0.map({$0.map({$0.map({[$0]})})})})
+            .map({$0.flatMap({$0.reduce(Try.success([]), {$0.zipWith($1, +)})})})
             .map({$0.map(toVoid)})
     }
     
