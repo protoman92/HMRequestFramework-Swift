@@ -40,11 +40,6 @@ public final class CDDummy1: NSManagedObject {
     @NSManaged public var float: NSNumber?
     @NSManaged public var version: NSNumber?
     
-    public convenience init(_ context: Context) throws {
-        let entity = try CDDummy1.entityDescription(in: context)
-        self.init(entity: entity, insertInto: context)
-    }
-    
     public var sectionName: String? {
         if let id = self.id {
             let section = String(describing: id)

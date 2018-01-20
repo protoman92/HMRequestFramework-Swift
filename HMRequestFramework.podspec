@@ -10,8 +10,8 @@ Pod::Spec.new do |s|
     s.homepage = "https://github.com/Holmusk/HMRequestFramework-iOS.git"
     s.source = { :git => "https://github.com/Holmusk/HMRequestFramework-iOS.git", :tag => "#{s.version}"}
     s.dependency 'HMEventSourceManager/Main'
+    s.dependency 'Differentiator'
     s.dependency 'SwiftUtilities/Main'
-    s.dependency 'RxDataSources'
 
     s.subspec 'Main' do |main|
     main.source_files = "HMRequestFramework/**/*.{swift}"

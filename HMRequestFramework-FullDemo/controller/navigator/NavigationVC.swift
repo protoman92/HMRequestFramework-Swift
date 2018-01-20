@@ -7,6 +7,7 @@
 //
 
 import HMReactiveRedux
+import MRProgress
 import RxSwift
 import SwiftUtilities
 import UIKit
@@ -33,6 +34,19 @@ public extension NavigationVC {
         controller.present(alert, animated: true, completion: nil)
     }
     
+    fileprivate func displayProgress(_ enabled: Bool, _ controller: NavigationVC) {
+        guard let view = controller.view else {
+            debugException()
+            return
+        }
+        
+        if enabled {
+            MRProgressOverlayView.showOverlayAdded(to: view, animated: true)
+        } else {
+            MRProgressOverlayView.dismissOverlay(for: view, animated: true)
+        }
+    }
+    
     fileprivate func bindViewModel(_ controller: NavigationVC) {
         guard let vm = controller.viewModel else {
             debugException()
@@ -50,6 +64,16 @@ public extension NavigationVC {
                 controller.map({$0.displayError(error, $0)})
             })
             .doOnNext({_ in vm.clearError()})
+            .subscribe()
+            .disposed(by: disposeBag)
+        
+        vm.progressStream()
+            .mapNonNilOrEmpty()
+            .distinctUntilChanged()
+            .observeOnMain()
+            .doOnNext({[weak controller] progress in
+                controller.map({$0.displayProgress(progress, $0)})
+            })
             .subscribe()
             .disposed(by: disposeBag)
     }
@@ -103,6 +127,11 @@ public struct NavigationViewModel {
     public func errorStream() -> Observable<Error?> {
         let path = HMGeneralReduxAction.Error.Display.errorPath
         return provider.reduxStore.stateValueStream(Error.self, path)
+    }
+    
+    public func progressStream() -> Observable<Bool?> {
+        let path = HMGeneralReduxAction.Progress.Display.progressPath
+        return provider.reduxStore.stateValueStream(Bool.self, path)
     }
     
     public func clearError() {

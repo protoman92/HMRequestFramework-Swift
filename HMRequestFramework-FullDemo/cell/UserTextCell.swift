@@ -114,12 +114,7 @@ public struct UserTextCellModel: UserTextCellModelType {
         let prev = user.map({[$0]})
         let qos: DispatchQoS.QoSClass = .background
         
-        /// Simulate concurrent database modifications. The version control
-        /// mechanism should take care of the conflict, based on the specified
-        /// resolutation strategy (optimistic locking).
-        return Observable.just(())
-            .delay(3, scheduler: ConcurrentDispatchQueueScheduler(qos: qos))
-            .flatMap({_ in provider.dbRequestManager.upsertInMemory(prev, qos)})
+        return provider.dbRequestManager.upsertInMemory(prev, qos)
             .map({$0.map({$0.map({$0.asTry()})})})
             .map({$0.map({$0.map({$0.map({[$0]})})})})
             .map({$0.flatMap({$0.reduce(Try.success([]), {$0.zipWith($1, +)})})})
@@ -212,17 +207,29 @@ public struct UserTextCellViewModel {
     public func setupBindings() {
         let provider = self.provider
         let disposeBag = self.disposeBag
-        let model = self.model
+        let actionTrigger = provider.reduxStore.actionTrigger()
         
-        let updateUser = updatedUserOnTextTriggered()
-            .flatMapLatest({model.updateUserInDB($0)})
+        let updateTriggered = updatedUserOnTextTriggered()
+            .distinctUntilChanged({$0.value == $1.value})
             .shareReplay(1)
         
-        updateUser
+        let updatePerformed = updateTriggered
+            .flatMapLatest({self.updateUserInDB($0)})
+            .shareReplay(1)
+        
+        updatePerformed
             .mapNonNilOrEmpty({$0.error})
             .map(HMGeneralReduxAction.Error.Display.updateShowError)
             .observeOnMain()
-            .bind(to: provider.reduxStore.actionTrigger())
+            .bind(to: actionTrigger)
+            .disposed(by: disposeBag)
+        
+        Observable<Bool>
+            .merge(updateTriggered.map({_ in true}),
+                   updatePerformed.map({_ in false}))
+            .map(HMGeneralReduxAction.Progress.Display.updateShowProgress)
+            .observeOnMain()
+            .bind(to: actionTrigger)
             .disposed(by: disposeBag)
     }
     
@@ -231,14 +238,19 @@ public struct UserTextCellViewModel {
         return model.dbUserStream().map({$0.flatMap({model.userProperty($0)})})
     }
     
+    /// If the user already has this property, do not do anything.
     public func updatedUserOnTextTriggered() -> Observable<Try<User>> {
         let model = self.model
         
         return textInputStream()
             .mapNonNilOrEmpty()
-            .withLatestFrom(model.dbUserStream(), resultSelector: {
-                $1.zipWith(Optional.some($0), {model.updateUserProperty($0, $1)})
+            .withLatestFrom(model.dbUserStream(), resultSelector: {($1, $0)})
+            .map({(user, text) -> (Try<User>, Bool) in
+                let existing = user.flatMap({model.userProperty($0)})
+                let same = existing.value == text
+                return (user.map({model.updateUserProperty($0, text)}), same)
             })
+            .filter({!$0.1}).map({$0.0})
     }
     
     public func textInputStream() -> Observable<String?> {
@@ -247,5 +259,17 @@ public struct UserTextCellViewModel {
     
     public func textInputTrigger() -> AnyObserver<String?> {
         return textTrigger.asObserver()
+    }
+    
+    fileprivate func updateUserInDB(_ user: Try<User>) -> Observable<Try<Void>> {
+        let model = self.model
+        let qos: DispatchQoS.QoSClass = .background
+        
+        /// Simulate concurrent database modifications. The version control
+        /// mechanism should take care of the conflict, based on the specified
+        /// resolutation strategy (optimistic locking).
+        return Observable<Int>
+            .timer(0, scheduler: ConcurrentDispatchQueueScheduler(qos: qos))
+            .flatMap({_ in model.updateUserInDB(user)})
     }
 }

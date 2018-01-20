@@ -856,8 +856,8 @@
 				D39BDAA81F4E6B5500A397BD /* Info.plist */,
 				D39BDAA01F4E6B5500A397BD /* MainController.storyboard */,
 				D39BDA9E1F4E6B5500A397BD /* MainController.swift */,
-				D38A40FE1F7504240061C632 /* SSEController.swift */,
 				D38A41001F7504510061C632 /* SSEController.storyboard */,
+				D38A40FE1F7504240061C632 /* SSEController.swift */,
 			);
 			path = "HMRequestFramework-Demo";
 			sourceTree = "<group>";
@@ -1366,6 +1366,7 @@
 				"${BUILT_PRODUCTS_DIR}/RxTest/RxTest.framework",
 				"${BUILT_PRODUCTS_DIR}/SwiftUtilitiesTests/SwiftUtilitiesTests.framework",
 				"${BUILT_PRODUCTS_DIR}/HMReactiveRedux/HMReactiveRedux.framework",
+				"${BUILT_PRODUCTS_DIR}/MRProgress/MRProgress.framework",
 				"${BUILT_PRODUCTS_DIR}/RxDataSources/RxDataSources.framework",
 				"${BUILT_PRODUCTS_DIR}/SwiftUIUtilities/SwiftUIUtilities.framework",
 			);
@@ -1382,6 +1383,7 @@
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxTest.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftUtilitiesTests.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/HMReactiveRedux.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/MRProgress.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxDataSources.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftUIUtilities.framework",
 			);
@@ -1457,6 +1459,7 @@
 				"${BUILT_PRODUCTS_DIR}/RxSwift/RxSwift.framework",
 				"${BUILT_PRODUCTS_DIR}/SwiftUtilities/SwiftUtilities.framework",
 				"${BUILT_PRODUCTS_DIR}/HMReactiveRedux/HMReactiveRedux.framework",
+				"${BUILT_PRODUCTS_DIR}/MRProgress/MRProgress.framework",
 				"${BUILT_PRODUCTS_DIR}/RxDataSources/RxDataSources.framework",
 				"${BUILT_PRODUCTS_DIR}/SwiftUIUtilities/SwiftUIUtilities.framework",
 			);
@@ -1471,6 +1474,7 @@
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxSwift.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftUtilities.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/HMReactiveRedux.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/MRProgress.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxDataSources.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftUIUtilities.framework",
 			);
@@ -1546,6 +1550,7 @@
 				"${BUILT_PRODUCTS_DIR}/RxSwift/RxSwift.framework",
 				"${BUILT_PRODUCTS_DIR}/SwiftUtilities/SwiftUtilities.framework",
 				"${BUILT_PRODUCTS_DIR}/HMReactiveRedux/HMReactiveRedux.framework",
+				"${BUILT_PRODUCTS_DIR}/MRProgress/MRProgress.framework",
 				"${BUILT_PRODUCTS_DIR}/RxDataSources/RxDataSources.framework",
 				"${BUILT_PRODUCTS_DIR}/SwiftUIUtilities/SwiftUIUtilities.framework",
 			);
@@ -1560,6 +1565,7 @@
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxSwift.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftUtilities.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/HMReactiveRedux.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/MRProgress.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxDataSources.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftUIUtilities.framework",
 			);

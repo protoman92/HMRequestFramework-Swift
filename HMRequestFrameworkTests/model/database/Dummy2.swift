@@ -31,11 +31,6 @@ public extension Dummy2Type {
 public final class CDDummy2: NSManagedObject {
     @NSManaged public var id2: String
     @NSManaged public var count: Int64
-    
-    convenience public init(_ context: Context) throws {
-        let entity = try CDDummy2.entityDescription(in: context)
-        self.init(entity: entity, insertInto: context)
-    }
 }
 
 public final class Dummy2 {

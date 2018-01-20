@@ -9,6 +9,15 @@
 import CoreData
 import HMRequestFramework
 
+/// In a parallel object model, a single entity comprises 3 objects:
+///
+///  - The managed object (which we prefix with CD).
+///  - The pure object.
+///  - The pure object builder (which is necessary for immutability).
+///
+/// I'd say the most tedious step of adopting this framework is the translation
+/// of object models into this one. Usage of the framework is straightforward
+/// after that.
 public protocol UserType {
     var id: String? { get }
     var name: String? { get }
@@ -37,11 +46,6 @@ public final class CDUser: NSManagedObject {
     @NSManaged public var age: NSNumber?
     @NSManaged public var visible: NSNumber?
     @NSManaged public var updatedAt: Date?
-    
-    public convenience init(_ context: Context) throws {
-        let entity = try CDUser.entityDescription(in: context)
-        self.init(entity: entity, insertInto: context)
-    }
 }
 
 extension CDUser: UserType {}
@@ -84,6 +88,8 @@ extension CDUser: HMCDVersionableMasterType {
         ]
     }
     
+    /// This is where we update the current managed object to mutate it in
+    /// the internal disposable context.
     public func mutateWithPureObject(_ object: PureObject) {
         id = object.id
         name = object.name
@@ -108,6 +114,7 @@ extension CDUser: HMCDVersionableMasterType {
         return formatter.date(from: string)
     }
     
+    /// Implement the version update with updateAt date flag.
     public func currentVersion() -> String? {
         return updatedAt.map({formatDateForVersioning($0)})
     }

@@ -9,6 +9,7 @@ end
 
 def allDemoPods
     allPods
+    pod 'MRProgress'
     pod 'RxDataSources'
     pod 'HMReactiveRedux/Main', :git => 'https://github.com/Holmusk/HMReactiveRedux-iOS.git'
     pod 'SwiftUIUtilities/Main', git: 'https://github.com/protoman92/SwiftUIUtilities.git'

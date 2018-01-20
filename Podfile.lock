@@ -6,6 +6,34 @@ PODS:
     - SwiftUtilities/Main
   - HMReactiveRedux/Main (1.0.0):
     - SwiftUtilities/Main
+  - MRProgress (0.8.3):
+    - MRProgress/ActivityIndicator (= 0.8.3)
+    - MRProgress/Blur (= 0.8.3)
+    - MRProgress/Circular (= 0.8.3)
+    - MRProgress/Icons (= 0.8.3)
+    - MRProgress/NavigationBarProgress (= 0.8.3)
+    - MRProgress/Overlay (= 0.8.3)
+  - MRProgress/ActivityIndicator (0.8.3):
+    - MRProgress/Stopable
+  - MRProgress/Blur (0.8.3):
+    - MRProgress/Helper
+  - MRProgress/Circular (0.8.3):
+    - MRProgress/Helper
+    - MRProgress/ProgressBaseClass
+    - MRProgress/Stopable
+  - MRProgress/Helper (0.8.3)
+  - MRProgress/Icons (0.8.3)
+  - MRProgress/NavigationBarProgress (0.8.3):
+    - MRProgress/ProgressBaseClass
+  - MRProgress/Overlay (0.8.3):
+    - MRProgress/ActivityIndicator
+    - MRProgress/Blur
+    - MRProgress/Circular
+    - MRProgress/Helper
+    - MRProgress/Icons
+  - MRProgress/ProgressBaseClass (0.8.3)
+  - MRProgress/Stopable (0.8.3):
+    - MRProgress/Helper
   - ReachabilitySwift (3)
   - RxBlocking (3.6.1):
     - RxSwift (~> 3.6)
@@ -38,6 +66,7 @@ DEPENDENCIES:
   - Differentiator
   - HMEventSourceManager/Main (from `https://github.com/Holmusk/HMEventSourceManager-iOS.git`)
   - HMReactiveRedux/Main (from `https://github.com/Holmusk/HMReactiveRedux-iOS.git`)
+  - MRProgress
   - ReachabilitySwift
   - RxDataSources
   - SwiftUIUtilities/Main (from `https://github.com/protoman92/SwiftUIUtilities.git`)
@@ -72,6 +101,7 @@ SPEC CHECKSUMS:
   Differentiator: caa9b3957981a2ac8e6b2eac8a676af461caa604
   HMEventSourceManager: e91abf386747445d67419546f0f498001c5b619c
   HMReactiveRedux: 7d93a35bbf8eca71782c677424261b87a47b971b
+  MRProgress: 16de7cc9f347e8846797a770db102a323fe7ef09
   ReachabilitySwift: f5b9bb30a0777fac8f09ce8b067e32faeb29bb64
   RxBlocking: 4f4bd5732e8b952e54ae8a57739bcfb645de12bc
   RxCocoa: 84a08739ab186248c7f31ce4ee92d6f8a947d690
@@ -83,6 +113,6 @@ SPEC CHECKSUMS:
   SwiftUtilities: ef0087625fe58fb8909af372111e23461d10af55
   SwiftUtilitiesTests: cc224ef1ef1b455dc89bc43358d999e56ffbec00
 
-PODFILE CHECKSUM: 81d37813ef3b4cffae9ee076a4d008764fe998f9
+PODFILE CHECKSUM: 3cda6732f55331491538e69f3608a407298d4887
 
 COCOAPODS: 1.4.0.rc.1

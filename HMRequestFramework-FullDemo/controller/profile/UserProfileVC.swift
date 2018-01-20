@@ -247,23 +247,37 @@ public struct UserProfileViewModel {
         let provider = self.provider
         let disposeBag = self.disposeBag
         let model = self.model
+        let actionTrigger = provider.reduxStore.actionTrigger()
+        let insertTriggered = userOnInsertTriggered().shareReplay(1)
         
-        let insertUser = userOnInsertTriggered()
+        let insertPerformed = insertTriggered
             .map(Try.success)
             .flatMapLatest({model.updateUserInDB($0)})
             .shareReplay(1)
         
-        let persistData = persistDataStream()
+        let persistTriggered = persistDataStream().shareReplay(1)
+        
+        let persistPerformed = persistTriggered
             .map(Try.success)
             .flatMapLatest({model.persistToDB($0)})
             .shareReplay(1)
         
         Observable<Error>
-            .merge(insertUser.mapNonNilOrEmpty({$0.error}),
-                   persistData.mapNonNilOrEmpty({$0.error}))
+            .merge(insertPerformed.mapNonNilOrEmpty({$0.error}),
+                   persistPerformed.mapNonNilOrEmpty({$0.error}))
             .map(HMGeneralReduxAction.Error.Display.updateShowError)
             .observeOnMain()
-            .bind(to: provider.reduxStore.actionTrigger())
+            .bind(to: actionTrigger)
+            .disposed(by: disposeBag)
+        
+        Observable<Bool>
+            .merge(insertTriggered.map({_ in true}),
+                   insertPerformed.map({_ in false}),
+                   persistTriggered.map({_ in true}),
+                   persistPerformed.map({_ in false}))
+            .map(HMGeneralReduxAction.Progress.Display.updateShowProgress)
+            .observeOnMain()
+            .bind(to: actionTrigger)
             .disposed(by: disposeBag)
     }
     

@@ -38,16 +38,16 @@ public protocol HMCDRequestType: HMDatabaseRequestType, HMCDFetchRequestType {
     /// Get the data to be deleted. Only used for delete operations.
     ///
     /// The reason why we can specify exactly the data to delete (instead of
-    /// passing a context with changes to be saved, as is the case for save
-    /// and upsert) is that we can actually create a disposable context ourselves,
-    /// populate it with data pulled from the DB using objectIDs and call said
-    /// context's delete(_:) method without it throwing an Error.
+    /// passing a context with changes to be saved is that we can actually
+    /// create a disposable context ourselves, populate it with data pulled
+    /// from the DB using objectIDs and call said context's delete(_:) method
+    /// without it throwing an Error.
     ///
     /// - Returns: An Array of HMCDObjectConvertibleType.
     /// - Throws: Exception if the data is not available.
     func deletedData() throws -> [HMCDObjectConvertibleType]
     
-    /// Get the conflict strategy to be used in an update operation/
+    /// Get the conflict strategy to be used in an update operation.
     ///
     /// - Returns: A Strategy instance.
     /// - Throws: Exception if the data is not available.

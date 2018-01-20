@@ -74,6 +74,11 @@ public extension HMCDObjectType where Self: NSManagedObject {
             throw Exception("Entity name cannot be nil")
         }
     }
+    
+    public init(_ context: Context) throws {
+        let entity = try Self.entityDescription(in: context)
+        self.init(entity: entity, insertInto: context)
+    }
 }
 
 /// CoreData classes that implement this protocol must be able to transform
