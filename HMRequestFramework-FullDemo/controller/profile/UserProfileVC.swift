@@ -6,6 +6,7 @@
 //  Copyright © 2018 Holmusk. All rights reserved.
 //
 
+import HMReactiveRedux
 import HMRequestFramework
 import RxDataSources
 import RxSwift
@@ -243,19 +244,26 @@ public struct UserProfileViewModel {
     }
     
     public func setupBindings() {
+        let provider = self.provider
         let disposeBag = self.disposeBag
         let model = self.model
         
-        userOnInsertTriggered()
+        let insertUser = userOnInsertTriggered()
             .map(Try.success)
             .flatMapLatest({model.updateUserInDB($0)})
-            .subscribe()
-            .disposed(by: disposeBag)
+            .shareReplay(1)
         
-        persistDataStream()
+        let persistData = persistDataStream()
             .map(Try.success)
             .flatMapLatest({model.persistToDB($0)})
-            .subscribe()
+            .shareReplay(1)
+        
+        Observable<Error>
+            .merge(insertUser.mapNonNilOrEmpty({$0.error}),
+                   persistData.mapNonNilOrEmpty({$0.error}))
+            .map(HMGeneralReduxAction.Error.Display.updateShowError)
+            .observeOnMain()
+            .bind(to: provider.reduxStore.actionTrigger())
             .disposed(by: disposeBag)
     }
     

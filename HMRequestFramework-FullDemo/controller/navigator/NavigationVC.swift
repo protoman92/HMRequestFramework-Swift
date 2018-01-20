@@ -95,7 +95,7 @@ public struct NavigationViewModel {
         return goToMain.asObservable()
     }
     
-    public func goToMainScreen() {
+    fileprivate func goToMainScreen() {
         let vm = MainViewModel(provider, navigator)
         navigator.navigate(vm)
     }

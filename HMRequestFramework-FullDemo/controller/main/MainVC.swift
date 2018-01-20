@@ -38,6 +38,7 @@ public extension MainVC {
         let disposeBag = controller.disposeBag
         
         goToProfile.rx.tap
+            .throttle(1, scheduler: MainScheduler.instance)
             .bind(to: vm.goToProfileTrigger())
             .disposed(by: disposeBag)
     }
