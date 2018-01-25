@@ -7,11 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1A5965C25AF4F3BAFB9C59AF /* Pods_HMRequestFramework_FullDemoTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7988D1697BAAB20ECBD492CA /* Pods_HMRequestFramework_FullDemoTests.framework */; };
 		31BCA874AFE20701A33CCAFC /* Pods_HMRequestFramework.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AD4191EDC58157CBCAE6FEBF /* Pods_HMRequestFramework.framework */; };
 		7728DDB94E2DF8EEC98AB49B /* Pods_HMRequestFramework_FullDemo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 09C74A00F0D8AC4583688214 /* Pods_HMRequestFramework_FullDemo.framework */; };
 		9D6384E9EBB1234CADF835D4 /* Pods_HMRequestFramework_Demo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 55C23ADC0EEE30FA90C15B88 /* Pods_HMRequestFramework_Demo.framework */; };
 		ABE6A4A654544FD66F9B1369 /* Pods_HMRequestFrameworkTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 259F23974F3AE63652FE6811 /* Pods_HMRequestFrameworkTests.framework */; };
-		C451626567836A2E3F11E9B1 /* Pods_HMRequestFramework_FullDemoTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7988D1697BAAB20ECBD492CA /* Pods_HMRequestFramework_FullDemoTests.framework */; };
 		D30051CE1F87BCA700936C93 /* HMCDOperationMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = D30051CD1F87BCA700936C93 /* HMCDOperationMode.swift */; };
 		D303E86F1F3AFD1E00123EE7 /* VersionConflict.swift in Sources */ = {isa = PBXBuildFile; fileRef = D303E86E1F3AFD1E00123EE7 /* VersionConflict.swift */; };
 		D303E8711F3B1EE600123EE7 /* CoreDataRequestTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = D303E8701F3B1EE600123EE7 /* CoreDataRequestTest.swift */; };
@@ -215,14 +215,16 @@
 		259F23974F3AE63652FE6811 /* Pods_HMRequestFrameworkTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_HMRequestFrameworkTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		51CCCE8189DE81D865F6F234 /* Pods-HMRequestFramework-Demo.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-HMRequestFramework-Demo.debug.xcconfig"; path = "Pods/Target Support Files/Pods-HMRequestFramework-Demo/Pods-HMRequestFramework-Demo.debug.xcconfig"; sourceTree = "<group>"; };
 		55C23ADC0EEE30FA90C15B88 /* Pods_HMRequestFramework_Demo.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_HMRequestFramework_Demo.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		6A26FD4D7BD8009BAC7EB5DD /* Pods-PlaygroundFramework.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PlaygroundFramework.debug.xcconfig"; path = "Pods/Target Support Files/Pods-PlaygroundFramework/Pods-PlaygroundFramework.debug.xcconfig"; sourceTree = "<group>"; };
+		6FD042164F4195B168A6342A /* Pods-PlaygroundFramework.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PlaygroundFramework.release.xcconfig"; path = "Pods/Target Support Files/Pods-PlaygroundFramework/Pods-PlaygroundFramework.release.xcconfig"; sourceTree = "<group>"; };
 		72ABE922114B7B6E1A33E39E /* Pods-HMRequestFramework-Demo.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-HMRequestFramework-Demo.release.xcconfig"; path = "Pods/Target Support Files/Pods-HMRequestFramework-Demo/Pods-HMRequestFramework-Demo.release.xcconfig"; sourceTree = "<group>"; };
 		77B20715E5E52DD2C35EE0E7 /* Pods-HMRequestFramework-FullDemo.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-HMRequestFramework-FullDemo.release.xcconfig"; path = "Pods/Target Support Files/Pods-HMRequestFramework-FullDemo/Pods-HMRequestFramework-FullDemo.release.xcconfig"; sourceTree = "<group>"; };
 		7988D1697BAAB20ECBD492CA /* Pods_HMRequestFramework_FullDemoTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_HMRequestFramework_FullDemoTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		7AE6F200AAFE05D3E414FEBD /* Pods-HMRequestFramework-FullDemo.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-HMRequestFramework-FullDemo.debug.xcconfig"; path = "Pods/Target Support Files/Pods-HMRequestFramework-FullDemo/Pods-HMRequestFramework-FullDemo.debug.xcconfig"; sourceTree = "<group>"; };
-		A53A50DD14BA38777895A7FB /* Pods-HMRequestFramework-FullDemoTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-HMRequestFramework-FullDemoTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-HMRequestFramework-FullDemoTests/Pods-HMRequestFramework-FullDemoTests.release.xcconfig"; sourceTree = "<group>"; };
 		AD4191EDC58157CBCAE6FEBF /* Pods_HMRequestFramework.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_HMRequestFramework.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		BA12918E65F22C89ADA03896 /* Pods-HMRequestFramework-FullDemoTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-HMRequestFramework-FullDemoTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-HMRequestFramework-FullDemoTests/Pods-HMRequestFramework-FullDemoTests.debug.xcconfig"; sourceTree = "<group>"; };
 		C4C9084A44030EDC5A620685 /* Pods-HMRequestFrameworkTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-HMRequestFrameworkTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-HMRequestFrameworkTests/Pods-HMRequestFrameworkTests.debug.xcconfig"; sourceTree = "<group>"; };
+		C79322E785005754F6F5337C /* Pods-HMRequestFramework-FullDemoTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-HMRequestFramework-FullDemoTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-HMRequestFramework-FullDemoTests/Pods-HMRequestFramework-FullDemoTests.release.xcconfig"; sourceTree = "<group>"; };
+		CED05FD835E9503EE1EA1463 /* Pods-HMRequestFramework-FullDemoTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-HMRequestFramework-FullDemoTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-HMRequestFramework-FullDemoTests/Pods-HMRequestFramework-FullDemoTests.debug.xcconfig"; sourceTree = "<group>"; };
 		D30051CD1F87BCA700936C93 /* HMCDOperationMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMCDOperationMode.swift; sourceTree = "<group>"; };
 		D303E86E1F3AFD1E00123EE7 /* VersionConflict.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VersionConflict.swift; sourceTree = "<group>"; };
 		D303E8701F3B1EE600123EE7 /* CoreDataRequestTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataRequestTest.swift; sourceTree = "<group>"; };
@@ -234,6 +236,7 @@
 		D310A047201266C400F96648 /* ReduxReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReduxReducer.swift; sourceTree = "<group>"; };
 		D310A04A2012694F00F96648 /* MainVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainVC.swift; sourceTree = "<group>"; };
 		D310A04C20126A8300F96648 /* NavigationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationService.swift; sourceTree = "<group>"; };
+		D3130ED52019DD5E0029682C /* HMRequestFramework.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = HMRequestFramework.playground; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		D31C58751F278A8A00C8D8CC /* HMProtocolConvertibleType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HMProtocolConvertibleType.swift; sourceTree = "<group>"; };
 		D3206FB81F55C445006AEDDF /* HMCDPaginationProviderType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMCDPaginationProviderType.swift; sourceTree = "<group>"; };
 		D3206FBA1F55C68C006AEDDF /* HMCDPaginationMultipleType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMCDPaginationMultipleType.swift; sourceTree = "<group>"; };
@@ -377,6 +380,7 @@
 		D3FF53661F29E2FE00F78806 /* CoreDataManagerTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataManagerTest.swift; sourceTree = "<group>"; };
 		D3FF53691F29E2FE00F78806 /* NetworkingTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkingTest.swift; sourceTree = "<group>"; };
 		D3FF536B1F29E2FE00F78806 /* RequestTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RequestTest.swift; sourceTree = "<group>"; };
+		E926B4C5912331E631B91835 /* Pods_PlaygroundFramework.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_PlaygroundFramework.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		FC726CF994EA0A543CC7E354 /* Pods-HMRequestFramework.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-HMRequestFramework.debug.xcconfig"; path = "Pods/Target Support Files/Pods-HMRequestFramework/Pods-HMRequestFramework.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -419,7 +423,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C451626567836A2E3F11E9B1 /* Pods_HMRequestFramework_FullDemoTests.framework in Frameworks */,
+				1A5965C25AF4F3BAFB9C59AF /* Pods_HMRequestFramework_FullDemoTests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -437,8 +441,10 @@
 				72ABE922114B7B6E1A33E39E /* Pods-HMRequestFramework-Demo.release.xcconfig */,
 				7AE6F200AAFE05D3E414FEBD /* Pods-HMRequestFramework-FullDemo.debug.xcconfig */,
 				77B20715E5E52DD2C35EE0E7 /* Pods-HMRequestFramework-FullDemo.release.xcconfig */,
-				BA12918E65F22C89ADA03896 /* Pods-HMRequestFramework-FullDemoTests.debug.xcconfig */,
-				A53A50DD14BA38777895A7FB /* Pods-HMRequestFramework-FullDemoTests.release.xcconfig */,
+				6A26FD4D7BD8009BAC7EB5DD /* Pods-PlaygroundFramework.debug.xcconfig */,
+				6FD042164F4195B168A6342A /* Pods-PlaygroundFramework.release.xcconfig */,
+				CED05FD835E9503EE1EA1463 /* Pods-HMRequestFramework-FullDemoTests.debug.xcconfig */,
+				C79322E785005754F6F5337C /* Pods-HMRequestFramework-FullDemoTests.release.xcconfig */,
 			);
 			name = Pods;
 			sourceTree = "<group>";
@@ -451,6 +457,7 @@
 				55C23ADC0EEE30FA90C15B88 /* Pods_HMRequestFramework_Demo.framework */,
 				09C74A00F0D8AC4583688214 /* Pods_HMRequestFramework_FullDemo.framework */,
 				7988D1697BAAB20ECBD492CA /* Pods_HMRequestFramework_FullDemoTests.framework */,
+				E926B4C5912331E631B91835 /* Pods_PlaygroundFramework.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -654,6 +661,7 @@
 		D378D6CA1F25E088009B89B2 = {
 			isa = PBXGroup;
 			children = (
+				D3130ED52019DD5E0029682C /* HMRequestFramework.playground */,
 				2EBC354C778D426DD12A8747 /* Frameworks */,
 				D378D6D61F25E088009B89B2 /* HMRequestFramework */,
 				D39BDA9B1F4E6B5500A397BD /* HMRequestFramework-Demo */,
@@ -1143,12 +1151,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = D3F59B79200F50C100EB5960 /* Build configuration list for PBXNativeTarget "HMRequestFramework-FullDemoTests" */;
 			buildPhases = (
-				938B2D4C0273F32BE871212C /* [CP] Check Pods Manifest.lock */,
+				47F4996AD45CC0051BEFCA88 /* [CP] Check Pods Manifest.lock */,
 				D3F59B69200F50C100EB5960 /* Sources */,
 				D3F59B6A200F50C100EB5960 /* Frameworks */,
 				D3F59B6B200F50C100EB5960 /* Resources */,
-				772AEA8842F73F4C11CE58E2 /* [CP] Embed Pods Frameworks */,
-				32D35A1EA2D3FF6498D3E10F /* [CP] Copy Pods Resources */,
+				945857B8B67A858B2F8C58A8 /* [CP] Embed Pods Frameworks */,
+				61BE0D5E90D5DE8AF8BC0022 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -1283,21 +1291,6 @@
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-HMRequestFrameworkTests/Pods-HMRequestFrameworkTests-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		32D35A1EA2D3FF6498D3E10F /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "[CP] Copy Pods Resources";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-HMRequestFramework-FullDemoTests/Pods-HMRequestFramework-FullDemoTests-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
 		32D6B0E493A966925CF8CF31 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -1328,6 +1321,24 @@
 			name = "[CP] Check Pods Manifest.lock";
 			outputPaths = (
 				"$(DERIVED_FILE_DIR)/Pods-HMRequestFramework-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		47F4996AD45CC0051BEFCA88 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-HMRequestFramework-FullDemoTests-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -1367,7 +1378,37 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		772AEA8842F73F4C11CE58E2 /* [CP] Embed Pods Frameworks */ = {
+		61BE0D5E90D5DE8AF8BC0022 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-HMRequestFramework-FullDemoTests/Pods-HMRequestFramework-FullDemoTests-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		8868FED5233C47E919F6438B /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-HMRequestFramework/Pods-HMRequestFramework-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		945857B8B67A858B2F8C58A8 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -1409,39 +1450,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-HMRequestFramework-FullDemoTests/Pods-HMRequestFramework-FullDemoTests-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		8868FED5233C47E919F6438B /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "[CP] Copy Pods Resources";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-HMRequestFramework/Pods-HMRequestFramework-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		938B2D4C0273F32BE871212C /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-HMRequestFramework-FullDemoTests-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
 		A7A73240072D99E95587CEA1 /* [CP] Check Pods Manifest.lock */ = {
@@ -2115,7 +2123,7 @@
 		};
 		D3F59B76200F50C100EB5960 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = BA12918E65F22C89ADA03896 /* Pods-HMRequestFramework-FullDemoTests.debug.xcconfig */;
+			baseConfigurationReference = CED05FD835E9503EE1EA1463 /* Pods-HMRequestFramework-FullDemoTests.debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
@@ -2140,7 +2148,7 @@
 		};
 		D3F59B77200F50C100EB5960 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = A53A50DD14BA38777895A7FB /* Pods-HMRequestFramework-FullDemoTests.release.xcconfig */;
+			baseConfigurationReference = C79322E785005754F6F5337C /* Pods-HMRequestFramework-FullDemoTests.release.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";

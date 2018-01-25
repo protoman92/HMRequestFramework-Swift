@@ -48,10 +48,48 @@ public final class CDUser: NSManagedObject {
     @NSManaged public var updatedAt: Date?
 }
 
+public struct User {
+    public static let updatedAtKey = "updatedAt"
+    
+    fileprivate var _id: String?
+    fileprivate var _name: String?
+    fileprivate var _age: NSNumber?
+    fileprivate var _visible: NSNumber?
+    fileprivate var _updatedAt: Date?
+    
+    public var id: String? {
+        return _id
+    }
+    
+    public var name: String? {
+        return _name
+    }
+    
+    public var age: NSNumber? {
+        return _age
+    }
+    
+    public var visible: NSNumber? {
+        return _visible
+    }
+    
+    public var updatedAt: Date? {
+        return _updatedAt
+    }
+    
+    fileprivate init() {
+        _updatedAt = Date()
+    }
+}
+
+///////////////////////////////// EXTENSIONS /////////////////////////////////
+
 extension CDUser: UserType {}
 
-/// Version control to enable optimistic locking.
-extension CDUser: HMCDVersionableMasterType {
+extension CDUser: HMCDObjectMasterType {
+//
+///// Version control to enable optimistic locking.
+//extension CDUser: HMCDVersionableMasterType {
     public typealias PureObject = User
     
     public static func cdAttributes() throws -> [NSAttributeDescription]? {
@@ -98,78 +136,44 @@ extension CDUser: HMCDVersionableMasterType {
         updatedAt = object.updatedAt
     }
     
-    fileprivate func versionDateFormat() -> String {
-        return "yyyy/MM/dd hh:mm:ss a"
-    }
-    
-    fileprivate func formatDateForVersioning(_ date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = versionDateFormat()
-        return formatter.string(from: date)
-    }
-    
-    fileprivate func convertVersionToDate(_ string: String) -> Date? {
-        let formatter = DateFormatter()
-        formatter.dateFormat = versionDateFormat()
-        return formatter.date(from: string)
-    }
-    
-    /// Implement the version update with updateAt date flag.
-    public func currentVersion() -> String? {
-        return updatedAt.map({formatDateForVersioning($0)})
-    }
-    
-    public func oneVersionHigher() -> String? {
-        return formatDateForVersioning(Date())
-    }
-    
-    public func hasPreferableVersion(over obj: HMVersionableType) throws -> Bool {
-        let date = obj.currentVersion().flatMap({convertVersionToDate($0)})
-        return updatedAt.zipWith(date, {$0 >= $1}).getOrElse(false)
-    }
-    
-    public func mergeWithOriginalVersion(_ obj: HMVersionableType) throws {
-        name = "MergedDueToVersionConflict"
-        age = 999
-    }
-    
-    public func updateVersion(_ version: String?) throws {
-        updatedAt = version.flatMap({convertVersionToDate($0)})
-    }
-}
-
-public struct User {
-    public static let updatedAtKey = "updatedAt"
-    
-    fileprivate var _id: String?
-    fileprivate var _name: String?
-    fileprivate var _age: NSNumber?
-    fileprivate var _visible: NSNumber?
-    fileprivate var _updatedAt: Date?
-    
-    public var id: String? {
-        return _id
-    }
-    
-    public var name: String? {
-        return _name
-    }
-    
-    public var age: NSNumber? {
-        return _age
-    }
-    
-    public var visible: NSNumber? {
-        return _visible
-    }
-    
-    public var updatedAt: Date? {
-        return _updatedAt
-    }
-    
-    fileprivate init() {
-        _updatedAt = Date()
-    }
+//    fileprivate func versionDateFormat() -> String {
+//        return "yyyy/MM/dd hh:mm:ss a"
+//    }
+//
+//    fileprivate func formatDateForVersioning(_ date: Date) -> String {
+//        let formatter = DateFormatter()
+//        formatter.dateFormat = versionDateFormat()
+//        return formatter.string(from: date)
+//    }
+//
+//    fileprivate func convertVersionToDate(_ string: String) -> Date? {
+//        let formatter = DateFormatter()
+//        formatter.dateFormat = versionDateFormat()
+//        return formatter.date(from: string)
+//    }
+//
+//    /// Implement the version update with updateAt date flag.
+//    public func currentVersion() -> String? {
+//        return updatedAt.map({formatDateForVersioning($0)})
+//    }
+//
+//    public func oneVersionHigher() -> String? {
+//        return formatDateForVersioning(Date())
+//    }
+//
+//    public func hasPreferableVersion(over obj: HMVersionableType) throws -> Bool {
+//        let date = obj.currentVersion().flatMap({convertVersionToDate($0)})
+//        return updatedAt.zipWith(date, {$0 >= $1}).getOrElse(false)
+//    }
+//
+//    public func mergeWithOriginalVersion(_ obj: HMVersionableType) throws {
+//        name = "MergedDueToVersionConflict"
+//        age = 999
+//    }
+//
+//    public func updateVersion(_ version: String?) throws {
+//        updatedAt = version.flatMap({convertVersionToDate($0)})
+//    }
 }
 
 extension User: UserType {}
@@ -181,7 +185,9 @@ extension User: HMCDPureObjectMasterType {
         return Builder()
     }
     
-    public final class Builder {
+    public final class Builder: HMCDPureObjectBuilderMasterType {
+        public typealias Buildable = User
+        
         fileprivate var user: Buildable
         
         public init() {
@@ -224,28 +230,24 @@ extension User: HMCDPureObjectMasterType {
                 .with(updatedAt: $0.updatedAt)
             }).getOrElse(self)
         }
-    }
-}
-
-extension User.Builder: HMCDPureObjectBuilderMasterType {
-    public typealias Buildable = User
-    
-    public func with(buildable: Buildable?) -> Self {
-        return with(user: buildable)
-    }
-    
-    public func with(cdObject: Buildable.CDClass) -> Self {
-        return with(user: cdObject)
-    }
-    
-    public func build() -> Buildable {
-        return user
+        
+        public func with(buildable: Buildable?) -> Self {
+            return with(user: buildable)
+        }
+        
+        public func with(cdObject: Buildable.CDClass) -> Self {
+            return with(user: cdObject)
+        }
+        
+        public func build() -> Buildable {
+            return user
+        }
     }
 }
 
 extension User: CustomStringConvertible {
     public var description: String {
-        return id.getOrElse("No id? present")
+        return id.getOrElse("No id present")
     }
 }
 

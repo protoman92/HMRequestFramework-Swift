@@ -67,7 +67,6 @@ DEPENDENCIES:
   - HMEventSourceManager/Main (from `https://github.com/Holmusk/HMEventSourceManager-iOS.git`)
   - HMReactiveRedux/Main (from `https://github.com/Holmusk/HMReactiveRedux-iOS.git`)
   - MRProgress
-  - ReachabilitySwift
   - RxDataSources
   - SwiftUIUtilities/Main (from `https://github.com/protoman92/SwiftUIUtilities.git`)
   - SwiftUtilities/Main (from `https://github.com/protoman92/SwiftUtilities.git`)
@@ -113,6 +112,6 @@ SPEC CHECKSUMS:
   SwiftUtilities: ef0087625fe58fb8909af372111e23461d10af55
   SwiftUtilitiesTests: cc224ef1ef1b455dc89bc43358d999e56ffbec00
 
-PODFILE CHECKSUM: 3cda6732f55331491538e69f3608a407298d4887
+PODFILE CHECKSUM: 384bd5d83f245ae933c8c9d67cde87e5c8e6dab6
 
 COCOAPODS: 1.4.0.rc.1
