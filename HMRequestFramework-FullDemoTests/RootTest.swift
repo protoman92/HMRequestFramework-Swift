@@ -6,6 +6,7 @@
 //  Copyright © 2018 Holmusk. All rights reserved.
 //
 
+import HMReactiveRedux
 import RxSwift
 import RxTest
 import SwiftUtilitiesTests
@@ -17,6 +18,7 @@ public class RootTest: XCTestCase {
     public var singleton: SingletonType!
     public var scheduler: TestScheduler!
     public var timeout: TimeInterval!
+    public var dbWait: TimeInterval!
     
     override public func setUp() {
         super.setUp()
@@ -24,5 +26,13 @@ public class RootTest: XCTestCase {
         singleton = Singleton.create(.InMemory)
         scheduler = TestScheduler(initialClock: 0)
         timeout = 10
+        dbWait = 0.1
+    }
+}
+
+public extension RootTest {
+    public func globalErrorStream() -> Observable<Error?> {
+        let path = HMGeneralReduxAction.Error.Display.errorPath
+        return singleton.reduxStore.stateValueStream(Error.self, path)
     }
 }

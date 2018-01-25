@@ -286,11 +286,11 @@ public struct UserProfileViewModel {
         
         switch info {
         case .age:
-            let model = UserAgeTextCellModel(provider, info)
+            let model = UserAgeTextCellModel(provider)
             return UserTextCellViewModel(provider, model)
             
         case .name:
-            let model = UserNameTextCellModel(provider, info)
+            let model = UserNameTextCellModel(provider)
             return UserTextCellViewModel(provider, model)
         }
     }

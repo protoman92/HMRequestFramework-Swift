@@ -52,6 +52,7 @@
 		D34246EE200FBFDE00A9BE59 /* TrackedObjectManagerTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = D34246ED200FBFDE00A9BE59 /* TrackedObjectManagerTest.swift */; };
 		D34246F0200FC12900A9BE59 /* RootTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = D34246EF200FC12900A9BE59 /* RootTest.swift */; };
 		D347671A1F5004F1006C8E9E /* HMMiddlewares.swift in Sources */ = {isa = PBXBuildFile; fileRef = D34767191F5004F1006C8E9E /* HMMiddlewares.swift */; };
+		D34B6C6320197647002BC342 /* UserTextCellVMTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = D34B6C6220197647002BC342 /* UserTextCellVMTest.swift */; };
 		D34DF2921F2C2D740076D6B1 /* HMMiddleware.swift in Sources */ = {isa = PBXBuildFile; fileRef = D34DF2911F2C2D740076D6B1 /* HMMiddleware.swift */; };
 		D34DF2941F2C323A0076D6B1 /* HMFilterMiddlewareManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D34DF2931F2C323A0076D6B1 /* HMFilterMiddlewareManager.swift */; };
 		D34DF2971F2C52740076D6B1 /* MiddlewareTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = D34DF2961F2C52740076D6B1 /* MiddlewareTest.swift */; };
@@ -263,6 +264,7 @@
 		D34246ED200FBFDE00A9BE59 /* TrackedObjectManagerTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackedObjectManagerTest.swift; sourceTree = "<group>"; };
 		D34246EF200FC12900A9BE59 /* RootTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootTest.swift; sourceTree = "<group>"; };
 		D34767191F5004F1006C8E9E /* HMMiddlewares.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMMiddlewares.swift; sourceTree = "<group>"; };
+		D34B6C6220197647002BC342 /* UserTextCellVMTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserTextCellVMTest.swift; sourceTree = "<group>"; };
 		D34DF2911F2C2D740076D6B1 /* HMMiddleware.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMMiddleware.swift; sourceTree = "<group>"; };
 		D34DF2931F2C323A0076D6B1 /* HMFilterMiddlewareManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMFilterMiddlewareManager.swift; sourceTree = "<group>"; };
 		D34DF2961F2C52740076D6B1 /* MiddlewareTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MiddlewareTest.swift; sourceTree = "<group>"; };
@@ -603,6 +605,22 @@
 			path = model;
 			sourceTree = "<group>";
 		};
+		D34B6C642019782E002BC342 /* mvvm */ = {
+			isa = PBXGroup;
+			children = (
+				D34B6C6220197647002BC342 /* UserTextCellVMTest.swift */,
+			);
+			path = mvvm;
+			sourceTree = "<group>";
+		};
+		D34B6C6720197851002BC342 /* manager */ = {
+			isa = PBXGroup;
+			children = (
+				D34246ED200FBFDE00A9BE59 /* TrackedObjectManagerTest.swift */,
+			);
+			path = manager;
+			sourceTree = "<group>";
+		};
 		D34DF2901F2C2D540076D6B1 /* middleware */ = {
 			isa = PBXGroup;
 			children = (
@@ -903,8 +921,9 @@
 		D3F59B70200F50C100EB5960 /* HMRequestFramework-FullDemoTests */ = {
 			isa = PBXGroup;
 			children = (
+				D34B6C6720197851002BC342 /* manager */,
+				D34B6C642019782E002BC342 /* mvvm */,
 				D3F59B73200F50C100EB5960 /* Info.plist */,
-				D34246ED200FBFDE00A9BE59 /* TrackedObjectManagerTest.swift */,
 				D34246EF200FC12900A9BE59 /* RootTest.swift */,
 			);
 			path = "HMRequestFramework-FullDemoTests";
@@ -1744,6 +1763,7 @@
 			files = (
 				D34246EE200FBFDE00A9BE59 /* TrackedObjectManagerTest.swift in Sources */,
 				D34246F0200FC12900A9BE59 /* RootTest.swift in Sources */,
+				D34B6C6320197647002BC342 /* UserTextCellVMTest.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

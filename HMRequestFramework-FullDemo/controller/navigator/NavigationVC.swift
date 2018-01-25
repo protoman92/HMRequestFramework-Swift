@@ -35,16 +35,17 @@ public extension NavigationVC {
     }
     
     fileprivate func displayProgress(_ enabled: Bool, _ controller: NavigationVC) {
-        guard let view = controller.view else {
-            debugException()
-            return
-        }
-        
-        if enabled {
-            MRProgressOverlayView.showOverlayAdded(to: view, animated: true)
-        } else {
-            MRProgressOverlayView.dismissOverlay(for: view, animated: true)
-        }
+//        guard let view = controller.view else {
+//            debugException()
+//            return
+//        }
+//
+//        if enabled {
+//            MRProgressOverlayView.showOverlayAdded(to: view, animated: true)
+//        } else {
+//            MRProgressOverlayView.dismissOverlay(for: view, animated: true)
+//        }
+        print("Displaying progress: \(enabled)")
     }
     
     fileprivate func bindViewModel(_ controller: NavigationVC) {

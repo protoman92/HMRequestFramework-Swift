@@ -137,8 +137,8 @@ public struct UserNameTextCellModel: UserTextCellModelType {
         return model.userInformation
     }
     
-    public init(_ provider: SingletonType, _ info: UserInformation) {
-        self.model = UserTextCellModel(provider, info)
+    public init(_ provider: SingletonType) {
+        self.model = UserTextCellModel(provider, .name)
     }
     
     public func dbUserStream() -> Observable<Try<User>> {
@@ -165,8 +165,8 @@ public struct UserAgeTextCellModel: UserTextCellModelType {
         return model.userInformation
     }
     
-    public init(_ provider: SingletonType, _ info: UserInformation) {
-        self.model = UserTextCellModel(provider, info)
+    public init(_ provider: SingletonType) {
+        self.model = UserTextCellModel(provider, .age)
     }
     
     public func dbUserStream() -> Observable<Try<User>> {
