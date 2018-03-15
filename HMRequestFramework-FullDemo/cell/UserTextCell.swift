@@ -263,13 +263,10 @@ public struct UserTextCellViewModel {
     
     fileprivate func updateUserInDB(_ user: Try<User>) -> Observable<Try<Void>> {
         let model = self.model
-        let qos: DispatchQoS.QoSClass = .background
         
         /// Simulate concurrent database modifications. The version control
         /// mechanism should take care of the conflict, based on the specified
         /// resolutation strategy (optimistic locking).
-        return Observable<Int>
-            .timer(0, scheduler: ConcurrentDispatchQueueScheduler(qos: qos))
-            .flatMap({_ in model.updateUserInDB(user)})
+        return model.updateUserInDB(user)
     }
 }

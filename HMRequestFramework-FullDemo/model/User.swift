@@ -86,10 +86,10 @@ public struct User {
 
 extension CDUser: UserType {}
 
-extension CDUser: HMCDObjectMasterType {
-//
-///// Version control to enable optimistic locking.
-//extension CDUser: HMCDVersionableMasterType {
+//extension CDUser: HMCDObjectMasterType {
+
+/// Version control to enable optimistic locking.
+extension CDUser: HMCDVersionableMasterType {
     public typealias PureObject = User
     
     public static func cdAttributes() throws -> [NSAttributeDescription]? {
@@ -136,44 +136,44 @@ extension CDUser: HMCDObjectMasterType {
         updatedAt = object.updatedAt
     }
     
-//    fileprivate func versionDateFormat() -> String {
-//        return "yyyy/MM/dd hh:mm:ss a"
-//    }
-//
-//    fileprivate func formatDateForVersioning(_ date: Date) -> String {
-//        let formatter = DateFormatter()
-//        formatter.dateFormat = versionDateFormat()
-//        return formatter.string(from: date)
-//    }
-//
-//    fileprivate func convertVersionToDate(_ string: String) -> Date? {
-//        let formatter = DateFormatter()
-//        formatter.dateFormat = versionDateFormat()
-//        return formatter.date(from: string)
-//    }
-//
-//    /// Implement the version update with updateAt date flag.
-//    public func currentVersion() -> String? {
-//        return updatedAt.map({formatDateForVersioning($0)})
-//    }
-//
-//    public func oneVersionHigher() -> String? {
-//        return formatDateForVersioning(Date())
-//    }
-//
-//    public func hasPreferableVersion(over obj: HMVersionableType) throws -> Bool {
-//        let date = obj.currentVersion().flatMap({convertVersionToDate($0)})
-//        return updatedAt.zipWith(date, {$0 >= $1}).getOrElse(false)
-//    }
-//
-//    public func mergeWithOriginalVersion(_ obj: HMVersionableType) throws {
-//        name = "MergedDueToVersionConflict"
-//        age = 999
-//    }
-//
-//    public func updateVersion(_ version: String?) throws {
-//        updatedAt = version.flatMap({convertVersionToDate($0)})
-//    }
+    fileprivate func versionDateFormat() -> String {
+        return "yyyy/MM/dd hh:mm:ss a"
+    }
+
+    fileprivate func formatDateForVersioning(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = versionDateFormat()
+        return formatter.string(from: date)
+    }
+
+    fileprivate func convertVersionToDate(_ string: String) -> Date? {
+        let formatter = DateFormatter()
+        formatter.dateFormat = versionDateFormat()
+        return formatter.date(from: string)
+    }
+
+    /// Implement the version update with updateAt date flag.
+    public func currentVersion() -> String? {
+        return updatedAt.map({formatDateForVersioning($0)})
+    }
+
+    public func oneVersionHigher() -> String? {
+        return formatDateForVersioning(Date())
+    }
+
+    public func hasPreferableVersion(over obj: HMVersionableType) throws -> Bool {
+        let date = obj.currentVersion().flatMap({convertVersionToDate($0)})
+        return updatedAt.zipWith(date, {$0 >= $1}).getOrElse(false)
+    }
+
+    public func mergeWithOriginalVersion(_ obj: HMVersionableType) throws {
+        name = "MergedDueToVersionConflict"
+        age = 999
+    }
+
+    public func updateVersion(_ version: String?) throws {
+        updatedAt = version.flatMap({convertVersionToDate($0)})
+    }
 }
 
 extension User: UserType {}
