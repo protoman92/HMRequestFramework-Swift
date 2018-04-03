@@ -117,7 +117,7 @@ CHECKOUT OPTIONS:
     :commit: c44437ec43b62d435931608472430bbe0e5a2c92
     :git: https://github.com/ivanbruel/RxReachability.git
   SwiftUIUtilities:
-    :commit: 853e12f880458dee034bc67b1f1abd69acad4565
+    :commit: 214808ece69064a869aa261e13d01fa105d2e375
     :git: https://github.com/protoman92/SwiftUIUtilities.git
   SwiftUtilities:
     :commit: 7a3e200e71ec3048177eced1e5eb1d201c9e2502

@@ -123,7 +123,7 @@ public extension HMCDManager {
 
     // It's ok for these requests not to have the original object. We will
     // get them right below.
-    let versionables = requests.compactMap({try? $0.editedVC()})
+    let versionables = requests.flatMap({try? $0.editedVC()})
     let ids = versionables as [HMCDIdentifiableType]
     var originals = try self.blockingFetchIdentifiables(context, entityName, ids)
     var results: [HMCDResult] = []

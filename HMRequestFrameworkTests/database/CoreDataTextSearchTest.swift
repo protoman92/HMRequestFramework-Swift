@@ -85,7 +85,7 @@ public final class CoreDataTextSearchTest: CoreDataRootTest {
     XCTAssertTrue(!nextElements.isEmpty)
     validate(additional, nextElements)
 
-    print(nextElements.compactMap({$0.id}))
+    print(nextElements.flatMap({$0.id}))
   }
 
   public func test_fetchWithContains_shouldWork() {

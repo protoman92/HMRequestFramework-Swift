@@ -169,7 +169,7 @@ public extension HMCDRequestProcessorType {
 
       // Since asPureObject() does not throw an error, we can safely
       // assume the processing succeeds for all items.
-      .map({$0.map({$0.compactMap({$0.value})})})
+      .map({$0.map({$0.flatMap({$0.value})})})
   }
 
   /// This method should be used for all operations other than those which

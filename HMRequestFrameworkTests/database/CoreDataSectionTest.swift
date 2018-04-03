@@ -18,11 +18,11 @@ extension CoreDataSectionTest {
     {
         /// Setup
         let objects = ["1", "2", "3"]
-      let newObjects = objects.compactMap({Int($0)})
+      let newObjects = objects.flatMap({Int($0)})
         let section = SC.init(indexTitle: nil, name: "", objects: objects)
         
         /// When
-      let section2 = section.mapObjects({$0.compactMap({Int($0)})}, cls2)
+      let section2 = section.mapObjects({$0.flatMap({Int($0)})}, cls2)
         let section3 = section.mapObjects({_ -> [Int]? in nil}, cls2)
         
         /// Then

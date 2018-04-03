@@ -120,7 +120,7 @@ public extension HMCDManager {
     -> [NSManagedObject] where
     S: Sequence, S.Element: NSManagedObject
   {
-    return try data.map({$0.objectID}).compactMap(context.existingObject)
+    return try data.map({$0.objectID}).flatMap(context.existingObject)
   }
 }
 

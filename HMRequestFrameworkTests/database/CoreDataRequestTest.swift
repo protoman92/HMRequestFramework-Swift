@@ -164,10 +164,10 @@ public class CoreDataRequestTest: CoreDataRootTest {
     let pureObjects = (0..<dummyCount).map({_ in Dummy1()})
 
     var fetchedProps: [String : [CVarArg]] = [:]
-    fetchedProps["id"] = pureObjects.compactMap({$0.id})
-    fetchedProps["date"] = pureObjects.compactMap({$0.date.map({$0 as NSDate})})
-    fetchedProps["float"] = pureObjects.compactMap({$0.float})
-    fetchedProps["int64"] = pureObjects.compactMap({$0.int64})
+    fetchedProps["id"] = pureObjects.flatMap({$0.id})
+    fetchedProps["date"] = pureObjects.flatMap({$0.date.map({$0 as NSDate})})
+    fetchedProps["float"] = pureObjects.flatMap({$0.float})
+    fetchedProps["int64"] = pureObjects.flatMap({$0.int64})
 
     let qos: DispatchQoS.QoSClass = .background
 

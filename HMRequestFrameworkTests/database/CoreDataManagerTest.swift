@@ -94,7 +94,7 @@ public extension CoreDataManagerTest {
         let manager = self.manager!
         let context = manager.disposableObjectContext()
         let dummyCount = self.dummyCount!
-      let pureObjects = (0..<dummyCount).compactMap({_ in Dummy1()})
+      let pureObjects = (0..<dummyCount).flatMap({_ in Dummy1()})
         let cdObjects = try! manager.constructUnsafely(context, pureObjects)
         let entityName = try! Dummy1.CDClass.entityName()
         
@@ -138,7 +138,7 @@ public extension CoreDataManagerTest {
         let dummyCount = self.dummyCount!
         let pureObjects1 = (0..<dummyCount).map({_ in Dummy1()})
         
-      let pureObjects2 = (0..<dummyCount).compactMap({(i) -> Dummy1 in
+      let pureObjects2 = (0..<dummyCount).flatMap({(i) -> Dummy1 in
             Dummy1.builder().with(id: pureObjects1[i].id).build()
         })
         
@@ -290,7 +290,7 @@ public extension CoreDataManagerTest {
             // Fetch to verify that the data have been persisted.
             .flatMap({manager.rx.fetch(fetchContext1, request)})
             .doOnNext({XCTAssertEqual($0.count, iterationCount * dummyCount)})
-            .doOnNext({XCTAssertTrue($0.compactMap({$0.id}).count > 0)})
+            .doOnNext({XCTAssertTrue($0.flatMap({$0.id}).count > 0)})
             .map({$0.map({try! $0.asPureObject()})})
             .flatMap({(objects) -> Observable<Void> in
                 let sc = manager.disposableObjectContext()
