@@ -9,8 +9,8 @@
 import HMRequestFramework
 
 public final class DemoSingleton {
-    public static let cdManager = Singleton.coreDataManager(.background, .SQLite)
-    public static let dbProcessor = Singleton.dbProcessor(DemoSingleton.cdManager)
-    
-    private init() {}
+  public static let cdManager = Singleton.coreDataManager(.background, .SQLite)
+  public static let dbProcessor = Singleton.dbProcessor(DemoSingleton.cdManager)
+
+  private init() {}
 }

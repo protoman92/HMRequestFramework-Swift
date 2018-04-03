@@ -7,6 +7,7 @@
 //
 
 import RxSwift
+import SwiftFP
 import SwiftUtilities
 
 /// Classes that implement this protocol must be able to perform some request.

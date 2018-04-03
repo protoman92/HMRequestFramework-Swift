@@ -7,21 +7,21 @@
 //
 
 import RxSwift
-import SwiftUtilities
+import SwiftFP
 
-/// Classes that implement this protocol must base able to perform some request 
+/// Classes that implement this protocol must base able to perform some request
 /// and process the result.
 public protocol HMRequestProcessorType: HMRequestHandlerType {
 
-    /// Perform a request and process the result.
-    /// - Parameters:
-    ///   - previous: The result of the upstream request.
-    ///   - generator: Generator function to create the current request.
-    ///   - processor: Processor function to process the result.
-    /// - Returns: An Observable instance.
-    func process<Prev,Val,Res>(
-        _ previous: Try<Prev>,
-        _ generator: @escaping HMRequestGenerator<Prev,Req>,
-        _ processor: @escaping HMResultProcessor<Val,Res>)
-        -> Observable<Try<Res>>
+  /// Perform a request and process the result.
+  /// - Parameters:
+  ///   - previous: The result of the upstream request.
+  ///   - generator: Generator function to create the current request.
+  ///   - processor: Processor function to process the result.
+  /// - Returns: An Observable instance.
+  func process<Prev,Val,Res>(
+    _ previous: Try<Prev>,
+    _ generator: @escaping HMRequestGenerator<Prev,Req>,
+    _ processor: @escaping HMResultProcessor<Val,Res>)
+    -> Observable<Try<Res>>
 }

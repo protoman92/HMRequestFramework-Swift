@@ -9,17 +9,17 @@
 import SwiftUtilities
 
 public enum UserInformation: EnumerableType {
-    case name
-    case age
-    
-    public static func allValues() -> [UserInformation] {
-        return [name, age]
+  case name
+  case age
+
+  public static func allValues() -> [UserInformation] {
+    return [name, age]
+  }
+
+  public func title() -> String {
+    switch self {
+    case .name:     return "Name"
+    case .age:      return "Age"
     }
-    
-    public func title() -> String {
-        switch self {
-        case .name:     return "Name"
-        case .age:      return "Age"
-        }
-    }
+  }
 }

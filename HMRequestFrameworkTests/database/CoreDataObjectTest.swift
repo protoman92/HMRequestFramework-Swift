@@ -58,8 +58,8 @@ public final class CoreDataObjectTest: CoreDataRootTest {
         let dummies = (0..<times).map({_ in Dummy1()})
         
         /// When
-        let cdObjects = dummies.flatMap({try? $0.asManagedObject(context)})
-        let newDummies = cdObjects.flatMap({$0 as? Dummy1.CDClass}).map({try! $0.asPureObject()})
+      let cdObjects = dummies.compactMap({try? $0.asManagedObject(context)})
+      let newDummies = cdObjects.compactMap({$0 as? Dummy1.CDClass}).map({try! $0.asPureObject()})
         
         /// Then
         XCTAssertEqual(newDummies.count, dummies.count)

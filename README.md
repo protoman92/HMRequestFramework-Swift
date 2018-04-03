@@ -1,4 +1,8 @@
 # HMRequestFramework-iOS
+
+[![Build Status](https://travis-ci.org/protoman92/HMRequestFramework-iOS.svg?branch=master)](https://travis-ci.org/protoman92/HMRequestFramework-iOS)
+[![Coverage Status](https://coveralls.io/repos/github/protoman92/HMRequestFramework-iOS/badge.svg?branch=master)](https://coveralls.io/github/protoman92/HMRequestFramework-iOS?branch=master)
+
 Network/Database request framework for iOS clients.
 
 This framework provides handlers, processors and middlewares to manage all manners of requests, be it database or network. It guarantees immutability in most cases and relies heavily on **RxSwift**.

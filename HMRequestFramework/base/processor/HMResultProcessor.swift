@@ -7,11 +7,11 @@
 //
 
 import RxSwift
-import SwiftUtilities
+import SwiftFP
 
-/// Instead of declaring concrete types when perform requests, we delegate the 
+/// Instead of declaring concrete types when perform requests, we delegate the
 /// processing to an external function. This would decouple responsibilities.
 public typealias HMResultProcessor<Val,Res> = (Val) throws -> Observable<Try<Res>>
 
 public typealias HMProtocolResultProcessor<Val: HMProtocolConvertibleType> =
-    HMResultProcessor<Val,Val.PTCType>
+  HMResultProcessor<Val,Val.PTCType>

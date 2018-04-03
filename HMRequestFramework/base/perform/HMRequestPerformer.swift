@@ -7,7 +7,8 @@
 //
 
 import RxSwift
-import SwiftUtilities
+import SwiftFP
 
 /// This performer is responsible for executing a request and produce some result.
 public typealias HMRequestPerformer<Req,Val> = (Req) throws -> Observable<Try<Val>>
+

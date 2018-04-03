@@ -9,7 +9,9 @@
 import HMReactiveRedux
 
 public final class ReduxReducer {
-    public static func reducer(_ state: HMState, _ action: HMActionType) -> HMState {
-        return HMGeneralReduxReducer.generalReducer(state, action)
-    }
+  public static func reducer(_ state: TreeState<Any>, _ action: ReduxActionType)
+    -> TreeState<Any>
+  {
+    return GeneralReduxReducer.generalReducer(state, action)
+  }
 }

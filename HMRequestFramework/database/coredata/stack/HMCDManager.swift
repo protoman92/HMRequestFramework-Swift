@@ -57,7 +57,7 @@ public struct HMCDManager {
     /// - Returns: A StoreType instance.
     func allStoreTypes() -> [HMCDStoreSettings.StoreType] {
         return coordinator.persistentStores.map({$0.type})
-            .flatMap(HMCDStoreSettings.StoreType.from)
+          .compactMap(HMCDStoreSettings.StoreType.from)
     }
     
     /// Check if all stores are of a certain type.

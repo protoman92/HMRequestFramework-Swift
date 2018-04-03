@@ -6,132 +6,132 @@
 //  Copyright © 2017 Holmusk. All rights reserved.
 //
 
+import SwiftFP
 import SwiftUtilities
 
 /// Use this class to represent the result of some operation that is applied
 /// to multiple items (e.g. in an Array), for which the result of each application
 /// could be relevant to downstream flow.
 public struct HMResult<Val> {
-    public static func just(_ obj: Val) -> HMResult<Val> {
-        return HMResult<Val>.builder().with(object: obj).build()
+  public static func just(_ obj: Val) -> HMResult<Val> {
+    return HMResult<Val>.builder().with(object: obj).build()
+  }
+
+  public static func just(_ error: Error) -> HMResult<Val> {
+    return HMResult<Val>.builder().with(error: error).build()
+  }
+
+  /// Convert a Try to a HMResult.
+  ///
+  /// - Parameter tryInstance: A Try instance.
+  /// - Returns: A HMResult instance.
+  public static func from(_ tryInstance: Try<Val>) -> HMResult<Val> {
+    do {
+      let result = try tryInstance.getOrThrow()
+      return HMResult.just(result)
+    } catch let e {
+      return HMResult.just(e)
     }
-    
-    public static func just(_ error: Error) -> HMResult<Val> {
-        return HMResult<Val>.builder().with(error: error).build()
+  }
+
+  /// Unwrap a Try that contains a HMResult.
+  ///
+  /// - Parameter wrapped: A Try instance.
+  /// - Returns: A HMResult instance.
+  public static func unwrap(_ wrapped: Try<HMResult<Val>>) -> HMResult<Val> {
+    do {
+      let result = try wrapped.getOrThrow()
+      return result
+    } catch let e {
+      return HMResult.just(e)
     }
-    
-    /// Convert a Try to a HMResult.
-    ///
-    /// - Parameter tryInstance: A Try instance.
-    /// - Returns: A HMResult instance.
-    public static func from(_ tryInstance: Try<Val>) -> HMResult<Val> {
-        switch tryInstance {
-        case .success(let result):
-            return HMResult<Val>.just(result)
-            
-        case .failure(let e):
-            return HMResult<Val>.just(e)
-        }
-    }
-    
-    /// Unwrap a Try that contains a HMResult.
-    ///
-    /// - Parameter wrapped: A Try instance.
-    /// - Returns: A HMResult instance.
-    public static func unwrap(_ wrapped: Try<HMResult<Val>>) -> HMResult<Val> {
-        switch wrapped {
-        case .success(let result):
-            return result
-            
-        case .failure(let e):
-            return HMResult<Val>.just(e)
-        }
-    }
-    
-    fileprivate var object: Val?
-    fileprivate var error: Error?
-    
-    fileprivate init() {}
-    
-    public func appliedObject() -> Val? {
-        return object
-    }
-    
-    public func operationError() -> Error? {
-        return error
-    }
+  }
+
+  fileprivate var object: Val?
+  fileprivate var error: Error?
+
+  fileprivate init() {}
+
+  public func appliedObject() -> Val? {
+    return object
+  }
+
+  public func operationError() -> Error? {
+    return error
+  }
 }
 
 public extension HMResult {
-    public func isSuccess() -> Bool {
-        return error == nil
-    }
-    
-    public func isFailure() -> Bool {
-        return !isSuccess()
-    }
+  public func isSuccess() -> Bool {
+    return error == nil
+  }
+
+  public func isFailure() -> Bool {
+    return !isSuccess()
+  }
 }
 
 extension HMResult: HMBuildableType {
-    public static func builder() -> Builder {
-        return Builder()
+  public static func builder() -> Builder {
+    return Builder()
+  }
+
+  public final class Builder {
+    fileprivate var result: HMResult
+
+    fileprivate init() {
+      result = HMResult()
     }
-    
-    public final class Builder {
-        fileprivate var result: HMResult
-        
-        fileprivate init() {
-            result = HMResult()
-        }
-        
-        /// Set the object to which the operation was applied.
-        ///
-        /// - Parameter object: A Val instance.
-        /// - Returns: The current Builder instance.
-        @discardableResult
-        public func with(object: Val?) -> Self {
-            result.object = object
-            return self
-        }
-        
-        /// Set the operation Error.
-        ///
-        /// - Parameter error: An Error instance.
-        /// - Returns: The current Builder instance.
-        @discardableResult
-        public func with(error: Error?) -> Self {
-            result.error = error
-            return self
-        }
+
+    /// Set the object to which the operation was applied.
+    ///
+    /// - Parameter object: A Val instance.
+    /// - Returns: The current Builder instance.
+    @discardableResult
+    public func with(object: Val?) -> Self {
+      result.object = object
+      return self
     }
+
+    /// Set the operation Error.
+    ///
+    /// - Parameter error: An Error instance.
+    /// - Returns: The current Builder instance.
+    @discardableResult
+    public func with(error: Error?) -> Self {
+      result.error = error
+      return self
+    }
+  }
 }
 
 extension HMResult.Builder: HMBuilderType {
-    public typealias Buildable = HMResult<Val>
-    
-    public func with(buildable: Buildable?) -> Self {
-        if let buildable = buildable {
-            return self
-                .with(object: buildable.object)
-                .with(error: buildable.error)
-        } else {
-            return self
-        }
+  public typealias Buildable = HMResult<Val>
+
+  public func with(buildable: Buildable?) -> Self {
+    if let buildable = buildable {
+      return self
+        .with(object: buildable.object)
+        .with(error: buildable.error)
+    } else {
+      return self
     }
-    
-    public func build() -> Buildable {
-        return result
-    }
+  }
+
+  public func build() -> Buildable {
+    return result
+  }
 }
 
 extension HMResult: TryConvertibleType {
-    public func asTry() -> Try<Val> {
-        if let error = self.operationError() {
-            return Try.failure(error)
-        } else if let object = self.appliedObject() {
-            return Try.success(object)
-        } else {
-            return Try.failure(Exception("Invalid result \(self)"))
-        }
+  public func asTry() -> Try<Val> {
+    if let error = self.operationError() {
+      return Try.failure(error)
+    } else if let object = self.appliedObject() {
+      return Try.success(object)
+    } else {
+      return Try.failure(Exception("Invalid result \(self)"))
     }
+  }
 }
+
