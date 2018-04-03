@@ -2,7 +2,7 @@
 # platform :ios, '9.0'
 
 def allPods
-    pod 'HMEventSourceManager/Main', :git => 'https://github.com/Holmusk/HMEventSourceManager-iOS.git'
+    pod 'HMEventSourceManager/Main', :git => 'https://github.com/protoman92/HMEventSourceManager-iOS.git', :branch => 'legacy'
     pod 'SwiftUtilities/Main', git: 'https://github.com/protoman92/SwiftUtilities.git', :branch => 'legacy'
     pod 'Differentiator'
 end

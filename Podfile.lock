@@ -32,14 +32,26 @@ PODS:
 
 DEPENDENCIES:
   - Differentiator
-  - HMEventSourceManager/Main (from `https://github.com/Holmusk/HMEventSourceManager-iOS.git`)
+  - HMEventSourceManager/Main (from `https://github.com/protoman92/HMEventSourceManager-iOS.git`, branch `legacy`)
   - RxDataSources
   - SwiftUtilities/Main (from `https://github.com/protoman92/SwiftUtilities.git`, branch `legacy`)
   - SwiftUtilitiesTests/Main (from `https://github.com/protoman92/SwiftUtilities.git`, branch `legacy`)
 
+SPEC REPOS:
+  https://github.com/CocoaPods/Specs.git:
+    - Differentiator
+    - ReachabilitySwift
+    - RxBlocking
+    - RxCocoa
+    - RxDataSources
+    - RxReachability
+    - RxSwift
+    - RxTest
+
 EXTERNAL SOURCES:
   HMEventSourceManager:
-    :git: https://github.com/Holmusk/HMEventSourceManager-iOS.git
+    :branch: legacy
+    :git: https://github.com/protoman92/HMEventSourceManager-iOS.git
   SwiftUtilities:
     :branch: legacy
     :git: https://github.com/protoman92/SwiftUtilities.git
@@ -49,8 +61,8 @@ EXTERNAL SOURCES:
 
 CHECKOUT OPTIONS:
   HMEventSourceManager:
-    :commit: c5b0dc4141c23b645b75e6dd7ebf272384e5689a
-    :git: https://github.com/Holmusk/HMEventSourceManager-iOS.git
+    :commit: cdbc59e7b9ed952200acfcd85127d27756f79cc3
+    :git: https://github.com/protoman92/HMEventSourceManager-iOS.git
   SwiftUtilities:
     :commit: 18d4bbe1368555569822681f18dd167e5d3c32e4
     :git: https://github.com/protoman92/SwiftUtilities.git
@@ -71,6 +83,6 @@ SPEC CHECKSUMS:
   SwiftUtilities: ef0087625fe58fb8909af372111e23461d10af55
   SwiftUtilitiesTests: ed0f926a2abd328fdee7cbe2d6f6550b62a9ff86
 
-PODFILE CHECKSUM: efca3ddec7afe34276c8e790092d529af9c6d298
+PODFILE CHECKSUM: fd5369eda0d22b15f0bcfe6327a4a2ec8031c9c3
 
-COCOAPODS: 1.4.0
+COCOAPODS: 1.5.0.beta.1
