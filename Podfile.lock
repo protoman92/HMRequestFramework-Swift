@@ -4,9 +4,9 @@ PODS:
     - ReachabilitySwift
     - RxReachability
     - SwiftFP/Main
-    - SwiftUtilities/Main+Rx
-  - HMReactiveRedux/Main+Rx (1.0.0):
-    - SwiftUtilities/Main+Rx
+    - "SwiftUtilities/Main+Rx"
+  - "HMReactiveRedux/Main+Rx (1.0.0)":
+    - "SwiftUtilities/Main+Rx"
   - MRProgress (0.8.3):
     - MRProgress/ActivityIndicator (= 0.8.3)
     - MRProgress/Blur (= 0.8.3)
@@ -58,12 +58,12 @@ PODS:
     - SwiftUtilities/Main
   - SwiftUtilities/Main (1.4.6):
     - SwiftFP (~> 1.0.1)
-  - SwiftUtilities/Main+Rx (1.4.6):
+  - "SwiftUtilities/Main+Rx (1.4.6)":
     - RxBlocking (~> 4.0)
     - RxCocoa (~> 4.0)
     - RxSwift (~> 4.0)
     - SwiftFP (~> 1.0.1)
-  - SwiftUtilitiesTests/Main+Rx (1.4.6):
+  - "SwiftUtilitiesTests/Main+Rx (1.4.6)":
     - RxBlocking (~> 4.0)
     - RxCocoa (~> 4.0)
     - RxSwift (~> 4.0)
@@ -72,13 +72,25 @@ PODS:
 DEPENDENCIES:
   - Differentiator
   - HMEventSourceManager/Main (from `https://github.com/protoman92/HMEventSourceManager-iOS.git`)
-  - HMReactiveRedux/Main+Rx (from `https://github.com/protoman92/HMReactiveRedux-iOS.git`)
+  - "HMReactiveRedux/Main+Rx (from `https://github.com/protoman92/HMReactiveRedux-iOS.git`)"
   - MRProgress
   - RxDataSources
   - RxReachability (from `https://github.com/ivanbruel/RxReachability.git`)
   - SwiftUIUtilities/Main (from `https://github.com/protoman92/SwiftUIUtilities.git`)
-  - SwiftUtilities/Main+Rx (from `https://github.com/protoman92/SwiftUtilities.git`)
-  - SwiftUtilitiesTests/Main+Rx (from `https://github.com/protoman92/SwiftUtilities.git`)
+  - "SwiftUtilities/Main+Rx (from `https://github.com/protoman92/SwiftUtilities.git`)"
+  - "SwiftUtilitiesTests/Main+Rx (from `https://github.com/protoman92/SwiftUtilities.git`)"
+
+SPEC REPOS:
+  https://github.com/CocoaPods/Specs.git:
+    - Differentiator
+    - MRProgress
+    - ReachabilitySwift
+    - RxBlocking
+    - RxCocoa
+    - RxDataSources
+    - RxSwift
+    - RxTest
+    - SwiftFP
 
 EXTERNAL SOURCES:
   HMEventSourceManager:
@@ -133,4 +145,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: d2917caa9a4298b6546da57f6918874212f815d4
 
-COCOAPODS: 1.4.0
+COCOAPODS: 1.5.0.beta.1

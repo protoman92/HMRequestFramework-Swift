@@ -1,6 +1,6 @@
 ci_service: travis_ci
 coverage_service: coveralls
-xcodeproj: SwiftCompose.xcodeproj
-scheme: SwiftCompose
-source_directory: SwiftCompose
-workspace: SwiftCompose.xcworkspace
+xcodeproj: HMRequestFramework.xcodeproj
+scheme: HMRequestFramework
+source_directory: HMRequestFramework
+workspace: HMRequestFramework.xcworkspace
