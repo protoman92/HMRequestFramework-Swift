@@ -8,7 +8,7 @@ before_install:
 - pod repo update
 
 script:
-- set -o pipefail && xcodebuild clean test -sdk iphonesimulator -workspace HMRequestFramework.xcworkspace -scheme HMRequestFramework -destination 'platform=iOS Simulator,name=iPhone 7' CODE_SIGNING_REQUIRED=NO GCC_INSTRUMENT_PROGRAM_FLOW_ARCS=YES GCC_GENERATE_TEST_COVERAGE_FILES=YES | xcpretty
+- set -o pipefail && xcodebuild clean test -sdk iphonesimulator -workspace HMRequestFramework.xcworkspace -scheme HMRequestFramework -destination 'platform=iOS Simulator,name=iPhone 7' | xcpretty
 - pod lib lint --quick
 
 after_success: slather
