@@ -1,7 +1,9 @@
-# HMRequestFramework-iOS
+# HMRequestFramework-Swift
 
-[![Build Status](https://travis-ci.org/protoman92/HMRequestFramework-iOS.svg?branch=master)](https://travis-ci.org/protoman92/HMRequestFramework-iOS)
-[![Coverage Status](https://coveralls.io/repos/github/protoman92/HMRequestFramework-iOS/badge.svg?branch=master)](https://coveralls.io/github/protoman92/HMRequestFramework-iOS?branch=master)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+![CocoaPods](https://img.shields.io/cocoapods/v/HMRequestFramework.svg)
+[![Build Status](https://travis-ci.org/protoman92/HMRequestFramework-Swift.svg?branch=master)](https://travis-ci.org/protoman92/HMRequestFramework-Swift)
+[![Coverage Status](https://coveralls.io/repos/github/protoman92/HMRequestFramework-Swift/badge.svg?branch=master)](https://coveralls.io/github/protoman92/HMRequestFramework-Swift?branch=master)
 
 Network/Database request framework for iOS clients.
 
