@@ -11,7 +11,6 @@ import HMRequestFramework
 import RxDataSources
 import RxSwift
 import SwiftFP
-import SwiftUtilities
 import SwiftUIUtilities
 import UIKit
 
@@ -67,11 +66,7 @@ extension UserProfileVC: UITableViewDelegate {
 
 public extension UserProfileVC {
   fileprivate func setupViews(_ controller: UserProfileVC) {
-    guard let tableView = controller.tableView else {
-      debugException()
-      return
-    }
-
+    guard let tableView = controller.tableView else { return }
     tableView.registerNib(UserTextCell.self)
 
     controller.navigationItem.rightBarButtonItem = UIBarButtonItem(
@@ -102,11 +97,8 @@ public extension UserProfileVC {
                                   _ controller: UserProfileVC)
     -> UITableViewCell
   {
-    guard let vm = controller.viewModel else {
-      debugException()
-      return UITableViewCell()
-    }
-
+    guard let vm = controller.viewModel else { return UITableViewCell() }
+    
     let decorator = controller.decorator
 
     if
@@ -133,7 +125,6 @@ public extension UserProfileVC {
       let ageLbl = controller.ageLbl,
       let visibleLbl = controller.visibleLbl
       else {
-        debugException()
         return
     }
 
@@ -205,7 +196,7 @@ public struct UserProfileModel {
     let requestManager = provider.dbRequestManager
     let prev = user.map({[$0]})
     let qos: DispatchQoS.QoSClass = .background
-    return requestManager.upsertInMemory(prev, qos).map({$0.map(toVoid)})
+    return requestManager.upsertInMemory(prev, qos).map({$0.map({_ in})})
   }
 
   public func persistToDB<Prev>(_ prev: Try<Prev>) -> Observable<Try<Void>> {
@@ -322,7 +313,7 @@ public struct UserProfileViewModel {
       .with(name: "Hai Pham - \(String.random(withLength: 5))")
       .with(id: UUID().uuidString)
       .with(age: NSNumber(value: Int.randomBetween(10, 99)))
-      .with(visible: NSNumber(value: Bool.random()))
+      .with(visible: NSNumber(value: true))
       .build()
     })
   }

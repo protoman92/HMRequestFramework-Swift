@@ -1349,7 +1349,7 @@
 			files = (
 			);
 			inputPaths = (
-				"${SRCROOT}/Pods/Target Support Files/Pods-HMRequestFramework-FullDemoTests/Pods-HMRequestFramework-FullDemoTests-frameworks.sh",
+				"${PODS_ROOT}/Target Support Files/Pods-HMRequestFramework-FullDemoTests/Pods-HMRequestFramework-FullDemoTests-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/Differentiator/Differentiator.framework",
 				"${BUILT_PRODUCTS_DIR}/HMEventSourceManager/HMEventSourceManager.framework",
 				"${BUILT_PRODUCTS_DIR}/ReachabilitySwift/Reachability.framework",
@@ -1386,7 +1386,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-HMRequestFramework-FullDemoTests/Pods-HMRequestFramework-FullDemoTests-frameworks.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-HMRequestFramework-FullDemoTests/Pods-HMRequestFramework-FullDemoTests-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		A7A73240072D99E95587CEA1 /* [CP] Check Pods Manifest.lock */ = {
@@ -1413,7 +1413,7 @@
 			files = (
 			);
 			inputPaths = (
-				"${SRCROOT}/Pods/Target Support Files/Pods-HMRequestFramework-FullDemo/Pods-HMRequestFramework-FullDemo-frameworks.sh",
+				"${PODS_ROOT}/Target Support Files/Pods-HMRequestFramework-FullDemo/Pods-HMRequestFramework-FullDemo-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/Differentiator/Differentiator.framework",
 				"${BUILT_PRODUCTS_DIR}/HMEventSourceManager/HMEventSourceManager.framework",
 				"${BUILT_PRODUCTS_DIR}/ReachabilitySwift/Reachability.framework",
@@ -1427,7 +1427,6 @@
 				"${BUILT_PRODUCTS_DIR}/MRProgress/MRProgress.framework",
 				"${BUILT_PRODUCTS_DIR}/RxDataSources/RxDataSources.framework",
 				"${BUILT_PRODUCTS_DIR}/SwiftUIUtilities/SwiftUIUtilities.framework",
-				"${BUILT_PRODUCTS_DIR}/SwiftUtilities-Main+Rx/SwiftUtilities.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
@@ -1447,7 +1446,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-HMRequestFramework-FullDemo/Pods-HMRequestFramework-FullDemo-frameworks.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-HMRequestFramework-FullDemo/Pods-HMRequestFramework-FullDemo-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		C16FC2385C7BE3A0C4F22F39 /* [CP] Embed Pods Frameworks */ = {
@@ -1456,7 +1455,7 @@
 			files = (
 			);
 			inputPaths = (
-				"${SRCROOT}/Pods/Target Support Files/Pods-HMRequestFrameworkTests/Pods-HMRequestFrameworkTests-frameworks.sh",
+				"${PODS_ROOT}/Target Support Files/Pods-HMRequestFrameworkTests/Pods-HMRequestFrameworkTests-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/Differentiator/Differentiator.framework",
 				"${BUILT_PRODUCTS_DIR}/HMEventSourceManager/HMEventSourceManager.framework",
 				"${BUILT_PRODUCTS_DIR}/ReachabilitySwift/Reachability.framework",
@@ -1485,7 +1484,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-HMRequestFrameworkTests/Pods-HMRequestFrameworkTests-frameworks.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-HMRequestFrameworkTests/Pods-HMRequestFrameworkTests-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		F7AD42F9C1FD326D9AB1541F /* [CP] Embed Pods Frameworks */ = {
@@ -1494,7 +1493,7 @@
 			files = (
 			);
 			inputPaths = (
-				"${SRCROOT}/Pods/Target Support Files/Pods-HMRequestFramework-Demo/Pods-HMRequestFramework-Demo-frameworks.sh",
+				"${PODS_ROOT}/Target Support Files/Pods-HMRequestFramework-Demo/Pods-HMRequestFramework-Demo-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/Differentiator/Differentiator.framework",
 				"${BUILT_PRODUCTS_DIR}/HMEventSourceManager/HMEventSourceManager.framework",
 				"${BUILT_PRODUCTS_DIR}/ReachabilitySwift/Reachability.framework",
@@ -1508,7 +1507,6 @@
 				"${BUILT_PRODUCTS_DIR}/MRProgress/MRProgress.framework",
 				"${BUILT_PRODUCTS_DIR}/RxDataSources/RxDataSources.framework",
 				"${BUILT_PRODUCTS_DIR}/SwiftUIUtilities/SwiftUIUtilities.framework",
-				"${BUILT_PRODUCTS_DIR}/SwiftUtilities-Main+Rx/SwiftUtilities.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
@@ -1528,7 +1526,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-HMRequestFramework-Demo/Pods-HMRequestFramework-Demo-frameworks.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-HMRequestFramework-Demo/Pods-HMRequestFramework-Demo-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */

@@ -28,11 +28,11 @@ public protocol HMMiddlewareFilterableType {
 
 /// Use this protocol to disable middleware filters. All middlewares that
 /// implement this protocol apply to all targets.
-public protocol HMMiddlewareGlobalApplicableType: HMMiddlewareFilterableType {}
+public protocol HMMiddlewareGlobalApplicableType: HMMiddlewareFilterableType
+  where Filterable == String {}
 
 public extension HMMiddlewareGlobalApplicableType {
-    public typealias Filterable = String
-    
+  
     /// Get an Array of filters of Self type.
     ///
     /// - Returns: An Array of filters.

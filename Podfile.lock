@@ -81,7 +81,7 @@ DEPENDENCIES:
   - "SwiftUtilitiesTests/Main+Rx (from `https://github.com/protoman92/SwiftUtilities.git`)"
 
 SPEC REPOS:
-  https://github.com/CocoaPods/Specs.git:
+  https://github.com/cocoapods/specs.git:
     - Differentiator
     - MRProgress
     - ReachabilitySwift
@@ -145,4 +145,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: d2917caa9a4298b6546da57f6918874212f815d4
 
-COCOAPODS: 1.5.0.beta.1
+COCOAPODS: 1.6.0.beta.2
